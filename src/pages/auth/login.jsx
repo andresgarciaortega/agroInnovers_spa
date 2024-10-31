@@ -123,14 +123,15 @@ const Login = () => {
               </div>
               <div className="relative">
                 <button
+                navigate
                   type="button"
                   className="text-sm text-cyan-500 hover:text-cyan-800"
-                  onClick={() => setShowForgotPassword(!showForgotPassword)}
+                  onClick={() => navigate('../passwordRecovery')}
                 >
                   ¿Olvidaste tu contraseña?
                   <ChevronDown className="inline-block ml-1 h-4 w-4" />
                 </button>
-                {showForgotPassword && (
+                {/* {showForgotPassword && (
                   <div className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-xl z-20">
                     <a
                       href="#"
@@ -139,14 +140,20 @@ const Login = () => {
                       Recuperar contraseña
                     </a>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
             <p className="text-center text-sm text-gray-500 mb-5">
-              <a href="#" className="text-gray-500 hover:text-gray-800">
-                Políticas de privacidad
-              </a>
-            </p>
+  <a 
+    href="/document/politicasprivacidad.pdf" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    className="text-gray-500 hover:text-gray-800"
+  >
+    Políticas de privacidad
+  </a>
+</p>
+
             <div className="mb-6">
               <button
                 type="submit"

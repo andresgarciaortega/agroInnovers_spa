@@ -22,10 +22,12 @@ import Lotes from "../pages/lotes/lotes";
 import Dashboard from "../pages/dahsboard/dahsboard";
 import LayoutHome from "../pages/Layouts/layout";
 import AuthLogin from "../pages/auth/login";
+import PasswordRecovery from "../pages/auth/passwordRecovery";
 
 const AppRoutes = () => {
   return (
     <Routes>
+      <Route path="/passwordRecovery" element={<PasswordRecovery />} />
       <Route path="/" element={<AuthLogin />} />
       <Route path="/home" element={<LayoutHome />}>
         <Route path="dashboard" element={<Dashboard />} />
