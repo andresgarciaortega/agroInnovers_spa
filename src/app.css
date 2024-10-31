@@ -1,0 +1,39 @@
+/* .app-container {
+    display: flex;
+    height: 100vh; /* Hace que el contenedor ocupe toda la altura de la pantalla */
+  /* .menu { */
+    /* width: 250px; /* Ancho de la barra lateral */
+    /* background-color: #2e6e52; Color de fondo */ 
+    /* padding: 20px;
+    box-sizing: border-box;
+  } */
+  
+  /* .content-container { */
+    /* flex: 1; Toma el espacio restante al lado derecho */
+    /* padding: 20px; Espaciado interno */
+    /* box-sizing: border-box; */
+    /* background-color: #f5f5f5; Color de fondo del contenido */
+    /* display: flex;
+    flex-direction: column;
+  } */
+  
+
+  /* *{
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+
+  .title-btn{
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .containerData{
+    width: 100%;
+    margin-top: 2em;
+  }
+
+
+  .text-uppercase {
+    text-transform: uppercase;
+} */

@@ -1,0 +1,21 @@
+
+.login-container{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+
+
+.inputPassword{
+    position: relative;
+}
+
+.ver{
+    position:absolute;
+    font-size: 2em;
+
+}

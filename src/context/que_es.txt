@@ -1,0 +1,1 @@
+Si usas React Context API, coloca los diferentes contextos globales aquí, por ejemplo, para manejar la autenticación, el estado del tema (tema claro/oscuro), etc.

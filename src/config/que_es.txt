@@ -1,0 +1,1 @@
+Guarda la configuración del proyecto aquí, como variables de entorno (API URLs, claves secretas) o cualquier constante que pueda cambiar entre los entornos de desarrollo, pruebas y producción.

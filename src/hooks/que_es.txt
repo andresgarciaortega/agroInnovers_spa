@@ -1,0 +1,7 @@
+Hooks personalizados
+
+Ejemplo de un hook de autenticación
+
+ Guarda tus hooks personalizados. Si tu proyecto tiene funciones 
+ como autenticación o lógica que se reutiliza en varios componentes, 
+ es mejor centralizarlas en hooks.
