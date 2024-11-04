@@ -9,6 +9,7 @@ import FormUser from './FormUser/formUser';
 import UsersService from "../../services/UserService";
 import UploadToS3 from "../../config/UploadToS3";
 import SuccessAlert from "../../components/alerts/success";
+import { IoSearch } from "react-icons/io5";
 
 
 const Usuario = () => {
@@ -31,11 +32,21 @@ const Usuario = () => {
     userType: ''
   });
 
+  
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredUser = usersList.filter(users => 
+    (users.name && users.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (users.email && users.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (users.phone && users.phone.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (users.type_document_id && users.type_document_id.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (users.created_at && users.created_at.toLowerCase().includes(searchTerm.toLowerCase())) // Cambiar registrationDate a created_at
+  );
 
   // Paginación
   const indexOfLastCompany = currentPage * itemsPerPage;
   const indexOfFirstCompany = indexOfLastCompany - itemsPerPage;
-  const currentCompanies = usersList.slice(indexOfFirstCompany, indexOfLastCompany);
+  const currentCompanies = filteredUser.slice(indexOfFirstCompany, indexOfLastCompany);
 
 
 
@@ -53,11 +64,10 @@ const Usuario = () => {
     fetchUsersList();
   }, []);
 
-
-
+  
 
   const handleNextPage = () => {
-    if (currentPage < Math.ceil(usersList.length / itemsPerPage)) {
+    if (currentPage < Math.ceil(filteredUser.length / itemsPerPage)) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -150,6 +160,16 @@ const Usuario = () => {
 
   return (
     <div className="table-container">
+       <div className="absolute transform -translate-y-20 right-30 w-1/2">
+       <IoSearch className="absolute left-3 top-3 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Buscar Usuario "
+            className="w-full border border-gray-300 p-2 pl-10 rounded-md"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       <div className="bg-white rounded-lg shadow">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">Usuarios</h2>

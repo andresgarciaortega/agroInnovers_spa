@@ -3,6 +3,7 @@ import TypeDocumentsService from '../../../services/fetchTypes';
 import CompanyService from '../../../services/CompanyService';
 import UsersService from '../../../services/UserService';
 import ErrorAlert from '../../../components/alerts/error';
+import { IoEye, IoEyeOff } from 'react-icons/io5';
 
 const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   const [formData, setFormData] = React.useState({
@@ -13,7 +14,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     typeDocument: '',
     company: '',
     document: '',
-    userType: ''
+    userType: '',
+    password: ''
   });
 
   const [documentTypes, setDocumentTypes] = useState([]); // Estado para los tipos de documentos
@@ -22,6 +24,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   const [showAlertError, setShowAlertError] = useState(false); // Estado para los tipos de usuarios
   const [messageAlert, setMessageAlert] = useState(""); // Estado para los tipos de usuarios
 
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   useEffect(() => {
 
@@ -57,7 +60,9 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     }
   }, [user, mode]);
 
-
+  const handlePasswordToggle = () => {
+    setPasswordVisible(!passwordVisible); // Alternar visibilidad
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -274,6 +279,29 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           </select>
         </div>
       </div>
+      <div className="border-gray-300 rounded-lg cursor-pointer mr-0">
+        <label className="block text-sm font-medium text-gray-700 ">Contraseña</label>
+        <div className="relative">
+          <input
+            type={passwordVisible ? 'text' : 'password'}
+            name="password"
+            placeholder="Contraseña"
+            value={formData.password}
+            onChange={handleChange}
+            disabled={mode === 'view'}
+            required
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2 pr-10" // pr-10 para espacio para el icono
+          />
+          <button
+            type="button"
+            onClick={handlePasswordToggle}
+            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+          >
+            {passwordVisible ? <IoEyeOff /> : <IoEye />}
+          </button>
+        </div>
+      </div>
+      
       <div className="flex justify-end space-x-2">
         {mode === 'view' ? (
           <button

@@ -11,7 +11,9 @@ import { LiaFishSolid } from "react-icons/lia";
 import { FaMicrochip } from "react-icons/fa6";
 import { ImEqualizer2 } from "react-icons/im";
 import { IoMdNotificationsOutline, IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-import { IoSearch } from "react-icons/io5";
+
+import Navbar from "./Navbar";
+
 
 const menuItems = [
   { icon: <RxDashboard />, label: "Dashboard", route: "/home/dashboard" },
@@ -69,8 +71,8 @@ const Sidebar = ({ selectedItem, setSelectedItem }) => {
   };
 
   return (
-    <nav className="w-full md:w-72 bg-[#345246] text-white flex flex-col h-full">
-      <div className="p-4 flex justify-center">
+    <nav className="w-full md:max-w-72 bg-[#345246] text-white flex flex-col h-full">
+      <div className="p-2 flex justify-center">
         <img src={logo} alt="Logo" className="h-20" />
       </div>
       <div className="flex-1 overflow-y-auto px-4">
@@ -167,40 +169,7 @@ export default function Component() {
       )}
       
       <div className="flex-1">
-        <div className="flex justify-between items-center p-4">
-          <div className="relative w-full md:w-1/2">
-            <IoSearch className="absolute left-3 top-3 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Buscar..."
-              className="w-full pl-10 py-2 border rounded-md focus:outline-none"
-            />
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <IoMdNotificationsOutline className="text-2xl text-gray-600" />
-              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
-            </div>
-            <img src={logoUser} alt="User" className="h-8 w-8 rounded-full" />
-            <div onClick={toggleDropdown}>
-              <p className="text-gray-700">Yeison Barrios Funieles</p>
-              <small className="text-gray-500">yeison@gmail.com</small>
-            </div>
-            <IoIosArrowDown className="text-gray-600 cursor-pointer" onClick={toggleDropdown} />
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-36 w-48 bg-white rounded-lg shadow-lg z-10">
-                <button className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => alert("Aun no disponible")}>Perfil</button>
-                <button 
-                  className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-200" 
-                  onClick={handleLogout} 
-                >
-                  Salir
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+      <Navbar />
 
         <div className="p-6">
           <Outlet />

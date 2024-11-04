@@ -7,6 +7,7 @@ import GenericModal from '../../components/genericModal';
 import FormCompany from './FormCompany/formCompany';
 import CompanyService from "../../services/CompanyService";
 import SuccessAlert from "../../components/alerts/success";
+import { IoSearch } from "react-icons/io5";
 
 
 const Empresa = () => {
@@ -27,6 +28,8 @@ const Empresa = () => {
     registrationDate: '',
   });
 
+  const [searchTerm, setSearchTerm] = useState("");
+
 
   // Cargar empresas cuando el componente se monta
   useEffect(() => {
@@ -43,13 +46,25 @@ const Empresa = () => {
   }, []);
 
 
+// Función de búsqueda que filtra companyList según el searchTerm
+const filteredCompanies = companyList.filter(company => 
+  (company.name && company.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+  (company.email_billing && company.email_billing.toLowerCase().includes(searchTerm.toLowerCase())) ||
+  (company.phone && company.phone.toLowerCase().includes(searchTerm.toLowerCase())) ||
+  (company.location && company.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+  (company.created_at && company.created_at.toLowerCase().includes(searchTerm.toLowerCase())) // Cambiar registrationDate a created_at
+);
+
+
+
+
   // Paginación
   const indexOfLastCompany = currentPage * itemsPerPage;
   const indexOfFirstCompany = indexOfLastCompany - itemsPerPage;
-  const currentCompanies = companyList.slice(indexOfFirstCompany, indexOfLastCompany);
+  const currentCompanies = filteredCompanies.slice(indexOfFirstCompany, indexOfLastCompany);
 
   const handleNextPage = () => {
-    if (currentPage < Math.ceil(companyList.length / itemsPerPage)) {
+    if (currentPage < Math.ceil(filteredCompanies.length / itemsPerPage)) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -137,6 +152,17 @@ const Empresa = () => {
 
   return (
     <div className="table-container">
+       {/* Barra de búsqueda */}
+       <div className="absolute transform -translate-y-20 right-30 w-1/2">
+       <IoSearch className="absolute left-3 top-3 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Buscar empresa "
+            className="w-full border border-gray-300 p-2 pl-10 rounded-md"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       <div className="bg-white rounded-lg shadow">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">Empresas</h2>
