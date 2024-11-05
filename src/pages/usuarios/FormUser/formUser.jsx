@@ -301,7 +301,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           </button>
         </div>
       </div>
-      
+
       <div className="flex justify-end space-x-2">
         {mode === 'view' ? (
           <button

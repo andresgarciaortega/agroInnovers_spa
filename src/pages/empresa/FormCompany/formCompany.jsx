@@ -122,12 +122,6 @@ const handleSubmit = async (e) => {
 };
 
 
-
-
-
-
-
-
 const [imagePreview, setImagePreview] = useState(null); // Estado para la vista previa de la imagen
 
   const handleLogoUpload = (e) => {

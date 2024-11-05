@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Edit, Trash, Eye, Plus } from 'lucide-react';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FiPlusCircle } from "react-icons/fi";
@@ -13,7 +13,7 @@ import SuccessAlert from "../../components/alerts/success";
 
 
 const Variable = () => {
-  const [variableList,  setVariableList] = useState([]);
+  const [variableList, setVariableList] = useState([]);
   const [enabled, setEnabled] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedVariable, setSelectedVariable] = useState(null);
@@ -75,7 +75,7 @@ const Variable = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const showErrorAlertSuccess = (message) =>{
+  const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true)
     setMessageAlert(`Variable ${message} exitosamente`);
 
@@ -121,11 +121,11 @@ const Variable = () => {
     } else {
       setNewVariable({
         name: '',
-    icon: '',
-    unit_of_measurement: '',
-    type_variable_id: '',
-    type_register_id: '',
-  
+        icon: '',
+        unit_of_measurement: '',
+        type_variable_id: '',
+        type_register_id: '',
+
       });
     }
     setIsModalOpen(true);
@@ -165,9 +165,11 @@ const Variable = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {currentCompanies.map((variable, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index+1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{variable.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{variable.type_variable_id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {variable?.registerType?.[0]?.name || ''}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{variable.unit_of_measurement}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <td className="px-2 inline-flex justify-center text-sm leading-5 py-1 text-gray-700 bg-gray-300 rounded-sm ">{variable.type_register_id}</td>
@@ -210,11 +212,11 @@ const Variable = () => {
         <div className="pagination-controls text-xs flex items-center space-x-2">
           <span>{indexOfFirstVariable + 1}-{indexOfLastVariable} de {variableList.length}</span>
           <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-           onClick={handlePrevPage} disabled={currentPage === 1}>
+            onClick={handlePrevPage} disabled={currentPage === 1}>
             <IoIosArrowBack size={20} />
           </button>
           <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-           onClick={handleNextPage} disabled={currentPage === Math.ceil(variableList.length / itemsPerPage)}>
+            onClick={handleNextPage} disabled={currentPage === Math.ceil(variableList.length / itemsPerPage)}>
             <IoIosArrowForward size={20} />
           </button>
         </div>

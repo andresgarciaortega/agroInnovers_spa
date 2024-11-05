@@ -7,22 +7,20 @@ const FormTypeVariable = ({ company, mode, closeModal }) => {
   const [enabled, setEnabled] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    unit: '',
-    type: '',
-    typeRecord: '',
-    calculation: ""
+    description: '',
+    icon: null,
   });
+
 
   useEffect(() => {
     if (mode === 'edit' || mode === 'view') {
       setFormData(company);
+      setImagePreview(company.icon);
     } else {
       setFormData({
         name: '',
-        type: '',
-        unit: '',
-        typeVariable: '',
-        calculation: ''
+        description: '',
+        icon: '',
       });
     }
   }, [company, mode]);
@@ -35,36 +33,77 @@ const FormTypeVariable = ({ company, mode, closeModal }) => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (mode === 'create') {
-      console.log('Añadir variable:', formData);
-    } else if (mode === 'edit') {
-      console.log('Editar variable:', formData);
-    }
-    closeModal();
-  };
-  const handleLogoUpload = (e) => {
+  const handleIconUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setFormData({
+        ...formData,
+        icon: file,
+      });
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({
-          ...formData,
-          logo: reader.result
-        });
-      };
+      reader.onloadend = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      let iconUrl = '';
+
+      if (formData.icon) {
+        // Sube el archivo a S3 y asigna la URL
+        iconUrl = await UploadToS3(formData.icon);
+      }
+
+      const formDataToSubmit = {
+        ...formData,
+        icon: iconUrl, // Asigna la URL del icono
+      };
+
+      // Llamada al servicio según el modo
+      if (mode === 'create') {
+        // Código para crear la entidad
+        console.log("Entidad creada:", formDataToSubmit);
+      } else if (mode === 'edit') {
+        // Código para actualizar la entidad
+        console.log("Entidad actualizada:", formDataToSubmit);
+      }
+
+      closeModal();
+    } catch (error) {
+      console.error('Error al guardar la entidad:', error);
+    }
+  };
+  
+  
+  const [imagePreview, setImagePreview] = useState(null); // Estado para la vista previa de la imagen
+  
+    // const handleLogoUpload = (e) => {
+    //   const file = e.target.files[0]; // Obtener el primer archivo seleccionado
+    //   if (file) {
+    //     setFormData({
+    //       ...formData,
+    //       logo: file, // Almacenar el objeto File
+    //     });
+    
+    //     // Crear un lector de archivos para la visualización
+    //     const reader = new FileReader();
+    //     reader.onloadend = () => {
+    //       setImagePreview(reader.result); // Almacenar la representación en base64 para la vista previa
+    //     };
+    
+    //     reader.readAsDataURL(file); // Leer el archivo como base64
+    //   }
+    // };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="mb- py-">
-        <label>Adjuntar Logo</label>
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
-          {formData.logo ? (
-            <img src={formData.logo} alt="Company Logo" className="mx-auto h-20 object-contain" />
+       <div className="mb-4">
+        <label>Adjuntar Icono</label>
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('icon-upload').click()}>
+          {imagePreview ? (
+            <img src={imagePreview} alt="Icono" className="mx-auto h-20 object-contain" />
           ) : (
             <>
               <IoCloudUploadOutline className="mx-auto h-12 w-12 text-gray-400" />
@@ -75,7 +114,7 @@ const FormTypeVariable = ({ company, mode, closeModal }) => {
             </>
           )}
         </div>
-        <input id="logo-upload" type="file" className="hidden" onChange={handleLogoUpload} accept="image/*" />
+        <input id="icon-upload" type="file" className="hidden" onChange={handleIconUpload} accept="image/*" />
       </div>
 
       <div>
@@ -97,16 +136,12 @@ const FormTypeVariable = ({ company, mode, closeModal }) => {
                 id="description"
                 name="description"
                 rows={4}
-                value=""
-                onChange="{handleInputChange}"
+                value={formData.description}
+          onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                placeholder="Descripción de la especie"
+                placeholder="Descripción del tipo de variable"
               ></textarea>
             </div>
-
-
-
-      
 
       <div className="flex justify-end space-x-2">
         {mode === 'view' ? (

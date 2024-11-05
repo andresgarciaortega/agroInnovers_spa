@@ -46,14 +46,14 @@ const Empresa = () => {
   }, []);
 
 
-// Función de búsqueda que filtra companyList según el searchTerm
-const filteredCompanies = companyList.filter(company => 
-  (company.name && company.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-  (company.email_billing && company.email_billing.toLowerCase().includes(searchTerm.toLowerCase())) ||
-  (company.phone && company.phone.toLowerCase().includes(searchTerm.toLowerCase())) ||
-  (company.location && company.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
-  (company.created_at && company.created_at.toLowerCase().includes(searchTerm.toLowerCase())) // Cambiar registrationDate a created_at
-);
+  // Función de búsqueda que filtra companyList según el searchTerm
+  const filteredCompanies = companyList.filter(company =>
+    (company.name && company.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (company.email_billing && company.email_billing.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (company.phone && company.phone.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (company.location && company.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (company.created_at && company.created_at.toLowerCase().includes(searchTerm.toLowerCase())) // Cambiar registrationDate a created_at
+  );
 
 
 
@@ -106,7 +106,7 @@ const filteredCompanies = companyList.filter(company =>
   };
 
   // Eliminar
-  const handleDelete =  (company) => {
+  const handleDelete = (company) => {
     setSelectedCompany(company);
     setIsDeleteModalOpen(true);
   };
@@ -130,8 +130,8 @@ const filteredCompanies = companyList.filter(company =>
   };
 
 
-   // Función para actualizar la lista de empresas
-   const updateCompanies = async () => {
+  // Función para actualizar la lista de empresas
+  const updateCompanies = async () => {
     try {
       const data = await CompanyService.getAllCompany();
 
@@ -141,7 +141,7 @@ const filteredCompanies = companyList.filter(company =>
     }
   };
 
-  const showErrorAlertSuccess = (message) =>{
+  const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true)
     setMessageAlert(`Empresa ${message} exitosamente`);
 
@@ -152,17 +152,17 @@ const filteredCompanies = companyList.filter(company =>
 
   return (
     <div className="table-container">
-       {/* Barra de búsqueda */}
-       <div className="absolute transform -translate-y-20 right-30 w-1/2">
-       <IoSearch className="absolute left-3 top-3 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Buscar empresa "
-            className="w-full border border-gray-300 p-2 pl-10 rounded-md"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+      {/* Barra de búsqueda */}
+      <div className="absolute transform -translate-y-20 right-30 w-1/2">
+        <IoSearch className="absolute left-3 top-3 text-gray-500" />
+        <input
+          type="text"
+          placeholder="Buscar empresa "
+          className="w-full border border-gray-300 p-2 pl-10 rounded-md"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
       <div className="bg-white rounded-lg shadow">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">Empresas</h2>
@@ -187,7 +187,7 @@ const filteredCompanies = companyList.filter(company =>
             <tbody className="bg-white divide-y divide-gray-200">
               {currentCompanies.map((company, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index+1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ textTransform: 'uppercase' }}>{company.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.email_billing}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.phone}</td>
@@ -220,7 +220,7 @@ const filteredCompanies = companyList.filter(company =>
       </div>
       <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
 
-        
+
         <div className="pagination-info text-sm flex items-center space-x-2">
           <span>Cantidad de filas</span>
           <select
@@ -256,11 +256,11 @@ const filteredCompanies = companyList.filter(company =>
       {/* Modal crea,editar,visualizar*/}
       {isModalOpen && (
         <GenericModal title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'} onClose={closeModal}>
-          <FormCompany showErrorAlert={showErrorAlertSuccess} onUpdate={updateCompanies}  company={newCompany} mode={modalMode} closeModal={closeModal} />
+          <FormCompany showErrorAlert={showErrorAlertSuccess} onUpdate={updateCompanies} company={newCompany} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
       )}
 
-{showErrorAlert && (
+      {showErrorAlert && (
         <SuccessAlert
           message={messageAlert}
           onCancel={handleCloseAlert}

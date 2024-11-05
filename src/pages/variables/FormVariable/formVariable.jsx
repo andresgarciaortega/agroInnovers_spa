@@ -7,10 +7,10 @@ const FormVariable = ({ company, mode, closeModal }) => {
   const [enabled, setEnabled] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    unit: '',
-    type: '',
-    typeRecord: '',
-    calculation: ""
+    icon: '',
+    unit_of_measurement: '',
+    type_variable_id: '',
+    type_register_id: '',
   });
 
   useEffect(() => {
@@ -19,10 +19,10 @@ const FormVariable = ({ company, mode, closeModal }) => {
     } else {
       setFormData({
         name: '',
-        type: '',
-        unit: '',
-        typeVariable: '',
-        calculation: ''
+        icon: '',
+        unit_of_measurement: '',
+        type_variable_id: '',
+        type_register_id: '',
       });
     }
   }, [company, mode]);
@@ -63,8 +63,8 @@ const FormVariable = ({ company, mode, closeModal }) => {
       <div className="mb- py-">
         <label>Adjuntar Logo</label>
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
-          {formData.logo ? (
-            <img src={formData.logo} alt="Company Logo" className="mx-auto h-20 object-contain" />
+          {formData.icon ? (
+            <img src={formData.icon} alt="Company Logo" className="mx-auto h-20 object-contain" />
           ) : (
             <>
               <IoCloudUploadOutline className="mx-auto h-12 w-12 text-gray-400" />
@@ -96,34 +96,38 @@ const FormVariable = ({ company, mode, closeModal }) => {
         <div>
           <label htmlFor="unit" className="block text-sm font-medium text-gray-700">Unidad de medida</label>
           <select
-            id="unit"
-            name="unit"
-            value={formData.unit}
+            name="unit_of_measurement"
+            value={formData.unit_of_measurement}
             onChange={handleChange}
+            disabled={mode === 'view'}
             className="mt-1 block w-full border text-gray-400 border-gray-300 rounded-md p-2"
             required
           >
-            <option value="">Selecciona una unidad</option>
-            <option value="kg">Kilogramos</option>
-            <option value="m">Metros</option>
-            <option value="l">Litros</option>
-            <option value="pcs">Piezas</option>
+            <option value="">Seleccione una opción</option>
+            {unit_of_measurement.map((type) => (
+              <option key={type.id} value={type.id}> {/* Cambia `type.id` y `type.value` según tu respuesta */}
+                {type.name} {/* Cambia `type.label` según tu respuesta */}
+              </option>
+            ))}
           </select>
         </div>
 
         <div>
           <label htmlFor="typerecord" className="block text-sm font-medium text-gray-700">Tipo de registro</label>
           <select
-            id="typerecord"
-            name="typerecord"
-            value={formData.typeRecord}
+            id="type_register_id"
+            name="type_register_id"
+            value={formData.type_register_id}
             onChange={handleChange}
             className="mt-1 block w-full border border-gray-300 text-gray-400 rounded-md p-2"
             required
           >
-            <option value="">Selecciona un tipo de registro</option>
-            <option value="automatico">Automático</option>
-            <option value="manual">Manual</option>
+             <option value="">Seleccione una opción</option>
+            {type_register_id.map((type) => (
+              <option key={type.id} value={type.id}> {/* Cambia `type.id` y `type.value` según tu respuesta */}
+                {type.name} {/* Cambia `type.label` según tu respuesta */}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -133,10 +137,10 @@ const FormVariable = ({ company, mode, closeModal }) => {
         <label htmlFor="Type" className="block text-sm font-medium text-gray-700">Tipo de variable</label>
         <input
           type="text"
-          id="Type"
-          name="Type"
+          id="type_variable_id"
+          name="type_variable_id"
           placeholder="DireTipo de variable"
-          value={formData.type}
+          value={formData.type_variable_id}
           onChange={handleChange}
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           required
@@ -194,7 +198,7 @@ const FormVariable = ({ company, mode, closeModal }) => {
               className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
             >
               {mode === 'create' ? 'Crear Variable' : 'Guardar Cambios'}
-              
+
             </button>
           </>
         )}
