@@ -1,3 +1,5 @@
+import api from './ApiService';
+
 
 const RegistrerTypeServices = {
 
@@ -7,6 +9,7 @@ const RegistrerTypeServices = {
     async getAllRegistrerType() {
         try {
             const response = await api.get('/variables/registerType');
+            console.log("response ::::", response)
             return response;
         } catch (error) {
             console.error('Error al obtener los tipos de registro:', error);

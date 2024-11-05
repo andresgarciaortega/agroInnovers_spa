@@ -77,17 +77,49 @@ const FormVariable = ({ variable, mode, closeModal }) => {
     });
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     let logoUrl = ''; 
+  //     if (formData.icon) {
+  //       logoUrl = await UploadToS3(formData.icon);
+  //     }
+  
+  //     const formDataToSubmit = {
+  //       ...formData,
+  //       icon: logoUrl, 
+  //     };
+  
+  //     if (mode === 'create') {
+  //       await VariablesService.createVariable(formDataToSubmit);
+  //       showErrorAlert("creada");
+  //     } else if (mode === 'edit') {
+  //       await VariablesService.updateVariable(variable.id, formDataToSubmit);
+  //       showErrorAlert("editada");
+  //     }
+  
+  //     closeModal();
+  //   } catch (error) {
+  //     console.error('Error al guardar la variable:', error);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       let logoUrl = ''; 
       if (formData.icon) {
         logoUrl = await UploadToS3(formData.icon);
+      } else {
+        logoUrl = '2222222'; // Asignar cadena vacía si no hay icono
       }
   
       const formDataToSubmit = {
         ...formData,
-        icon: logoUrl, 
+        icon: logoUrl || '', // Asegúrate de que icon tenga al menos una cadena vacía
+        informational_calculation: formData.informational_calculation || "vkvkvnvnfvfvfvfv", // Asegúrate de que informational_calculation no esté vacío
+        type_variable_id: Number(formData.type_variable_id),
+        type_register_id: Number(formData.type_register_id)
       };
   
       if (mode === 'create') {
@@ -103,6 +135,8 @@ const FormVariable = ({ variable, mode, closeModal }) => {
       console.error('Error al guardar la variable:', error);
     }
   };
+  
+  
 
   const handleIconUpload = (e) => {
     const file = e.target.files[0];
