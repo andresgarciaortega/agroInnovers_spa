@@ -1,4 +1,5 @@
-const UsersService = {
+
+const RegistrerTypeServices = {
 
 
     // LISTAR TODAS Los tipos de registro
@@ -13,3 +14,5 @@ const UsersService = {
         }
     },
 }
+
+export default RegistrerTypeServices;

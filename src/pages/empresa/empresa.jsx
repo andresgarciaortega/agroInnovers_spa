@@ -56,8 +56,6 @@ const Empresa = () => {
   );
 
 
-
-
   // Paginación
   const indexOfLastCompany = currentPage * itemsPerPage;
   const indexOfFirstCompany = indexOfLastCompany - itemsPerPage;

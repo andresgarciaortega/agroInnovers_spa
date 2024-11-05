@@ -2,20 +2,26 @@ import React, { useEffect, useState } from 'react';
 
 import { IoCloudUploadOutline } from "react-icons/io5";
 
-const FormTypeVariable = ({ company, mode, closeModal }) => {
+import UploadToS3 from '../../../config/UploadToS3';
 
-  const [enabled, setEnabled] = useState(false);
+import VariableTypeService from '../../../services/VariableType';
+
+const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeModal }) => {
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     icon: null,
   });
 
+  const [showAlertError, setShowAlertError] = useState(false);
+  const [messageAlert, setMessageAlert] = useState("");
+
 
   useEffect(() => {
     if (mode === 'edit' || mode === 'view') {
-      setFormData(company);
-      setImagePreview(company.icon);
+      setFormData(typevariable);
+      setImagePreview(typevariable.icon);
     } else {
       setFormData({
         name: '',
@@ -23,7 +29,7 @@ const FormTypeVariable = ({ company, mode, closeModal }) => {
         icon: '',
       });
     }
-  }, [company, mode]);
+  }, [typevariable, mode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,19 +37,6 @@ const FormTypeVariable = ({ company, mode, closeModal }) => {
       ...formData,
       [name]: value
     });
-  };
-
-  const handleIconUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({
-        ...formData,
-        icon: file,
-      });
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result);
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -63,43 +56,45 @@ const FormTypeVariable = ({ company, mode, closeModal }) => {
 
       // Llamada al servicio según el modo
       if (mode === 'create') {
-        // Código para crear la entidad
-        console.log("Entidad creada:", formDataToSubmit);
+        const createTypeVariable = await VariableTypeService.createTypeVariable(formDataToSubmit);
+        showErrorAlert("creada")
       } else if (mode === 'edit') {
-        // Código para actualizar la entidad
-        console.log("Entidad actualizada:", formDataToSubmit);
+        showErrorAlert("Editada")
+        const updatedCompany = await VariableTypeService.updateTypeVariable(typevariable.id, formDataToSubmit);
       }
+
+      onUpdate();
 
       closeModal();
     } catch (error) {
-      console.error('Error al guardar la entidad:', error);
+      console.error("Error:", error);
+      setMessageAlert("Hubo un error al guardar.");
+      setShowAlertError(true);
     }
   };
-  
-  
+
   const [imagePreview, setImagePreview] = useState(null); // Estado para la vista previa de la imagen
-  
-    // const handleLogoUpload = (e) => {
-    //   const file = e.target.files[0]; // Obtener el primer archivo seleccionado
-    //   if (file) {
-    //     setFormData({
-    //       ...formData,
-    //       logo: file, // Almacenar el objeto File
-    //     });
-    
-    //     // Crear un lector de archivos para la visualización
-    //     const reader = new FileReader();
-    //     reader.onloadend = () => {
-    //       setImagePreview(reader.result); // Almacenar la representación en base64 para la vista previa
-    //     };
-    
-    //     reader.readAsDataURL(file); // Leer el archivo como base64
-    //   }
-    // };
+
+
+  const handleIconUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({
+        ...formData,
+        icon: file,
+      });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-       <div className="mb-4">
+      <div className="mb-4">
         <label>Adjuntar Icono</label>
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('icon-upload').click()}>
           {imagePreview ? (
@@ -118,30 +113,32 @@ const FormTypeVariable = ({ company, mode, closeModal }) => {
       </div>
 
       <div>
-        <label htmlFor="company-name" className="block text-sm font-medium text-gray-700">Nombre variable</label>
+        <label htmlFor="typevariable-name" className="block text-sm font-medium text-gray-700">Nombre variable</label>
         <input
           type="text"
-          id="company-name"
+          id="typevariable-name"
           name="name"
           placeholder="Nombre Variable"
           value={formData.name}
           onChange={handleChange}
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           required
+          readOnly={mode === 'view'}
         />
       </div>
       <div className="col-span-2">
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-              <textarea
-                id="description"
-                name="description"
-                rows={4}
-                value={formData.description}
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+        <textarea
+          id="description"
+          name="description"
+          rows={4}
+          value={formData.description}
           onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                placeholder="Descripción del tipo de variable"
-              ></textarea>
-            </div>
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+          placeholder="Descripción del tipo de variable"
+          readOnly={mode === 'view'}
+        ></textarea>
+      </div>
 
       <div className="flex justify-end space-x-2">
         {mode === 'view' ? (
@@ -166,7 +163,7 @@ const FormTypeVariable = ({ company, mode, closeModal }) => {
               className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
             >
               {mode === 'create' ? 'Crear Variable' : 'Guardar Cambios'}
-              
+
             </button>
           </>
         )}

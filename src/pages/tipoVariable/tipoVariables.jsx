@@ -9,6 +9,8 @@ import FormTypeVariable from './FormTypeVariable/formTypeVariable';
 import VariableType from "../../services/VariableType";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
+import LoadingView from '../../components/Loading/loadingView';
+
 
 
 
@@ -30,25 +32,30 @@ const TipoVariable = () => {
 
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
 
   // Cargar tios cuando el componente se monta
   useEffect(() => {
     const fetchTypeVariable = async () => {
+      setIsLoading(true);
       try {
         const data = await VariableType.getAllTypeVariable();
         setTypeVariablesList(data);
       } catch (error) {
         console.error('Error fetching TypeVariable:', error);
+      }finally {
+        setIsLoading(false);
       }
     };
 
     fetchTypeVariable();
   }, []);
 
-  // Función de búsqueda que filtra companyList según el searchTerm
-  const filteredTypeVariable = typeVariablesList.filter(company =>
-    (company.name && company.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (company.description && company.description.toLowerCase().includes(searchTerm.toLowerCase())) // Cambiar registrationDate a created_at
+  // Función de búsqueda que filtra typevariableList según el searchTerm
+  const filteredTypeVariable = typeVariablesList.filter(typevariable =>
+    (typevariable.name && typevariable.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (typevariable.description && typevariable.description.toLowerCase().includes(searchTerm.toLowerCase())) // Cambiar registrationDate a created_at
   );
 
   // Paginación
@@ -76,8 +83,8 @@ const TipoVariable = () => {
 
 
   //eliminar
-  const handleDelete = (user) => {
-    setSelectedTypeVariable(user);
+  const handleDelete = (typevariable) => {
+    setSelectedTypeVariable(typevariable);
     setIsDeleteModalOpen(true);
   };
 
@@ -86,13 +93,13 @@ const TipoVariable = () => {
     setSelectedTypeVariable(null);
     const data = await VariableType.deleteTypeVariable(selectedTypeVariable.id);
     setMessageAlert("tipo de variable eliminada exitosamente");
-    showErrorAlertSuccess("eliminado")
-    updateTypeVariable()
+    showErrorAlertSuccess("eliminado");
+    updateTypeVariable();
   };
 
 
   const handleCancelDelete = () => {
-setSelectedTypeVariable(null);
+    setSelectedTypeVariable(null);
     setIsDeleteModalOpen(false);
   };
   const handleCloseAlert = () => {
@@ -101,11 +108,11 @@ setSelectedTypeVariable(null);
 
 
 
-  const handleOpenModal = (company = null, mode = 'create') => {
-    setSelectedTypeVariable(company);
+  const handleOpenModal = (typevariable = null, mode = 'create') => {
+    setSelectedTypeVariable(typevariable);
     setModalMode(mode);
     if (mode === 'edit' || mode === 'view') {
-      setNewTypeVariable(company);
+      setNewTypeVariable(typevariable);
     } else {
       setNewTypeVariable({
         icon: '',
@@ -121,6 +128,7 @@ setSelectedTypeVariable(null);
     setIsModalOpen(false);
     setSelectedTypeVariable(null);
     setModalMode('create');
+    updateTypeVariable();
   };
 
   // Función para actualizar la lista de empresas
@@ -128,7 +136,7 @@ setSelectedTypeVariable(null);
     try {
       const data = await VariableType.getAllTypeVariable();
 
-      setTypeVariablesList(data); // Actualiza companyList con los datos más recientes
+      setTypeVariablesList(data); // Actualiza typevariableList con los datos más recientes
     } catch (error) {
       console.error('Error al actualizar los tipos de variable:', error);
     }
@@ -146,6 +154,7 @@ setSelectedTypeVariable(null);
 
   return (
     <div className="table-container">
+      {isLoading && <LoadingView />} 
       <div className="absolute transform -translate-y-20 right-30 w-1/2">
         <IoSearch className="absolute left-3 top-3 text-gray-500" />
         <input
@@ -175,26 +184,30 @@ setSelectedTypeVariable(null);
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {currentCompanies.map((user, index) => (
+              {currentCompanies.map((typevariable, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                    <img
-                      src="../assets/imagenes/logo.jpegg"
-                      alt=""
-                      className="w-6 h-6 rounded-full mr-2"
-                    />
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {typevariable.icon && (
+                      <img
+                        src={typevariable.icon}
+                        alt={typevariable.name}
+                        className="h-10 w-10 object-cover rounded-full"
+                      />
+                    )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{user.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.description}</td>
+
+
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{typevariable.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{typevariable.description}</td>
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="view-button mr-5" onClick={() => handleOpenModal(user, 'view')}>
+                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(typevariable, 'view')}>
                       <Eye size={18} />
                     </button>
-                    <button className="edit-button mr-5" onClick={() => handleOpenModal(user, 'edit')}>
+                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"onClick={() => handleOpenModal(typevariable, 'edit')}>
                       <Edit size={18} />
                     </button>
-                    <button onClick={() => handleDelete(user)} className="delete-button">
+                    <button onClick={() => handleDelete(typevariable)} className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded">
                       <Trash size={18} />
                     </button>
                   </td>
@@ -238,7 +251,7 @@ setSelectedTypeVariable(null);
 
       {isModalOpen && (
         <GenericModal title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver Cariable' : 'Añadir Variable'} onClose={closeModal}>
-          <FormTypeVariable showErrorAlert={showErrorAlertSuccess} onUpdate={updateTypeVariable} company={newTypeVariable} mode={modalMode} closeModal={closeModal} />
+          <FormTypeVariable showErrorAlert={showErrorAlertSuccess} onUpdate={updateTypeVariable} typevariable={newTypeVariable} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
       )}
 

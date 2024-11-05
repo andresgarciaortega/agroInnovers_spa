@@ -9,12 +9,11 @@ import GenericModal from '../../components/genericModal';
 import FormVariable from './FormVariable/formVariable';
 import VariableService from "../../services/variableService";
 import SuccessAlert from "../../components/alerts/success";
-
+import { IoSearch } from "react-icons/io5";
 
 
 const Variable = () => {
   const [variableList, setVariableList] = useState([]);
-  const [enabled, setEnabled] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedVariable, setSelectedVariable] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,6 +30,8 @@ const Variable = () => {
     type_register_id: '',
   });
 
+  const [searchTerm, setSearchTerm] = useState("");
+
   // Cargar empresas cuando el componente se monta
   useEffect(() => {
     const fetchVariables = async () => {
@@ -46,13 +47,21 @@ const Variable = () => {
   }, []);
 
 
+  const filteredVariable = variableList.filter(variable =>
+    (variable.name && variable.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (variable.unit_of_measurement && variable.unit_of_measurement.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (variable.type_variable_id && variable.type_variable_id.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (variable.type_register_id && variable.location.toLowerCase().includes(searchTerm.toLowerCase()))  // Cambiar registrationDate a created_at
+  );
+
+
   // Paginación
   const indexOfLastVariable = currentPage * itemsPerPage;
   const indexOfFirstVariable = indexOfLastVariable - itemsPerPage;
-  const currentCompanies = variableList.slice(indexOfFirstVariable, indexOfLastVariable);
+  const currentCompanies = filteredVariable.slice(indexOfFirstVariable, indexOfLastVariable);
 
   const handleNextPage = () => {
-    if (currentPage < Math.ceil(variableList.length / itemsPerPage)) {
+    if (currentPage < Math.ceil(filteredVariable.length / itemsPerPage)) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -68,10 +77,34 @@ const Variable = () => {
     setCurrentPage(1);
   };
 
+  const handleOpenModal = (variable = null, mode = 'create') => {
+    setSelectedVariable(variable);
+    setModalMode(mode);
+    if (mode === 'edit' || mode === 'view') {
+      setNewVariable(variable);
+    } else {
+      setNewVariable({
+        name: '',
+        icon: '',
+        unit_of_measurement: '',
+        type_variable_id: '',
+        type_register_id: '',
+
+      });
+    }
+    setIsModalOpen(true);
+  };
+
+  // Cerrar el modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedVariable(null);
+    setModalMode('create');
+  };
 
   //eliminar
-  const handleDelete = (user) => {
-    setSelectedVariable(user);
+  const handleDelete = (variable) => {
+    setSelectedVariable(variable);
     setIsDeleteModalOpen(true);
   };
 
@@ -113,35 +146,22 @@ const Variable = () => {
   };
 
 
-  const handleOpenModal = (company = null, mode = 'create') => {
-    setSelectedVariable(company);
-    setModalMode(mode);
-    if (mode === 'edit' || mode === 'view') {
-      setNewVariable(company);
-    } else {
-      setNewVariable({
-        name: '',
-        icon: '',
-        unit_of_measurement: '',
-        type_variable_id: '',
-        type_register_id: '',
 
-      });
-    }
-    setIsModalOpen(true);
-  };
-
-  // Cerrar el modal
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedVariable(null);
-    setModalMode('create');
-  };
 
 
 
   return (
     <div className="table-container">
+      <div className="absolute transform -translate-y-20 right-30 w-1/2">
+        <IoSearch className="absolute left-3 top-3 text-gray-500" />
+        <input
+          type="text"
+          placeholder="Buscar empresa "
+          className="w-full border border-gray-300 p-2 pl-10 rounded-md"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
       <div className="bg-white rounded-lg shadow">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">Variables</h2>
@@ -168,12 +188,17 @@ const Variable = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{variable.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    {variable?.registerType?.[0]?.name || ''}
+                    <span className={`px-2 inline-flex justify-center text-sm leading-5 py-1 font-semibold rounded-md text-cyan-500 bg-blue-100`}>
+                      {variable.type_variable && variable.type_variable.length > 0 ? variable.type_variable[0].name : 'N/A'}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{variable.unit_of_measurement}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <td className="px-2 inline-flex justify-center text-sm leading-5 py-1 text-gray-700 bg-gray-300 rounded-sm ">{variable.type_register_id}</td>
+                    {/* Asegúrate de que variable.type_register_id tiene un valor válido */}
+                    <span className="px-2 inline-flex justify-center text-sm leading-5 py-1 text-gray-700 bg-gray-300 rounded-sm">
+                    {variable.type_register ? variable.type_register.name : 'N/A'}
 
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button className="view-button mr-5" onClick={() => handleOpenModal(variable, 'view')}>
@@ -225,7 +250,7 @@ const Variable = () => {
       {/* Modalcrear-editar-visualizar*/}
       {isModalOpen && (
         <GenericModal title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver Cariable' : 'Añadir Variable'} onClose={closeModal}>
-          <FormVariable company={newVariable} mode={modalMode} closeModal={closeModal} />
+          <FormVariable variable={newVariable} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
       )}
 

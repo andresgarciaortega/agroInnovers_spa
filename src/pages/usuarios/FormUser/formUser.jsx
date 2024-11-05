@@ -124,7 +124,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       phone: formData.mobile,
       document: formData.document,
       photo: formData.photo || "https://example.com/photo.jpg", // Asegúrate de capturar la foto
-      roles: [1] // Ajusta esto según sea necesario
+      roles: [Number(formData.userType)]// Ajusta esto según sea necesario
     };
 
     try {

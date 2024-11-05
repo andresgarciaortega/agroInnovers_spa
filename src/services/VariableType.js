@@ -2,7 +2,7 @@
 
 import api from './ApiService';
 
-const VaryableTypeService = {
+const VariableTypeService = {
 
 
     // LISTAR TODAS LAS tipo de variableS
@@ -64,4 +64,4 @@ const VaryableTypeService = {
       
 };
 
-export default VaryableTypeService;
+export default VariableTypeService;
