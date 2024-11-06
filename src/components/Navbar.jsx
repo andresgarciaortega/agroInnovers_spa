@@ -23,14 +23,7 @@ const Navbar = () => {
 
   return (
     <div className="flex justify-end items-center p-4">
-      {/* <div className="relative w-full md:w-1/2">
-        <IoSearch className="absolute left-3 top-3 text-gray-500" />
-        <input
-          type="text"
-          placeholder="Buscar..."
-          className="w-full pl-10 py-2 border rounded-md focus:outline-none"
-        />
-      </div> */}
+      
       <div className="flex items-center space-x-4">
         <div className="relative">
           <IoMdNotificationsOutline className="text-2xl text-gray-600" />

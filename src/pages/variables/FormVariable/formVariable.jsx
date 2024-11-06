@@ -18,6 +18,7 @@ const FormVariable = ({ variable, mode, closeModal }) => {
   
   const [variableTypes, setVariableTypes] = useState([]); 
   const [registerTypes, setRegisterTypes] = useState([]); 
+
   const [unitsOfMeasurement] = useState([
     { id: '1', name: 'Kilogramos (kg)' },
     { id: '2', name: 'Metros (m)' },
@@ -217,14 +218,38 @@ const FormVariable = ({ variable, mode, closeModal }) => {
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
             required
           >
-            <option value="">Seleccione una opción</option>
+            {/* <option value="">Seleccione una opción</option>
             {registerTypes.map((type) => (
               <option key={type.id} value={type.id}>
                 {type.name}
               </option>
-            ))}
+            ))} */}
+            <option value="">Seleccione una opción</option>
+          {variableTypes.map((type) => (
+            <option key={type.id} value={type.id}>
+              {type.name}
+            </option>
+          ))}
           </select>
         </div>
+      </div>
+      <div className="mt-5">
+        <label htmlFor="type_variable_id" className="block text-sm font-medium text-gray-700">Tipo de variable</label>
+        <select
+          id="type_variable_id"
+          name="type_variable_id"
+          value={formData.type_variable_id}
+          onChange={handleChange}
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          required
+        >
+          <option value="">Seleccione una opción</option>
+          {variableTypes.map((type) => (
+            <option key={type.id} value={type.id}>
+              {type.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="mt-5">
@@ -246,24 +271,7 @@ const FormVariable = ({ variable, mode, closeModal }) => {
         </select>
       </div>
 
-      <div className="mt-5">
-        <label htmlFor="type_variable_id" className="block text-sm font-medium text-gray-700">Tipo de variable</label>
-        <select
-          id="type_variable_id"
-          name="type_variable_id"
-          value={formData.type_variable_id}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-        >
-          <option value="">Seleccione una opción</option>
-          {variableTypes.map((type) => (
-            <option key={type.id} value={type.id}>
-              {type.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      
 
       <div className="mt-5 flex items-center">
         <span className="text-sm font-medium text-gray-700 mr-3">Visible en Dashboard</span>
