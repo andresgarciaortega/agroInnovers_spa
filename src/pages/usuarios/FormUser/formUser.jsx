@@ -15,8 +15,17 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     company: '',
     document: '',
     userType: null,
-    password: ''
+    password: '',
+    confirmPass: ''
   });
+  const [errorMessages, setErrorMessages] = useState({
+    name: '',
+    mobile: '',
+    document: '',
+    password: '',
+    confirmPass: ''
+  });
+
 
   const [documentTypes, setDocumentTypes] = useState([]); // Estado para los tipos de documentos
   const [usersTypes, setUsersTypes] = useState([]); // Estado para los tipos de usuarios
@@ -24,6 +33,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   const [showAlertError, setShowAlertError] = useState(false); // Estado para los tipos de usuarios
   const [messageAlert, setMessageAlert] = useState(""); // Estado para los tipos de usuarios
 
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [passwordVisible, setPasswordVisible] = useState(false);
 
   useEffect(() => {
@@ -58,7 +68,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         company: '', // Asegúrate de que este campo esté vacío
         document: '',
         userType: '',
-        password: ''
+        password: '',
+        confirmPass: ''
       });
     }
   }, [user, mode]);
@@ -69,12 +80,77 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
+
+    let errorMessage = '';
+
+    if (name === 'name') {
+      if (/\d/.test(value)) {
+        errorMessage = 'El nombre no puede llevar números';
+        e.target.style.borderColor = 'red';
+      } else {
+        e.target.style.borderColor = '';
+      }
+    }
+
+    if (name === 'mobile') {
+      if (!/^\d{10}$/.test(value)) {
+        errorMessage = 'El celular debe tener diez dígitos numéricos';
+        e.target.style.borderColor = 'red';
+      } else {
+        e.target.style.borderColor = '';
+      }
+    }
+
+    if (name === 'document') {
+      if (!/^\d{8,12}$/.test(value)) {
+        errorMessage = 'El documento debe tener entre 8 y 12 dígitos';
+        e.target.style.borderColor = 'red';
+      } else {
+        e.target.style.borderColor = '';
+      }
+    }
+
+    if (name === 'confirmPass' || name === 'password') {
+      const updatedFormData = { ...formData, [name]: value };
+      setFormData(updatedFormData);
+
+      if (updatedFormData.password && updatedFormData.confirmPass && updatedFormData.password !== updatedFormData.confirmPass) {
+        errorMessage = 'Las contraseñas deben coincidir';
+        document.querySelector('[name="password"]').style.borderColor = 'red';
+        document.querySelector('[name="confirmPass"]').style.borderColor = 'red';
+      } else {
+        document.querySelector('[name="password"]').style.borderColor = '';
+        document.querySelector('[name="confirmPass"]').style.borderColor = '';
+      }
+    } else {
+
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
+    // Mostrar mensaje de error debajo del campo, si hay uno
+    setErrorMessages({
+      ...errorMessages,
+      [name]: errorMessage
     });
   };
+  // Lógica para habilitar/deshabilitar el botón de envío
+  useEffect(() => {
+    const isFormValid =
+      formData.name &&
+      formData.email &&
+      formData.mobile &&
+      formData.typeDocument &&
+      formData.company &&
+      formData.document &&
+      formData.userType &&
+      formData.password &&
+      formData.confirmPass &&
+      !Object.values(errorMessages).some((error) => error !== '');
 
+    setIsButtonDisabled(!isFormValid);
+  }, [formData, errorMessages]);
 
   const handleEmailBlur = async () => {
     if (mode !== 'edit') {
@@ -93,8 +169,6 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     }
 
   }
-
-
 
   const handleDocumentBlur = async () => {
     if (mode !== 'edit') {
@@ -169,6 +243,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           required
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
         />
+        {errorMessages.name && <p className="text-red-500 text-sm">{errorMessages.name}</p>}
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -197,6 +272,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
+          {errorMessages.mobile && <p className="text-red-500 text-sm">{errorMessages.mobile}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Tipo de documento</label>
@@ -231,6 +307,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
+          {errorMessages.document && <p className="text-red-500 text-sm">{errorMessages.document}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Empresa</label>
@@ -272,29 +349,55 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             ))}
           </select>
         </div>
-      </div>
-      <div className="border-gray-300 rounded-lg cursor-pointer mr-0">
-        <label className="block text-sm font-medium text-gray-700 ">Contraseña</label>
-        <div className="relative">
-          <input
-            type={passwordVisible ? 'text' : 'password'}
-            name="password"
-            placeholder="Contraseña"
-            value={formData.password}
-            onChange={handleChange}
-            disabled={mode === 'view'}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2 pr-10" // pr-10 para espacio para el icono
-          />
-          <button
-            type="button"
-            onClick={handlePasswordToggle}
-            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
-          >
-            {passwordVisible ? <IoEyeOff /> : <IoEye />}
-          </button>
+        <div className="border-gray-300 rounded-lg cursor-pointer mr-0">
+          <label className="block text-sm font-medium text-gray-700 ">Contraseña</label>
+          <div className="relative">
+            <input
+              type={passwordVisible ? 'text' : 'password'}
+              name="password"
+              placeholder="Contraseña"
+              value={formData.password}
+              onChange={handleChange}
+              disabled={mode === 'view'}
+              required
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2 pr-10" // pr-10 para espacio para el icono
+            />
+
+            <button
+              type="button"
+              onClick={handlePasswordToggle}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+            >
+              {passwordVisible ? <IoEyeOff /> : <IoEye />}
+            </button>
+          </div>
+        </div>
+
+        <div className="border-gray-300 rounded-lg cursor-pointer mr-0">
+          <label className="block text-sm font-medium text-gray-700 ">Confirmar Contraseña</label>
+          <div className="relative">
+            <input
+              type={passwordVisible ? 'text' : 'password'}
+              name="confirmPass"
+              placeholder="Contraseña"
+              value={formData.confirmPass}
+              onChange={handleChange}
+              disabled={mode === 'view'}
+              required
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2 pr-10" // pr-10 para espacio para el icono
+            />
+            {errorMessages.confirmPass && <p className="text-red-500 text-sm">{errorMessages.confirmPass}</p>}
+            <button
+              type="button"
+              onClick={handlePasswordToggle}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+            >
+              {passwordVisible ? <IoEyeOff /> : <IoEye />}
+            </button>
+          </div>
         </div>
       </div>
+
 
       <div className="flex justify-end space-x-2">
         {mode === 'view' ? (
@@ -316,10 +419,15 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             </button>
             <button
               type="submit"
-              className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+              disabled={isButtonDisabled}
+              className={`${isButtonDisabled
+                  ? 'bg-[#168C0DFF] text-gray-100 cursor-not-allowed '
+                  : 'bg-[#168C0DFF] text-white hover:bg-[#146A0D] '
+                } px-4 py-2 rounded`}
             >
               {mode === 'create' ? "Crear Usuario" : "Guardar Cambios"}
             </button>
+
           </>
         )}
       </div>
