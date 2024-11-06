@@ -11,10 +11,10 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     email: '',
     mobile: '',
     registrationDate: '',
-    typeDocument_id: '',
+    typeDocument: '',
     company: '',
     document: '',
-    userType: '',
+    userType: null,
     password: ''
   });
 
@@ -54,8 +54,11 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         email: '',
         mobile: '',
         registrationDate: '',
+        typeDocument: '',
+        company: '', // Asegúrate de que este campo esté vacío
+        document: '',
         userType: '',
-        typeDocument_id: '', // Inicializa aquí si no está en modo edición
+        password: ''
       });
     }
   }, [user, mode]);
@@ -115,7 +118,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
 
     const formattedData = {
       type_user_id: Number(formData.userType),
-      type_document_id: Number(formData.typeDocument_id),
+      type_document_id: Number(formData.typeDocument),
       companies_id: Number(formData.company),
       name: formData.name,
       lastname: formData.lastname || " ", // Asegúrate de agregar el apellido en el formulario si es necesario
@@ -124,7 +127,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       phone: formData.mobile,
       document: formData.document,
       photo: formData.photo || "https://example.com/photo.jpg", // Asegúrate de capturar la foto
-      roles: formData.userType ?[Number(formData.userType)] : []// Ajusta esto según sea necesario
+      roles: formData.userType ? [Number(formData.userType)] : []// Ajusta esto según sea necesario
     };
 
     try {
@@ -231,19 +234,9 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Empresa</label>
-          {/* <input
-            type="text"
-            name="company"
-            placeholder="Empresa"
-            value={formData.company}
-            onChange={handleChange}
-            disabled={mode === 'view'}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          /> */}
           <select
             name="company"
-            // value={formData.company.id}
+            value={formData.company} // Asegúrate de que el valor esté ligado a formData
             onChange={handleChange}
             disabled={mode === 'view'}
             required
@@ -251,11 +244,12 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           >
             <option value="" disabled>Seleccione una opción</option>
             {companies.map((type) => (
-              <option key={type.id} value={type.id}> {/* Cambia `type.id` y `type.value` según tu respuesta */}
-                {type.name} {/* Cambia `type.label` según tu respuesta */}
+              <option key={type.id} value={type.id}>
+                {type.name}
               </option>
             ))}
           </select>
+
 
 
 

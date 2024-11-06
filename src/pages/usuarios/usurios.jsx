@@ -10,6 +10,7 @@ import UsersService from "../../services/UserService";
 import UploadToS3 from "../../config/UploadToS3";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
+import LoadingView from '../../components/Loading/loadingView';
 
 
 const Usuario = () => {
@@ -34,6 +35,8 @@ const Usuario = () => {
 
   
   const [searchTerm, setSearchTerm] = useState("");
+  
+  const [isLoading, setIsLoading] = useState(false);
 
   const filteredUser = usersList.filter(users => 
     (users.name && users.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -53,11 +56,15 @@ const Usuario = () => {
   // Cargar usuario cuando el componente se monta
   useEffect(() => {
     const fetchUsersList = async () => {
+      
+      setIsLoading(true);
       try {
         const data = await UsersService.getAllUser();
         setUsersList(data);
       } catch (error) {
         console.error('Error fetching companies:', error);
+      }finally {
+        setIsLoading(false);
       }
     };
 
@@ -160,6 +167,8 @@ const Usuario = () => {
 
   return (
     <div className="table-container">
+      
+      {isLoading && <LoadingView />} 
        <div className="absolute transform -translate-y-20 right-30 w-1/2">
        <IoSearch className="absolute left-3 top-3 text-gray-500" />
           <input
