@@ -12,7 +12,7 @@ export default function LoadingView({
   useEffect(() => {
     const interval = setInterval(() => {
       setIsVisible((prev) => !prev);
-    }, 1000); // Cambia la visibilidad cada 1 segundo
+    }, 50000); // Cambia la visibilidad cada 1 segundo
 
     return () => clearInterval(interval); // Limpia el intervalo al desmontar
   }, []);
@@ -31,7 +31,7 @@ export default function LoadingView({
           </h2>
         </div>
 
-        <div className="flex justify-center h-[200px]">
+        {/* <div className="flex justify-center h-[200px]">
           <img
             src={loadingImage}
             alt="Cargando"
@@ -39,7 +39,7 @@ export default function LoadingView({
             width={200}
             height={200}
           />
-        </div>
+        </div> */}
 
         <p className="mt-4 text-sm text-gray-600">
           {message}
