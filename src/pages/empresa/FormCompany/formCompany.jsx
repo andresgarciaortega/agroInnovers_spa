@@ -21,10 +21,14 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
     email_billing: "",
     logo: ''
   });
+  const [errorMessages, setErrorMessages] = useState({
+    phone: ''
+  });
 
   const [documentTypes, setDocumentTypes] = useState([]); // Estado para los tipos de documentos
   const [showAlertError, setShowAlertError] = useState(false); 
   const [messageAlert, setMessageAlert] = useState("");
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   useEffect(() => {
 
@@ -59,16 +63,47 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
     }
   }, [company, mode]);
 
-
-
-
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let errorMessage = '';
+  
+    if (name === 'phone') {
+      if (!/^\d{10}$/.test(value)) {
+        errorMessage = 'El celular debe tener diez dígitos numéricos';
+        e.target.style.borderColor = 'red'; // Cambia el borde a rojo si hay error
+      } else {
+        e.target.style.borderColor = ''; // Si la validación es exitosa, limpia el borde
+      }
+    }
+  
+    // Actualiza el estado con los nuevos valores
     setFormData({
       ...formData,
       [name]: value
     });
+  
+    setErrorMessages({
+      ...errorMessages,
+      [name]: errorMessage
+    });
   };
+  useEffect(() => {
+  // Función para habilitar/deshabilitar el botón de envío
+  const isFormValid =
+      formData.name && 
+      formData.email_user_admin && 
+      formData.phone && 
+      formData.location && 
+      formData.type_document_id && 
+      formData.nit && 
+      formData.gps && 
+      formData.email_billing && 
+      /^\d{10}$/.test(formData.phone) &&
+      !Object.values(errorMessages).some((error) => error !== '');
+
+    setIsButtonDisabled(!isFormValid);
+  }, [formData, errorMessages]);
+  
 
   const handleDocumentBlur = async () => {
     if (mode !== 'edit') {
@@ -89,6 +124,17 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+
+  // Validación del celular
+  const phoneRegex = /^[0-9]{10}$/;  // Expresión regular para 10 dígitos numéricos
+  if (!phoneRegex.test(formData.phone)) {
+    setShowAlertError(true);
+    setMessageAlert("El celular debe tener exactamente 10 dígitos.");
+    setTimeout(() => {
+      setShowAlertError(false);
+    }, 1500);
+    return; // No enviar el formulario si la validación falla
+  }
   try {
     let logoUrl = ''; 
 
@@ -236,6 +282,7 @@ const [imagePreview, setImagePreview] = useState(null); // Estado para la vista 
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
+           {errorMessages.phone && <p className="text-red-500 text-sm">{errorMessages.phone}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Dirección</label>
@@ -299,9 +346,13 @@ const [imagePreview, setImagePreview] = useState(null); // Estado para la vista 
             </button>
             <button
               type="submit"
-              className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+              disabled={isButtonDisabled}
+              className={`${isButtonDisabled
+                  ? 'bg-[#168C0DFF] text-gray-100 cursor-not-allowed '
+                  : 'bg-[#168C0DFF] text-white hover:bg-[#146A0D] '
+                } px-4 py-2 rounded`}
             >
-              {mode === 'create' ? 'Crear Empresa' : 'Guardar Cambios'}
+              {mode === 'create' ? "Crear Empresa" : "Guardar Cambios"}
             </button>
           </>
         )}

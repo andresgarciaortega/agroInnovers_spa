@@ -20,6 +20,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   });
   const [errorMessages, setErrorMessages] = useState({
     name: '',
+    email: '',
     mobile: '',
     document: '',
     password: '',
@@ -187,6 +188,10 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     }
   }
 
+
+  
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -259,6 +264,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
+          {errorMessages.email && <p className="text-red-500 text-sm">{errorMessages.email}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Celular</label>
