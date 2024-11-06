@@ -35,7 +35,9 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
     const fetchDocumentTypes = async () => {
       try {
         const typeDocuments = await TypeDocumentsService.getAllTypeDocuments();
-        setDocumentTypes(typeDocuments); 
+        // Filtrar los elementos donde el campo `process` sea igual a 'PERSONA'
+        const personaTypes = typeDocuments.filter(type => type.process === 'EMPRESA');
+        setDocumentTypes(personaTypes);
       } catch (error) {
         console.error('Error al obtener tipos de documentos:', error);
       }

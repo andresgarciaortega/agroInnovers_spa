@@ -42,10 +42,14 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     const fetchDocumentTypes = async () => {
       try {
         const types = await TypeDocumentsService.getAllTypeDocuments();
+        console.log("-> ", types)
         const companies = await CompanyService.getAllCompany();
         const typeUsers = await TypeDocumentsService.getAllTypeUsers();
 
-        setDocumentTypes(types);
+        // Filtrar los elementos donde el campo `process` sea igual a 'PERSONA'
+        const personaTypes = types.filter(type => type.process === 'PERSONA');
+        setDocumentTypes(personaTypes);
+
         setUsersTypes(typeUsers)
         setCompanies(companies)
 
@@ -189,8 +193,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   }
 
 
-  
-  
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -260,8 +264,9 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             value={formData.email}
             onChange={handleChange}
             onBlur={handleEmailBlur}
-            disabled={mode === 'view'}
+            disabled={mode}
             required
+
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
           {errorMessages.email && <p className="text-red-500 text-sm">{errorMessages.email}</p>}
@@ -427,8 +432,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
               type="submit"
               disabled={isButtonDisabled}
               className={`${isButtonDisabled
-                  ? 'bg-[#168C0DFF] text-gray-100 cursor-not-allowed '
-                  : 'bg-[#168C0DFF] text-white hover:bg-[#146A0D] '
+                ? 'bg-[#168C0DFF] text-gray-100 cursor-not-allowed '
+                : 'bg-[#168C0DFF] text-white hover:bg-[#146A0D] '
                 } px-4 py-2 rounded`}
             >
               {mode === 'create' ? "Crear Usuario" : "Guardar Cambios"}
