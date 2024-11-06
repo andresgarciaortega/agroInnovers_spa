@@ -96,10 +96,11 @@ const Variable = () => {
   };
 
   // Cerrar el modal
-  const closeModal = () => {
+  const closeModal = async () => {
     setIsModalOpen(false);
     setSelectedVariable(null);
     setModalMode('create');
+    updateService(); 
   };
 
   //eliminar
@@ -122,8 +123,8 @@ const Variable = () => {
     setSelectedVariable(null);
     const data = await VariableService.deleteVariable(selectedVariable.id);
     setMessageAlert("Variable eliminada exitosamente");
-    showErrorAlertSuccess("eliminado")
-    updateService()
+    showErrorAlertSuccess("eliminado");
+    updateService();
   };
 
 
@@ -144,6 +145,8 @@ const Variable = () => {
       console.error('Error al actualizar las variables:', error);
     }
   };
+
+
 
 
 
@@ -250,8 +253,14 @@ const Variable = () => {
       {/* Modalcrear-editar-visualizar*/}
       {isModalOpen && (
         <GenericModal title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver Cariable' : 'Añadir Variable'} onClose={closeModal}>
-          <FormVariable variable={newVariable} mode={modalMode} closeModal={closeModal} />
+          <FormVariable showErrorAlert={showErrorAlertSuccess} onUpdate={updateService} variable={newVariable} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
+      )}
+        {showErrorAlert && (
+        <SuccessAlert
+          message={messageAlert}
+          onCancel={handleCloseAlert}
+        />
       )}
 
 

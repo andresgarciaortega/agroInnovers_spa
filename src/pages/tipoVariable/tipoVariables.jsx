@@ -95,6 +95,7 @@ const TipoVariable = () => {
     setMessageAlert("tipo de variable eliminada exitosamente");
     showErrorAlertSuccess("eliminado");
     updateTypeVariable();
+    
   };
 
 

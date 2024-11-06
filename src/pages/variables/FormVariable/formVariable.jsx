@@ -5,7 +5,7 @@ import VariablesService from '../../../services/variableService';
 import VariableTypeService from '../../../services/VariableType';
 import RegistrerTypeServices from '../../../services/RegistrerType';
 
-const FormVariable = ({ variable, mode, closeModal }) => {
+const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) => {
   const [enabled, setEnabled] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -13,7 +13,7 @@ const FormVariable = ({ variable, mode, closeModal }) => {
     unit_of_measurement: '',
     type_variable_id: '',
     type_register_id: '',
-    InformativeCalculation: '',
+    informational_calculation: '',
   });
   
   const [variableTypes, setVariableTypes] = useState([]); 
@@ -65,7 +65,7 @@ const FormVariable = ({ variable, mode, closeModal }) => {
         unit_of_measurement: '',
         type_variable_id: '',
         type_register_id: '',
-        InformativeCalculation: ''
+        informational_calculation: ''
       });
     }
   }, [variable, mode]);
@@ -124,19 +124,25 @@ const FormVariable = ({ variable, mode, closeModal }) => {
       };
   
       if (mode === 'create') {
-        await VariablesService.createVariable(formDataToSubmit);
+        const createdVariable =await VariablesService.createVariable(formDataToSubmit);
         showErrorAlert("creada");
       } else if (mode === 'edit') {
         await VariablesService.updateVariable(variable.id, formDataToSubmit);
         showErrorAlert("editada");
       }
+
+      onUpdate();
   
       closeModal();
+
     } catch (error) {
       console.error('Error al guardar la variable:', error);
     }
   };
   
+  // const showErrorAlert = (message) => {
+  //   alert(message); // Muestra un mensaje de alerta
+  // };
   
 
   const handleIconUpload = (e) => {
@@ -253,11 +259,11 @@ const FormVariable = ({ variable, mode, closeModal }) => {
       </div>
 
       <div className="mt-5">
-        <label htmlFor="InformativeCalculation" className="block text-sm font-medium text-gray-700">Cálculo informativo</label>
+        <label htmlFor="informational_calculation" className="block text-sm font-medium text-gray-700">Cálculo informativo</label>
         <select
-          id="InformativeCalculation"
-          name="InformativeCalculation"
-          value={formData.InformativeCalculation}
+          id="informational_calculation"
+          name="informational_calculation"
+          value={formData.informational_calculation}
           onChange={handleChange}
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           required
@@ -285,17 +291,33 @@ const FormVariable = ({ variable, mode, closeModal }) => {
         </div>
       </div>
 
-      <div className="mt-5 flex justify-end space-x-4">
-        <button
-          type="button"
-          className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
-          onClick={closeModal}
-        >
-          Cancelar
-        </button>
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-          {mode === 'create' ? 'Crear' : 'Guardar'}
-        </button>
+      <div className="flex justify-end space-x-2">
+        {mode === 'view' ? (
+          <button
+            type="button"
+            onClick={closeModal}
+            className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+          >
+            Volver
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={closeModal}
+              className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+            >
+              Cerrar
+            </button>
+            <button
+              type="submit"
+              className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+            >
+              {mode === 'create' ? 'Crear Variable' : 'Guardar Cambios'}
+
+            </button>
+          </>
+        )}
       </div>
     </form>
   );
