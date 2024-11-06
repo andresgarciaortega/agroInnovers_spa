@@ -5,8 +5,9 @@ import VariablesService from '../../../services/variableService';
 import VariableTypeService from '../../../services/VariableType';
 import RegistrerTypeServices from '../../../services/RegistrerType';
 
-const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) => {
-  const [enabled, setEnabled] = useState(false);
+const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal }) => {
+  const [isDashboard, setIsDashboard] = useState(false);
+  const [isIncrement, setIsIncrement] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     icon: '',
@@ -15,21 +16,21 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
     type_register_id: '',
     informational_calculation: '',
   });
-  
-  const [variableTypes, setVariableTypes] = useState([]); 
-  const [registerTypes, setRegisterTypes] = useState([]); 
+
+  const [variableTypes, setVariableTypes] = useState([]);
+  const [registerTypes, setRegisterTypes] = useState([]);
 
   const [unitsOfMeasurement] = useState([
-    { id: '1', name: 'Kilogramos (kg)' },
-    { id: '2', name: 'Metros (m)' },
-    { id: '3', name: 'Litros (L)' },
-    { id: '4', name: 'Gramos (g)' },
+    { id: 'Kilogramos (kg)', name: 'Kilogramos (kg)' },
+    { id: 'Metros (m)', name: 'Metros (m)' },
+    { id: 'Litros (L)', name: 'Litros (L)' },
+    { id: 'Gramos (g)', name: 'Gramos (g)' },
   ]);
   const [informativeCalculations] = useState([
-    { id: '1', name: 'Promedio' },
-    { id: '2', name: 'Suma' },
-    { id: '3', name: 'Máximo' },
-    { id: '4', name: 'Mínimo' },
+    { id: 'Promedio', name: 'Promedio' },
+    { id: 'Suma', name: 'Suma' },
+    { id: 'Máximo', name: 'Máximo' },
+    { id: 'Mínimo', name: 'Mínimo' },
   ]);
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -37,7 +38,7 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
     const fetchVariableTypes = async () => {
       try {
         const typeVariables = await VariableTypeService.getAllTypeVariable();
-        setVariableTypes(typeVariables); 
+        setVariableTypes(typeVariables);
       } catch (error) {
         console.error('Error al obtener los tipos de variable:', error);
       }
@@ -46,7 +47,7 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
     const fetchRegisterTypes = async () => {
       try {
         const typeRegisters = await RegistrerTypeServices.getAllRegistrerType();
-        setRegisterTypes(typeRegisters); 
+        setRegisterTypes(typeRegisters);
       } catch (error) {
         console.error('Error al obtener los tipos de registro:', error);
       }
@@ -55,8 +56,33 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
     fetchVariableTypes();
     fetchRegisterTypes();
 
+    // if (mode === 'edit' || mode === 'view') {
+    //   setFormData(variable);
+    //   setImagePreview(variable.icon);
+    // } else {
+    //   setFormData({
+    //     name: '',
+    //     icon: '',
+    //     unit_of_measurement: '',
+    //     type_variable_id: '',
+    //     type_register_id: '',
+    //     informational_calculation: ''
+    //   });
+    // }
+
     if (mode === 'edit' || mode === 'view') {
-      setFormData(variable);
+      setFormData({
+        name: variable.name || '',
+        icon: variable.icon || '',
+        unit_of_measurement: variable.unit_of_measurement || '',
+        type_variable_id: variable.typeVariable?.id || '',  // Asignación correcta del id de typeVariable
+        type_register_id: variable.typeRegister?.id || '',  // Asignación correcta del id de typeRegister
+        informational_calculation: variable.informational_calculation || ''
+      });
+
+      setIsDashboard(variable.visible_in_dashboard);
+      setIsIncrement(variable.is_incremental)
+
       setImagePreview(variable.icon);
     } else {
       setFormData({
@@ -65,9 +91,10 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
         unit_of_measurement: '',
         type_variable_id: '',
         type_register_id: '',
-        informational_calculation: ''
+        informational_calculation: '',
       });
     }
+
   }, [variable, mode]);
 
   const handleChange = (e) => {
@@ -78,53 +105,29 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
     });
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     let logoUrl = ''; 
-  //     if (formData.icon) {
-  //       logoUrl = await UploadToS3(formData.icon);
-  //     }
-  
-  //     const formDataToSubmit = {
-  //       ...formData,
-  //       icon: logoUrl, 
-  //     };
-  
-  //     if (mode === 'create') {
-  //       await VariablesService.createVariable(formDataToSubmit);
-  //       showErrorAlert("creada");
-  //     } else if (mode === 'edit') {
-  //       await VariablesService.updateVariable(variable.id, formDataToSubmit);
-  //       showErrorAlert("editada");
-  //     }
-  
-  //     closeModal();
-  //   } catch (error) {
-  //     console.error('Error al guardar la variable:', error);
-  //   }
-  // };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      let logoUrl = ''; 
+      let logoUrl = '';
       if (formData.icon) {
         logoUrl = await UploadToS3(formData.icon);
-      } else {
-        logoUrl = '2222222'; // Asignar cadena vacía si no hay icono
       }
-  
+
+
       const formDataToSubmit = {
         ...formData,
         icon: logoUrl || '', // Asegúrate de que icon tenga al menos una cadena vacía
-        informational_calculation: formData.informational_calculation || "vkvkvnvnfvfvfvfv", // Asegúrate de que informational_calculation no esté vacío
+        informational_calculation: formData.informational_calculation, // Asegúrate de que informational_calculation no esté vacío
         type_variable_id: Number(formData.type_variable_id),
-        type_register_id: Number(formData.type_register_id)
+        type_register_id: Number(formData.type_register_id),
+        is_incremental: isIncrement,
+        visible_in_dashboard: isDashboard,
       };
-  
+
       if (mode === 'create') {
-        const createdVariable =await VariablesService.createVariable(formDataToSubmit);
+        const createdVariable = await VariablesService.createVariable(formDataToSubmit);
         showErrorAlert("creada");
       } else if (mode === 'edit') {
         await VariablesService.updateVariable(variable.id, formDataToSubmit);
@@ -132,18 +135,18 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
       }
 
       onUpdate();
-  
+
       closeModal();
 
     } catch (error) {
       console.error('Error al guardar la variable:', error);
     }
   };
-  
+
   // const showErrorAlert = (message) => {
   //   alert(message); // Muestra un mensaje de alerta
   // };
-  
+
 
   const handleIconUpload = (e) => {
     const file = e.target.files[0];
@@ -162,7 +165,7 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="mb- py-">
+      <div className="mb- py-" disabled={mode === 'view'}>
         <label>Adjuntar Logo</label>
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
           {imagePreview ? (
@@ -191,6 +194,7 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
           onChange={handleChange}
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           required
+          disabled={mode === 'view'}
         />
       </div>
 
@@ -221,6 +225,7 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
             name="type_register_id"
             value={formData.type_register_id}
             onChange={handleChange}
+            disabled={mode === 'view'}
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
             required
           >
@@ -231,11 +236,11 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
               </option>
             ))} */}
             <option value="">Seleccione una opción</option>
-          {variableTypes.map((type) => (
-            <option key={type.id} value={type.id}>
-              {type.name}
-            </option>
-          ))}
+            {registerTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -246,6 +251,7 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
           name="type_variable_id"
           value={formData.type_variable_id}
           onChange={handleChange}
+          disabled={mode === 'view'}
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           required
         >
@@ -267,6 +273,7 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
           onChange={handleChange}
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           required
+          disabled={mode === 'view'}
         >
           <option value="">Seleccione una opción</option>
           {informativeCalculations.map((calc) => (
@@ -277,19 +284,48 @@ const FormVariable = ({ showErrorAlert, onUpdate,variable, mode, closeModal }) =
         </select>
       </div>
 
-      
 
+      {/* ACIVACIÓN DE VISIBLE EN DASHBAODR */}
       <div className="mt-5 flex items-center">
         <span className="text-sm font-medium text-gray-700 mr-3">Visible en Dashboard</span>
         <div
-          className={`relative inline-flex items-center h-6 rounded-full w-11 cursor-pointer transition-colors ease-in-out duration-200 ${enabled ? 'bg-[#168C0DFF]' : 'bg-gray-300'}`}
-          onClick={() => setEnabled(!enabled)}
+          className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ease-in-out duration-200 ${isDashboard ? 'bg-[#168C0DFF]' : 'bg-gray-300'
+            } ${mode === 'view' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+          onClick={() => {
+            if (mode !== 'view') {
+              setIsDashboard(!isDashboard);
+            }
+          }}
         >
           <span
-            className={`inline-block w-5 h-5 transform rounded-full bg-white transition-transform ease-in-out duration-200 ${enabled ? 'translate-x-6' : 'translate-x-1'}`}
+            className={`inline-block w-5 h-5 transform rounded-full bg-white transition-transform ease-in-out duration-200 ${isDashboard ? 'translate-x-6' : 'translate-x-1'
+              }`}
           />
         </div>
       </div>
+
+      {/* ACIVACIÓN DE ES INCREMENTAL */}
+
+      <div className="mt-5 flex items-center">
+        <span className="text-sm font-medium text-gray-700 mr-3">Es incremental</span>
+        <div
+          className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ease-in-out duration-200 ${isIncrement ? 'bg-[#168C0DFF]' : 'bg-gray-300'
+            } ${mode === 'view' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+          onClick={() => {
+            if (mode !== 'view') {
+              setIsIncrement(!isIncrement);
+            }
+          }}
+        >
+          <span
+            className={`inline-block w-5 h-5 transform rounded-full bg-white transition-transform ease-in-out duration-200 ${isIncrement ? 'translate-x-6' : 'translate-x-1'
+              }`}
+          />
+        </div>
+      </div>
+
+
+      {/* BOTONES */}
 
       <div className="flex justify-end space-x-2">
         {mode === 'view' ? (
