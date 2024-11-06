@@ -26,7 +26,7 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
   });
 
   const [documentTypes, setDocumentTypes] = useState([]); // Estado para los tipos de documentos
-  const [showAlertError, setShowAlertError] = useState(false); 
+  const [showAlertError, setShowAlertError] = useState(false);
   const [messageAlert, setMessageAlert] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
@@ -50,6 +50,8 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
     if (mode === 'edit' || mode === 'view') {
       setFormData(company);
       setImagePreview(company.logo)
+      setIsButtonDisabled(false);
+
     } else {
       setFormData({
         name: '',
@@ -68,7 +70,7 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
   const handleChange = (e) => {
     const { name, value } = e.target;
     let errorMessage = '';
-  
+
     if (name === 'phone') {
       if (!/^\d{10}$/.test(value)) {
         errorMessage = 'El celular debe tener diez dígitos numéricos';
@@ -77,35 +79,37 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
         e.target.style.borderColor = ''; // Si la validación es exitosa, limpia el borde
       }
     }
-  
+
     // Actualiza el estado con los nuevos valores
     setFormData({
       ...formData,
       [name]: value
     });
-  
+
     setErrorMessages({
       ...errorMessages,
       [name]: errorMessage
     });
   };
   useEffect(() => {
-  // Función para habilitar/deshabilitar el botón de envío
-  const isFormValid =
-      formData.name && 
-      formData.email_user_admin && 
-      formData.phone && 
-      formData.location && 
-      formData.type_document_id && 
-      formData.nit && 
-      formData.gps && 
-      formData.email_billing && 
-      /^\d{10}$/.test(formData.phone) &&
-      !Object.values(errorMessages).some((error) => error !== '');
+    if (mode !== 'edit') {
+      // Función para habilitar/deshabilitar el botón de envío
+      const isFormValid =
+        formData.name &&
+        formData.email_user_admin &&
+        formData.phone &&
+        formData.location &&
+        formData.type_document_id &&
+        formData.nit &&
+        formData.gps &&
+        formData.email_billing &&
+        /^\d{10}$/.test(formData.phone) &&
+        !Object.values(errorMessages).some((error) => error !== '');
 
-    setIsButtonDisabled(!isFormValid);
+      setIsButtonDisabled(!isFormValid);
+    }
   }, [formData, errorMessages]);
-  
+
 
   const handleDocumentBlur = async () => {
     if (mode !== 'edit') {
@@ -124,53 +128,53 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
     }
   }
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // Validación del celular
-  const phoneRegex = /^[0-9]{10}$/;  // Expresión regular para 10 dígitos numéricos
-  if (!phoneRegex.test(formData.phone)) {
-    setShowAlertError(true);
-    setMessageAlert("El celular debe tener exactamente 10 dígitos.");
-    setTimeout(() => {
-      setShowAlertError(false);
-    }, 1500);
-    return; // No enviar el formulario si la validación falla
-  }
-  try {
-    let logoUrl = ''; 
-
-    if (formData.logo) {
-      // Sube el archivo al S3 y asigna la URL de respuesta a logoUrl
-      logoUrl = await UploadToS3(formData.logo);
+    // Validación del celular
+    const phoneRegex = /^[0-9]{10}$/;  // Expresión regular para 10 dígitos numéricos
+    if (!phoneRegex.test(formData.phone)) {
+      setShowAlertError(true);
+      setMessageAlert("El celular debe tener exactamente 10 dígitos.");
+      setTimeout(() => {
+        setShowAlertError(false);
+      }, 1500);
+      return; // No enviar el formulario si la validación falla
     }
+    try {
+      let logoUrl = '';
 
-    const formDataToSubmit = {
-      ...formData,
-      logo: logoUrl, // Agrega logoUrl al objeto de envío
-      email: formData.email_user_admin,
-      type_document_id: Number(formData.type_document_id)
-    };
+      if (formData.logo) {
+        // Sube el archivo al S3 y asigna la URL de respuesta a logoUrl
+        logoUrl = await UploadToS3(formData.logo);
+      }
 
-    if (mode === 'create') {
-      // Llama a CompanyService para crear la empresa
-      const createdCompany = await CompanyService.createCompany(formDataToSubmit);
-      showErrorAlert("creada")
-    } else if (mode === 'edit') {
-      showErrorAlert("Editada")
-      // Llama a CompanyService para actualizar la empresa
-      const updatedCompany = await CompanyService.updateCompany(company.id, formDataToSubmit);
+      const formDataToSubmit = {
+        ...formData,
+        logo: logoUrl, // Agrega logoUrl al objeto de envío
+        email: formData.email_user_admin,
+        type_document_id: Number(formData.type_document_id)
+      };
+
+      if (mode === 'create') {
+        // Llama a CompanyService para crear la empresa
+        const createdCompany = await CompanyService.createCompany(formDataToSubmit);
+        showErrorAlert("creada")
+      } else if (mode === 'edit') {
+        showErrorAlert("Editada")
+        // Llama a CompanyService para actualizar la empresa
+        const updatedCompany = await CompanyService.updateCompany(company.id, formDataToSubmit);
+      }
+
+      onUpdate();
+      closeModal();
+    } catch (error) {
+      console.error('Error al guardar la empresa:', error);
     }
-
-    onUpdate();
-    closeModal();
-  } catch (error) {
-    console.error('Error al guardar la empresa:', error);
-  }
-};
+  };
 
 
-const [imagePreview, setImagePreview] = useState(null); // Estado para la vista previa de la imagen
+  const [imagePreview, setImagePreview] = useState(null); // Estado para la vista previa de la imagen
 
   const handleLogoUpload = (e) => {
     const file = e.target.files[0]; // Obtener el primer archivo seleccionado
@@ -179,13 +183,13 @@ const [imagePreview, setImagePreview] = useState(null); // Estado para la vista 
         ...formData,
         logo: file, // Almacenar el objeto File
       });
-  
+
       // Crear un lector de archivos para la visualización
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result); // Almacenar la representación en base64 para la vista previa
       };
-  
+
       reader.readAsDataURL(file); // Leer el archivo como base64
     }
   };
@@ -195,8 +199,8 @@ const [imagePreview, setImagePreview] = useState(null); // Estado para la vista 
       <div className="mb- py-">
         <label>Adjuntar Logo</label>
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
-          {imagePreview  ? (
-            <img src={imagePreview } alt="Company Logo" className="mx-auto h-20 object-contain" />
+          {imagePreview ? (
+            <img src={imagePreview} alt="Company Logo" className="mx-auto h-20 object-contain" />
           ) : (
             <>
               <IoCloudUploadOutline className="mx-auto h-12 w-12 text-gray-400" />
@@ -284,7 +288,7 @@ const [imagePreview, setImagePreview] = useState(null); // Estado para la vista 
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
-           {errorMessages.phone && <p className="text-red-500 text-sm">{errorMessages.phone}</p>}
+          {errorMessages.phone && <p className="text-red-500 text-sm">{errorMessages.phone}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Dirección</label>
@@ -350,8 +354,8 @@ const [imagePreview, setImagePreview] = useState(null); // Estado para la vista 
               type="submit"
               disabled={isButtonDisabled}
               className={`${isButtonDisabled
-                  ? 'bg-[#168C0DFF] text-gray-100 cursor-not-allowed '
-                  : 'bg-[#168C0DFF] text-white hover:bg-[#146A0D] '
+                ? 'bg-[#168C0DFF] text-gray-100 cursor-not-allowed '
+                : 'bg-[#168C0DFF] text-white hover:bg-[#146A0D] '
                 } px-4 py-2 rounded`}
             >
               {mode === 'create' ? "Crear Empresa" : "Guardar Cambios"}

@@ -136,7 +136,6 @@ const TipoVariable = () => {
   const updateTypeVariable = async () => {
     try {
       const data = await VariableType.getAllTypeVariable();
-
       setTypeVariablesList(data); // Actualiza typevariableList con los datos más recientes
     } catch (error) {
       console.error('Error al actualizar los tipos de variable:', error);
