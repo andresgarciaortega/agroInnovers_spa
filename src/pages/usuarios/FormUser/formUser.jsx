@@ -264,7 +264,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             value={formData.email}
             onChange={handleChange}
             onBlur={handleEmailBlur}
-            disabled={mode}
+            disabled={mode === 'view' || mode === 'edit'}
             required
 
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"

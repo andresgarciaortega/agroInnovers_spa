@@ -52,7 +52,6 @@ const Usuario = () => {
   const currentCompanies = filteredUser.slice(indexOfFirstCompany, indexOfLastCompany);
 
 
-
   // Cargar usuario cuando el componente se monta
   useEffect(() => {
     const fetchUsersList = async () => {
