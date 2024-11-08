@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 export default function GenericModal({ onClose, title, children }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white w-full max-w-2xl p-2 rounded-lg shadow-lg  relative">
+      <div className="bg-white w-full max-w-2xl p-2 rounded-lg shadow-lg relative">
 
         <div className="bg-[#345246] text-white p-4 rounded-t-lg flex justify-between items-center mt-[-20px] m-[-9px] mb-3">
           <h2 className="text-xl font-semibold">{title}</h2>
@@ -13,7 +13,7 @@ export default function GenericModal({ onClose, title, children }) {
           </button>
         </div>
 
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4 max-h-[80vh] overflow-y-auto">
           {children}
         </div>
       </div>
