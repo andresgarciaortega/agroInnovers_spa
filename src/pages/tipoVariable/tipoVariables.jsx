@@ -44,7 +44,7 @@ const TipoVariable = () => {
         setTypeVariablesList(data);
       } catch (error) {
         console.error('Error fetching TypeVariable:', error);
-      }finally {
+      } finally {
         setIsLoading(false);
       }
     };
@@ -61,7 +61,7 @@ const TipoVariable = () => {
   // Paginación
   const indexOfLastTypeVariable = currentPage * itemsPerPage;
   const indexOffIrstTypeVariable = indexOfLastTypeVariable - itemsPerPage;
-  const currentCompanies = filteredTypeVariable.slice(indexOffIrstTypeVariable, indexOfLastTypeVariable);
+  const currentTypeVariable = filteredTypeVariable.slice(indexOffIrstTypeVariable, indexOfLastTypeVariable);
 
   const handleNextPage = () => {
     if (currentPage < Math.ceil(filteredTypeVariable.length / itemsPerPage)) {
@@ -95,7 +95,7 @@ const TipoVariable = () => {
     setMessageAlert("tipo de variable eliminada exitosamente");
     showErrorAlertSuccess("eliminado");
     updateTypeVariable();
-    
+
   };
 
 
@@ -154,7 +154,7 @@ const TipoVariable = () => {
 
   return (
     <div className="table-container">
-      {isLoading && <LoadingView />} 
+      {isLoading && <LoadingView />}
       <div className="absolute transform -translate-y-20 right-30 w-1/2">
         <IoSearch className="absolute left-3 top-3 text-gray-500" />
         <input
@@ -184,7 +184,7 @@ const TipoVariable = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {currentCompanies.map((typevariable, index) => (
+              {currentTypeVariable.map((typevariable, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {typevariable.icon && (
@@ -204,7 +204,7 @@ const TipoVariable = () => {
                     <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(typevariable, 'view')}>
                       <Eye size={18} />
                     </button>
-                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"onClick={() => handleOpenModal(typevariable, 'edit')}>
+                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(typevariable, 'edit')}>
                       <Edit size={18} />
                     </button>
                     <button onClick={() => handleDelete(typevariable)} className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded">
@@ -250,8 +250,15 @@ const TipoVariable = () => {
       {/* Modalcrear-editar-visualizar*/}
 
       {isModalOpen && (
-        <GenericModal title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver Cariable' : 'Añadir Variable'} onClose={closeModal}>
-          <FormTypeVariable showErrorAlert={showErrorAlertSuccess} onUpdate={updateTypeVariable} typevariable={newTypeVariable} mode={modalMode} closeModal={closeModal} />
+        <GenericModal title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver Cariable' : 'Añadir Variable'}
+          onClose={closeModal}>
+          <FormTypeVariable
+            showErrorAlert={showErrorAlertSuccess}
+            onUpdate={updateTypeVariable}
+            typevariable={newTypeVariable}
+            mode={modalMode}
+            closeModal={closeModal}
+          />
         </GenericModal>
       )}
 

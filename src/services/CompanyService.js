@@ -37,7 +37,7 @@ const CompanyService = {
             const response = await api.put(`/companies/${id}`, data);
             return response.data;
         } catch (error) {
-            console.error('Error al actualizar el usuario:', error);
+            console.error('Error al actualizar la compañia:', error);
             throw error;
         }
     },
@@ -73,7 +73,7 @@ const CompanyService = {
             const response = await api.delete(`/companies/${id}`);
             return response.data;
         } catch (error) {
-            console.error('Error al eliminar el usuario:', error);
+            console.error('Error al eliminar la compañia:', error);
             throw error;
         }
     },

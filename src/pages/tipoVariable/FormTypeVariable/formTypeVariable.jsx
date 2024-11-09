@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { IoCloudUploadOutline } from "react-icons/io5";
-
 import UploadToS3 from '../../../config/UploadToS3';
-
 import VariableTypeService from '../../../services/VariableType';
 
 const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeModal }) => {

@@ -56,19 +56,7 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal }) 
     fetchVariableTypes();
     fetchRegisterTypes();
 
-    // if (mode === 'edit' || mode === 'view') {
-    //   setFormData(variable);
-    //   setImagePreview(variable.icon);
-    // } else {
-    //   setFormData({
-    //     name: '',
-    //     icon: '',
-    //     unit_of_measurement: '',
-    //     type_variable_id: '',
-    //     type_register_id: '',
-    //     informational_calculation: ''
-    //   });
-    // }
+  
 
     if (mode === 'edit' || mode === 'view') {
       setFormData({
@@ -284,10 +272,13 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal }) 
         </select>
       </div>
 
+      
+      <div className="grid grid-cols-3 gap-4 mt-5">
+
 
       {/* ACIVACIÓN DE VISIBLE EN DASHBAODR */}
       <div className="mt-5 flex items-center">
-        <span className="text-sm font-medium text-gray-700 mr-3">Visible en Dashboard</span>
+        <span className="text-sm font-medium text-gray-700 mr-">Visible en Dashboard</span>
         <div
           className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ease-in-out duration-200 ${isDashboard ? 'bg-[#168C0DFF]' : 'bg-gray-300'
             } ${mode === 'view' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
@@ -322,6 +313,7 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal }) 
               }`}
           />
         </div>
+      </div>
       </div>
 
 

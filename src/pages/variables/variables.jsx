@@ -191,14 +191,14 @@ const Variable = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{variable.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    <span className={`px-2 inline-flex justify-center text-sm leading-5 py-1 font-semibold rounded-md text-cyan-500 bg-blue-100`}>
+                    <span className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       {variable.typeVariable && variable.typeVariable.length > 0 ? variable.typeVariable.name : variable.typeVariable.name }
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{variable.unit_of_measurement}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {/* Asegúrate de que variable.type_register_id tiene un valor válido */}
-                    <span className="px-2 inline-flex justify-center text-sm leading-5 py-1 text-gray-700 bg-gray-300 rounded-sm">
+                    <span className="px-2 inline-flex justify-center text-sm leading-5 py-1 font-semibold text-gray-500 bg-gray-300 rounded-sm">
                     {variable.typeRegister ? variable.typeRegister.name : 'N/A'}
 
                     </span>
