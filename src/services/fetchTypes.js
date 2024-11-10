@@ -19,8 +19,8 @@ const TypeDocumentsService = {
     // LISTAR TODAS LAS COMPAÑIAS
     async getAllTypeUsers() {
         try {
-            const response = await api.get('/users/typeUsers/');
-            return response;
+            const response = await api.get('/roles/');
+            return response.data;
         } catch (error) {
             console.error('Error al obtener las compañías:', error);
             throw error;
