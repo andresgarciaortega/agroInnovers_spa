@@ -331,7 +331,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             <option value="" disabled>Seleccione una opción</option>
             {documentTypes.map((type) => (
               <option key={type.id} value={type.id}> 
-                {type.name} - {type.id}
+                {type.name} 
               </option>
             ))}
           </select>
