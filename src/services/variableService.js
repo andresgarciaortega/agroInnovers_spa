@@ -22,8 +22,6 @@ const VariablesService = {
             const response = await api.post('/variables/', data);
             return response;
         } catch (error) {
-            console.log('Error al crear la variable:', error);
-
             // Extraer el mensaje del error
             const errorMessage = error.response?.data?.message?.message || 'Error desconocido al crear la variable.';
 

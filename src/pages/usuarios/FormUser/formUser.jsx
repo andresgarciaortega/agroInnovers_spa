@@ -9,7 +9,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   const [formData, setFormData] = React.useState({
     name: '',
     email: '',
-    mobile: '',
+    phone: '',
     registrationDate: '',
     typeDocument: '',
     company: '',
@@ -21,7 +21,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   const [errorMessages, setErrorMessages] = useState({
     name: '',
     email: '',
-    mobile: '',
+    phone: '',
     document: '',
     password: '',
     confirmPass: ''
@@ -37,41 +37,89 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [passwordVisible, setPasswordVisible] = useState(false);
 
-  useEffect(() => {
+  // useEffect(() => {
 
+  //   const fetchDocumentTypes = async () => {
+  //     try {
+  //       const types = await TypeDocumentsService.getAllTypeDocuments();
+  //       const companies = await CompanyService.getAllCompany();
+  //       const roles = await TypeDocumentsService.getAllTypeUsers();
+
+  //       // Filtrar los elementos donde el campo `process` sea igual a 'PERSONA'
+  //       const personaTypes = types.filter(type => type.process === 'PERSONA');
+  //       setDocumentTypes(personaTypes);
+
+  //       setUsersTypes(roles)
+  //       setCompanies(companies)
+
+  //     } catch (error) {
+  //       console.error('Error al obtener tipos de documentos:', error);
+  //     }
+  //   };
+
+  //   fetchDocumentTypes();
+
+
+  //   if (mode === 'edit' || mode === 'view') {
+  //     setFormData(user);
+  //     console.log("users : ", user)
+  //     setFormData({
+  //       ...user,
+  //       roles: user.roles.length > 0 ? user.roles[0].id : '',
+  //     });
+  //   } else {
+  //     setFormData({
+  //       name: '',
+  //       email: '',
+  //       phone: '',
+  //       registrationDate: '',
+  //       typeDocument: '',
+  //       company: '', // Asegúrate de que este campo esté vacío
+  //       document: '',
+  //       roles: '',
+  //       password: '',
+  //       confirmPass: ''
+  //     });
+  //   }
+  // }, [user, mode]);
+
+
+  useEffect(() => {
     const fetchDocumentTypes = async () => {
       try {
         const types = await TypeDocumentsService.getAllTypeDocuments();
-        console.log("-> ", types)
         const companies = await CompanyService.getAllCompany();
         const roles = await TypeDocumentsService.getAllTypeUsers();
-
+  
         // Filtrar los elementos donde el campo `process` sea igual a 'PERSONA'
         const personaTypes = types.filter(type => type.process === 'PERSONA');
         setDocumentTypes(personaTypes);
-
-        setUsersTypes(roles)
-        setCompanies(companies)
-
+        setUsersTypes(roles);
+        setCompanies(companies);
       } catch (error) {
         console.error('Error al obtener tipos de documentos:', error);
       }
     };
-
+  
     fetchDocumentTypes();
-
-
+  
     if (mode === 'edit' || mode === 'view') {
-      setFormData(user);
+      setFormData({
+        ...user,
+        roles: user.roles.length > 0 ? user.roles[0].id : '',
+        typeDocument: user.typeDocument ? user.typeDocument.id : '', // Asigna el `id` del `typeDocument`
+        company: user.company? user.company.id : '', // Asigna el `id` del `typeDocument`
+      });
+      console.log("users : ", user)
+
     } else {
       setFormData({
         name: '',
         email: '',
-        mobile: '',
+        phone: '',
         registrationDate: '',
-        typeDocument: '',
-
-        company: '', // Asegúrate de que este campo esté vacío
+        typeDocument: '', // Inicializa como vacío
+        company: '',
         document: '',
         roles: '',
         password: '',
@@ -79,6 +127,9 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       });
     }
   }, [user, mode]);
+
+  
+
 
   const handlePasswordToggle = () => {
     setPasswordVisible(!passwordVisible);
@@ -98,7 +149,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       }
     }
 
-    if (name === 'mobile') {
+    if (name === 'phone') {
       if (!/^\d{10}$/.test(value)) {
         errorMessage = 'El celular debe tener diez dígitos numéricos';
         e.target.style.borderColor = 'red';
@@ -140,21 +191,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       [name]: errorMessage
     });
   };
-  // useEffect(() => {
-  //   const isFormValid =
-  //     formData.name &&
-  //     formData.email &&
-  //     formData.mobile &&
-  //     formData.typeDocument &&
-  //     formData.company &&
-  //     formData.document &&
-  //     formData.roles &&
-  //     formData.password &&
-  //     formData.confirmPass &&
-  //     !Object.values(errorMessages).some((error) => error !== '');
-
-  //   setIsButtonDisabled(!isFormValid);
-  // }, [formData, errorMessages]);
+ 
 
   const handleEmailBlur = async () => {
     if (mode !== 'edit') {
@@ -195,17 +232,17 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     e.preventDefault();
 
     const formattedData = {
-      type_user_id: Number(formData.userType),
+      type_user_id: Number(formData.roles),
       type_document_id: Number(formData.typeDocument),
       companies_id: Number(formData.company),
       name: formData.name,
       lastname: formData.lastname || " ", // Asegúrate de agregar el apellido en el formulario si es necesario
       email: formData.email,
       password: formData.password || "#Innov3rsHuil4", // Asegúrate de capturar la contraseña
-      phone: formData.mobile,
+      phone: formData.phone,
       document: formData.document,
       photo: formData.photo || "https://example.com/photo.jpg", // Asegúrate de capturar la foto
-      roles: formData.userType ? [Number(formData.userType)] : []// Ajusta esto según sea necesario
+      roles: [Number(formData.roles)] // Ajusta esto según sea necesario
     };
 
     try {
@@ -214,8 +251,9 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         showErrorAlert("creada")
       } else if (mode === 'edit') {
         showErrorAlert("Editada")
+        // const response = await UsersService.createUser(formattedData);
         // Lógica para editar usuario
-        await UsersService.updateUser(user.id, formData); // Editar usuario existente
+        await UsersService.updateUser(user.id, formattedData); // Editar usuario existente
       }
 
       onUpdate();
@@ -270,7 +308,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           <label className="block text-sm font-medium text-gray-700">Celular</label>
           <input
             type="text"
-            name="mobile"
+            name="phone"
             placeholder="Celular"
             value={formData.phone}
             onChange={handleChange}
@@ -278,7 +316,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
-          {errorMessages.mobile && <p className="text-red-500 text-sm">{errorMessages.mobile}</p>}
+          {errorMessages.phone && <p className="text-red-500 text-sm">{errorMessages.phone}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Tipo de documento</label>
@@ -292,8 +330,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           >
             <option value="" disabled>Seleccione una opción</option>
             {documentTypes.map((type) => (
-              <option key={type.id} value={type.id}> {/* Cambia `type.id` y `type.value` según tu respuesta */}
-                {type.name} {/* Cambia `type.label` según tu respuesta */}
+              <option key={type.id} value={type.id}> 
+                {type.name} - {type.id}
               </option>
             ))}
           </select>

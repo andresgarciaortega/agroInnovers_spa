@@ -10,7 +10,6 @@ const CompanyService = {
     async getAllCompany() {
         try {
             const response = await api.get('/companies/');
-            console.log("response ::: ",response.data)
             return response.data;
         } catch (error) {
             console.error('Error al obtener las compañías:', error);
@@ -46,7 +45,6 @@ const CompanyService = {
     //   USCAR USUARIO POR EMAIL
       async getFacturacionEmail(email) {
         try {
-            console.log(email)
             const response = await api.get('/companies/find-by-email?email='+email);
             return response;
         } catch (error) {
@@ -58,9 +56,7 @@ const CompanyService = {
        // USCAR USUARIO POR DOCUMENTO
        async getCompanyDocument(nit) {
         try {
-            console.log(nit)
             const response = await api.get('/companies/nit/'+nit);
-            console.log("==> ", response)
             return response;
         } catch (error) {
             console.error('Error al obtener las empresas:', error);

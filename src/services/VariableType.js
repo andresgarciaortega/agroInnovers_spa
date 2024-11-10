@@ -9,7 +9,6 @@ const VariableTypeService = {
     async getAllTypeVariable() {
         try {
             const response = await api.get('/type-variables/');
-
             return response.data;
         } catch (error) {
             console.error('Error al obtener los tipos de variable:', error);
@@ -23,11 +22,8 @@ const VariableTypeService = {
             const response = await api.post('/type-variables/', data);
             return response;
         } catch (error) {
-            console.log('Error al crear el tipo de variable:', error);
-
             // Extraer el mensaje del error
             const errorMessage = error.response?.data?.message?.message || 'Error desconocido al crear el tipo de variable.';
-
             // Retornar un objeto que incluya el mensaje y el código de estado
             throw {
                 statusCode: error.response?.status || 500, // Si no hay un estado, por defecto 500
@@ -55,7 +51,6 @@ const VariableTypeService = {
         try {
             const response = await api.delete(`/type-variables/${id}`);
             return response;
-
         } catch (error) {
             console.error('Error al eliminar el tipo de variable:', error);
             throw error;

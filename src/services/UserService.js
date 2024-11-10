@@ -22,7 +22,6 @@ const UsersService = {
             const response = await api.post('/users/', data);
             return response;
         } catch (error) {
-            console.log('Error al crear al usuario:', error);
 
             // Extraer el mensaje del error
             const errorMessage = error.response?.data?.message?.message || 'Error desconocido al crear al usuario.';
@@ -64,7 +63,6 @@ const UsersService = {
        // USCAR USUARIO POR EMAIL
        async getUserEmail(email) {
         try {
-            console.log(email)
             const response = await api.get('/users/email/'+email);
             return response;
         } catch (error) {
@@ -76,7 +74,6 @@ const UsersService = {
        // USCAR USUARIO POR DOCUMENTO
        async getUserDocument(document) {
         try {
-            console.log(document)
             const response = await api.get('/users/document/'+document);
             return response;
         } catch (error) {

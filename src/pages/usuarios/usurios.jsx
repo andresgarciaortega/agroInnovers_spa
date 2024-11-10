@@ -60,6 +60,7 @@ const Usuario = () => {
       try {
         const data = await UsersService.getAllUser();
         setUsersList(data);
+        console.log("users list : ", data)
       } catch (error) {
         console.error('Error fetching companies:', error);
       }finally {
@@ -203,7 +204,7 @@ const Usuario = () => {
               {currentCompanies.map((user, index) => (
                 <tr key={user.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{user.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ textTransform: 'uppercase' }}>{user.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phone}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.created_at}</td>
