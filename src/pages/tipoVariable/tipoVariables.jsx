@@ -41,7 +41,7 @@ const TipoVariable = () => {
       setIsLoading(true);
       try {
         const data = await VariableType.getAllTypeVariable();
-        setTypeVariablesList(data);
+        setTypeVariablesList(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching TypeVariable:', error);
       } finally {

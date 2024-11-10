@@ -37,7 +37,7 @@ const Variable = () => {
     const fetchVariables = async () => {
       try {
         const data = await VariableService.getAllVariable();
-        setVariableList(data);
+        setVariableList(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching variables:', error);
       }

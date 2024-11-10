@@ -9,7 +9,7 @@ import ErrorAlert from '../../../components/alerts/error';
 
 
 
-const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) => {
+const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) => {
   const [formData, setFormData] = useState({
     name: '',
     email_user_admin: '',
@@ -113,13 +113,13 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
 
   const handleDocumentBlur = async () => {
     if (mode !== 'edit') {
-      const emailExisting = await UsersService.getUserDocument(formData.document);
+      const emailExisting = await CompanyService.getCompanyDocument(formData.nit);
       if (emailExisting) {
         setShowAlertError(true);
         setMessageAlert("Los sentimos! el documento ya esta registrado")
         setFormData({
           ...formData,
-          document: '' // Limpia el campo de email
+          nit: '' // Limpia el campo de email
         });
         setTimeout(() => {
           setShowAlertError(false);
@@ -127,6 +127,29 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
       }
     }
   }
+
+  const handleEmilBlur = async () => {
+    if (mode !== 'edit') {
+      const emailExisting = await CompanyService.getFacturacionEmail(formData.email_user_admin);
+      if (emailExisting) {
+        setShowAlertError(true);
+        setMessageAlert("Los sentimos! el email ya esta registrado")
+        setFormData({
+          ...formData,
+          email_user_admin: '' // Limpia el campo de email
+        });
+        setTimeout(() => {
+          setShowAlertError(false);
+        }, 1500);
+      }
+    }
+  }
+
+  
+  const handleCloseAlert = () => {
+    setShowAlertError(false);
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -159,9 +182,9 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
       if (mode === 'create') {
         // Llama a CompanyService para crear la empresa
         const createdCompany = await CompanyService.createCompany(formDataToSubmit);
-        showErrorAlert("creada")
+        showSuccessAlert("creada")
       } else if (mode === 'edit') {
-        showErrorAlert("Editada")
+        showSuccessAlert("Editada")
         // Llama a CompanyService para actualizar la empresa
         const updatedCompany = await CompanyService.updateCompany(company.id, formDataToSubmit);
       }
@@ -256,6 +279,7 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
             placeholder="Documento"
             value={formData.nit}
             onChange={handleChange}
+            onBlur={handleDocumentBlur}
             disabled={mode === 'view'}
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
@@ -271,6 +295,7 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
             placeholder="Correo electrónico"
             value={formData.email_user_admin}
             onChange={handleChange}
+            onBlur={handleEmilBlur}
             disabled={mode === 'view'}
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
@@ -363,6 +388,13 @@ const FormCompany = ({ showErrorAlert, onUpdate, company, mode, closeModal }) =>
           </>
         )}
       </div>
+
+      {showAlertError && (
+        <ErrorAlert
+          message={messageAlert}
+          onCancel={handleCloseAlert}
+        />
+      )}
     </form>
   );
 };

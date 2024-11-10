@@ -1,12 +1,20 @@
 // src/components/Navbar.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IoMdNotificationsOutline, IoIosArrowDown } from "react-icons/io";
-import logoUser from "../assets/icons/user2.png";
 import { useNavigate } from 'react-router-dom';
-import { IoSearch } from "react-icons/io5";
+
+
+import { getDecodedToken } from './../utils/auseAuth'; // Ajusta la ruta según tu proyecto
+
+
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [username, setUsername] = useState(null);
+  const [emailUser, setEmailUser] = useState(null);
+  const [logoUser, setLogoUser] = useState(null);
+
+
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
@@ -21,6 +29,22 @@ const Navbar = () => {
     }
   };
 
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const decodedToken = await getDecodedToken(); // Espera la resolución de la promesa
+      if (decodedToken) {
+        // Accede a los valores del token y actualiza el estado
+        setUsername(decodedToken.name); 
+        setEmailUser(decodedToken.email);
+        setLogoUser(decodedToken?.company.logo)
+      }
+    };
+
+    fetchUserData(); // Llama a la función asíncrona
+  }, []);
+
+
   return (
     <div className="flex justify-end items-center p-4">
       
@@ -31,8 +55,8 @@ const Navbar = () => {
         </div>
         <img src={logoUser} alt="User" className="h-8 w-8 rounded-full" />
         <div onClick={toggleDropdown}>
-          <p className="text-gray-700">Yeison Barrios Funieles</p>
-          <small className="text-gray-500">yeison@gmail.com</small>
+          <p className="text-gray-700">{username}</p>
+          <small className="text-gray-500">{emailUser}</small>
         </div>
         <IoIosArrowDown className="text-gray-600 cursor-pointer" onClick={toggleDropdown} />
         {dropdownOpen && (

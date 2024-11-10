@@ -9,7 +9,7 @@ const UsersService = {
     async getAllUser() {
         try {
             const response = await api.get('/users/');
-            return response;
+            return response.data;
         } catch (error) {
             console.error('Error al obtener los usuarios:', error);
             throw error;

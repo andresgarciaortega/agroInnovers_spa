@@ -8,6 +8,7 @@ import FormCompany from './FormCompany/formCompany';
 import CompanyService from "../../services/CompanyService";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
+import ErrorAlert from "../../components/alerts/error";
 
 
 const Empresa = () => {
@@ -19,6 +20,7 @@ const Empresa = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [newCompany, setNewCompany] = useState({
     name: '',
@@ -41,7 +43,7 @@ const Empresa = () => {
         console.error('Error fetching companies:', error);
       }
     };
-
+  
     fetchCompanies();
   }, []);
 
@@ -112,9 +114,20 @@ const Empresa = () => {
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
     setSelectedCompany(null);
+
+    // const data = await CompanyService.deleteCompany(selectedCompany.id);
     const data = await CompanyService.deleteCompany(selectedCompany.id);
+if (data.message) {
+    setMessageAlert(data.message);
+    showErrorAlertr(data.message)
+} else {
     setMessageAlert("Empresa eliminada exitosamente");
-    showErrorAlertSuccess("eliminado")
+    showSuccessAlertSuccess("Compañía eliminada correctamente")
+}
+
+
+
+    
     updateCompanies()
   };
 
@@ -124,7 +137,7 @@ const Empresa = () => {
   };
 
   const handleCloseAlert = () => {
-    setShowErrorAlert(false);
+    setShowSuccessAlert(false);
   };
 
 
@@ -139,14 +152,24 @@ const Empresa = () => {
     }
   };
 
-  const showErrorAlertSuccess = (message) => {
-    setShowErrorAlert(true)
+  const showSuccessAlertSuccess = (message) => {
+    setShowSuccessAlert(true)
     setMessageAlert(`Empresa ${message} exitosamente`);
+
+    setTimeout(() => {
+      setShowSuccessAlert(false)
+    }, 2500);
+  }
+
+  const showErrorAlertr = (message) => {
+    setShowErrorAlert(true)
+    setMessageAlert(`${message}`);
 
     setTimeout(() => {
       setShowErrorAlert(false)
     }, 2500);
   }
+
 
   return (
     <div className="table-container">
@@ -254,12 +277,19 @@ const Empresa = () => {
       {/* Modal crea,editar,visualizar*/}
       {isModalOpen && (
         <GenericModal title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'} onClose={closeModal}>
-          <FormCompany showErrorAlert={showErrorAlertSuccess} onUpdate={updateCompanies} company={newCompany} mode={modalMode} closeModal={closeModal} />
+          <FormCompany showSuccessAlert={showSuccessAlertSuccess} onUpdate={updateCompanies} company={newCompany} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
       )}
 
-      {showErrorAlert && (
+      {showSuccessAlert && (
         <SuccessAlert
+          message={messageAlert}
+          onCancel={handleCloseAlert}
+        />
+      )}
+
+      {showErrorAlert && (
+        <ErrorAlert
           message={messageAlert}
           onCancel={handleCloseAlert}
         />

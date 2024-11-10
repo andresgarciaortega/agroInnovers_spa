@@ -9,7 +9,7 @@ const VariablesService = {
     async getAllVariable() {
         try {
             const response = await api.get('/variables/');
-            return response;
+            return response.data;
         } catch (error) {
             console.error('Error al obtener las variables:', error);
             throw error;
