@@ -30,7 +30,7 @@ const Usuario = () => {
     company: '',
     documentType: '',
     registrationDate: '',
-    userType: ''
+    roles: ''
   });
 
   
@@ -105,7 +105,7 @@ const Usuario = () => {
         company: '',
         documentType: '',
         registrationDate: '',
-        userType: ''
+        roles: ''
       });
     }
     setIsModalOpen(true);

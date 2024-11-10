@@ -14,7 +14,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     typeDocument: '',
     company: '',
     document: '',
-    userType: null,
+    roles: null,
     password: '',
     confirmPass: ''
   });
@@ -44,13 +44,13 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         const types = await TypeDocumentsService.getAllTypeDocuments();
         console.log("-> ", types)
         const companies = await CompanyService.getAllCompany();
-        const typeUsers = await TypeDocumentsService.getAllTypeUsers();
+        const roles = await TypeDocumentsService.getAllTypeUsers();
 
         // Filtrar los elementos donde el campo `process` sea igual a 'PERSONA'
         const personaTypes = types.filter(type => type.process === 'PERSONA');
         setDocumentTypes(personaTypes);
 
-        setUsersTypes(typeUsers)
+        setUsersTypes(roles)
         setCompanies(companies)
 
       } catch (error) {
@@ -70,9 +70,10 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         mobile: '',
         registrationDate: '',
         typeDocument: '',
+
         company: '', // Asegúrate de que este campo esté vacío
         document: '',
-        userType: '',
+        roles: '',
         password: '',
         confirmPass: ''
       });
@@ -80,7 +81,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   }, [user, mode]);
 
   const handlePasswordToggle = () => {
-    setPasswordVisible(!passwordVisible); // Alternar visibilidad
+    setPasswordVisible(!passwordVisible);
   };
 
   const handleChange = (e) => {
@@ -134,28 +135,26 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         [name]: value
       });
     }
-    // Mostrar mensaje de error debajo del campo, si hay uno
     setErrorMessages({
       ...errorMessages,
       [name]: errorMessage
     });
   };
-  // Lógica para habilitar/deshabilitar el botón de envío
-  useEffect(() => {
-    const isFormValid =
-      formData.name &&
-      formData.email &&
-      formData.mobile &&
-      formData.typeDocument &&
-      formData.company &&
-      formData.document &&
-      formData.userType &&
-      formData.password &&
-      formData.confirmPass &&
-      !Object.values(errorMessages).some((error) => error !== '');
+  // useEffect(() => {
+  //   const isFormValid =
+  //     formData.name &&
+  //     formData.email &&
+  //     formData.mobile &&
+  //     formData.typeDocument &&
+  //     formData.company &&
+  //     formData.document &&
+  //     formData.roles &&
+  //     formData.password &&
+  //     formData.confirmPass &&
+  //     !Object.values(errorMessages).some((error) => error !== '');
 
-    setIsButtonDisabled(!isFormValid);
-  }, [formData, errorMessages]);
+  //   setIsButtonDisabled(!isFormValid);
+  // }, [formData, errorMessages]);
 
   const handleEmailBlur = async () => {
     if (mode !== 'edit') {
@@ -165,7 +164,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         setMessageAlert("Los sentimos! el email ya esta registrado")
         setFormData({
           ...formData,
-          email: '' // Limpia el campo de email
+          email: ''
         });
         setTimeout(() => {
           setShowAlertError(false);
@@ -191,10 +190,6 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       }
     }
   }
-
-
-
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -338,15 +333,12 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             ))}
           </select>
 
-
-
-
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Rol</label>
           <select
-            name="userType"
-            value={formData.userType}
+            name="roles"
+            value={formData.roles}
             onChange={handleChange}
             disabled={mode === 'view'}
             required
@@ -354,8 +346,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           >
             <option value="" disabled >Seleccione un opción</option>
             {usersTypes.map((type) => (
-              <option key={type.id} value={type.id}> {/* Cambia `type.id` y `type.value` según tu respuesta */}
-                {type.name} {/* Cambia `type.label` según tu respuesta */}
+              <option key={type.id} value={type.id}>
+                {type.name}
               </option>
             ))}
           </select>
@@ -421,6 +413,28 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           </button>
         ) : (
           <>
+            {/* <button
+              type="button"
+              onClick={closeModal}
+              className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+            >
+              Cerrar
+            </button>
+            <button
+              type="submit"
+              disabled={mode === 'create' && isButtonDisabled}
+              className={`${mode === 'create' && isButtonDisabled
+                ? 'bg-[#168C0DFF] text-gray-100 cursor-not-allowed'
+                : 'bg-[#168C0DFF] text-white hover:bg-[#146A0D]'
+                } px-4 py-2 rounded`}
+            >
+              {mode === 'create' ? "Crear Usuario" : "Guardar Cambios"}
+            </button>
+
+
+
+          </> */}
+              
             <button
               type="button"
               onClick={closeModal}
@@ -430,16 +444,14 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             </button>
             <button
               type="submit"
-              disabled={isButtonDisabled}
-              className={`${isButtonDisabled
-                ? 'bg-[#168C0DFF] text-gray-100 cursor-not-allowed '
-                : 'bg-[#168C0DFF] text-white hover:bg-[#146A0D] '
-                } px-4 py-2 rounded`}
+              className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
             >
-              {mode === 'create' ? "Crear Usuario" : "Guardar Cambios"}
-            </button>
+              {mode === 'create' ? 'Crear usuario' : 'Guardar Cambios'}
 
+            </button>
           </>
+
+          
         )}
       </div>
       {showAlertError && (
