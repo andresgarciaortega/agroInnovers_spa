@@ -209,9 +209,19 @@ const Usuario = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phone}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.created_at}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex justify-center text-sm leading-5  py-1 font-semibold rounded-md text-cyan-500 bg-blue-100  ${user?.roles[0]?.name}`}>
-                      {user?.roles[0]?.name}
-                    </span>
+                  <span 
+      className={`px-2 inline-flex justify-center text-sm leading-5 py-1 font-bold rounded-md ${
+        user?.roles[0]?.name === 'SUPER-ADMINISTRADOR' 
+          ? 'text-blue-500 bg-cyan-100 font-bold ' 
+          : user?.roles[0]?.name === 'ADMINISTRADOR' 
+          ? 'text-teal-500 bg-cyan-100 '  
+          : user?.roles[0]?.name === 'OPERARIO' 
+          ? 'text-[#168C0DFF] bg-cyan-100 '  
+          : 'text-gray-500'
+      }`}
+    >
+      {user?.roles[0]?.name}
+    </span>
                   </td>
                   <td className="bg-customGreen text-[#168C0DFF] px- py-2 rounded">
                     <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(user, 'view')}>

@@ -9,7 +9,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   const [formData, setFormData] = React.useState({
     name: '',
     email: '',
-    phone: '',
+    mobile: '',
     registrationDate: '',
     typeDocument: '',
     company: '',
@@ -21,7 +21,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   const [errorMessages, setErrorMessages] = useState({
     name: '',
     email: '',
-    phone: '',
+    mobile: '',
     document: '',
     password: '',
     confirmPass: ''
@@ -35,91 +35,44 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   const [messageAlert, setMessageAlert] = useState(""); // Estado para los tipos de usuarios
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  const [passwordVisible, setPasswordVisible] = useState(false);
-
-  // useEffect(() => {
-
-  //   const fetchDocumentTypes = async () => {
-  //     try {
-  //       const types = await TypeDocumentsService.getAllTypeDocuments();
-  //       const companies = await CompanyService.getAllCompany();
-  //       const roles = await TypeDocumentsService.getAllTypeUsers();
-
-  //       // Filtrar los elementos donde el campo `process` sea igual a 'PERSONA'
-  //       const personaTypes = types.filter(type => type.process === 'PERSONA');
-  //       setDocumentTypes(personaTypes);
-
-  //       setUsersTypes(roles)
-  //       setCompanies(companies)
-
-  //     } catch (error) {
-  //       console.error('Error al obtener tipos de documentos:', error);
-  //     }
-  //   };
-
-  //   fetchDocumentTypes();
-
-
-  //   if (mode === 'edit' || mode === 'view') {
-  //     setFormData(user);
-  //     console.log("users : ", user)
-  //     setFormData({
-  //       ...user,
-  //       roles: user.roles.length > 0 ? user.roles[0].id : '',
-  //     });
-  //   } else {
-  //     setFormData({
-  //       name: '',
-  //       email: '',
-  //       phone: '',
-  //       registrationDate: '',
-  //       typeDocument: '',
-  //       company: '', // Asegúrate de que este campo esté vacío
-  //       document: '',
-  //       roles: '',
-  //       password: '',
-  //       confirmPass: ''
-  //     });
-  //   }
-  // }, [user, mode]);
-
+  const [passwordVisible, setPasswordVisible] = useState(false);;
+  const [changePassword, setChangePassword] = useState(false); 
 
   useEffect(() => {
+
     const fetchDocumentTypes = async () => {
       try {
         const types = await TypeDocumentsService.getAllTypeDocuments();
+        console.log("-> ", types)
         const companies = await CompanyService.getAllCompany();
         const roles = await TypeDocumentsService.getAllTypeUsers();
-  
+
         // Filtrar los elementos donde el campo `process` sea igual a 'PERSONA'
         const personaTypes = types.filter(type => type.process === 'PERSONA');
         setDocumentTypes(personaTypes);
-        setUsersTypes(roles);
-        setCompanies(companies);
+
+        setUsersTypes(roles)
+        setCompanies(companies)
+
       } catch (error) {
         console.error('Error al obtener tipos de documentos:', error);
       }
     };
-  
-    fetchDocumentTypes();
-  
-    if (mode === 'edit' || mode === 'view') {
-      setFormData({
-        ...user,
-        roles: user.roles.length > 0 ? user.roles[0].id : '',
-        typeDocument: user.typeDocument ? user.typeDocument.id : '', // Asigna el `id` del `typeDocument`
-        company: user.company? user.company.id : '', // Asigna el `id` del `typeDocument`
-      });
-      console.log("users : ", user)
 
+    fetchDocumentTypes();
+
+
+    if (mode === 'edit' || mode === 'view') {
+      setFormData(user);
     } else {
       setFormData({
         name: '',
         email: '',
-        phone: '',
+        mobile: '',
         registrationDate: '',
-        typeDocument: '', // Inicializa como vacío
-        company: '',
+        typeDocument: '',
+
+        company: '', // Asegúrate de que este campo esté vacío
         document: '',
         roles: '',
         password: '',
@@ -127,9 +80,6 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       });
     }
   }, [user, mode]);
-
-  
-
 
   const handlePasswordToggle = () => {
     setPasswordVisible(!passwordVisible);
@@ -149,7 +99,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       }
     }
 
-    if (name === 'phone') {
+    if (name === 'mobile') {
       if (!/^\d{10}$/.test(value)) {
         errorMessage = 'El celular debe tener diez dígitos numéricos';
         e.target.style.borderColor = 'red';
@@ -191,7 +141,21 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       [name]: errorMessage
     });
   };
- 
+  useEffect(() => {
+    const isFormValid =
+      formData.name &&
+      formData.email &&
+      formData.mobile &&
+      formData.typeDocument &&
+      formData.company &&
+      formData.document &&
+      formData.roles &&
+      formData.password &&
+      formData.confirmPass &&
+      !Object.values(errorMessages).some((error) => error !== '');
+
+    setIsButtonDisabled(!isFormValid);
+  }, [formData, errorMessages]);
 
   const handleEmailBlur = async () => {
     if (mode !== 'edit') {
@@ -232,17 +196,17 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     e.preventDefault();
 
     const formattedData = {
-      type_user_id: Number(formData.roles),
+      type_user_id: Number(formData.userType),
       type_document_id: Number(formData.typeDocument),
       companies_id: Number(formData.company),
       name: formData.name,
       lastname: formData.lastname || " ", // Asegúrate de agregar el apellido en el formulario si es necesario
       email: formData.email,
-      password: formData.password || "#Innov3rsHuil4", // Asegúrate de capturar la contraseña
-      phone: formData.phone,
+      password: changePassword ? formData.password : "", // Asegúrate de capturar la contraseña
+      phone: formData.mobile,
       document: formData.document,
       photo: formData.photo || "https://example.com/photo.jpg", // Asegúrate de capturar la foto
-      roles: [Number(formData.roles)] // Ajusta esto según sea necesario
+      roles: formData.userType ? [Number(formData.userType)] : []// Ajusta esto según sea necesario
     };
 
     try {
@@ -251,9 +215,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         showErrorAlert("creada")
       } else if (mode === 'edit') {
         showErrorAlert("Editada")
-        // const response = await UsersService.createUser(formattedData);
         // Lógica para editar usuario
-        await UsersService.updateUser(user.id, formattedData); // Editar usuario existente
+        await UsersService.updateUser(user.id, formData); // Editar usuario existente
       }
 
       onUpdate();
@@ -268,6 +231,9 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     setShowAlertError(false);
   };
 
+  const handleChangePasswordToggle = () => {
+    setChangePassword(!changePassword); 
+  };
 
 
 
@@ -308,7 +274,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           <label className="block text-sm font-medium text-gray-700">Celular</label>
           <input
             type="text"
-            name="phone"
+            name="mobile"
             placeholder="Celular"
             value={formData.phone}
             onChange={handleChange}
@@ -316,7 +282,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
-          {errorMessages.phone && <p className="text-red-500 text-sm">{errorMessages.phone}</p>}
+          {errorMessages.mobile && <p className="text-red-500 text-sm">{errorMessages.mobile}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Tipo de documento</label>
@@ -330,8 +296,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           >
             <option value="" disabled>Seleccione una opción</option>
             {documentTypes.map((type) => (
-              <option key={type.id} value={type.id}> 
-                {type.name} 
+              <option key={type.id} value={type.id}> {/* Cambia `type.id` y `type.value` según tu respuesta */}
+                {type.name} {/* Cambia `type.label` según tu respuesta */}
               </option>
             ))}
           </select>
@@ -390,54 +356,70 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             ))}
           </select>
         </div>
-        <div className="border-gray-300 rounded-lg cursor-pointer mr-0">
-          <label className="block text-sm font-medium text-gray-700 ">Contraseña</label>
-          <div className="relative">
-            <input
-              type={passwordVisible ? 'text' : 'password'}
-              name="password"
-              placeholder="Contraseña"
-              value={formData.password}
-              onChange={handleChange}
-              disabled={mode === 'view'}
-              required
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2 pr-10" // pr-10 para espacio para el icono
-            />
+        
+        </div>
+        
+        {mode === 'edit' && (
+     <div className="mt-5 flex items-center">
+     <span className="text-sm font-medium text-gray-700 mr-3">Cambiar contraseña</span>
+     <div
+       className={`relative inline-flex items-center h-6 w-11 rounded-full transition-colors duration-200 ease-in-out ${changePassword ? 'bg-[#168C0DFF]' : 'bg-gray-300'
+         } cursor-pointer`}
+       onClick={handleChangePasswordToggle} // Cambia de estado al hacer clic en la caja
+     >
+       <span
+         className={`inline-block w-5 h-5 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${changePassword ? 'translate-x-6' : 'translate-x-1'
+           }`}
+       />
+     </div>
+   </div>
+   
+    )}
 
-            <button
-              type="button"
-              onClick={handlePasswordToggle}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
-            >
-              {passwordVisible ? <IoEyeOff /> : <IoEye />}
-            </button>
-          </div>
+    {/* Mostrar los campos de contraseña solo si estamos en modo creación o si el checkbox está seleccionado */}
+    {(mode === 'create' || changePassword) && (
+      <>
+        
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+          <input
+            type={passwordVisible ? 'text' : 'password'}
+            name="password"
+            placeholder="Contraseña"
+            value={formData.password}
+            onChange={handleChange}
+            required={mode === 'create' || changePassword}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          />
+          <span
+            onClick={handlePasswordToggle}
+            className="absolute right-3 m-5 mr-6 -mt-7 cursor-pointer text-gray-500"
+          >
+            {passwordVisible ? <IoEyeOff /> : <IoEye />}
+          </span>
+          {errorMessages.password && <p className="text-red-500 text-sm">{errorMessages.password}</p>}
         </div>
 
-        <div className="border-gray-300 rounded-lg cursor-pointer mr-0">
-          <label className="block text-sm font-medium text-gray-700 ">Confirmar Contraseña</label>
-          <div className="relative">
-            <input
-              type={passwordVisible ? 'text' : 'password'}
-              name="confirmPass"
-              placeholder="Contraseña"
-              value={formData.confirmPass}
-              onChange={handleChange}
-              disabled={mode === 'view'}
-              required
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2 pr-10" // pr-10 para espacio para el icono
-            />
-            {errorMessages.confirmPass && <p className="text-red-500 text-sm">{errorMessages.confirmPass}</p>}
-            <button
-              type="button"
-              onClick={handlePasswordToggle}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
-            >
-              {passwordVisible ? <IoEyeOff /> : <IoEye />}
-            </button>
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
+          <input
+            type={passwordVisible ? 'text' : 'password'}
+            name="confirmPass"
+            placeholder="Confirmar contraseña"
+            value={formData.confirmPass}
+            onChange={handleChange}
+            required={mode === 'create' || changePassword}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          />
+          {errorMessages.confirmPass && <p className="text-red-500 text-sm">{errorMessages.confirmPass}</p>}
         </div>
-      </div>
+        </div>
+        
+        
+      </>
+      
+    )}
 
 
       <div className="flex justify-end space-x-2">
@@ -451,7 +433,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           </button>
         ) : (
           <>
-            {/* <button
+            <button
               type="button"
               onClick={closeModal}
               className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
@@ -471,9 +453,9 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
 
 
 
-          </> */}
+          </>
               
-            <button
+            /* <button
               type="button"
               onClick={closeModal}
               className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
@@ -487,7 +469,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
               {mode === 'create' ? 'Crear usuario' : 'Guardar Cambios'}
 
             </button>
-          </>
+          </> */
 
           
         )}

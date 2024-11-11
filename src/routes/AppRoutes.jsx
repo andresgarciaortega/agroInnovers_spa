@@ -2,9 +2,11 @@
 
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import Login from "../pages/login/login";
-import Home from "../pages/home/home";
+
+// import Login from "../pages/login/login";
+// import Home from "../pages/home/home";
 import Empresa from "../pages/empresa/empresa";
+import Perfil from "../pages/auth/Perfil/perfil";
 import Usuarios from "../pages/usuarios/usurios";
 import Variables from "../pages/variables/variables";
 import TipoVariable from "../pages/tipoVariable/tipoVariables";
@@ -29,6 +31,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/passwordRecovery" element={<PasswordRecovery />} />
       <Route path="/" element={<AuthLogin />} />
+      <Route path="perfil" element={<Perfil />} />
       <Route path="/home" element={<LayoutHome />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="empresa" element={<Empresa />} />

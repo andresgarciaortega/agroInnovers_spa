@@ -27,6 +27,7 @@ const fetchWithTimeout = (url, options = {}, timeout = TIMEOUT) => {
                 reject(error);
             });
     });
+    
 };
 
 // Función para agregar el token al encabezado de la solicitud
