@@ -1,9 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Edit2Icon, ArrowLeft  } from "lucide-react";
-import { Link } from 'react-router-dom'; 
-import { getDecodedToken } from '../../../utils/auseAuth';// Ajusta la ruta según tu proyecto
+import { useState, useEffect } from "react";
+import { Eye, EyeOff, Mail, Phone, Briefcase, Calendar, CreditCard, ArrowLeftCircle, Lock } from "lucide-react";
+
+
+import { useNavigate } from "react-router-dom";
+import { getDecodedToken } from '../../../utils/auseAuth'; 
 
 export default function Perfil() {
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState(''); 
+
   const [editandoNombre, setEditandoNombre] = useState(false);
   const [editandoContraseña, setEditandoContraseña] = useState(false);
   const [nombre, setNombre] = useState('');
@@ -26,108 +34,115 @@ export default function Perfil() {
         setDocumento(decodedToken.document);
         setRoles(decodedToken.roles);
         setFechaRegistro(decodedToken.registrationDate);
-        setFotoFondo(decodedToken.company.logo);  
+        setFotoFondo(decodedToken.company.logo);
         setEmpresa(decodedToken.company);
       }
     };
     fetchUserData();
-  }, []);
+  }, []); 
+
+  const handleEdit = () => {
+    if (isEditing) {
+     
+      setIsEditing(false);
+    } else {
+      setIsEditing(true);
+    }
+  };
+  const goHome = () => {
+    navigate("/home");
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-  <div className="container mx-auto px-6">
-    <div className="max-w-3xl mx-auto bg-gray-100 shadow-md shadow-[#345246] rounded-lg">
-      <div className=" pb-8">
-      <Link to="/home" className="absolute top-5 left-5 text-2xl text-gray-800">
-                <ArrowLeft className="h-6 w-6 text-gray-800" /> {/* Ícono de flecha */}
-              </Link>
-        <div className="text-center mb-8">
-          {fotoFondo && (
+    <div className="flex items-center justify-center min-h-screen bg-gray-200">
+      <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-100 dark:to-gray-200 rounded-xl shadow-lg relative">
+      <button
+          onClick={goHome}
+          className="absolute top-4 right-4 p-2 bg-transparent border-0 text-gray-600 hover:text-gray-800"
+          aria-label="Salir"
+        >
+          <ArrowLeftCircle className="h-6 w-6" />
+        </button>
+        <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-10">
+          <div className="w-40 h-40 rounded-full overflow-hidden ring-4 ring-primary shadow-xl">
             <img
+              alt="Foto de perfil"
+              className="object-cover w-full h-full"
+              height="160"
               src={fotoFondo}
-              alt="Logo de la empresa"
-              className="w-full h-auto object-cover mb-4 rounded-lg" 
+              width="160"
             />
-          )}
-
-          {editandoNombre ? (
-            <div className="flex justify-center items-center mb-2">
+          </div>
+          <div className="flex-1 text-center md:text-left">
+            {isEditing ? (
               <input
+                type="text"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                className="max-w-xs mr-2"
+                className="text-3xl font-bold mb-2 p-2 border border-gray-300 rounded-md"
               />
-              <button onClick={() => setEditandoNombre(false)}>Guardar</button>
-            </div>
-          ) : (
-            <h1 className="text-3xl font-bold mb-2 flex justify-center items-center">
-              {nombre}
-              <button
-                variant="ghost"
-                size="icon"
-                onClick={() => setEditandoNombre(true)}
-                className="ml-2"
-              >
-                <Edit2Icon className="h-4 w-4" />
-              </button>
-            </h1>
-          )}
-         <p className="text-gray-600">{roles && roles.length > 0 ? roles[0].name : 'Rol no disponible'}</p>
-
-        </div>
-        
-
-        <div className="grid grid-cols-2 gap-6 px-8" >
-          <div>
-            <label>Correo</label>
-            <p className="text-gray-700">{correo}</p>
-          </div>
-          <div className="col-span-1">
-            <label>Contraseña</label>
-            {editandoContraseña ? (
-              <div className="flex items-center">
-                <input
-                  type="password"
-                  value={contraseña}
-                  onChange={(e) => setContraseña(e.target.value)}
-                  className="mr-2"
-                />
-                <button onClick={() => setEditandoContraseña(false)}>Guardar</button>
-              </div>
             ) : (
-              <div className="flex items-center">
-                <p className="text-gray-700 mr-2">{contraseña}</p>
-                <button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setEditandoContraseña(true)}
-                >
-                  <Edit2Icon className="h-4 w-4" />
-                </button>
-              </div>
+              <h1 className="text-3xl font-bold mb-2">{nombre}</h1>
             )}
+            <p className="text-gray-600 my-2">{roles && roles.length > 0 ? roles[0].name : 'Rol no disponible'}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ProfileItem
+                icon={<Mail className="w-5 h-5" />}
+                label="Correo"
+                value={correo}
+              />
+              <ProfileItem
+                icon={<Lock className="w-5 h-5" />}
+                label="Contraseña"
+                value={
+                  isEditing ? (
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="max-w-[200px] p-2 border border-gray-300 rounded-md"
+                    />
+                  ) : (
+                    showPassword ? password : "••••••••••"
+                  )
+                }
+                action={
+                  <button
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="h-8 w-8 p-0 text-gray-600 hover:text-gray-800"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                }
+              />
+              <ProfileItem icon={<Phone className="w-5 h-5" />} label="Celular" value={celular} />
+              <ProfileItem icon={<CreditCard className="w-5 h-5" />} label="Documento" value={documento} />
+              <ProfileItem icon={<Briefcase className="w-5 h-5" />} label="Empresa" value={empresa ? empresa.name : "N/A"} />
+              <ProfileItem icon={<Calendar className="w-5 h-5" />} label="Fecha de Registro" value={fechaRegistro} />
+            </div>
           </div>
-          <div>
-            <label>Celular</label>
-            <p className="text-gray-700">{celular}</p>
-          </div>
-          <div>
-            <label>Documento</label>
-            <p className="text-gray-700">{documento}</p>
-          </div>
-          <div>
-            <label>Empresa</label>
-            <p className="text-gray-700">{empresa ? empresa.name : 'Empresa no disponible'}</p>
-          </div>
-          <div>
-            <label>Día de registro</label>
-            <p className="text-gray-700">{fechaRegistro}</p>
-          </div>
+        </div>
+        <div className="my-8 border-t border-gray-300" />
+        <div className="flex justify-end">
+          <button
+            onClick={handleEdit}
+            className="bg-[#168C0DFF] text-white p-2 rounded-md hover:bg-blue-600"
+          >
+            {isEditing ? "Guardar Cambios" : "Editar Perfil"}
+          </button>
         </div>
       </div>
     </div>
-  </div>
-</div>
+  );
+}
 
+function ProfileItem({ icon, label, value, action }) {
+  return (
+    <div className="flex items-center space-x-2">
+      {icon}
+      <span className="text-sm font-medium">{label}:</span>
+      <span className="text-sm text-gray-600 flex-grow">{value}</span>
+      {action}
+    </div>
   );
 }

@@ -17,6 +17,17 @@ const CompanyService = {
         }
     },
 
+     // OBTENER UNA CATEGORÍA POR ID
+     async getCategoryById(id) {
+        try {
+            const response = await api.get(`/categories/${id}`);
+            return response.data; // Devuelve los datos de la categoría
+        } catch (error) {
+            console.error('Error al obtener la categoría:', error);
+            throw error;
+        }
+    },
+
 
     // CREAR UNA COMPAÑIA
     async createCompany(data) {

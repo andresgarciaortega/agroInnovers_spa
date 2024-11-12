@@ -11,6 +11,8 @@ import Usuarios from "../pages/usuarios/usurios";
 import Variables from "../pages/variables/variables";
 import TipoVariable from "../pages/tipoVariable/tipoVariables";
 import Especies from "../pages/especies/especieCategoria";
+import CrearCategorias from "../pages/especies/crearCategoria";
+import EditarCategorias from "../pages/especies/editarCategoria";
 import ListaEspecies from "../pages/listaEspecies/listaEspecie";
 import CrearListas from "../pages/listaEspecies/crearLista";
 import Monitoreo from "../pages/monitoreo/monitoreo";
@@ -40,6 +42,8 @@ const AppRoutes = () => {
         <Route path="tipoVariables" element={<TipoVariable />} />
         <Route path="listaEspecie" element={<ListaEspecies />} />
         <Route path="crearLista" element={<CrearListas />} />
+        <Route path="crearCategoria" element={<CrearCategorias />} />
+        <Route path="editarCategoria" element={<EditarCategorias />} />
         <Route path="especies" element={<Especies />} />
         <Route path="monitoreo" element={<Monitoreo />} />
         <Route path="tipos" element={<Tipos />} />
