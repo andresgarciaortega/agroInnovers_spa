@@ -30,7 +30,7 @@ const Login = () => {
     if (accesUser.error) {
       // exito
       localStorage.setItem('authToken', accesUser?.response)
-      navigate('/home', { replace: true });
+      navigate('/home/dashboard', { replace: true });
     } else {
       console.log(accesUser.message)
       setEmailError(true);

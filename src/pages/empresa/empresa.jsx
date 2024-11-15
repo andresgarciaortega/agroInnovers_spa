@@ -10,6 +10,7 @@ import CompanyService from "../../services/CompanyService";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
 import ErrorAlert from "../../components/alerts/error";
+import LoadingView from '../../components/Loading/loadingView';
 
 
 const Empresa = () => {
@@ -24,6 +25,7 @@ const Empresa = () => {
   const [messageAlert, setMessageAlert] = useState("");
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [newCompany, setNewCompany] = useState({
     name: '',
     email: '',
@@ -38,11 +40,15 @@ const Empresa = () => {
   // Cargar empresas cuando el componente se monta
   useEffect(() => {
     const fetchCompanies = async () => {
+      
+      setIsLoading(true);
       try {
         const data = await CompanyService.getAllCompany();
         setCompanyList(data);
       } catch (error) {
         console.error('Error fetching companies:', error);
+      }finally {
+        setIsLoading(false);
       }
     };
   
@@ -176,6 +182,7 @@ if (data.message) {
 
   return (
     <div className="table-container">
+    {isLoading && <LoadingView />}
       {/* Barra de búsqueda */}
       <div className="absolute transform -translate-y-20 right-30 w-1/2">
         <IoSearch className="absolute left-3 top-3 text-gray-500" />

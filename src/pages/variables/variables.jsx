@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Edit, Trash, Eye, Plus } from 'lucide-react';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { FiPlusCircle } from "react-icons/fi";
-import { IoCloudUploadOutline } from "react-icons/io5";
+import { IoIosWarning } from 'react-icons/io';
 import Delete from '../../components/delete';
 // import Success from '../../component/alert//success';
 import GenericModal from '../../components/genericModal';
 import FormVariable from './FormVariable/formVariable';
 import VariableService from "../../services/variableService";
+import CompanyService from "../../services/CompanyService";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
 
 
 const Variable = () => {
+  const [companyList, setCompanyList] = useState([]); // Nuevo estado para empresas
+  const [selectedCompany, setSelectedCompany] = useState('');
+
   const [variableList, setVariableList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedVariable, setSelectedVariable] = useState(null);
@@ -32,19 +35,51 @@ const Variable = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Cargar empresas cuando el componente se monta
   useEffect(() => {
-    const fetchVariables = async () => {
+    const fetchCompanies = async () => {
       try {
-        const data = await VariableService.getAllVariable();
-        setVariableList(Array.isArray(data) ? data : []);
+        const data = await CompanyService.getAllCompany(); 
+        setCompanyList(data); 
       } catch (error) {
-        console.error('Error fetching variables:', error);
+        console.error('Error fetching companies:', error);
       }
     };
-
-    fetchVariables();
+    
+    fetchCompanies();
   }, []);
+
+  useEffect(() => {
+    const fetchVariables = async () => {
+      if (!selectedCompany) {
+        setVariableList([]); // Resetea las variables cuando no se selecciona una empresa
+        return;
+      }
+      try {
+        const data = await VariableService.getAllVariable(selectedCompany);
+        if (data.statusCode === 404) {
+          setVariableList([]); 
+        } else {
+          setVariableList(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        setVariableList([])
+        console.error('Error fetching variables:', error);
+      setMessageAlert('Esta empresa no tiene variables registradas, Intentalo con otra empresa');
+      setShowErrorAlert(true); // Mostrar alerta de error
+      }
+    };
+  
+    fetchVariables();
+  }, [selectedCompany]);
+
+  const handleVariableSelect = (variable) => {
+    setSelectedCompany(variable.company_id);  // Guardamos el company_id de la variable seleccionada
+  };
+  
+  const handleCloseErrorAlert = () => {
+    setShowErrorAlert(false);
+  };
+  
 
 
   const filteredVariable = variableList.filter(variable =>
@@ -147,24 +182,33 @@ const Variable = () => {
   };
 
 
-
-
-
-
-
-
   return (
     <div className="table-container">
       <div className="absolute transform -translate-y-20 right-30 w-1/2">
+      <select
+  className="w-full border border-gray-300 p-2 pl-10 rounded-md"
+  value={selectedCompany}
+  onChange={(e) => setSelectedCompany(e.target.value)}
+>
+  <option value="">Seleccionar empresa</option>
+  {companyList.map((company) => (
+    <option key={company.id} value={company.id}>
+      {company.name}
+    </option>
+  ))}
+</select>
+
         <IoSearch className="absolute left-3 top-3 text-gray-500" />
         <input
           type="text"
           placeholder="Buscar empresa "
-          className="w-full border border-gray-300 p-2 pl-10 rounded-md"
+          className="w-full border border-gray-300 p-2 mt-6 rounded-md"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
+     
+
       <div className="bg-white rounded-lg shadow">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">Variables</h2>
@@ -178,6 +222,7 @@ const Variable = () => {
             <thead className="bg-gray-300 ">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Icono</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Variable</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo variable</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad medida</th>
@@ -189,12 +234,22 @@ const Variable = () => {
               {currentCompanies.map((variable, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {variable.icon && (
+                      <img
+                        src={variable.icon}
+                        alt={variable.name}
+                        className="h-10 w-10 object-cover rounded-full"
+                      />
+                    )}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{variable.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     <span className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       {variable.typeVariable && variable.typeVariable.length > 0 ? variable.typeVariable.name : variable.typeVariable.name }
                     </span>
                   </td>
+                 
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{variable.unit_of_measurement}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {/* Asegúrate de que variable.type_register_id tiene un valor válido */}
@@ -252,7 +307,12 @@ const Variable = () => {
 
       {/* Modalcrear-editar-visualizar*/}
       {isModalOpen && (
-        <GenericModal title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver Cariable' : 'Añadir Variable'} onClose={closeModal}>
+        <GenericModal 
+        title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver Cariable' : 'Añadir Variable'} 
+        onClose={closeModal}
+        
+  companyId={selectedCompany} >
+          
           <FormVariable showErrorAlert={showErrorAlertSuccess} onUpdate={updateService} variable={newVariable} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
       )}
@@ -262,6 +322,14 @@ const Variable = () => {
           onCancel={handleCloseAlert}
         />
       )}
+      {showErrorAlert && (
+      <div className="alert alert-error flex items-center space-x-2 p-4 bg-red-500 text-white rounded-md">
+        <IoIosWarning size={20} />
+        <p>{messageAlert}</p>
+        <button onClick={handleCloseErrorAlert} className="ml-2">Cerrar</button>
+      </div>
+    )}
+
 
 
     </div>

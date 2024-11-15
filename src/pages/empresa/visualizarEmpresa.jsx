@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { IoCloudUploadOutline } from "react-icons/io5";
 import CompanyService from "../../services/CompanyService";
 import TypeDocumentsService from '../../services/fetchTypes';
-import Success from '../../components/alerts/success';
-import UploadToS3 from '../../config/UploadToS3';
-import ErrorAlert from '../../components/alerts/error';
+import GenericModal from '../../components/genericModal';
 import { useParams } from 'react-router-dom';
 
 import { Package2, Factory, Variable, Activity, Cpu, Users } from 'lucide-react';
@@ -29,7 +27,9 @@ const VisualizarEmpresa = ({ }) => {
   const [companyList, setCompanyList] = useState([]);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const { companyId } = useParams();
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("create");
+
   const [company, setCompany] = useState({});
 
 
@@ -37,10 +37,10 @@ const VisualizarEmpresa = ({ }) => {
   //   console.log("Updating company data in formData:", company);
   //   if (company) {
   //     setFormData(company);
-      
+
   //   }
   // }, [company]);
-  
+
   useEffect(() => {
     const fetchCompaniesData = async () => {
       try {
@@ -51,10 +51,10 @@ const VisualizarEmpresa = ({ }) => {
         console.error('Error fetching companies:', error);
       }
     };
-  
+
     fetchCompaniesData();
   }, []);
- 
+
 
   useEffect(() => {
 
@@ -82,15 +82,19 @@ const VisualizarEmpresa = ({ }) => {
       });
     }
   });
-  
+
+
+
 
   return (
     <div className="flex">
       <div className="flex-1 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-bold">Empresa 1</h1>
-            <span className="bg-green-500 text-white px-3 py-1 text-sm rounded-md">Activa</span>
+            <h1 className="text-2xl font-bold">{formData.name} </h1>
+            {/* <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => handleOpenModal()}>
+            Añadir empresa
+          </button> */}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -137,121 +141,146 @@ const VisualizarEmpresa = ({ }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="border p-4 rounded-md  shadow-lg ">
-              <div className="text-lg flex items-center gap-2 font-bold py-2">
+              <div className="text-lg flex items-center gap-2 font-bold ">
                 Lotes de producción 2024
               </div>
+              <br />
               <div className="space-y-2">
                 <div className="flex items-center ">
-                  
-                <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">5</span>
+
+                  <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">5</span>
                   <span className="text-sm text-muted-foreground">En proceso</span>
                 </div>
                 <div className="flex items-center ">
-                <span className="px-3 py-1 text-sm text-yellow-500 bg-yellow-100 rounded-md">2</span>
+                  <span className="px-3 py-1 text-sm text-yellow-500 bg-yellow-100 rounded-md">2</span>
                   <span className="text-sm text-muted-foreground">Cosechados</span>
                 </div>
-                <div className="flex items-center">
-                <span className="px-3 py-1 text-sm text-red-500 bg-red-100 r">1</span>
+                <div className="flex items-center mt-5">
+                  <span className="px-3 py-1 text-sm text-red-500 bg-red-100 r">1</span>
                   <span className="text-sm text-muted-foreground">Rechazado</span>
+                  
                 </div>
-                <div className="text-sm text-muted-foreground mt-2">
-                  • 285000 peces/lotes
+                <br />
+
+                <span className='font-semibold py-4'> Especies</span>
+                <br />
+                <span className='py-2'> Tilapia roja</span>
+
+                <div className="text-sm text-muted-foreground px-3">
+                  
+                  • 300.000 sembrados
                   <br />
-                  • 285000 peces/lotes
+                  • 280.000 cocechados
+                  <br />
+                  • 280.000 cocechados
                 </div>
               </div>
             </div>
 
             <div className="border p-4 rounded-md shadow-lg ">
-              <div className="text-lg flex items-center gap-2 font-bold py-2">
+              <div className="text-lg flex items-center gap-2 font-bold ">
                 Espacio de producción
               </div>
+              <br />
               <div className="space-y-2">
                 <span className='py-2 font-medium justify-between'> 2 lagos de intensiva</span>
                 <div className="flex items-center ">
-                <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">2</span>
+                  <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">2</span>
                   <span className="text-sm text-muted-foreground">En producción</span>
                 </div>
                 <div className="flex items-center">
-                <span className="px-3 py-1 text-sm text-red-500 bg-red-100 rounded-md">1</span>
-                  <span className="text-sm text-muted-foreground py-4">Sin producir</span>
+                  <span className="px-3 py-1 text-sm text-red-500 bg-red-100 rounded-md">1</span>
+                  <span className="text-sm text-muted-foreground ">Sin producir</span>
                 </div>
               </div>
-              <div className="space-y-2">
-                <span className='py-2 font-medium justify-between'>8 lagos de conencionales</span>
+              <div className="space-y-2 py-5">
+                <span className='font-medium justify-between '>8 lagos de conencionales</span>
                 <div className="flex items-center ">
-                <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">6</span>
+                  <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">6</span>
                   <span className="text-sm text-muted-foreground">En producción</span>
                 </div>
                 <div className="flex items-center">
-                <span className="px-3 py-1 text-sm text-red-500 bg-red-100 rounded-md">1</span>
+                  <span className="px-3 py-1 text-sm text-red-500 bg-red-100 rounded-md">1</span>
                   <span className="text-sm text-muted-foreground">Sin producir</span>
                 </div>
-              </div>ounded-full
+              </div>
             </div>
 
             <div className="border p-4 rounded-md shadow-lg ">
-              <div className="text-lg flex items-center gap-2">
+              <div className="text-lg flex items-center gap-2 font-bold">
                 Variables
               </div>
+              <br />
               <div className="space-y-2">
-                <div className="flex items-center justify-between font-bold">
+                <div className="flex items-center  ">
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">2</span>
                   <span className="text-sm text-muted-foreground">Variable de control</span>
-                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">2</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center ">
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">2</span>
                   <span className="text-sm text-muted-foreground">Variable de calidad</span>
-                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">2</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Variable de medida</span>
+                <div className="flex items-center ">
                   <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">2</span>
+                  <span className="text-sm text-muted-foreground">Variable de consumo</span>
+                </div>
+                <div className="flex items-center ">
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">1</span>
+                  <span className="text-sm text-muted-foreground">Variable de de residuo</span>
                 </div>
               </div>
             </div>
 
-            <div className="border p-4 rounded-md shadow-lg ">
-              <div className="text-lg flex items-center gap-2">
+            <div className="border p-4 rounded-md shadow-lg">
+              <div className="text-lg flex items-center gap-2 font-bold">
                 Sistema de monitoreo
               </div>
+              <br />
               <div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center ">
+                  <span className="px-3 py-1 text-sm  text-blue-500 bg-blue-100  rounded-md">2</span>
                   <span className="text-sm text-muted-foreground">Sistemas</span>
-                  <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">2</span>
                 </div>
               </div>
             </div>
 
-            <div className="border p-4 rounded-md shadow-lg ">
-              <div className="text-lg flex items-center gap-2 shadow-lg">
+            <div className="border p-4 rounded-md shadow-lg">
+              <div className="text-lg flex items-center gap-2  font-bold">
                 Dispositivos
               </div>
+              <br />
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Sensores internos</span>
+                <div className="flex items-center">
                   <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">2</span>
+                  <span className="text-sm text-muted-foreground">Sensores internos</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Actuadores</span>
+                <div className="flex items-center">
                   <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">20</span>
+                  <span className="text-sm text-muted-foreground">Actuadores</span>
                 </div>
               </div>
             </div>
 
             <div className="border p-4 rounded-md shadow-lg ">
-              <div className="text-lg flex items-center gap-2">
-                Personal
+              <div className="text-lg flex items-center gap-2 font-bold">
+                Usuarios
               </div>
+              <br />
               <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Operadores</span>
-                  <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">3</span>
+                <div className="flex items-center ">
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">3</span>
+                  <span className="text-sm text-muted-foreground">Administradores de cuenta</span>
+                </div>
+                <div className="flex items-center ">
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">5</span>
+                  <span className="text-sm text-muted-foreground">Usuarios de operación</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      
     </div>
   );
 };

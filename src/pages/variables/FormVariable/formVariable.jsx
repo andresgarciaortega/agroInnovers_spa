@@ -5,7 +5,7 @@ import VariablesService from '../../../services/variableService';
 import VariableTypeService from '../../../services/VariableType';
 import RegistrerTypeServices from '../../../services/RegistrerType';
 
-const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal }) => {
+const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal,companyId }) => {
   const [isDashboard, setIsDashboard] = useState(false);
   const [isIncrement, setIsIncrement] = useState(false);
   const [formData, setFormData] = useState({
@@ -15,6 +15,7 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal }) 
     type_variable_id: '',
     type_register_id: '',
     informational_calculation: '',
+    empresa_id: companyId || ''
   });
 
   const [variableTypes, setVariableTypes] = useState([]);
@@ -65,7 +66,9 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal }) 
         unit_of_measurement: variable.unit_of_measurement || '',
         type_variable_id: variable.typeVariable?.id || '',  // Asignación correcta del id de typeVariable
         type_register_id: variable.typeRegister?.id || '',  // Asignación correcta del id de typeRegister
-        informational_calculation: variable.informational_calculation || ''
+        informational_calculation: variable.informational_calculation || '',
+        empresa_id: companyId || ''
+
       });
 
       setIsDashboard(variable.visible_in_dashboard);
@@ -102,18 +105,18 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal }) 
       if (formData.icon) {
         logoUrl = await UploadToS3(formData.icon);
       }
-
-
+  
       const formDataToSubmit = {
         ...formData,
-        icon: logoUrl || '', // Asegúrate de que icon tenga al menos una cadena vacía
-        informational_calculation: formData.informational_calculation, // Asegúrate de que informational_calculation no esté vacío
+        icon: logoUrl || '',
+        informational_calculation: formData.informational_calculation,
         type_variable_id: Number(formData.type_variable_id),
         type_register_id: Number(formData.type_register_id),
         is_incremental: isIncrement,
         visible_in_dashboard: isDashboard,
+        empresa_id: companyId || formData.empresa_id,
       };
-
+  
       if (mode === 'create') {
         const createdVariable = await VariablesService.createVariable(formDataToSubmit);
         showErrorAlert("creada");
@@ -121,15 +124,15 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal }) 
         await VariablesService.updateVariable(variable.id, formDataToSubmit);
         showErrorAlert("editada");
       }
-
+  
       onUpdate();
-
       closeModal();
-
+  
     } catch (error) {
       console.error('Error al guardar la variable:', error);
     }
   };
+  
 
   // const showErrorAlert = (message) => {
   //   alert(message); // Muestra un mensaje de alerta
