@@ -90,7 +90,7 @@ const VisualizarEmpresa = ({ }) => {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold">Empresa 1</h1>
-            <span className="bg-green-500 text-white px-3 py-1 text-sm rounded-full">Activa</span>
+            <span className="bg-green-500 text-white px-3 py-1 text-sm rounded-md">Activa</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -137,24 +137,24 @@ const VisualizarEmpresa = ({ }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="border p-4 rounded-md  shadow-lg ">
-              <div className="text-lg flex items-center gap-2">
+              <div className="text-lg flex items-center gap-2 font-bold py-2">
                 Lotes de producción 2024
               </div>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center ">
                   
-                <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-full">5</span>
+                <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">5</span>
                   <span className="text-sm text-muted-foreground">En proceso</span>
                 </div>
-                <div className="flex items-center justify-between">
-                <span className="px-3 py-1 text-sm text-yellow-500 bg-yellow-100 rounded-full">2</span>
+                <div className="flex items-center ">
+                <span className="px-3 py-1 text-sm text-yellow-500 bg-yellow-100 rounded-md">2</span>
                   <span className="text-sm text-muted-foreground">Cosechados</span>
                 </div>
-                <div className="flex items-center justify-between">
-                <span className="px-3 py-1 text-sm text-red-500 bg-red-100 rounded-full">1</span>
+                <div className="flex items-center">
+                <span className="px-3 py-1 text-sm text-red-500 bg-red-100 r">1</span>
                   <span className="text-sm text-muted-foreground">Rechazado</span>
                 </div>
-                <div className="text-xs text-muted-foreground mt-2">
+                <div className="text-sm text-muted-foreground mt-2">
                   • 285000 peces/lotes
                   <br />
                   • 285000 peces/lotes
@@ -163,20 +163,31 @@ const VisualizarEmpresa = ({ }) => {
             </div>
 
             <div className="border p-4 rounded-md shadow-lg ">
-              <div className="text-lg flex items-center gap-2">
+              <div className="text-lg flex items-center gap-2 font-bold py-2">
                 Espacio de producción
               </div>
               <div className="space-y-2">
-                <span className='py-2 '>2 lagos de intensiva</span>
-                <div className="flex items-center justify-between">
-                <span className="px-3 py-1 text-sm text-red-500 bg-red-100 rounded-full">Sin producir</span>
-                  <span className="text-sm text-muted-foreground">2 lagos de invierno</span>
+                <span className='py-2 font-medium justify-between'> 2 lagos de intensiva</span>
+                <div className="flex items-center ">
+                <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">2</span>
+                  <span className="text-sm text-muted-foreground">En producción</span>
                 </div>
-                <div className="flex items-center justify-between">
-                <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-full">En producción</span>
-                  <span className="text-sm text-muted-foreground">4 lagos comerciales</span>
+                <div className="flex items-center">
+                <span className="px-3 py-1 text-sm text-red-500 bg-red-100 rounded-md">1</span>
+                  <span className="text-sm text-muted-foreground py-4">Sin producir</span>
                 </div>
               </div>
+              <div className="space-y-2">
+                <span className='py-2 font-medium justify-between'>8 lagos de conencionales</span>
+                <div className="flex items-center ">
+                <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">6</span>
+                  <span className="text-sm text-muted-foreground">En producción</span>
+                </div>
+                <div className="flex items-center">
+                <span className="px-3 py-1 text-sm text-red-500 bg-red-100 rounded-md">1</span>
+                  <span className="text-sm text-muted-foreground">Sin producir</span>
+                </div>
+              </div>ounded-full
             </div>
 
             <div className="border p-4 rounded-md shadow-lg ">
@@ -184,17 +195,17 @@ const VisualizarEmpresa = ({ }) => {
                 Variables
               </div>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between font-bold">
                   <span className="text-sm text-muted-foreground">Variable de control</span>
-                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-full">2</span>
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">2</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Variable de calidad</span>
-                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-full">2</span>
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">2</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Variable de medida</span>
-                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-full">2</span>
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">2</span>
                 </div>
               </div>
             </div>
@@ -206,7 +217,7 @@ const VisualizarEmpresa = ({ }) => {
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Sistemas</span>
-                  <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-full">2</span>
+                  <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">2</span>
                 </div>
               </div>
             </div>
@@ -218,11 +229,11 @@ const VisualizarEmpresa = ({ }) => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Sensores internos</span>
-                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-full">2</span>
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">2</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Actuadores</span>
-                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-full">20</span>
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">20</span>
                 </div>
               </div>
             </div>
@@ -234,7 +245,7 @@ const VisualizarEmpresa = ({ }) => {
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Operadores</span>
-                  <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-full">3</span>
+                  <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">3</span>
                 </div>
               </div>
             </div>
