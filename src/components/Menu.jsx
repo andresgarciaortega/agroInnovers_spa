@@ -13,6 +13,7 @@ import { ImEqualizer2 } from "react-icons/im";
 import { IoMdNotificationsOutline, IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 
 import Navbar from "./Navbar";
+import './menu.css';
 
 
 const menuItems = [
@@ -168,7 +169,7 @@ export default function Component() {
         <Sidebar selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
       )}
       
-      <div className="flex-1">
+      <div className="flex-1" >
       <Navbar />
 
         <div className="p-6">
