@@ -26,19 +26,19 @@ const Usuario = () => {
   const [newUser, setNewUser] = useState({
     name: '',
     email: '',
-    mobiles: '',
+    phone: '',
     company: '',
     documentType: '',
     registrationDate: '',
     roles: ''
   });
 
-  
+
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   const [isLoading, setIsLoading] = useState(false);
 
-  const filteredUser = usersList.filter(users => 
+  const filteredUser = usersList.filter(users =>
     (users.name && users.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (users.email && users.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (users.phone && users.phone.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -55,7 +55,7 @@ const Usuario = () => {
   // Cargar usuario cuando el componente se monta
   useEffect(() => {
     const fetchUsersList = async () => {
-      
+
       setIsLoading(true);
       try {
         const data = await UsersService.getAllUser();
@@ -63,7 +63,7 @@ const Usuario = () => {
         console.log("users list : ", data)
       } catch (error) {
         console.error('Error fetching companies:', error);
-      }finally {
+      } finally {
         setIsLoading(false);
       }
     };
@@ -71,7 +71,7 @@ const Usuario = () => {
     fetchUsersList();
   }, []);
 
-  
+
 
   const handleNextPage = () => {
     if (currentPage < Math.ceil(filteredUser.length / itemsPerPage)) {
@@ -102,7 +102,7 @@ const Usuario = () => {
       setNewUser({
         name: '',
         email: '',
-        mobiles: '',
+        phone: '',
         company: '',
         documentType: '',
         registrationDate: '',
@@ -145,7 +145,7 @@ const Usuario = () => {
     setShowErrorAlert(false);
   };
 
-  
+
   // Función para actualizar la lista de usuarios
   const updateListUsers = async () => {
     try {
@@ -156,7 +156,7 @@ const Usuario = () => {
     }
   };
 
-  const showErrorAlertSuccess = (message) =>{
+  const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true)
     setMessageAlert(`Usuario ${message} exitosamente`);
 
@@ -167,18 +167,18 @@ const Usuario = () => {
 
   return (
     <div className="table-container">
-      
-      {isLoading && <LoadingView />} 
-       <div className="absolute transform -translate-y-20 right-30 w-1/2">
-       <IoSearch className="absolute left-3 top-3 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Buscar Usuario "
-            className="w-full border border-gray-300 p-2 pl-10 rounded-md"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+
+      {isLoading && <LoadingView />}
+      <div className="absolute transform -translate-y-20 right-30 w-1/2">
+        <IoSearch className="absolute left-3 top-3 text-gray-500" />
+        <input
+          type="text"
+          placeholder="Buscar Usuario "
+          className="w-full border border-gray-300 p-2 pl-10 rounded-md"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
       <div className="bg-white rounded-lg shadow">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">Usuarios</h2>
@@ -209,7 +209,16 @@ const Usuario = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phone}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.created_at}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex justify-center text-sm leading-5  py-1 font-semibold rounded-md text-cyan-500 bg-blue-100  ${user?.roles[0]?.name}`}>
+                    <span
+                      className={`px-2 inline-flex justify-center text-sm leading-5 py-1 font-bold rounded-md ${user?.roles[0]?.name === 'SUPER-ADMINISTRADOR'
+                          ? 'text-blue-500 bg-cyan-100 font-bold '
+                          : user?.roles[0]?.name === 'ADMINISTRADOR'
+                            ? 'text-teal-500 bg-cyan-100 '
+                            : user?.roles[0]?.name === 'OPERARIO'
+                              ? 'text-[#168C0DFF] bg-cyan-100 '
+                              : 'text-gray-500'
+                        }`}
+                    >
                       {user?.roles[0]?.name}
                     </span>
                   </td>

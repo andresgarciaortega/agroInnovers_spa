@@ -2,13 +2,18 @@
 
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import Login from "../pages/login/login";
-import Home from "../pages/home/home";
+
+// import Login from "../pages/login/login";
+// import Home from "../pages/home/home";
 import Empresa from "../pages/empresa/empresa";
+import VisualizarEmpresa from "../pages/empresa/visualizarEmpresa";
+import Perfil from "../pages/auth/Perfil/perfil";
 import Usuarios from "../pages/usuarios/usurios";
 import Variables from "../pages/variables/variables";
 import TipoVariable from "../pages/tipoVariable/tipoVariables";
 import Especies from "../pages/especies/especieCategoria";
+import CrearCategorias from "../pages/especies/crearCategoria";
+import EditarCategorias from "../pages/especies/editarCategoria";
 import ListaEspecies from "../pages/listaEspecies/listaEspecie";
 import CrearListas from "../pages/listaEspecies/crearLista";
 import Monitoreo from "../pages/monitoreo/monitoreo";
@@ -29,14 +34,18 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/passwordRecovery" element={<PasswordRecovery />} />
       <Route path="/" element={<AuthLogin />} />
+      <Route path="perfil" element={<Perfil />} />
       <Route path="/home" element={<LayoutHome />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="empresa" element={<Empresa />} />
+        <Route path="visualizarEmpresa/:companyId" element={<VisualizarEmpresa/>} />
         <Route path="usuarios" element={<Usuarios />} />
         <Route path="variables" element={<Variables />} />
         <Route path="tipoVariables" element={<TipoVariable />} />
         <Route path="listaEspecie" element={<ListaEspecies />} />
         <Route path="crearLista" element={<CrearListas />} />
+        <Route path="crearCategoria" element={<CrearCategorias />} />
+        <Route path="editarCategoria" element={<EditarCategorias />} />
         <Route path="especies" element={<Especies />} />
         <Route path="monitoreo" element={<Monitoreo />} />
         <Route path="tipos" element={<Tipos />} />

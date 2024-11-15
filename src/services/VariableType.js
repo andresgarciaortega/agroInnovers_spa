@@ -6,9 +6,9 @@ const VariableTypeService = {
 
 
     // LISTAR TODAS LAS tipo de variableS
-    async getAllTypeVariable() {
+    async getAllTypeVariable(idcompany = 0) {
         try {
-            const response = await api.get('/type-variables/');
+            const response = await api.get(`/type-variables?company=${idcompany}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener los tipos de variable:', error);

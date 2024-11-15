@@ -36,53 +36,10 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [passwordVisible, setPasswordVisible] = useState(false);
-
-  // useEffect(() => {
-
-  //   const fetchDocumentTypes = async () => {
-  //     try {
-  //       const types = await TypeDocumentsService.getAllTypeDocuments();
-  //       const companies = await CompanyService.getAllCompany();
-  //       const roles = await TypeDocumentsService.getAllTypeUsers();
-
-  //       // Filtrar los elementos donde el campo `process` sea igual a 'PERSONA'
-  //       const personaTypes = types.filter(type => type.process === 'PERSONA');
-  //       setDocumentTypes(personaTypes);
-
-  //       setUsersTypes(roles)
-  //       setCompanies(companies)
-
-  //     } catch (error) {
-  //       console.error('Error al obtener tipos de documentos:', error);
-  //     }
-  //   };
-
-  //   fetchDocumentTypes();
+  const [changePassword, setChangePassword] = useState(false); 
 
 
-  //   if (mode === 'edit' || mode === 'view') {
-  //     setFormData(user);
-  //     console.log("users : ", user)
-  //     setFormData({
-  //       ...user,
-  //       roles: user.roles.length > 0 ? user.roles[0].id : '',
-  //     });
-  //   } else {
-  //     setFormData({
-  //       name: '',
-  //       email: '',
-  //       phone: '',
-  //       registrationDate: '',
-  //       typeDocument: '',
-  //       company: '', // Asegúrate de que este campo esté vacío
-  //       document: '',
-  //       roles: '',
-  //       password: '',
-  //       confirmPass: ''
-  //     });
-  //   }
-  // }, [user, mode]);
-
+  
 
   useEffect(() => {
     const fetchDocumentTypes = async () => {
@@ -108,7 +65,9 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         ...user,
         roles: user.roles.length > 0 ? user.roles[0].id : '',
         typeDocument: user.typeDocument ? user.typeDocument.id : '', // Asigna el `id` del `typeDocument`
-        company: user.company? user.company.id : '', // Asigna el `id` del `typeDocument`
+        company: user.company? user.company.id : '', 
+        password: user.password || '', // Si la contraseña está en el API
+      confirmPass: user.password || ''
       });
       console.log("users : ", user)
 
@@ -170,14 +129,18 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     if (name === 'confirmPass' || name === 'password') {
       const updatedFormData = { ...formData, [name]: value };
       setFormData(updatedFormData);
-
-      if (updatedFormData.password && updatedFormData.confirmPass && updatedFormData.password !== updatedFormData.confirmPass) {
-        errorMessage = 'Las contraseñas deben coincidir';
-        document.querySelector('[name="password"]').style.borderColor = 'red';
-        document.querySelector('[name="confirmPass"]').style.borderColor = 'red';
-      } else {
-        document.querySelector('[name="password"]').style.borderColor = '';
-        document.querySelector('[name="confirmPass"]').style.borderColor = '';
+  
+      if (updatedFormData.password && updatedFormData.confirmPass) {
+        if (updatedFormData.password !== updatedFormData.confirmPass) {
+          errorMessage = 'Las contraseñas deben coincidir';
+          document.querySelector('[name="password"]').style.borderColor = 'red';
+          document.querySelector('[name="confirmPass"]').style.borderColor = 'red';
+        } else {
+          // Clear error if passwords match
+          errorMessage = '';
+          document.querySelector('[name="password"]').style.borderColor = '';
+          document.querySelector('[name="confirmPass"]').style.borderColor = '';
+        }
       }
     } else {
 
@@ -238,7 +201,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       name: formData.name,
       lastname: formData.lastname || " ", // Asegúrate de agregar el apellido en el formulario si es necesario
       email: formData.email,
-      password: formData.password || "#Innov3rsHuil4", // Asegúrate de capturar la contraseña
+      password: changePassword ? formData.password : user.password, // Asegúrate de capturar la contraseña
       phone: formData.phone,
       document: formData.document,
       photo: formData.photo || "https://example.com/photo.jpg", // Asegúrate de capturar la foto
@@ -266,6 +229,10 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
 
   const handleCloseAlert = () => {
     setShowAlertError(false);
+  };
+
+  const handleChangePasswordToggle = () => {
+    setChangePassword(!changePassword); 
   };
 
 
@@ -390,54 +357,70 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             ))}
           </select>
         </div>
-        <div className="border-gray-300 rounded-lg cursor-pointer mr-0">
-          <label className="block text-sm font-medium text-gray-700 ">Contraseña</label>
-          <div className="relative">
-            <input
-              type={passwordVisible ? 'text' : 'password'}
-              name="password"
-              placeholder="Contraseña"
-              value={formData.password}
-              onChange={handleChange}
-              disabled={mode === 'view'}
-              required
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2 pr-10" // pr-10 para espacio para el icono
-            />
+        
+        </div>
+        
+        {mode === 'edit' && (
+     <div className="mt-5 flex items-center">
+     <span className="text-sm font-medium text-gray-700 mr-3">Cambiar contraseña</span>
+     <div
+       className={`relative inline-flex items-center h-6 w-11 rounded-full transition-colors duration-200 ease-in-out ${changePassword ? 'bg-[#168C0DFF]' : 'bg-gray-300'
+         } cursor-pointer`}
+       onClick={handleChangePasswordToggle} 
+     >
+       <span
+         className={`inline-block w-5 h-5 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${changePassword ? 'translate-x-6' : 'translate-x-1'
+           }`}
+       />
+     </div>
+   </div>
+   
+    )}
 
-            <button
-              type="button"
-              onClick={handlePasswordToggle}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
-            >
-              {passwordVisible ? <IoEyeOff /> : <IoEye />}
-            </button>
-          </div>
+    
+    {(mode === 'create' || changePassword) && (
+      <>
+        
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+          <input
+            type={passwordVisible ? 'text' : 'password'}
+            name="password"
+            placeholder="Contraseña"
+            value={formData.password}
+            onChange={handleChange}
+            required={mode === 'create' || changePassword}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          />
+          <span
+            onClick={handlePasswordToggle}
+            className="absolute right-3 m-5 mr-6 -mt-7 cursor-pointer text-gray-500"
+          >
+            {passwordVisible ? <IoEyeOff /> : <IoEye />}
+          </span>
+          {errorMessages.password && <p className="text-red-500 text-sm">{errorMessages.password}</p>}
         </div>
 
-        <div className="border-gray-300 rounded-lg cursor-pointer mr-0">
-          <label className="block text-sm font-medium text-gray-700 ">Confirmar Contraseña</label>
-          <div className="relative">
-            <input
-              type={passwordVisible ? 'text' : 'password'}
-              name="confirmPass"
-              placeholder="Contraseña"
-              value={formData.confirmPass}
-              onChange={handleChange}
-              disabled={mode === 'view'}
-              required
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2 pr-10" // pr-10 para espacio para el icono
-            />
-            {errorMessages.confirmPass && <p className="text-red-500 text-sm">{errorMessages.confirmPass}</p>}
-            <button
-              type="button"
-              onClick={handlePasswordToggle}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
-            >
-              {passwordVisible ? <IoEyeOff /> : <IoEye />}
-            </button>
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
+          <input
+            type={passwordVisible ? 'text' : 'password'}
+            name="confirmPass"
+            placeholder="Confirmar contraseña"
+            value={formData.confirmPass}
+            onChange={handleChange}
+            required={mode === 'create' || changePassword}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          />
+          {errorMessages.confirmPass && <p className="text-red-500 text-sm">{errorMessages.confirmPass}</p>}
         </div>
-      </div>
+        </div>
+        
+        
+      </>
+      
+    )}
 
 
       <div className="flex justify-end space-x-2">
