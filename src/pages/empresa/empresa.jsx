@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Edit, Trash, Eye, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FiPlusCircle } from "react-icons/fi";
 import Delete from '../../components/delete';
@@ -13,6 +14,7 @@ import ErrorAlert from "../../components/alerts/error";
 
 const Empresa = () => {
   const [companyList, setCompanyList] = useState([]);
+  const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -125,8 +127,6 @@ if (data.message) {
     showSuccessAlertSuccess("Compañía eliminada correctamente")
 }
 
-
-
     
     updateCompanies()
   };
@@ -170,6 +170,9 @@ if (data.message) {
     }, 2500);
   }
 
+  const handleViewCompany = (companyId) => {
+    navigate(`../visualizarEmpresa/${companyId}`);
+  };
 
   return (
     <div className="table-container">
@@ -215,7 +218,7 @@ if (data.message) {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.created_at}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.location}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(company, 'view')}>
+                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewCompany(company.id)} >
                       <Eye size={18} />
                     </button>
                     <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(company, 'edit')}>

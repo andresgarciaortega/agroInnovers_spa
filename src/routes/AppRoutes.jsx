@@ -6,6 +6,7 @@ import { Route, Routes } from "react-router-dom";
 // import Login from "../pages/login/login";
 // import Home from "../pages/home/home";
 import Empresa from "../pages/empresa/empresa";
+import VisualizarEmpresa from "../pages/empresa/visualizarEmpresa";
 import Perfil from "../pages/auth/Perfil/perfil";
 import Usuarios from "../pages/usuarios/usurios";
 import Variables from "../pages/variables/variables";
@@ -37,6 +38,7 @@ const AppRoutes = () => {
       <Route path="/home" element={<LayoutHome />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="empresa" element={<Empresa />} />
+        <Route path="visualizarEmpresa/:companyId" element={<VisualizarEmpresa/>} />
         <Route path="usuarios" element={<Usuarios />} />
         <Route path="variables" element={<Variables />} />
         <Route path="tipoVariables" element={<TipoVariable />} />

@@ -115,7 +115,7 @@ const Especie = () => {
     try {
       const data = await CategoryServices.getAllCategory();
 
-      setCategoryList(data); 
+      setCategoryList(data); // Actualiza companyList con los datos más recientes
     } catch (error) {
       console.error('Error al actualizar las categorias:', error);
     }

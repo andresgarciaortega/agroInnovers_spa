@@ -71,7 +71,7 @@ const Sidebar = ({ selectedItem, setSelectedItem }) => {
   };
 
   return (
-    <nav className="w-full md:max-w-72 bg-[#345246] text-white flex flex-col h-full">
+    <nav className="w-full md:max-w-80 bg-[#345246] text-white flex flex-col h-full">
       <div className="p-2 flex justify-center">
         <img src={logo} alt="Logo" className="h-20" />
       </div>
@@ -168,10 +168,10 @@ export default function Component() {
         <Sidebar selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
       )}
       
-      <div className="flex-1">
+      <div className="flex-1 h-[100vh]"> 
       <Navbar />
 
-        <div className="p-6">
+        <div className="p-6 h-[100vh]">
           <Outlet />
         </div>
       </div>

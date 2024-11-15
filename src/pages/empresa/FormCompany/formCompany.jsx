@@ -23,7 +23,13 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   });
   const [errorMessages, setErrorMessages] = useState({
     phone: ''
-  });
+  }) ;
+  
+  useEffect(() => {
+    if (company) {
+      setFormData(company);
+    }
+  }, [company]);
 
   const [documentTypes, setDocumentTypes] = useState([]); // Estado para los tipos de documentos
   const [showAlertError, setShowAlertError] = useState(false);

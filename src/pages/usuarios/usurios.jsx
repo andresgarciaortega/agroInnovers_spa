@@ -26,7 +26,7 @@ const Usuario = () => {
   const [newUser, setNewUser] = useState({
     name: '',
     email: '',
-    mobiles: '',
+    phone: '',
     company: '',
     documentType: '',
     registrationDate: '',
@@ -102,7 +102,7 @@ const Usuario = () => {
       setNewUser({
         name: '',
         email: '',
-        mobiles: '',
+        phone: '',
         company: '',
         documentType: '',
         registrationDate: '',

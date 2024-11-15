@@ -17,13 +17,17 @@ const CompanyService = {
         }
     },
 
-     // OBTENER UNA CATEGORÍA POR ID
-     async getCategoryById(id) {
+     // OBTENER UNA compañia POR ID
+     async getCompanyById(id) {
         try {
-            const response = await api.get(`/categories/${id}`);
-            return response.data; // Devuelve los datos de la categoría
+            
+            console.log('eso al obtener la compañia:', id);
+            const response = await api.get(`/companies/${id}`);
+            
+            console.log('Error al obtener la compañia:', response);
+            return response; // Devuelve los datos de la compañia
         } catch (error) {
-            console.error('Error al obtener la categoría:', error);
+            console.error('Error al obtener la compañia:', error);
             throw error;
         }
     },
