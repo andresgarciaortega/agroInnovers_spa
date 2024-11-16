@@ -12,9 +12,15 @@ import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
 
 
+import { ImEqualizer2 } from "react-icons/im";
+
+
+import Select from "react-select";
+
 const Variable = () => {
   const [companyList, setCompanyList] = useState([]); // Nuevo estado para empresas
   const [selectedCompany, setSelectedCompany] = useState('');
+  const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
 
   const [variableList, setVariableList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -71,6 +77,14 @@ const Variable = () => {
   
     fetchVariables();
   }, [selectedCompany]);
+
+  const handleCompanyChange = (selectedOption) => {
+    setSelectedCompany(selectedOption ? selectedOption.value : null);  // Se guarda el ID de la empresa
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchCompanyTerm(e.target.value);
+  };
 
   const handleVariableSelect = (variable) => {
     setSelectedCompany(variable.company_id);  // Guardamos el company_id de la variable seleccionada
@@ -183,33 +197,53 @@ const Variable = () => {
 
 
   return (
-    <div className="table-container">
-      <div className="absolute transform -translate-y-20 right-30 w-1/2">
-      <select
-  className="w-full border border-gray-300 p-2 pl-10 rounded-md"
-  value={selectedCompany}
-  onChange={(e) => setSelectedCompany(e.target.value)}
->
-  <option value="">Seleccionar empresa</option>
-  {companyList.map((company) => (
-    <option key={company.id} value={company.id}>
-      {company.name}
-    </option>
-  ))}
-</select>
+    <div className="table-container ">
+      <div className="absolute transform -translate-y-28 right-30 w-1/2">
+<div className="relative w-full">
+  {/* Select con el ícono dentro */}
+  <Select
+    className="w-full"
+    value={companyList.find(company => company.id === selectedCompany)}
+    onChange={handleCompanyChange}
+    options={companyList.map((company) => ({
+      value: company.id,
+      label: company.name
+    }))}
+    placeholder ="Seleccionar empresa"
+    isSearchable={true}
+    classNamePrefix="select"  
+  />
+  <IoSearch className="absolute right-11 top-3 text-gray-500" />
+</div>
 
-        <IoSearch className="absolute left-3 top-3 text-gray-500" />
-        <input
-          type="text"
-          placeholder="Buscar empresa "
-          className="w-full border border-gray-300 p-2 mt-6 rounded-md"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+<br />
+<div className="flex items-center space-x-2  text-gray-700">
+        <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Variables */}
+        <span>Gestión de variables</span>
+        <span className="text-black font-bold"> > </span>
+        <span>Variables</span>
+        <span className="text-black font-bold"> > </span>
+        <span>{selectedCompany ? companyList.find(company => company.id === selectedCompany)?.name : "Seleccionar empresa"}</span>
+      </div>  
       </div>
+      
+      <div className="relative w-full mt-6 py-5">
+  {/* Input de búsqueda */}
+  <input
+    type="text"
+    placeholder="Buscar variable"
+    className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+  
+  {/* Icono de búsqueda alineado a la izquierda */}
+  <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+</div>
      
 
-      <div className="bg-white rounded-lg shadow">
+
+      <div className="bg-white  rounded-lg shadow ">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">Variables</h2>
           <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
@@ -218,11 +252,11 @@ const Variable = () => {
           </button>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-300 ">
+          <table className="w-full ">
+            <thead className="bg-gray-300  ">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Icono</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">Icono</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Variable</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo variable</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad medida</th>

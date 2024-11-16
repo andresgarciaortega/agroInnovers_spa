@@ -14,6 +14,8 @@ import LoadingView from '../../components/Loading/loadingView';
 
 
 
+
+
 const TipoVariable = () => {
   const [typeVariablesList, setTypeVariablesList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
