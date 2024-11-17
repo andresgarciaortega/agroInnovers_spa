@@ -34,9 +34,12 @@ const PasswordRecovery = () => {
         <div className="flex justify-center mb-6">
           <img src={logo} alt="Logo" className="h-14" />
         </div>
-        <h2 className="text-2xl font-bold text-center text-gray-700 mb-8">
+        <h2 className="text-2xl font-bold text-center text-gray-700 mb-4">
           Recuperar contraseña
         </h2>
+        <p className="text-sm text-gray-700 text-center mb-5">
+          Ingresa el correo con el que te registraste para enviarte un enlace de recuperación
+        </p>
 
         {!isSubmitted ? (
           <form onSubmit={handleSubmit}>
@@ -57,41 +60,44 @@ const PasswordRecovery = () => {
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
             </div>
-            <button
-              type="submit"
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded focus:outline-none"
-            >
-              Enviar instrucciones
-            </button>
             <div className="text-center mt-6">
               <button
                 type="button"
                 onClick={() => navigate("/")}
-                className="text-sm text-gray-600 hover:text-gray-900 inline-flex items-center"
+                className="text-sm text-gray-600 hover:text-gray-900 inline-flex items-center mb-5"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver al inicio de sesión
+                Recuerdas tu contraseña? {" "}
+                <span className="text-cyan-500 border-b-2 border-cyan-400">
+                  Iniciar sesión
+                </span>
               </button>
             </div>
+
+            <button
+              type="submit"
+              className="w-full bg-[#168C0DFF] hover:bg-green-700 text-white font-bold py-2 rounded focus:outline-none"
+            >
+              Enviar correo
+            </button>
+
           </form>
         ) : (
           <div className="mt-8 space-y-6">
             <div className="rounded-md bg-green-50 p-4">
               <p className="text-sm text-green-700 text-center">
-                Si existe una cuenta asociada a {email}, recibirás un correo con las instrucciones para restablecer tu contraseña.
+                Revisa tu bandeja de entrada para recuperar tu contraseña
               </p>
             </div>
             <button
               onClick={() => navigate("/")}
-              className="w-full bg-gray-200 text-gray-700 font-bold  rounded focus:outline-none"
+              className="w-full bg-[#168C0DFF] hover:bg-green-700 text-white font-bold py-2 rounded focus:outline-none"
             >
-              <ArrowLeft className="mr-4 h-4 w-8 " />
-              Volver al inicio de sesión
+              iniciar sesión
             </button>
           </div>
         )}
 
-        
+
       </div>
 
       {showErrorAlert && (

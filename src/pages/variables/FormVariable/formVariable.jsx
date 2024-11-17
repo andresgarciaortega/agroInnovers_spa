@@ -4,8 +4,9 @@ import UploadToS3 from '../../../config/UploadToS3';
 import VariablesService from '../../../services/variableService';
 import VariableTypeService from '../../../services/VariableType';
 import RegistrerTypeServices from '../../../services/RegistrerType';
+import CompanyService from '../../../services/CompanyService';
 
-const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal,companyId }) => {
+const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode, closeModal,companyId }) => {
   const [isDashboard, setIsDashboard] = useState(false);
   const [isIncrement, setIsIncrement] = useState(false);
   const [formData, setFormData] = useState({
@@ -15,11 +16,12 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal,com
     type_variable_id: '',
     type_register_id: '',
     informational_calculation: '',
-    empresa_id: companyId || ''
+    company_id: companyId || ''
   });
 
   const [variableTypes, setVariableTypes] = useState([]);
   const [registerTypes, setRegisterTypes] = useState([]);
+  const [companies, setCompanies] = useState([]);
 
   const [unitsOfMeasurement] = useState([
     { id: 'Kilogramos (kg)', name: 'Kilogramos (kg)' },
@@ -44,7 +46,7 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal,com
         console.error('Error al obtener los tipos de variable:', error);
       }
     };
-
+  
     const fetchRegisterTypes = async () => {
       try {
         const typeRegisters = await RegistrerTypeServices.getAllRegistrerType();
@@ -53,27 +55,44 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal,com
         console.error('Error al obtener los tipos de registro:', error);
       }
     };
-
+    
+    const fetchCompanies = async () => {
+      try {
+        const fetchedCompanies = await CompanyService.getAllCompany();
+        setCompanies(fetchedCompanies);
+      } catch (error) {
+        console.error('Error al obtener las empresas:', error);
+      }
+    };
+  
     fetchVariableTypes();
     fetchRegisterTypes();
-
+    fetchCompanies();
+  }, []); // The empty dependency array ensures this only runs once when the component mounts.
   
-
+  useEffect(() => {
+    if (selectedCompany) {
+      setFormData((prevData) => ({
+        ...prevData,
+        company_id: selectedCompany.id // Sincroniza selectedCompany con el formulario
+      }));
+    }
+  }, [selectedCompany]); // This effect only runs when selectedCompany changes.
+  
+  useEffect(() => {
     if (mode === 'edit' || mode === 'view') {
       setFormData({
         name: variable.name || '',
         icon: variable.icon || '',
         unit_of_measurement: variable.unit_of_measurement || '',
-        type_variable_id: variable.typeVariable?.id || '',  // Asignación correcta del id de typeVariable
-        type_register_id: variable.typeRegister?.id || '',  // Asignación correcta del id de typeRegister
+        type_variable_id: variable.typeVariable?.id || '', // Asignación correcta del id de typeVariable
+        type_register_id: variable.typeRegister?.id || '', // Asignación correcta del id de typeRegister
         informational_calculation: variable.informational_calculation || '',
-        empresa_id: companyId || ''
-
+        company_id: variable.empresa?.id || companyId || ''
       });
-
+  
       setIsDashboard(variable.visible_in_dashboard);
-      setIsIncrement(variable.is_incremental)
-
+      setIsIncrement(variable.is_incremental);
       setImagePreview(variable.icon);
     } else {
       setFormData({
@@ -83,10 +102,12 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal,com
         type_variable_id: '',
         type_register_id: '',
         informational_calculation: '',
+        company_id: companyId || ''
       });
     }
-
-  }, [variable, mode]);
+  }, [variable, mode]); // This effect runs when variable or mode changes.
+  
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -114,7 +135,7 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal,com
         type_register_id: Number(formData.type_register_id),
         is_incremental: isIncrement,
         visible_in_dashboard: isDashboard,
-        empresa_id: companyId || formData.empresa_id,
+        company_id:Number(companyId) ||  Number (formData.company_id),
       };
   
       if (mode === 'create') {
@@ -220,12 +241,7 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal,com
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
             required
           >
-            {/* <option value="">Seleccione una opción</option>
-            {registerTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))} */}
+            
             <option value="">Seleccione una opción</option>
             {registerTypes.map((type) => (
               <option key={type.id} value={type.id}>
@@ -234,8 +250,7 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal,com
             ))}
           </select>
         </div>
-      </div>
-      <div className="mt-5">
+        <div >
         <label htmlFor="type_variable_id" className="block text-sm font-medium text-gray-700">Tipo de variable</label>
         <select
           id="type_variable_id"
@@ -254,6 +269,28 @@ const FormVariable = ({ showErrorAlert, onUpdate, variable, mode, closeModal,com
           ))}
         </select>
       </div>
+      <div >
+        <label htmlFor="company_id" className="block text-sm font-medium text-gray-700">Empresa</label>
+        <select
+          id="company_id"
+          name="company_id"
+          value={formData.company_id}
+          onChange={handleChange}
+          disabled={mode === 'view'}
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          required
+        >
+          <option value="">Seleccione una empresa</option>
+          {companies.map((company) => (
+            <option key={company.id} value={company.id}>
+              {company.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      </div>
+     
+     
 
       <div className="mt-5">
         <label htmlFor="informational_calculation" className="block text-sm font-medium text-gray-700">Cálculo informativo</label>

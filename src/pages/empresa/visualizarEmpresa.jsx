@@ -3,6 +3,7 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import CompanyService from "../../services/CompanyService";
 import TypeDocumentsService from '../../services/fetchTypes';
 import GenericModal from '../../components/genericModal';
+import FormCompany from './FormCompany/formCompany';
 import { useParams } from 'react-router-dom';
 
 import { Package2, Factory, Variable, Activity, Cpu, Users } from 'lucide-react';
@@ -83,7 +84,30 @@ const VisualizarEmpresa = ({ }) => {
     }
   });
 
+   // Abrir el modal
+   const handleOpenModal = (company = null, mode = 'create') => {
+    setSelectedCompany(company);
+    setModalMode(mode);
+    if (mode === 'edit' || mode === 'view') {
+      setNewCompany(company);
+    } else {
+      setNewCompany({
+        name: '',
+        email: '',
+        mobile: '',
+        address: '',
+        registrationDate: '',
+      });
+    }
+    setIsModalOpen(true);z
+  };
 
+  // Cerrar el modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedCompany(null);
+    setModalMode('create');
+  };
 
 
   return (
@@ -92,9 +116,9 @@ const VisualizarEmpresa = ({ }) => {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold">{formData.name} </h1>
-            {/* <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => handleOpenModal()}>
+            <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => handleOpenModal()}>
             Añadir empresa
-          </button> */}
+          </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -280,7 +304,11 @@ const VisualizarEmpresa = ({ }) => {
           </div>
         </div>
       </div>
-      
+      {isModalOpen && (
+        <GenericModal title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'} onClose={closeModal}>
+          <FormCompany showSuccessAlert={showSuccessAlertSuccess} onUpdate={updateCompanies} company={newCompany} mode={modalMode} closeModal={closeModal} />
+        </GenericModal>
+      )}
     </div>
   );
 };

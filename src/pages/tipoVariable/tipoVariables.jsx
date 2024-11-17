@@ -10,13 +10,20 @@ import VariableType from "../../services/VariableType";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
 import LoadingView from '../../components/Loading/loadingView';
+import CompanyService from "../../services/CompanyService";
 
 
+import { ImEqualizer2 } from "react-icons/im";
+import { IoIosWarning } from 'react-icons/io';
 
 
-
+import Select from "react-select";
 
 const TipoVariable = () => {
+  const [companyList, setCompanyList] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
+
   const [typeVariablesList, setTypeVariablesList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedTypeVariable, setSelectedTypeVariable] = useState(null);
@@ -26,6 +33,7 @@ const TipoVariable = () => {
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showErrorVariableAlert, setShowErrorVariableAlert] = useState(false);
   const [newTypeVariable, setNewTypeVariable] = useState({
     icon: '',
     name: '',
@@ -36,23 +44,50 @@ const TipoVariable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const data = await CompanyService.getAllCompany();
+        setCompanyList(data);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
 
-  // Cargar tios cuando el componente se monta
+    fetchCompanies();
+  }, []);
+
   useEffect(() => {
     const fetchTypeVariable = async () => {
-      setIsLoading(true);
+       if (!selectedCompany) {
+        setTypeVariablesList([]); 
+        return;
+      }
       try {
-        const data = await VariableType.getAllTypeVariable();
-        setTypeVariablesList(Array.isArray(data) ? data : []);
+        const data = await VariableType.getAllTypeVariable(selectedCompany);
+        if (data.statusCode === 404) {
+          setTypeVariablesList([]);
+        } else {
+          setTypeVariablesList(Array.isArray(data) ? data : []);
+        }
       } catch (error) {
-        console.error('Error fetching TypeVariable:', error);
-      } finally {
-        setIsLoading(false);
+        setTypeVariablesList([])
+        console.error('Error fetching variables:', error);
+        setMessageAlert('No tiene tipo de variables asociadas, esocge otra empresa');
+        setShowErrorVariableAlert(true); 
       }
     };
 
     fetchTypeVariable();
-  }, []);
+  }, [selectedCompany]);
+
+  const handleCompanyChange = (selectedOption) => {
+    setSelectedCompany(selectedOption ? selectedOption.value : null);  
+  };
+
+  const handleCloseErrorAlert = () => {
+    setShowErrorVariableAlert(false);
+  };
 
   // Función de búsqueda que filtra typevariableList según el searchTerm
   const filteredTypeVariable = typeVariablesList.filter(typevariable =>
@@ -156,16 +191,49 @@ const TipoVariable = () => {
 
   return (
     <div className="table-container">
-      {isLoading && <LoadingView />}
-      <div className="absolute transform -translate-y-20 right-30 w-1/2">
-        <IoSearch className="absolute left-3 top-3 text-gray-500" />
+      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
+        <div className="relative w-full">
+          <Select
+            className="w-full"
+            value={companyList.find(company => company.id === selectedCompany)}
+            onChange={handleCompanyChange}
+            options={companyList.map((company) => ({
+              value: company.id,
+              label: company.name
+            }))}
+            placeholder="Seleccionar empresa"
+            isSearchable={true}
+            classNamePrefix="select"
+          />
+          <IoSearch className="absolute right-11 top-3 text-gray-500" />
+        </div>
+
+        <br />
+        <div className="flex items-center space-x-2 text-gray-700">
+          <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Variables */}
+          <span>Gestión de variables</span>
+          <span className="text-black font-bold"> > </span>
+          <span>Tipo de variables</span>
+          <span className="text-black font-bold"> > </span>
+          {selectedCompany && (
+            <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
+          )}
+        </div>
+
+      </div>
+
+      <div className="relative w-full mt-6 py-5 z-0">
+        {/* Input de búsqueda */}
         <input
           type="text"
-          placeholder="Buscar tipo de variable "
-          className="w-full border border-gray-300 p-2 pl-10 rounded-md"
+          placeholder="Buscar variable"
+          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+
+        {/* Icono de búsqueda alineado a la izquierda */}
+        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
       <div className="bg-white rounded-lg shadow">
         <div className="flex justify-between items-center p-6 border-b">
@@ -262,6 +330,13 @@ const TipoVariable = () => {
             closeModal={closeModal}
           />
         </GenericModal>
+      )}
+       {showErrorVariableAlert && (
+        <div className="alert alert-error flex items-center space-x-2 p-4 bg-red-500 text-white rounded-md">
+          <IoIosWarning size={20} />
+          <p>{messageAlert}</p>
+          <button onClick={handleCloseErrorAlert} className="ml-2">Cerrar</button>
+        </div>
       )}
 
       {showErrorAlert && (
