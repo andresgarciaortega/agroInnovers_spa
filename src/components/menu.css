@@ -1,9 +1,4 @@
-.p-6{
-    background-color: red !important;
-    /* height: 90vh; */
-    /* display: flex; */
-    /* flex-direction: column; */
-    /* justify-content: center; */
-    /* align-items: center; */
+.flex-1{
+    height: 90vh;
     overflow-y: scroll;
 }
