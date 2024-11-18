@@ -24,6 +24,7 @@ const Empresa = () => {
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [showSuccessAlertTable, setShowSuccessAlertTable] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [newCompany, setNewCompany] = useState({

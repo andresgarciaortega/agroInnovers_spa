@@ -6,7 +6,13 @@ import VariableTypeService from '../../../services/VariableType';
 import RegistrerTypeServices from '../../../services/RegistrerType';
 import CompanyService from '../../../services/CompanyService';
 
-const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode, closeModal,companyId }) => {
+const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mode, closeModal, companyId }) => {
+  const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
+
+  const [variableTypes, setVariableTypes] = useState([]);
+  const [registerTypes, setRegisterTypes] = useState([]);
+  const [companies, setCompanies] = useState([]);
+
   const [isDashboard, setIsDashboard] = useState(false);
   const [isIncrement, setIsIncrement] = useState(false);
   const [formData, setFormData] = useState({
@@ -16,12 +22,9 @@ const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode
     type_variable_id: '',
     type_register_id: '',
     informational_calculation: '',
-    company_id: companyId || ''
+    company_id: companySeleector.value || ''
   });
 
-  const [variableTypes, setVariableTypes] = useState([]);
-  const [registerTypes, setRegisterTypes] = useState([]);
-  const [companies, setCompanies] = useState([]);
 
   const [unitsOfMeasurement] = useState([
     { id: 'Kilogramos (kg)', name: 'Kilogramos (kg)' },
@@ -46,7 +49,7 @@ const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode
         console.error('Error al obtener los tipos de variable:', error);
       }
     };
-  
+
     const fetchRegisterTypes = async () => {
       try {
         const typeRegisters = await RegistrerTypeServices.getAllRegistrerType();
@@ -55,7 +58,7 @@ const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode
         console.error('Error al obtener los tipos de registro:', error);
       }
     };
-    
+
     const fetchCompanies = async () => {
       try {
         const fetchedCompanies = await CompanyService.getAllCompany();
@@ -64,21 +67,21 @@ const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode
         console.error('Error al obtener las empresas:', error);
       }
     };
-  
+
     fetchVariableTypes();
     fetchRegisterTypes();
     fetchCompanies();
   }, []); // The empty dependency array ensures this only runs once when the component mounts.
-  
+
   useEffect(() => {
     if (selectedCompany) {
       setFormData((prevData) => ({
         ...prevData,
-        company_id: selectedCompany.id // Sincroniza selectedCompany con el formulario
+        company_id: companySeleector.value || '' // Sincroniza selectedCompany con el formulario
       }));
     }
   }, [selectedCompany]); // This effect only runs when selectedCompany changes.
-  
+
   useEffect(() => {
     if (mode === 'edit' || mode === 'view') {
       setFormData({
@@ -88,9 +91,9 @@ const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode
         type_variable_id: variable.typeVariable?.id || '', // Asignación correcta del id de typeVariable
         type_register_id: variable.typeRegister?.id || '', // Asignación correcta del id de typeRegister
         informational_calculation: variable.informational_calculation || '',
-        company_id: variable.empresa?.id || companyId || ''
+        company_id: variable.company_id
       });
-  
+
       setIsDashboard(variable.visible_in_dashboard);
       setIsIncrement(variable.is_incremental);
       setImagePreview(variable.icon);
@@ -102,12 +105,12 @@ const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode
         type_variable_id: '',
         type_register_id: '',
         informational_calculation: '',
-        company_id: companyId || ''
+        company_id: companySeleector.value || ''
       });
     }
   }, [variable, mode]); // This effect runs when variable or mode changes.
-  
-  
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -122,22 +125,31 @@ const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Verificar si se ha seleccionado una nueva imagen
       let logoUrl = '';
-      if (formData.icon) {
+
+      // Si se ha seleccionado una nueva imagen
+      if (formData.icon.name) {
+        // Subir la nueva imagen a S3 y obtener la URL
         logoUrl = await UploadToS3(formData.icon);
+      } else if (mode === 'edit' && variable.icon) {
+        // Si no se seleccionó una nueva imagen y estamos en modo edición, mantener la URL de la imagen existente
+        logoUrl = variable.icon;
       }
-  
+
+      // Crear el objeto de datos a enviar
       const formDataToSubmit = {
         ...formData,
-        icon: logoUrl || '',
+        icon: logoUrl || '',  // Usar la URL de la imagen (nueva o existente)
         informational_calculation: formData.informational_calculation,
         type_variable_id: Number(formData.type_variable_id),
         type_register_id: Number(formData.type_register_id),
         is_incremental: isIncrement,
         visible_in_dashboard: isDashboard,
-        company_id:Number(companyId) ||  Number (formData.company_id),
+        company_id: Number(companyId) || Number(formData.company_id),  // Usar el ID de la empresa
       };
-  
+
+      // Enviar la solicitud según el modo
       if (mode === 'create') {
         const createdVariable = await VariablesService.createVariable(formDataToSubmit);
         showErrorAlert("creada");
@@ -145,15 +157,18 @@ const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode
         await VariablesService.updateVariable(variable.id, formDataToSubmit);
         showErrorAlert("editada");
       }
-  
+
+      // Actualizar y cerrar modal
       onUpdate();
       closeModal();
-  
+
     } catch (error) {
       console.error('Error al guardar la variable:', error);
+      showErrorAlert("Hubo un error al guardar la variable.");
     }
   };
-  
+
+
 
   // const showErrorAlert = (message) => {
   //   alert(message); // Muestra un mensaje de alerta
@@ -241,7 +256,7 @@ const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
             required
           >
-            
+
             <option value="">Seleccione una opción</option>
             {registerTypes.map((type) => (
               <option key={type.id} value={type.id}>
@@ -251,46 +266,46 @@ const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode
           </select>
         </div>
         <div >
-        <label htmlFor="type_variable_id" className="block text-sm font-medium text-gray-700">Tipo de variable</label>
-        <select
-          id="type_variable_id"
-          name="type_variable_id"
-          value={formData.type_variable_id}
-          onChange={handleChange}
-          disabled={mode === 'view'}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-        >
-          <option value="">Seleccione una opción</option>
-          {variableTypes.map((type) => (
-            <option key={type.id} value={type.id}>
-              {type.name}
-            </option>
-          ))}
-        </select>
+          <label htmlFor="type_variable_id" className="block text-sm font-medium text-gray-700">Tipo de variable</label>
+          <select
+            id="type_variable_id"
+            name="type_variable_id"
+            value={formData.type_variable_id}
+            onChange={handleChange}
+            disabled={mode === 'view'}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            required
+          >
+            <option value="">Seleccione una opción</option>
+            {variableTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div >
+          <label htmlFor="company_id" className="block text-sm font-medium text-gray-700">Empresa</label>
+          <select
+            id="company_id"
+            name="company_id"
+            value={formData.company_id}
+            onChange={handleChange}
+            disabled={mode === 'view'}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            required
+          >
+            <option value="">Seleccione una empresa</option>
+            {companies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-      <div >
-        <label htmlFor="company_id" className="block text-sm font-medium text-gray-700">Empresa</label>
-        <select
-          id="company_id"
-          name="company_id"
-          value={formData.company_id}
-          onChange={handleChange}
-          disabled={mode === 'view'}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-        >
-          <option value="">Seleccione una empresa</option>
-          {companies.map((company) => (
-            <option key={company.id} value={company.id}>
-              {company.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      </div>
-     
-     
+
+
 
       <div className="mt-5">
         <label htmlFor="informational_calculation" className="block text-sm font-medium text-gray-700">Cálculo informativo</label>
@@ -312,48 +327,48 @@ const FormVariable = ({selectedCompany, showErrorAlert, onUpdate, variable, mode
         </select>
       </div>
 
-      
+
       <div className="grid grid-cols-3 gap-4 mt-5">
 
 
-      {/* ACIVACIÓN DE VISIBLE EN DASHBAODR */}
-      <div className="mt-5 flex items-center">
-        <span className="text-sm font-medium text-gray-700 mr-">Visible en Dashboard</span>
-        <div
-          className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ease-in-out duration-200 ${isDashboard ? 'bg-[#168C0DFF]' : 'bg-gray-300'
-            } ${mode === 'view' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-          onClick={() => {
-            if (mode !== 'view') {
-              setIsDashboard(!isDashboard);
-            }
-          }}
-        >
-          <span
-            className={`inline-block w-5 h-5 transform rounded-full bg-white transition-transform ease-in-out duration-200 ${isDashboard ? 'translate-x-6' : 'translate-x-1'
-              }`}
-          />
+        {/* ACIVACIÓN DE VISIBLE EN DASHBAODR */}
+        <div className="mt-5 flex items-center">
+          <span className="text-sm font-medium text-gray-700 mr-">Visible en Dashboard</span>
+          <div
+            className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ease-in-out duration-200 ${isDashboard ? 'bg-[#168C0DFF]' : 'bg-gray-300'
+              } ${mode === 'view' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+            onClick={() => {
+              if (mode !== 'view') {
+                setIsDashboard(!isDashboard);
+              }
+            }}
+          >
+            <span
+              className={`inline-block w-5 h-5 transform rounded-full bg-white transition-transform ease-in-out duration-200 ${isDashboard ? 'translate-x-6' : 'translate-x-1'
+                }`}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* ACIVACIÓN DE ES INCREMENTAL */}
+        {/* ACIVACIÓN DE ES INCREMENTAL */}
 
-      <div className="mt-5 flex items-center">
-        <span className="text-sm font-medium text-gray-700 mr-3">Es incremental</span>
-        <div
-          className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ease-in-out duration-200 ${isIncrement ? 'bg-[#168C0DFF]' : 'bg-gray-300'
-            } ${mode === 'view' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-          onClick={() => {
-            if (mode !== 'view') {
-              setIsIncrement(!isIncrement);
-            }
-          }}
-        >
-          <span
-            className={`inline-block w-5 h-5 transform rounded-full bg-white transition-transform ease-in-out duration-200 ${isIncrement ? 'translate-x-6' : 'translate-x-1'
-              }`}
-          />
+        <div className="mt-5 flex items-center">
+          <span className="text-sm font-medium text-gray-700 mr-3">Es incremental</span>
+          <div
+            className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ease-in-out duration-200 ${isIncrement ? 'bg-[#168C0DFF]' : 'bg-gray-300'
+              } ${mode === 'view' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+            onClick={() => {
+              if (mode !== 'view') {
+                setIsIncrement(!isIncrement);
+              }
+            }}
+          >
+            <span
+              className={`inline-block w-5 h-5 transform rounded-full bg-white transition-transform ease-in-out duration-200 ${isIncrement ? 'translate-x-6' : 'translate-x-1'
+                }`}
+            />
+          </div>
         </div>
-      </div>
       </div>
 
 

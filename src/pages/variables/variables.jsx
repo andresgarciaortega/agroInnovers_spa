@@ -16,11 +16,14 @@ import { ImEqualizer2 } from "react-icons/im";
 
 
 import Select from "react-select";
+import CompanySelector from "../../components/shared/companySelect";
+import { useCompanyContext } from "../../context/CompanyContext";
 
 const Variable = () => {
   const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
+  const { selectedCompanyUniversal } = useCompanyContext();
 
   const [variableList, setVariableList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -31,6 +34,7 @@ const Variable = () => {
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
   const [newVariable, setNewVariable] = useState({
     name: '',
     icon: '',
@@ -57,27 +61,33 @@ const Variable = () => {
 
   useEffect(() => {
     const fetchVariables = async () => {
-      if (!selectedCompany) {
-        setVariableList([]); 
+      // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
+
+      // Verifica si companyId no es vacío antes de hacer la llamada
+      if (!companyId) {
+        setVariableList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
         return;
       }
+
       try {
-        const data = await VariableService.getAllVariable(selectedCompany);
+        const data = await VariableService.getAllVariable(companyId);
         if (data.statusCode === 404) {
           setVariableList([]);
         } else {
+          setShowErrorAlertTable(false)
           setVariableList(Array.isArray(data) ? data : []);
         }
       } catch (error) {
         setVariableList([])
         console.error('Error fetching variables:', error);
         setMessageAlert('Esta empresa no tiene variables registradas, Intentalo con otra empresa');
-        setShowErrorAlert(true); 
+        setShowErrorAlertTable(true); 
       }
     };
 
     fetchVariables();
-  }, [selectedCompany]);
+  }, [selectedCompanyUniversal]);
 
   const handleCompanyChange = (selectedOption) => {
     setSelectedCompany(selectedOption ? selectedOption.value : null);  
@@ -188,7 +198,17 @@ const Variable = () => {
 
   const updateService = async () => {
     try {
-      const data = await VariableService.getAllVariable();
+      // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
+
+      // Verifica si companyId no es vacío antes de hacer la llamada
+      if (!companyId) {
+        setVariableList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
+        return;
+      }
+
+
+      const data = await VariableService.getAllVariable(companyId);
 
       setVariableList(data);
     } catch (error) {
@@ -201,19 +221,8 @@ const Variable = () => {
     <div className="table-container ">
       <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
         <div className="relative w-full">
-          <Select
-            className="w-full"
-            value={companyList.find(company => company.id === selectedCompany)}
-            onChange={handleCompanyChange}
-            options={companyList.map((company) => ({
-              value: company.id,
-              label: company.name
-            }))}
-            placeholder="Seleccionar empresa"
-            isSearchable={true}
-            classNamePrefix="select"
-          />
-          <IoSearch className="absolute right-11 top-3 text-gray-500" />
+        <CompanySelector />
+
         </div>
 
         <br />
@@ -359,7 +368,7 @@ const Variable = () => {
           onCancel={handleCloseAlert}
         />
       )}
-      {showErrorAlert && (
+      {showErrorAlertTable && (
         <div className="alert alert-error flex items-center space-x-2 p-4 bg-red-500 text-white rounded-md">
           <IoIosWarning size={20} />
           <p>{messageAlert}</p>

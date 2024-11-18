@@ -3,18 +3,19 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import UploadToS3 from '../../../config/UploadToS3';
 import VariableTypeService from '../../../services/VariableType';
 import CompanyService from '../../../services/CompanyService';
+import { useCompanyContext } from '../../../context/CompanyContext';
 
 const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeModal }) => {
+  const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
+  
+  const [companies, setCompanies] = useState([]);
+  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     icon: null,
-    idCompany: '',
+    idCompany: companySeleector.value || '',
   });
-
-  const [showAlertError, setShowAlertError] = useState(false);
-  const [messageAlert, setMessageAlert] = useState("");
-  const [companies, setCompanies] = useState([]);
 
   useEffect(() => {
     const fetchCompany = async () => {
@@ -34,7 +35,7 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
         name: typevariable.name || '',
         description: typevariable.description || '',
         icon: typevariable.icon || null,
-        idCompany: typevariable.company_id || '', 
+        idCompany: typevariable.company_id , 
       });
       setImagePreview(typevariable.icon);
     } else {
@@ -42,10 +43,10 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
         name: '',
         description: '',
         icon: '',
-        idCompany: '',
+        idCompany: companySeleector.value  || '',
       });
     }
-  }, [typevariable, mode]);
+  }, [typevariable, mode, companySeleector.value]);
   
 
   const handleChange = (e) => {
@@ -69,10 +70,16 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
     e.preventDefault();
     try {
       let iconUrl = '';
-  
-      if (formData.icon) {
+      console.log(formData.icon)
+      // Si se ha seleccionado una nueva imagen
+      if (formData.icon.name) {
+        // Subir la nueva imagen a S3 y obtener la URL
         iconUrl = await UploadToS3(formData.icon);
+      } else {
+        // Si no se seleccionó una nueva imagen y estamos en modo edición, mantener la URL de la imagen existente
+        iconUrl = typevariable.icon;
       }
+
   
       const formDataToSubmit = {
         name: formData.name,

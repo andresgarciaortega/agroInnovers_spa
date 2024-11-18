@@ -18,9 +18,12 @@ import { IoIosWarning } from 'react-icons/io';
 
 
 import Select from "react-select";
+import CompanySelector from "../../components/shared/companySelect";
+import { useCompanyContext } from "../../context/CompanyContext";
 
 const TipoVariable = () => {
-  const [companyList, setCompanyList] = useState([]);
+  const { selectedCompanyUniversal } = useCompanyContext();
+  // const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
 
@@ -34,55 +37,56 @@ const TipoVariable = () => {
   const [messageAlert, setMessageAlert] = useState("");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorVariableAlert, setShowErrorVariableAlert] = useState(false);
+  const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
+
   const [newTypeVariable, setNewTypeVariable] = useState({
     icon: '',
     name: '',
     description: '',
   });
 
-
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const data = await CompanyService.getAllCompany();
-        setCompanyList(data);
-      } catch (error) {
-        console.error('Error fetching companies:', error);
-      }
-    };
-
-    fetchCompanies();
-  }, []);
 
   useEffect(() => {
-    const fetchTypeVariable = async () => {
-       if (!selectedCompany) {
-        setTypeVariablesList([]); 
-        return;
-      }
+    const fetchTypeVariables = async () => {
       try {
-        const data = await VariableType.getAllTypeVariable(selectedCompany);
+        // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
+
+        // Verifica si companyId no es vacío antes de hacer la llamada
+        if (!companyId) {
+          setTypeVariablesList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
+          return;
+        }
+
+        const data = await VariableType.getAllTypeVariable(companyId);
+
+        // Verifica si la respuesta es válida y si contiene datos
         if (data.statusCode === 404) {
           setTypeVariablesList([]);
         } else {
+        setShowErrorAlertTable(false);
           setTypeVariablesList(Array.isArray(data) ? data : []);
         }
       } catch (error) {
-        setTypeVariablesList([])
-        console.error('Error fetching variables:', error);
-        setMessageAlert('No tiene tipo de variables asociadas, esocge otra empresa');
-        setShowErrorVariableAlert(true); 
+        console.error('Error fetching type variables:', error);
+        setTypeVariablesList([]); // Vaciar la lista en caso de error
+        setMessageAlert('Esta empresa no tiene variables registradas, Intentalo con otra empresa');
+        setShowErrorAlertTable(true);
       }
     };
 
-    fetchTypeVariable();
-  }, [selectedCompany]);
+    // Llamamos a la función para obtener las variables de tipo de la empresa seleccionada
+    fetchTypeVariables();
+  }, [selectedCompanyUniversal]); // Asegúrate de usar el valor correcto (selectedCompanyUniversal)
+
+
+
 
   const handleCompanyChange = (selectedOption) => {
-    setSelectedCompany(selectedOption ? selectedOption.value : null);  
+    setSelectedCompany(selectedOption ? selectedOption.value : null);
   };
 
   const handleCloseErrorAlert = () => {
@@ -171,9 +175,19 @@ const TipoVariable = () => {
 
   // Función para actualizar la lista de empresas
   const updateTypeVariable = async () => {
+     // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
+     const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
+
+     // Verifica si companyId no es vacío antes de hacer la llamada
+     if (!companyId) {
+       setTypeVariablesList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
+       return;
+     }
+
     try {
-      const data = await VariableType.getAllTypeVariable();
+      const data = await VariableType.getAllTypeVariable(companyId);
       setTypeVariablesList(data); // Actualiza typevariableList con los datos más recientes
+      setShowErrorAlertTable(false);
     } catch (error) {
       console.error('Error al actualizar los tipos de variable:', error);
     }
@@ -191,21 +205,10 @@ const TipoVariable = () => {
 
   return (
     <div className="table-container">
+
       <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
         <div className="relative w-full">
-          <Select
-            className="w-full"
-            value={companyList.find(company => company.id === selectedCompany)}
-            onChange={handleCompanyChange}
-            options={companyList.map((company) => ({
-              value: company.id,
-              label: company.name
-            }))}
-            placeholder="Seleccionar empresa"
-            isSearchable={true}
-            classNamePrefix="select"
-          />
-          <IoSearch className="absolute right-11 top-3 text-gray-500" />
+          <CompanySelector />
         </div>
 
         <br />
@@ -331,7 +334,7 @@ const TipoVariable = () => {
           />
         </GenericModal>
       )}
-       {showErrorVariableAlert && (
+      {showErrorVariableAlert && (
         <div className="alert alert-error flex items-center space-x-2 p-4 bg-red-500 text-white rounded-md">
           <IoIosWarning size={20} />
           <p>{messageAlert}</p>
@@ -346,6 +349,13 @@ const TipoVariable = () => {
         />
       )}
 
+      {showErrorAlertTable && (
+        <div className="alert alert-error flex items-center space-x-2 p-4 bg-red-500 text-white rounded-md">
+          <IoIosWarning size={20} />
+          <p>{messageAlert}</p>
+          <button onClick={handleCloseErrorAlert} className="ml-2">Cerrar</button>
+        </div>
+      )}
     </div>
   );
 };
