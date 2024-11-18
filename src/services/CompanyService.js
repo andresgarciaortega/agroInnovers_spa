@@ -19,12 +19,8 @@ const CompanyService = {
 
      // OBTENER UNA compañia POR ID
      async getCompanyById(id) {
-        try {
-            
-            console.log('eso al obtener la compañia:', id);
-            const response = await api.get(`/companies/${id}`);
-            
-            console.log('Error al obtener la compañia:', response);
+        try {            
+            const response = await api.get(`/companies/${id}`);            
             return response; // Devuelve los datos de la compañia
         } catch (error) {
             console.error('Error al obtener la compañia:', error);

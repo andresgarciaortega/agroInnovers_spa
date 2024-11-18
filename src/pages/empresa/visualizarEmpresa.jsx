@@ -10,6 +10,28 @@ import { Package2, Factory, Variable, Activity, Cpu, Users } from 'lucide-react'
 
 
 const VisualizarEmpresa = ({ }) => {
+
+  const { companyId } = useParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("create");
+  const [newCompany, setNewCompany] = useState([]);
+
+  useEffect(() => {
+    const fetchCompaniesData = async () => {
+      try {
+        const data = await CompanyService.getCompanyById(companyId);
+        setFormData(data);
+        setNewCompany(data)
+
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
+
+    fetchCompaniesData();
+  }, []);
+
+
   const [formData, setFormData] = useState({
     name: '',
     email_user_admin: '',
@@ -20,73 +42,12 @@ const VisualizarEmpresa = ({ }) => {
     gps: "",
     email_billing: "",
     logo: ''
-  });
+  });  
 
-  const [documentTypes, setDocumentTypes] = useState([]); // Estado para los tipos de documentos
-  const [showAlertError, setShowAlertError] = useState(false);
-  const [messageAlert, setMessageAlert] = useState("");
-  const [companyList, setCompanyList] = useState([]);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  const { companyId } = useParams();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState("create");
-
-  const [company, setCompany] = useState({});
-
-
-  // useEffect(() => {
-  //   console.log("Updating company data in formData:", company);
-  //   if (company) {
-  //     setFormData(company);
-
-  //   }
-  // }, [company]);
-
-  useEffect(() => {
-    const fetchCompaniesData = async () => {
-      try {
-        const data = await CompanyService.getCompanyById(companyId);
-        setCompanyList(data);
-        setCompany(data);
-      } catch (error) {
-        console.error('Error fetching companies:', error);
-      }
-    };
-
-    fetchCompaniesData();
-  }, []);
-
-
-  useEffect(() => {
-
-    const fetchDocumentTypes = async () => {
-      try {
-        const typeDocuments = await TypeDocumentsService.getAllTypeDocuments();
-        const personaTypes = typeDocuments.filter(type => type.process === 'EMPRESA');
-        setDocumentTypes(personaTypes);
-      } catch (error) {
-        console.error('Error al obtener tipos de documentos:', error);
-      }
-    };
-    fetchDocumentTypes();
-    if (company) {
-      setFormData({
-        name: company.name || '',
-        email_user_admin: company.email_user_admin || '',
-        phone: company.phone || '',
-        location: company.location || '',
-        // type_document_id: company.typeDocument.id || 0,
-        nit: company.nit || '',
-        gps: company.gps || '',
-        email_billing: company.email_billing || '',
-        logo: company.logo || '',
-      });
-    }
-  });
 
    // Abrir el modal
-   const handleOpenModal = (company = null, mode = 'create') => {
-    setSelectedCompany(company);
+   const handleOpenModal = async (company = null, mode = 'create') => {
+
     setModalMode(mode);
     if (mode === 'edit' || mode === 'view') {
       setNewCompany(company);
@@ -99,16 +60,39 @@ const VisualizarEmpresa = ({ }) => {
         registrationDate: '',
       });
     }
-    setIsModalOpen(true);z
+    setIsModalOpen(true);
+
   };
 
   // Cerrar el modal
   const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedCompany(null);
     setModalMode('create');
   };
 
+
+  
+  const showSuccessAlertSuccess = (message) => {
+    setShowSuccessAlert(true)
+    setMessageAlert(`Empresa ${message} exitosamente`);
+
+    setTimeout(() => {
+      setShowSuccessAlert(false)
+    }, 2500);
+  }
+
+   // Función para actualizar la lista de empresas
+   const updateCompanies = async () => {
+    try {
+      const data = await CompanyService.getAllCompany();
+
+      setCompanyList(data); // Actualiza companyList con los datos más recientes
+    } catch (error) {
+      console.error('Error al actualizar las empresas:', error);
+    }
+  };
+
+  
 
   return (
     <div className="flex">
@@ -117,7 +101,7 @@ const VisualizarEmpresa = ({ }) => {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold">{formData.name} </h1>
             <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => handleOpenModal()}>
-            Añadir empresa
+            Editar empresa
           </button>
           </div>
 
@@ -304,11 +288,11 @@ const VisualizarEmpresa = ({ }) => {
           </div>
         </div>
       </div>
-      {isModalOpen && (
-        <GenericModal title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'} onClose={closeModal}>
-          <FormCompany showSuccessAlert={showSuccessAlertSuccess} onUpdate={updateCompanies} company={newCompany} mode={modalMode} closeModal={closeModal} />
-        </GenericModal>
-      )}
+      {isModalOpen && newCompany && (
+  <GenericModal title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'} onClose={closeModal}>
+    <FormCompany showSuccessAlert={showSuccessAlertSuccess} onUpdate={updateCompanies} company={newCompany} mode={"edit"} closeModal={closeModal} />
+  </GenericModal>
+)}
     </div>
   );
 };

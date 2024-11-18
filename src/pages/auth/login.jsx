@@ -23,16 +23,13 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(email)
-    console.log(password)
     const accesUser = await AccesUser.accesUsersLoguin({ email, password })
-    
+
     if (accesUser.error) {
       // exito
       localStorage.setItem('authToken', accesUser?.response)
       navigate('/home/dashboard', { replace: true });
     } else {
-      console.log(accesUser.message)
       setEmailError(true);
       setPasswordError(true);
       setErrorMessage('Credenciales incorrectas. Por favor, inténtalo de nuevo.');
@@ -64,7 +61,7 @@ const Login = () => {
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="email"
-               className={`block text-sm font-bold mb-2 ${emailError ? 'text-red-500' : 'text-gray-700'}`}>
+                className={`block text-sm font-bold mb-2 ${emailError ? 'text-red-500' : 'text-gray-700'}`}>
                 Correo electrónico
               </label>
               <input
@@ -79,7 +76,7 @@ const Login = () => {
                 }}
                 required
               />
-               {emailError && <p className="text-red-500 text-xs mt-1">Credenciales incorrectas. Por favor, inténtalo de nuevo.</p>}
+              {emailError && <p className="text-red-500 text-xs mt-1">Credenciales incorrectas. Por favor, inténtalo de nuevo.</p>}
             </div>
             <div className="mb-6 inputPassword">
               <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
@@ -93,7 +90,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  setPasswordError(false); 
+                  setPasswordError(false);
                 }}
                 required
               />
@@ -123,7 +120,6 @@ const Login = () => {
               </div>
               <div className="relative">
                 <button
-                navigate
                   type="button"
                   className="text-sm text-cyan-500 hover:text-cyan-800"
                   onClick={() => navigate('../passwordRecovery')}
@@ -144,15 +140,15 @@ const Login = () => {
               </div>
             </div>
             <p className="text-center text-sm text-gray-500 mb-5">
-  <a 
-    href="/document/politicasprivacidad.pdf" 
-    target="_blank" 
-    rel="noopener noreferrer" 
-    className="text-gray-500 hover:text-gray-800"
-  >
-    Políticas de privacidad
-  </a>
-</p>
+              <a
+                href="/document/politicasprivacidad.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-gray-800"
+              >
+                Políticas de privacidad
+              </a>
+            </p>
 
             <div className="mb-6">
               <button
@@ -167,9 +163,9 @@ const Login = () => {
         </div>
       </div>
       {showErrorAlert && (
-        <ErrorAlert 
-          message={errorMessage} 
-          onCancel={handleCloseAlert} 
+        <ErrorAlert
+          message={errorMessage}
+          onCancel={handleCloseAlert}
         />
       )}
 

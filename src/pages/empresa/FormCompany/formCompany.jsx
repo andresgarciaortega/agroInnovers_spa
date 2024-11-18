@@ -9,26 +9,31 @@ import ErrorAlert from '../../../components/alerts/error';
 
 
 
-const FormCompany = ({ showSuccessAlert, onUpdate, company ={}, mode = "crear", closeModal,IdCompany=0 }) => {
-  console.log('id de compañia', IdCompany)
+const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) => {
+
+
   const [formData, setFormData] = useState({
     name: '',
     email_user_admin: '',
     phone: '',
     location: '',
-    type_document_id: 0,
+    type_document_id: '',
     nit: '',
     gps: "",
     email_billing: "",
     logo: ''
   });
+
   const [errorMessages, setErrorMessages] = useState({
     phone: ''
-  }) ;
-  
+  });
+
   useEffect(() => {
     if (company) {
-      setFormData(company);
+      setFormData({
+        ...company,
+        type_document_id: company.typeDocument?.id || ''  // Ahora usa el id de typeDocument
+      });
     }
   }, [company]);
 
@@ -52,12 +57,15 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company ={}, mode = "crear", 
 
     fetchDocumentTypes();
 
+    console.log(mode)
+    console.log(company)
 
 
     if (mode === 'edit' || mode === 'view') {
       setFormData(company);
       setImagePreview(company.logo)
       setIsButtonDisabled(false);
+      console.log(company)
 
     } else {
       setFormData({
@@ -152,7 +160,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company ={}, mode = "crear", 
     }
   }
 
-  
+
   const handleCloseAlert = () => {
     setShowAlertError(false);
   };
@@ -262,7 +270,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company ={}, mode = "crear", 
           <label className="block text-sm font-medium text-gray-700">Tipo de documento</label>
           <select
             name="type_document_id"
-            value={formData.type_document_id}
+            value={formData.type_document_id || ''}  // Asegúrate de que nunca sea undefined
             onChange={handleChange}
             disabled={mode === 'view'}
             required
@@ -272,8 +280,8 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company ={}, mode = "crear", 
               Selecciona una opción
             </option>
             {documentTypes.map((type) => (
-              <option key={type.id} value={type.id}> {/* Cambia `type.id` y `type.value` según tu respuesta */}
-                {type.name} {/* Cambia `type.label` según tu respuesta */}
+              <option key={type.id} value={type.id}>
+                {type.name}
               </option>
             ))}
           </select>
