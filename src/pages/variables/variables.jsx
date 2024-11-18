@@ -1,18 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { Edit, Trash, Eye, Plus } from 'lucide-react';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { FiPlusCircle } from "react-icons/fi";
-import { IoCloudUploadOutline } from "react-icons/io5";
+import { IoIosWarning } from 'react-icons/io';
 import Delete from '../../components/delete';
 // import Success from '../../component/alert//success';
 import GenericModal from '../../components/genericModal';
 import FormVariable from './FormVariable/formVariable';
 import VariableService from "../../services/variableService";
+import CompanyService from "../../services/CompanyService";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
 
 
+import { ImEqualizer2 } from "react-icons/im";
+
+
+import Select from "react-select";
+
 const Variable = () => {
+  const [companyList, setCompanyList] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
+
   const [variableList, setVariableList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedVariable, setSelectedVariable] = useState(null);
@@ -31,27 +40,68 @@ const Variable = () => {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Cargar empresas cuando el componente se monta
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const data = await CompanyService.getAllCompany();
+        setCompanyList(data);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
+
   useEffect(() => {
     const fetchVariables = async () => {
+      if (!selectedCompany) {
+        setVariableList([]); 
+        return;
+      }
       try {
-        const data = await VariableService.getAllVariable();
-        setVariableList(Array.isArray(data) ? data : []);
+        const data = await VariableService.getAllVariable(selectedCompany);
+        if (data.statusCode === 404) {
+          setVariableList([]);
+        } else {
+          setVariableList(Array.isArray(data) ? data : []);
+        }
       } catch (error) {
+        setVariableList([])
         console.error('Error fetching variables:', error);
+        setMessageAlert('Esta empresa no tiene variables registradas, Intentalo con otra empresa');
+        setShowErrorAlert(true); 
       }
     };
 
     fetchVariables();
-  }, []);
+  }, [selectedCompany]);
+
+  const handleCompanyChange = (selectedOption) => {
+    setSelectedCompany(selectedOption ? selectedOption.value : null);  
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchCompanyTerm(e.target.value);
+  };
+
+  const handleVariableSelect = (variable) => {
+    setSelectedCompany(variable.company_id);  
+  };
+
+  const handleCloseErrorAlert = () => {
+    setShowErrorAlert(false);
+  };
+
 
 
   const filteredVariable = variableList.filter(variable =>
     (variable.name && variable.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (variable.unit_of_measurement && variable.unit_of_measurement.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (variable.type_variable_id && variable.type_variable_id.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (variable.type_register_id && variable.location.toLowerCase().includes(searchTerm.toLowerCase()))  // Cambiar registrationDate a created_at
+    (variable.type_register_id && variable.location.toLowerCase().includes(searchTerm.toLowerCase()))  
   );
 
 
@@ -100,7 +150,7 @@ const Variable = () => {
     setIsModalOpen(false);
     setSelectedVariable(null);
     setModalMode('create');
-    updateService(); 
+    updateService();
   };
 
   //eliminar
@@ -140,32 +190,63 @@ const Variable = () => {
     try {
       const data = await VariableService.getAllVariable();
 
-      setVariableList(data); // Actualiza companyList con los datos más recientes
+      setVariableList(data);
     } catch (error) {
       console.error('Error al actualizar las variables:', error);
     }
   };
 
 
-
-
-
-
-
-
   return (
-    <div className="table-container">
-      <div className="absolute transform -translate-y-20 right-30 w-1/2">
-        <IoSearch className="absolute left-3 top-3 text-gray-500" />
+    <div className="table-container ">
+      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
+        <div className="relative w-full">
+          <Select
+            className="w-full"
+            value={companyList.find(company => company.id === selectedCompany)}
+            onChange={handleCompanyChange}
+            options={companyList.map((company) => ({
+              value: company.id,
+              label: company.name
+            }))}
+            placeholder="Seleccionar empresa"
+            isSearchable={true}
+            classNamePrefix="select"
+          />
+          <IoSearch className="absolute right-11 top-3 text-gray-500" />
+        </div>
+
+        <br />
+        <div className="flex items-center space-x-2 text-gray-700">
+          <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Variables */}
+          <span>Gestión de variables</span>
+          <span className="text-black font-bold">  </span>
+          <span>Variables</span>
+          <span className="text-black font-bold">  </span>
+          {selectedCompany && (
+            <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
+          )}
+        </div>
+
+      </div>
+
+      <div className="relative w-full mt-6 py-5 z-0">
+        {/* Input de búsqueda */}
         <input
           type="text"
-          placeholder="Buscar empresa "
-          className="w-full border border-gray-300 p-2 pl-10 rounded-md"
+          placeholder="Buscar variable"
+          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+
+        {/* Icono de búsqueda alineado a la izquierda */}
+        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
-      <div className="bg-white rounded-lg shadow">
+
+
+
+      <div className="bg-white  rounded-lg shadow ">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">Variables</h2>
           <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
@@ -174,10 +255,11 @@ const Variable = () => {
           </button>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-300 ">
+          <table className="w-full ">
+            <thead className="bg-gray-300  ">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">Icono</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Variable</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo variable</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad medida</th>
@@ -189,17 +271,27 @@ const Variable = () => {
               {currentCompanies.map((variable, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {variable.icon && (
+                      <img
+                        src={variable.icon}
+                        alt={variable.name}
+                        className="h-10 w-10 object-cover rounded-full"
+                      />
+                    )}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{variable.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     <span className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {variable.typeVariable && variable.typeVariable.length > 0 ? variable.typeVariable.name : variable.typeVariable.name }
+                      {variable.typeVariable && variable.typeVariable.length > 0 ? variable.typeVariable.name : variable.typeVariable.name}
                     </span>
                   </td>
+
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{variable.unit_of_measurement}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {/* Asegúrate de que variable.type_register_id tiene un valor válido */}
                     <span className="px-2 inline-flex justify-center text-sm leading-5 py-1 font-semibold text-gray-500 bg-gray-300 rounded-sm">
-                    {variable.typeRegister ? variable.typeRegister.name : 'N/A'}
+                      {variable.typeRegister ? variable.typeRegister.name : 'N/A'}
 
                     </span>
                   </td>
@@ -252,16 +344,30 @@ const Variable = () => {
 
       {/* Modalcrear-editar-visualizar*/}
       {isModalOpen && (
-        <GenericModal title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver Cariable' : 'Añadir Variable'} onClose={closeModal}>
+        <GenericModal
+          title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver Cariable' : 'Añadir Variable'}
+          onClose={closeModal}
+
+          companyId={selectedCompany} >
+
           <FormVariable showErrorAlert={showErrorAlertSuccess} onUpdate={updateService} variable={newVariable} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
       )}
-        {showErrorAlert && (
+      {showErrorAlert && (
         <SuccessAlert
           message={messageAlert}
           onCancel={handleCloseAlert}
         />
       )}
+      {showErrorAlert && (
+        <div className="alert alert-error flex items-center space-x-2 p-4 bg-red-500 text-white rounded-md">
+          <IoIosWarning size={20} />
+          <p>{messageAlert}</p>
+          <button onClick={handleCloseErrorAlert} className="ml-2">Cerrar</button>
+        </div>
+      )}
+      
+
 
 
     </div>

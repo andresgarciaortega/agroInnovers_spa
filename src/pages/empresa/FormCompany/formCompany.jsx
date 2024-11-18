@@ -9,7 +9,8 @@ import ErrorAlert from '../../../components/alerts/error';
 
 
 
-const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) => {
+const FormCompany = ({ showSuccessAlert, onUpdate, company ={}, mode = "crear", closeModal,IdCompany=0 }) => {
+  console.log('id de compañia', IdCompany)
   const [formData, setFormData] = useState({
     name: '',
     email_user_admin: '',
