@@ -83,11 +83,15 @@ const TipoVariable = () => {
   }, [selectedCompanyUniversal]); // Asegúrate de usar el valor correcto (selectedCompanyUniversal)
 
 
-
-
   const handleCompanyChange = (selectedOption) => {
-    setSelectedCompany(selectedOption ? selectedOption.value : null);
-  };
+    setSelectedCompany(selectedOption?.value || null);
+};
+
+
+
+  // const handleCompanyChange = (selectedOption) => {
+  //   setSelectedCompany(selectedOption ? selectedOption.value : null);
+  // };
 
   const handleCloseErrorAlert = () => {
     setShowErrorVariableAlert(false);
@@ -219,8 +223,9 @@ const TipoVariable = () => {
           <span>Tipo de variables</span>
           <span className="text-black font-bold">  </span>
           {selectedCompany && (
-            <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
-          )}
+    <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
+)}
+
         </div>
 
       </div>

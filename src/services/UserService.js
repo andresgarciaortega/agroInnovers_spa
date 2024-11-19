@@ -6,9 +6,9 @@ const UsersService = {
 
 
     // LISTAR TODAS LAS USUARIOS
-    async getAllUser() {
+    async getAllUser(idcompany = 0) {
         try {
-            const response = await api.get('/users/');
+            const response = await api.get(`/users?company=${idcompany}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener los usuarios:', error);

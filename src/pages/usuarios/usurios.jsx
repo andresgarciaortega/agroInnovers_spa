@@ -7,14 +7,30 @@ import Delete from '../../components/delete';
 import GenericModal from '../../components/genericModal';
 import FormUser from './FormUser/formUser';
 import UsersService from "../../services/UserService";
+import CompanyService from "../../services/CompanyService";
 import UploadToS3 from "../../config/UploadToS3";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
 import LoadingView from '../../components/Loading/loadingView';
 
+import { HiOutlineUserGroup } from "react-icons/hi";
+import { IoIosWarning } from 'react-icons/io';
+
+
+import Select from "react-select";
+import CompanySelector from "../../components/shared/companySelect";
+import { useCompanyContext } from "../../context/CompanyContext";
+
 
 const Usuario = () => {
+  
+  const { selectedCompanyUniversal } = useCompanyContext();
+  // const [companyList, setCompanyList] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
+
   const [usersList, setUsersList] = useState([]);
+  const [companyList, setCompanyList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,6 +38,7 @@ const Usuario = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
   const [messageAlert, setMessageAlert] = useState("");
   const [newUser, setNewUser] = useState({
     name: '',
@@ -35,8 +52,63 @@ const Usuario = () => {
 
 
   const [searchTerm, setSearchTerm] = useState("");
-
   const [isLoading, setIsLoading] = useState(false);
+
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const data = await CompanyService.getAllCompany();
+        console.log("Fetched companies:", data);
+        setCompanyList(data);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
+
+ useEffect(() => {
+  const fetchUsersList = async () => {
+
+    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
+
+    // Verifica si companyId no es vacío antes de hacer la llamada
+    if (!companyId) {
+      setUsersList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
+      return;
+    }
+
+    try {
+      const data = await UsersService.getAllUser(companyId);
+      if (data.statusCode === 404) {
+        setUsersList([]);
+      } else {
+        setShowErrorAlertTable(false)
+        setUsersList(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      setUsersList([])
+      console.error('Error fetching usuarios:', error);
+      setMessageAlert('Esta empresa no tiene usuarios registradas, Intentalo con otra empresa');
+      setShowErrorAlertTable(true); 
+    }
+  };
+
+
+  fetchUsersList();
+}, [selectedCompanyUniversal]);
+
+const handleCompanyChange = (selectedOption) => {
+  setSelectedCompany(selectedOption ? selectedOption.value : null);
+  console.log("Selected company:", selectedOption ? selectedOption.value : null);
+};
+
+
+const handleCloseErrorAlert = () => {
+  setShowErrorAlert(false);
+};
 
   const filteredUser = usersList.filter(users =>
     (users.name && users.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -52,25 +124,7 @@ const Usuario = () => {
   const currentCompanies = filteredUser.slice(indexOfFirstCompany, indexOfLastCompany);
 
 
-  // Cargar usuario cuando el componente se monta
-  useEffect(() => {
-    const fetchUsersList = async () => {
-
-      setIsLoading(true);
-      try {
-        const data = await UsersService.getAllUser();
-        setUsersList(data);
-        console.log("users list : ", data)
-      } catch (error) {
-        console.error('Error fetching companies:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUsersList();
-  }, []);
-
+ 
 
 
   const handleNextPage = () => {
@@ -149,12 +203,24 @@ const Usuario = () => {
   // Función para actualizar la lista de usuarios
   const updateListUsers = async () => {
     try {
-      const data = await UsersService.getAllUser();
+      // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
+
+      // Verifica si companyId no es vacío antes de hacer la llamada
+      if (!companyId) {
+        setUsersList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
+        return;
+      }
+
+
+      const data = await UsersService.getAllUser(companyId);
+
       setUsersList(data);
     } catch (error) {
-      console.error('Error al actualizar la lista de usuarios:', error);
+      console.error('Error al actualizar los usuarios:', error);
     }
   };
+
 
   const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true)
@@ -168,17 +234,40 @@ const Usuario = () => {
   return (
     <div className="table-container">
 
-      {isLoading && <LoadingView />}
-      <div className="absolute transform -translate-y-20 right-30 w-1/2">
-        <IoSearch className="absolute left-3 top-3 text-gray-500" />
+<div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
+        <div className="relative w-full">
+        <CompanySelector />
+
+        </div>
+
+        <br />
+        <div className="flex items-center space-x-2 text-gray-700">
+    <HiOutlineUserGroup size={20} /> {/* Ícono de Gestión de Variables */}
+    <span>Usuarios</span>
+    {selectedCompany && (
+        <span className="text-black font-bold">
+            {companyList.find(company => company.id === selectedCompany)?.name || 'No seleccionado'}
+        </span>
+    )}
+</div>
+
+
+      </div>
+
+      <div className="relative w-full mt-6 py-5 z-0">
+        {/* Input de búsqueda */}
         <input
           type="text"
-          placeholder="Buscar Usuario "
-          className="w-full border border-gray-300 p-2 pl-10 rounded-md"
+          placeholder="Buscar Usuario"
+          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+
+        {/* Icono de búsqueda alineado a la izquierda */}
+        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
+
       <div className="bg-white rounded-lg shadow">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">Usuarios</h2>

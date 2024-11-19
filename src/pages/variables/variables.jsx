@@ -232,8 +232,8 @@ const Variable = () => {
           <span className="text-black font-bold">  </span>
           <span>Variables</span>
           <span className="text-black font-bold">  </span>
-          {selectedCompany && (
-            <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
+          {selectedCompanyUniversal && (
+            <span>{companyList.find(company => company.id === selectedCompanyUniversal)?.name}</span>
           )}
         </div>
 
