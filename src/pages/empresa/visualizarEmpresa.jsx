@@ -11,10 +11,13 @@ import { Package2, Factory, Variable, Activity, Cpu, Users } from 'lucide-react'
 
 const VisualizarEmpresa = ({ }) => {
 
-  const { companyId } = useParams();
+  const {companyId } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("edit");
   const [newCompany, setNewCompany] = useState({});
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [messageAlert, setMessageAlert] = useState("");
+  const [companyList, setCompanyList] = useState([]);
 
   useEffect(() => {
     fetchCompaniesData();
@@ -48,22 +51,10 @@ const VisualizarEmpresa = ({ }) => {
 
 
   // Abrir el modal
-  const handleOpenModal = async (company, mode = 'edit') => {
-    // setModalMode(mode);
-    // if (mode === 'edit' || mode === 'view') {
-    //   setNewCompany(company);
-    // } else {
-    //   setNewCompany({
-    //     name: '',
-    //     email: '',
-    //     mobile: '',
-    //     address: '',
-    //     registrationDate: '',
-    //   });
-    // }
+  const handleOpenModal = async () => {
     setIsModalOpen(true);
-    console.log(newCompany)
   };
+
 
   // Cerrar el modal
   const closeModal = () => {
@@ -85,11 +76,11 @@ const VisualizarEmpresa = ({ }) => {
   // Función para actualizar la lista de empresas
   const updateCompanies = async () => {
     try {
-      const data = await CompanyService.getAllCompany();
-
-      setCompanyList(data); // Actualiza companyList con los datos más recientes
+      const data = await CompanyService.getCompanyById(companyId);
+      setFormData(data);
+      setNewCompany(data)
     } catch (error) {
-      console.error('Error al actualizar las empresas:', error);
+      console.error('Error fetching companies:', error);
     }
   };
 
