@@ -201,7 +201,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       name: formData.name,
       lastname: formData.lastname || " ", // Asegúrate de agregar el apellido en el formulario si es necesario
       email: formData.email,
-      password: changePassword ? formData.password : user.password, // Asegúrate de capturar la contraseña
+      password: mode == 'create' ? formData.password : ( changePassword ? formData.password : user.password), // Asegúrate de capturar la contraseña
       phone: formData.phone,
       document: formData.document,
       photo: formData.photo || "https://example.com/photo.jpg", // Asegúrate de capturar la foto
@@ -232,6 +232,11 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   };
 
   const handleChangePasswordToggle = () => {
+    setFormData({
+      ...formData,
+      password: '',
+      confirmPass:''
+    });
     setChangePassword(!changePassword); 
   };
 

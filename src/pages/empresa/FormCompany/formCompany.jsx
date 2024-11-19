@@ -181,11 +181,16 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     }
     try {
       let logoUrl = '';
-
-      if (formData.logo) {
-        // Sube el archivo al S3 y asigna la URL de respuesta a logoUrl
+      console.log(formData.logo)
+      // Si se ha seleccionado una nueva imagen
+      if (formData.logo.name) {
+        // Subir la nueva imagen a S3 y obtener la URL
         logoUrl = await UploadToS3(formData.logo);
+      } else {
+        // Si no se seleccionó una nueva imagen y estamos en modo edición, mantener la URL de la imagen existente
+        logoUrl = company.icon;
       }
+
 
       const formDataToSubmit = {
         ...formData,
