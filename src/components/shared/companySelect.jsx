@@ -16,7 +16,7 @@ const CompanySelector = () => {
             } catch (error) {
                 console.error("Error fetching companies:", error);
             }
-        };
+        }; 
 
         fetchCompanies();
     }, []);

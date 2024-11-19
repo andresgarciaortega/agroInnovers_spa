@@ -127,7 +127,6 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
     try {
       // Verificar si se ha seleccionado una nueva imagen
       let logoUrl = '';
-
       // Si se ha seleccionado una nueva imagen
       if (formData.icon.name) {
         // Subir la nueva imagen a S3 y obtener la URL

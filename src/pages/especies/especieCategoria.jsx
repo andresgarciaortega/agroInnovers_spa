@@ -9,9 +9,16 @@ import FormCategory from './FormSpecies/formCategory';
 import SuccessAlert from "../../components/alerts/success";
 import LoadingView from '../../components/Loading/loadingView';
 import CategoryServices from "../../services/CategoryService";
+import CompanySelector from "../../components/shared/companySelect";
+import { useCompanyContext } from "../../context/CompanyContext";
 
 const Especie = () => {
+
+
   const navigate = useNavigate();
+
+  const { selectedCompanyUniversal } = useCompanyContext();
+
   const [categoryList, setCategoryList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -36,6 +43,11 @@ const Especie = () => {
 
 
   const fetchCategory = async () => {
+
+    const idCompanySelector = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+    if(!idCompanySelector){
+      setCategoryList([]);
+    }
     setIsLoading(true);
     try {
       const response = await CategoryServices.getAllCategory();
@@ -128,6 +140,11 @@ const Especie = () => {
 
   return (
     <div className="table-container">
+       <div className="relative w-full">
+          <CompanySelector />
+        </div>
+
+
       {isLoading && <LoadingView />}
       <div className="absolute transform -translate-y-20 right-30 w-1/2">
         <IoSearch className="absolute left-3 top-3 text-gray-500" />
