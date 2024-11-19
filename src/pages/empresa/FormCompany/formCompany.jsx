@@ -11,7 +11,6 @@ import ErrorAlert from '../../../components/alerts/error';
 
 const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) => {
 
-
   const [formData, setFormData] = useState({
     name: '',
     email_user_admin: '',
@@ -28,14 +27,26 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     phone: ''
   });
 
+  // useEffect(() => {
+  //   if (company) {
+  //     setFormData({
+  //       ...company,
+  //       type_document_id: company.typeDocument?.id || ''  // Ahora usa el id de typeDocument
+  //     });
+  //   }
+  // }, [company]);
+
   useEffect(() => {
-    if (company) {
+    if (company && Object.keys(company).length > 0) {
       setFormData({
         ...company,
-        type_document_id: company.typeDocument?.id || ''  // Ahora usa el id de typeDocument
+        type_document_id: company.typeDocument?.id || '' // Ahora usa el id de typeDocument
       });
+    } else {
+      console.warn("Prop 'company' está vacía o inválida:", company);
     }
   }, [company]);
+
 
   const [documentTypes, setDocumentTypes] = useState([]); // Estado para los tipos de documentos
   const [showAlertError, setShowAlertError] = useState(false);
@@ -65,7 +76,6 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
       setFormData(company);
       setImagePreview(company.logo)
       setIsButtonDisabled(false);
-      console.log(company)
 
     } else {
       setFormData({
@@ -181,7 +191,6 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     }
     try {
       let logoUrl = '';
-      console.log(formData.logo)
       // Si se ha seleccionado una nueva imagen
       if (formData.logo.name) {
         // Subir la nueva imagen a S3 y obtener la URL

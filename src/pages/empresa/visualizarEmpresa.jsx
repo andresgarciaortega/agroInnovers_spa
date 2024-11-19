@@ -13,23 +13,22 @@ const VisualizarEmpresa = ({ }) => {
 
   const { companyId } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState("create");
-  const [newCompany, setNewCompany] = useState([]);
+  const [modalMode, setModalMode] = useState("edit");
+  const [newCompany, setNewCompany] = useState({});
 
   useEffect(() => {
-    const fetchCompaniesData = async () => {
-      try {
-        const data = await CompanyService.getCompanyById(companyId);
-        setFormData(data);
-        setNewCompany(data)
-
-      } catch (error) {
-        console.error('Error fetching companies:', error);
-      }
-    };
-
     fetchCompaniesData();
   }, []);
+
+  const fetchCompaniesData = async () => {
+    try {
+      const data = await CompanyService.getCompanyById(companyId);
+      setFormData(data);
+      setNewCompany(data)
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+    }
+  };
 
 
   const [formData, setFormData] = useState({
@@ -42,36 +41,38 @@ const VisualizarEmpresa = ({ }) => {
     gps: "",
     email_billing: "",
     logo: ''
-  });  
+  });
 
 
-   // Abrir el modal
-   const handleOpenModal = async (company = null, mode = 'create') => {
 
-    setModalMode(mode);
-    if (mode === 'edit' || mode === 'view') {
-      setNewCompany(company);
-    } else {
-      setNewCompany({
-        name: '',
-        email: '',
-        mobile: '',
-        address: '',
-        registrationDate: '',
-      });
-    }
+
+
+  // Abrir el modal
+  const handleOpenModal = async (company, mode = 'edit') => {
+    // setModalMode(mode);
+    // if (mode === 'edit' || mode === 'view') {
+    //   setNewCompany(company);
+    // } else {
+    //   setNewCompany({
+    //     name: '',
+    //     email: '',
+    //     mobile: '',
+    //     address: '',
+    //     registrationDate: '',
+    //   });
+    // }
     setIsModalOpen(true);
-
+    console.log(newCompany)
   };
 
   // Cerrar el modal
   const closeModal = () => {
     setIsModalOpen(false);
-    setModalMode('create');
+    setModalMode('edit');
   };
 
 
-  
+
   const showSuccessAlertSuccess = (message) => {
     setShowSuccessAlert(true)
     setMessageAlert(`Empresa ${message} exitosamente`);
@@ -81,8 +82,8 @@ const VisualizarEmpresa = ({ }) => {
     }, 2500);
   }
 
-   // Función para actualizar la lista de empresas
-   const updateCompanies = async () => {
+  // Función para actualizar la lista de empresas
+  const updateCompanies = async () => {
     try {
       const data = await CompanyService.getAllCompany();
 
@@ -92,7 +93,7 @@ const VisualizarEmpresa = ({ }) => {
     }
   };
 
-  
+
 
   return (
     <div className="flex">
@@ -101,8 +102,8 @@ const VisualizarEmpresa = ({ }) => {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold">{formData.name} </h1>
             <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => handleOpenModal()}>
-            Editar empresa
-          </button>
+              Editar empresa
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -166,7 +167,7 @@ const VisualizarEmpresa = ({ }) => {
                 <div className="flex items-center mt-5">
                   <span className="px-3 py-1 text-sm text-red-500 bg-red-100 r">1</span>
                   <span className="text-sm text-muted-foreground">Rechazado</span>
-                  
+
                 </div>
                 <br />
 
@@ -175,7 +176,7 @@ const VisualizarEmpresa = ({ }) => {
                 <span className='py-2'> Tilapia roja</span>
 
                 <div className="text-sm text-muted-foreground px-3">
-                  
+
                   • 300.000 sembrados
                   <br />
                   • 280.000 cocechados
@@ -288,11 +289,12 @@ const VisualizarEmpresa = ({ }) => {
           </div>
         </div>
       </div>
-      {isModalOpen && newCompany && (
-  <GenericModal title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'} onClose={closeModal}>
-    <FormCompany showSuccessAlert={showSuccessAlertSuccess} onUpdate={updateCompanies} company={newCompany} mode={"edit"} closeModal={closeModal} />
-  </GenericModal>
-)}
+      {isModalOpen && (
+        <GenericModal title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'} onClose={closeModal}>
+          <FormCompany showSuccessAlert={showSuccessAlertSuccess} onUpdate={updateCompanies} company={newCompany} mode={modalMode} closeModal={closeModal} />
+          {console.log(newCompany)}
+        </GenericModal>
+      )}
     </div>
   );
 };
