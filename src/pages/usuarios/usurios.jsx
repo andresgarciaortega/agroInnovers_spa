@@ -242,7 +242,7 @@ const Usuario = () => {
         <div className="flex items-center space-x-2 text-gray-700">
           <HiOutlineUserGroup size={20} />
           <span>Usuarios</span>
-          <span className="text-black font-bold"> > </span>
+          <span className="text-black font-bold"> / {selectedCompanyUniversal.label} </span>
           {selectedCompany && (
             <span className="text-black font-bold">
               {companyList.find(company => company.id === selectedCompany)?.name || 'No seleccionado'}
