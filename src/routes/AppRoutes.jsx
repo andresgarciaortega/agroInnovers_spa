@@ -7,7 +7,7 @@ import { Route, Routes } from "react-router-dom";
 // import Home from "../pages/home/home";
 import Empresa from "../pages/empresa/empresa";
 import VisualizarEmpresa from "../pages/empresa/visualizarEmpresa";
-import Perfil from "../pages/auth/Perfil/perfil";
+import Perfil from "../pages/usuarios/perfil";
 import Usuarios from "../pages/usuarios/usurios";
 import Variables from "../pages/variables/variables";
 import TipoVariable from "../pages/tipoVariable/tipoVariables";
@@ -34,9 +34,9 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/passwordRecovery" element={<PasswordRecovery />} />
       <Route path="/" element={<AuthLogin />} />
-      <Route path="perfil" element={<Perfil />} />
       <Route path="/home" element={<LayoutHome />}>
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="perfil" element={<Perfil />} />
         <Route path="empresa" element={<Empresa />} />
         <Route path="visualizarEmpresa/:companyId" element={<VisualizarEmpresa/>} />
         <Route path="usuarios" element={<Usuarios />} />

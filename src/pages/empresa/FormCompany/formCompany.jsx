@@ -33,7 +33,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     if (company && Object.keys(company).length > 0) {
       setFormData({
         ...company,
-        type_document_id: company.typeDocument?.id || '' // Asegúrate de incluir el ID del documento
+        type_document_id: company.typeDocument?.id || '' 
       });
     } else {
       console.warn("Prop 'company' está vacía o inválida:", company);
@@ -42,7 +42,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   
 
 
-  const [documentTypes, setDocumentTypes] = useState([]); // Estado para los tipos de documentos
+  const [documentTypes, setDocumentTypes] = useState([]); 
   const [showAlertError, setShowAlertError] = useState(false);
   const [messageAlert, setMessageAlert] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
@@ -63,7 +63,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     if (mode === 'edit' || mode === 'view') {
       setFormData({
         ...company,
-        type_document_id: company.typeDocument?.id || '' // Configura el tipo de documento
+        type_document_id: company.typeDocument?.id || '' 
       });
       setImagePreview(company.logo);
       setIsButtonDisabled(false);
@@ -90,9 +90,9 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     if (name === 'phone') {
       if (!/^\d{10}$/.test(value)) {
         errorMessage = 'El celular debe tener diez dígitos numéricos';
-        e.target.style.borderColor = 'red'; // Cambia el borde a rojo si hay error
+        e.target.style.borderColor = 'red'; 
       } else {
-        e.target.style.borderColor = ''; // Si la validación es exitosa, limpia el borde
+        e.target.style.borderColor = ''; 
       }
     }
 
@@ -135,7 +135,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
         setMessageAlert("Los sentimos! el documento ya esta registrado")
         setFormData({
           ...formData,
-          nit: '' // Limpia el campo de email
+          nit: '' 
         });
         setTimeout(() => {
           setShowAlertError(false);
@@ -152,7 +152,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
         setMessageAlert("Los sentimos! el email ya esta registrado")
         setFormData({
           ...formData,
-          email_user_admin: '' // Limpia el campo de email
+          email_user_admin: '' 
         });
         setTimeout(() => {
           setShowAlertError(false);
@@ -171,41 +171,39 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     e.preventDefault();
 
     // Validación del celular
-    const phoneRegex = /^[0-9]{10}$/;  // Expresión regular para 10 dígitos numéricos
+    const phoneRegex = /^[0-9]{10}$/; 
     if (!phoneRegex.test(formData.phone)) {
       setShowAlertError(true);
       setMessageAlert("El celular debe tener exactamente 10 dígitos.");
       setTimeout(() => {
         setShowAlertError(false);
       }, 1500);
-      return; // No enviar el formulario si la validación falla
+      return;
     }
     try {
       let logoUrl = '';
-      // Si se ha seleccionado una nueva imagen
+      
       if (formData.logo.name) {
-        // Subir la nueva imagen a S3 y obtener la URL
+        
         logoUrl = await UploadToS3(formData.logo);
       } else {
-        // Si no se seleccionó una nueva imagen y estamos en modo edición, mantener la URL de la imagen existente
+        
         logoUrl = company.icon;
       }
 
 
       const formDataToSubmit = {
         ...formData,
-        logo: logoUrl, // Agrega logoUrl al objeto de envío
+        logo: logoUrl, 
         email: formData.email_user_admin,
         type_document_id: Number(formData.type_document_id)
       };
 
       if (mode === 'create') {
-        // Llama a CompanyService para crear la empresa
         const createdCompany = await CompanyService.createCompany(formDataToSubmit);
         showSuccessAlert("creada")
       } else if (mode === 'edit') {
         showSuccessAlert("Editada")
-        // Llama a CompanyService para actualizar la empresa
         const updatedCompany = await CompanyService.updateCompany(company.id, formDataToSubmit);
       }
 
@@ -217,23 +215,22 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   };
 
 
-  const [imagePreview, setImagePreview] = useState(null); // Estado para la vista previa de la imagen
+  const [imagePreview, setImagePreview] = useState(null); 
 
   const handleLogoUpload = (e) => {
-    const file = e.target.files[0]; // Obtener el primer archivo seleccionado
+    const file = e.target.files[0];
     if (file) {
       setFormData({
         ...formData,
-        logo: file, // Almacenar el objeto File
+        logo: file, 
       });
 
-      // Crear un lector de archivos para la visualización
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result); // Almacenar la representación en base64 para la vista previa
+        setImagePreview(reader.result); 
       };
 
-      reader.readAsDataURL(file); // Leer el archivo como base64
+      reader.readAsDataURL(file);
     }
   };
 
@@ -300,7 +297,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
             value={formData.nit}
             onChange={handleChange}
             onBlur={handleDocumentBlur}
-            disabled={mode === 'view'}
+            disabled
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />

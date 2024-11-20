@@ -23,7 +23,7 @@ import { useCompanyContext } from "../../context/CompanyContext";
 
 
 const Usuario = () => {
-  
+
   const { selectedCompanyUniversal } = useCompanyContext();
   // const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
@@ -69,46 +69,45 @@ const Usuario = () => {
     fetchCompanies();
   }, []);
 
- useEffect(() => {
-  const fetchUsersList = async () => {
+  useEffect(() => {
+    const fetchUsersList = async () => {
 
-    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
 
-    // Verifica si companyId no es vacío antes de hacer la llamada
-    if (!companyId) {
-      setUsersList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
-      return;
-    }
-
-    try {
-      const data = await UsersService.getAllUser(companyId);
-      if (data.statusCode === 404) {
-        setUsersList([]);
-      } else {
-        setShowErrorAlertTable(false)
-        setUsersList(Array.isArray(data) ? data : []);
+      if (!companyId) {
+        setUsersList([]); 
+        return;
       }
-    } catch (error) {
-      setUsersList([])
-      console.error('Error fetching usuarios:', error);
-      setMessageAlert('Esta empresa no tiene usuarios registradas, Intentalo con otra empresa');
-      setShowErrorAlertTable(true); 
-    }
+
+      try {
+        const data = await UsersService.getAllUser(companyId);
+        if (data.statusCode === 404) {
+          setUsersList([]);
+        } else {
+          setShowErrorAlertTable(false)
+          setUsersList(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        setUsersList([])
+        console.error('Error fetching usuarios:', error);
+        setMessageAlert('Esta empresa no tiene usuarios registradas, Intentalo con otra empresa');
+        setShowErrorAlertTable(true);
+      }
+    };
+
+
+    fetchUsersList();
+  }, [selectedCompanyUniversal]);
+
+  const handleCompanyChange = (selectedOption) => {
+    setSelectedCompany(selectedOption ? selectedOption.value : null);
+    console.log("Selected company:", selectedOption ? selectedOption.value : null);
   };
 
 
-  fetchUsersList();
-}, [selectedCompanyUniversal]);
-
-const handleCompanyChange = (selectedOption) => {
-  setSelectedCompany(selectedOption ? selectedOption.value : null);
-  console.log("Selected company:", selectedOption ? selectedOption.value : null);
-};
-
-
-const handleCloseErrorAlert = () => {
-  setShowErrorAlert(false);
-};
+  const handleCloseErrorAlert = () => {
+    setShowErrorAlert(false);
+  };
 
   const filteredUser = usersList.filter(users =>
     (users.name && users.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -124,7 +123,7 @@ const handleCloseErrorAlert = () => {
   const currentCompanies = filteredUser.slice(indexOfFirstCompany, indexOfLastCompany);
 
 
- 
+
 
 
   const handleNextPage = () => {
@@ -200,15 +199,14 @@ const handleCloseErrorAlert = () => {
   };
 
 
-  // Función para actualizar la lista de usuarios
   const updateListUsers = async () => {
     try {
-      // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
 
-      // Verifica si companyId no es vacío antes de hacer la llamada
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
+      
       if (!companyId) {
-        setUsersList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
+        setUsersList([]); 
         return;
       }
 
@@ -234,22 +232,23 @@ const handleCloseErrorAlert = () => {
   return (
     <div className="table-container">
 
-<div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
+      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
         <div className="relative w-full">
-        <CompanySelector />
+          <CompanySelector />
 
         </div>
 
         <br />
         <div className="flex items-center space-x-2 text-gray-700">
-    <HiOutlineUserGroup size={20} /> {/* Ícono de Gestión de Variables */}
-    <span>Usuarios</span>
-    {selectedCompany && (
-        <span className="text-black font-bold">
-            {companyList.find(company => company.id === selectedCompany)?.name || 'No seleccionado'}
-        </span>
-    )}
-</div>
+          <HiOutlineUserGroup size={20} />
+          <span>Usuarios</span>
+          <span className="text-black font-bold"> > </span>
+          {selectedCompany && (
+            <span className="text-black font-bold">
+              {companyList.find(company => company.id === selectedCompany)?.name || 'No seleccionado'}
+            </span>
+          )}
+        </div>
 
 
       </div>
@@ -300,12 +299,12 @@ const handleCloseErrorAlert = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`px-2 inline-flex justify-center text-sm leading-5 py-1 font-bold rounded-md ${user?.roles[0]?.name === 'SUPER-ADMINISTRADOR'
-                          ? 'text-blue-500 bg-cyan-100 font-bold '
-                          : user?.roles[0]?.name === 'ADMINISTRADOR'
-                            ? 'text-teal-500 bg-cyan-100 '
-                            : user?.roles[0]?.name === 'OPERARIO'
-                              ? 'text-[#168C0DFF] bg-cyan-100 '
-                              : 'text-gray-500'
+                        ? 'text-blue-500 bg-cyan-100 font-bold '
+                        : user?.roles[0]?.name === 'ADMINISTRADOR'
+                          ? 'text-teal-500 bg-cyan-100 '
+                          : user?.roles[0]?.name === 'OPERARIO'
+                            ? 'text-[#168C0DFF] bg-cyan-100 '
+                            : 'text-gray-500'
                         }`}
                     >
                       {user?.roles[0]?.name}

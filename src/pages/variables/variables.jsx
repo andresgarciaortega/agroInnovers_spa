@@ -3,7 +3,6 @@ import { Edit, Trash, Eye, Plus } from 'lucide-react';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoIosWarning } from 'react-icons/io';
 import Delete from '../../components/delete';
-// import Success from '../../component/alert//success';
 import GenericModal from '../../components/genericModal';
 import FormVariable from './FormVariable/formVariable';
 import VariableService from "../../services/variableService";
@@ -61,12 +60,10 @@ const Variable = () => {
 
   useEffect(() => {
     const fetchVariables = async () => {
-      // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
 
-      // Verifica si companyId no es vacío antes de hacer la llamada
       if (!companyId) {
-        setVariableList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
+        setVariableList([]); 
         return;
       }
 
@@ -198,12 +195,11 @@ const Variable = () => {
 
   const updateService = async () => {
     try {
-      // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
 
-      // Verifica si companyId no es vacío antes de hacer la llamada
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
+
       if (!companyId) {
-        setVariableList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
+        setVariableList([]); 
         return;
       }
 
@@ -227,11 +223,11 @@ const Variable = () => {
 
         <br />
         <div className="flex items-center space-x-2 text-gray-700">
-          <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Variables */}
+          <ImEqualizer2 size={20} /> 
           <span>Gestión de variables</span>
-          <span className="text-black font-bold">  </span>
+          <span className="text-black font-bold"> > </span>
           <span>Variables</span>
-          <span className="text-black font-bold">  </span>
+          <span className="text-black font-bold"> > </span>
           {selectedCompanyUniversal && (
             <span>{companyList.find(company => company.id === selectedCompanyUniversal)?.name}</span>
           )}

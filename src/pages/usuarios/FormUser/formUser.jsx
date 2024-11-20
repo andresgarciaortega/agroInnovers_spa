@@ -28,11 +28,11 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   });
 
 
-  const [documentTypes, setDocumentTypes] = useState([]); // Estado para los tipos de documentos
-  const [usersTypes, setUsersTypes] = useState([]); // Estado para los tipos de usuarios
-  const [companies, setCompanies] = useState([]); // Estado para los tipos de usuarios
-  const [showAlertError, setShowAlertError] = useState(false); // Estado para los tipos de usuarios
-  const [messageAlert, setMessageAlert] = useState(""); // Estado para los tipos de usuarios
+  const [documentTypes, setDocumentTypes] = useState([]); 
+  const [usersTypes, setUsersTypes] = useState([]); 
+  const [companies, setCompanies] = useState([]); 
+  const [showAlertError, setShowAlertError] = useState(false); 
+  const [messageAlert, setMessageAlert] = useState(""); 
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -48,7 +48,6 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         const companies = await CompanyService.getAllCompany();
         const roles = await TypeDocumentsService.getAllTypeUsers();
   
-        // Filtrar los elementos donde el campo `process` sea igual a 'PERSONA'
         const personaTypes = types.filter(type => type.process === 'PERSONA');
         setDocumentTypes(personaTypes);
         setUsersTypes(roles);
@@ -64,9 +63,9 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       setFormData({
         ...user,
         roles: user.roles.length > 0 ? user.roles[0].id : '',
-        typeDocument: user.typeDocument ? user.typeDocument.id : '', // Asigna el `id` del `typeDocument`
+        typeDocument: user.typeDocument ? user.typeDocument.id : '', 
         company: user.company? user.company.id : '', 
-        password: user.password || '', // Si la contraseña está en el API
+        password: user.password || '', 
       confirmPass: user.password || ''
       });
       console.log("users : ", user)
@@ -199,13 +198,12 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       type_document_id: Number(formData.typeDocument),
       companies_id: Number(formData.company),
       name: formData.name,
-      lastname: formData.lastname || " ", // Asegúrate de agregar el apellido en el formulario si es necesario
+      lastname: formData.lastname || " ",
       email: formData.email,
-      password: mode == 'create' ? formData.password : ( changePassword ? formData.password : user.password), // Asegúrate de capturar la contraseña
-      phone: formData.phone,
+      password: mode == 'create' ? formData.password : ( changePassword ? formData.password : user.password), 
       document: formData.document,
-      photo: formData.photo || "https://example.com/photo.jpg", // Asegúrate de capturar la foto
-      roles: [Number(formData.roles)] // Ajusta esto según sea necesario
+      photo: formData.photo || "https://example.com/photo.jpg", 
+      roles: [Number(formData.roles)] 
     };
 
     try {
@@ -214,9 +212,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         showErrorAlert("creada")
       } else if (mode === 'edit') {
         showErrorAlert("Editada")
-        // const response = await UsersService.createUser(formattedData);
-        // Lógica para editar usuario
-        await UsersService.updateUser(user.id, formattedData); // Editar usuario existente
+        await UsersService.updateUser(user.id, formattedData); 
       }
 
       onUpdate();
@@ -329,7 +325,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           <label className="block text-sm font-medium text-gray-700">Empresa</label>
           <select
             name="company"
-            value={formData.company} // Asegúrate de que el valor esté ligado a formData
+            value={formData.company} 
             onChange={handleChange}
             disabled={mode === 'view'}
             required

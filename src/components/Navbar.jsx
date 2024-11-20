@@ -29,6 +29,8 @@ const Navbar = () => {
 
   const handleLogout = () => {
     Swal.fire({
+      icon: 'question',
+
       title: "¿Desea cerrar sesión?",
       showDenyButton: false,
       showCancelButton: true,
@@ -54,6 +56,15 @@ const Navbar = () => {
     </button>
   );
 
+  const handleProfileClick = () => {
+    Swal.fire({
+      icon: 'info',
+      title: 'Vista no disponible',
+      text: 'La vista de perfil no está disponible en este momento.',
+      confirmButtonText: 'Cerrar',
+    });
+  };
+
   return (
     <div className="flex justify-end items-center p-6 px-8">
       <div className="flex items-center space-x-4">
@@ -69,7 +80,7 @@ const Navbar = () => {
         <IoIosArrowDown className="text-gray-600 cursor-pointer " onClick={toggleDropdown} />
         {dropdownOpen && (
           <div className="absolute right-0 mt-36 w-[220px]  bg-white rounded-lg shadow-lg z-10 ">
-            <MenuItem onClick={() => navigate('/perfil')}>Perfil</MenuItem>
+             <MenuItem onClick={handleProfileClick}>Perfil</MenuItem>
             <MenuItem onClick={handleLogout}>Salir</MenuItem>
           </div>
         )}
