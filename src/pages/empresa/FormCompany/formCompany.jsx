@@ -16,7 +16,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     email_user_admin: '',
     phone: '',
     location: '',
-    type_document_id: '',
+    type_document_id: company.typeDocument?.id || '',
     nit: '',
     gps: "",
     email_billing: "",
@@ -27,56 +27,46 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     phone: ''
   });
 
-  // useEffect(() => {
-  //   if (company) {
-  //     setFormData({
-  //       ...company,
-  //       type_document_id: company.typeDocument?.id || ''  // Ahora usa el id de typeDocument
-  //     });
-  //   }
-  // }, [company]);
+
 
   useEffect(() => {
     if (company && Object.keys(company).length > 0) {
       setFormData({
         ...company,
-        type_document_id: company.typeDocument?.id || '' // Ahora usa el id de typeDocument
+        type_document_id: company.typeDocument?.id || '' // Asegúrate de incluir el ID del documento
       });
     } else {
       console.warn("Prop 'company' está vacía o inválida:", company);
     }
   }, [company]);
+  
 
 
   const [documentTypes, setDocumentTypes] = useState([]); // Estado para los tipos de documentos
   const [showAlertError, setShowAlertError] = useState(false);
   const [messageAlert, setMessageAlert] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-
+  
   useEffect(() => {
-
     const fetchDocumentTypes = async () => {
       try {
         const typeDocuments = await TypeDocumentsService.getAllTypeDocuments();
-        // Filtrar los elementos donde el campo `process` sea igual a 'PERSONA'
         const personaTypes = typeDocuments.filter(type => type.process === 'EMPRESA');
         setDocumentTypes(personaTypes);
       } catch (error) {
         console.error('Error al obtener tipos de documentos:', error);
       }
     };
-
+  
     fetchDocumentTypes();
-
-    console.log(mode)
-    console.log(company)
-
-
+  
     if (mode === 'edit' || mode === 'view') {
-      setFormData(company);
-      setImagePreview(company.logo)
+      setFormData({
+        ...company,
+        type_document_id: company.typeDocument?.id || '' // Configura el tipo de documento
+      });
+      setImagePreview(company.logo);
       setIsButtonDisabled(false);
-
     } else {
       setFormData({
         name: '',
@@ -91,6 +81,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
       });
     }
   }, [company, mode]);
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;

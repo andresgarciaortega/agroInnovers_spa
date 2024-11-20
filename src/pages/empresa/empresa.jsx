@@ -288,7 +288,12 @@ if (data.message) {
       {/* Modal crea,editar,visualizar*/}
       {isModalOpen && (
         <GenericModal title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'} onClose={closeModal}>
-          <FormCompany showSuccessAlert={showSuccessAlertSuccess} onUpdate={updateCompanies} company={newCompany} mode={modalMode} closeModal={closeModal} />
+          <FormCompany 
+          showSuccessAlert={showSuccessAlertSuccess} 
+          onUpdate={updateCompanies} 
+          company={newCompany}
+           mode={modalMode} 
+           closeModal={closeModal} />
         </GenericModal>
       )}
 

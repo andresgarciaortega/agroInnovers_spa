@@ -11,28 +11,14 @@ import { Package2, Factory, Variable, Activity, Cpu, Users } from 'lucide-react'
 
 const VisualizarEmpresa = ({ }) => {
 
-  const {companyId } = useParams();
+  const { companyId } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("edit");
   const [newCompany, setNewCompany] = useState({});
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [messageAlert, setMessageAlert] = useState("");
   const [companyList, setCompanyList] = useState([]);
-
-  useEffect(() => {
-    fetchCompaniesData();
-  }, []);
-
-  const fetchCompaniesData = async () => {
-    try {
-      const data = await CompanyService.getCompanyById(companyId);
-      setFormData(data);
-      setNewCompany(data)
-    } catch (error) {
-      console.error('Error fetching companies:', error);
-    }
-  };
-
+  const [typeDocuments, setTypeDocuments] = useState([]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -46,13 +32,45 @@ const VisualizarEmpresa = ({ }) => {
     logo: ''
   });
 
+  useEffect(() => {
+    fetchCompaniesData();
+    fetchTypeDocumento();
+  }, []);
+
+  const fetchCompaniesData = async () => {
+    try {
+      const data = await CompanyService.getCompanyById(companyId);
+      setFormData(data);
+      setNewCompany(data)
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+    }
+  };
+  const fetchTypeDocumento = async () => {
+    try {
+      const data = await fectchTypes.getAllTypeDocuments();
+      setFormData(data);
+      setTypeDocument(data)
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+    }
+  };
+
+
+
+
 
 
 
 
   // Abrir el modal
   const handleOpenModal = async () => {
-    setIsModalOpen(true);
+    try {
+      await fetchCompaniesData(); // Asegurarte de que los datos están cargados
+      setIsModalOpen(true);       // Abrir el modal
+    } catch (error) {
+      console.error("Error al abrir el modal:", error);
+    }
   };
 
 
@@ -281,8 +299,16 @@ const VisualizarEmpresa = ({ }) => {
         </div>
       </div>
       {isModalOpen && (
-        <GenericModal title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'} onClose={closeModal}>
-          <FormCompany showSuccessAlert={showSuccessAlertSuccess} onUpdate={updateCompanies} company={newCompany} mode={modalMode} closeModal={closeModal} />
+        <GenericModal
+          title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'}
+          onClose={closeModal}>
+          <FormCompany
+            showSuccessAlert={showSuccessAlertSuccess}
+            onUpdate={updateCompanies}
+            company={newCompany}
+            mode={modalMode}
+            typeDocuments={typeDocuments}
+            closeModal={closeModal} />
           {console.log(newCompany)}
         </GenericModal>
       )}
