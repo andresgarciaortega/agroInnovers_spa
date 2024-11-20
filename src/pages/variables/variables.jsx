@@ -32,6 +32,7 @@ const Variable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
+  const [nameCompany, setNameCompany] = useState("");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
   const [newVariable, setNewVariable] = useState({
@@ -61,10 +62,11 @@ const Variable = () => {
   useEffect(() => {
     const fetchVariables = async () => {
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
-
       if (!companyId) {
         setVariableList([]); 
         return;
+      }else{
+        setNameCompany(selectedCompanyUniversal.label)
       }
 
       try {
@@ -226,7 +228,7 @@ const Variable = () => {
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} /> 
           <span>Gestión de variables</span>
-          <span className="text-black font-bold">   {"/ " + selectedCompanyUniversal.label} / </span>
+          <span className="text-black font-bold">   { nameCompany ? nameCompany: '' }/ </span>
           <span>Variables</span>
           <span className="text-black font-bold">  </span>
           {selectedCompanyUniversal && (
