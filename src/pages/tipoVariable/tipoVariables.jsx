@@ -94,7 +94,7 @@ const TipoVariable = () => {
   // };
 
   const handleCloseErrorAlert = () => {
-    setShowErrorVariableAlert(false);
+    setShowErrorAlertTable(false);
   };
 
   // Función de búsqueda que filtra typevariableList según el searchTerm
@@ -358,7 +358,13 @@ const TipoVariable = () => {
         <div className="alert alert-error flex items-center space-x-2 p-4 bg-red-500 text-white rounded-md">
           <IoIosWarning size={20} />
           <p>{messageAlert}</p>
-          <button onClick={handleCloseErrorAlert} className="ml-2">Cerrar</button>
+          <div className="pl-72 ">
+      <button 
+        onClick={handleCloseErrorAlert} 
+        className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
+        Cancelar
+      </button>
+    </div>
         </div>
       )}
     </div>

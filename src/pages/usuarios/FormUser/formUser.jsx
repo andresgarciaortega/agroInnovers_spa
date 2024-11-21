@@ -198,6 +198,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       type_document_id: Number(formData.typeDocument),
       companies_id: Number(formData.company),
       name: formData.name,
+      phone: Number(formData.phone),
       lastname: formData.lastname || " ",
       email: formData.email,
       password: mode == 'create' ? formData.password : ( changePassword ? formData.password : user.password), 

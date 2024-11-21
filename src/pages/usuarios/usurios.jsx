@@ -72,10 +72,10 @@ const Usuario = () => {
   useEffect(() => {
     const fetchUsersList = async () => {
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
       if (!companyId) {
-        setUsersList([]); 
+        setUsersList([]);
         return;
       }
 
@@ -106,7 +106,7 @@ const Usuario = () => {
 
 
   const handleCloseErrorAlert = () => {
-    setShowErrorAlert(false);
+    setShowErrorAlertTable(false);
   };
 
   const filteredUser = usersList.filter(users =>
@@ -204,9 +204,9 @@ const Usuario = () => {
 
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
-      
+
       if (!companyId) {
-        setUsersList([]); 
+        setUsersList([]);
         return;
       }
 
@@ -383,6 +383,20 @@ const Usuario = () => {
           message={messageAlert}
           onCancel={handleCloseAlert}
         />
+      )}
+
+      {showErrorAlertTable && (
+        <div className="alert alert-error flex items-center space-x-2 p-4 bg-red-500 text-white rounded-md">
+          <IoIosWarning size={20} />
+          <p>{messageAlert}</p>
+          <div className="pl-72 ">
+            <button
+              onClick={handleCloseErrorAlert}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
+              Cancelar
+            </button>
+          </div>
+        </div>
       )}
 
 
