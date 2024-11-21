@@ -236,7 +236,7 @@ const Usuario = () => {
     <div className="table-container">
 
       <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
-        <div className="relative w-full">
+        <div className="relative w-full selectoraUniversal">
           <CompanySelector />
 
         </div>
@@ -271,8 +271,9 @@ const Usuario = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow">
-        <div className="flex justify-between items-center p-6 border-b">
+        <div className="flex justify-between items-center p-6 border-b seccionNombreBtn">
           <h2 className="text-xl font-semibold">Usuarios</h2>
+          <div className="divisor"></div>
           <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => handleOpenModal()}>
             <FiPlusCircle size={20} className="mr-2" />
             Añadir usuario

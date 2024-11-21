@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import logo from "../assets/imagenes/logo.jpeg";
 import logoUser from "../assets/icons/user2.png";
 import { FaRegBuilding, FaTv, FaBars } from 'react-icons/fa';
+import { IoMdClose } from "react-icons/io";
 import { RxDashboard } from "react-icons/rx";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { BsBox } from "react-icons/bs";
@@ -20,36 +21,36 @@ const menuItems = [
   { icon: <RxDashboard />, label: "Dashboard", route: "/home/dashboard" },
   { icon: <FaRegBuilding />, label: "Empresa", route: "/home/empresa" },
   { icon: <HiOutlineUserGroup />, label: "Usuarios", route: "/home/usuarios" },
-  { 
-    icon: <ImEqualizer2 />, 
-    label: "Gestionar variables", 
+  {
+    icon: <ImEqualizer2 />,
+    label: "Gestionar variables",
     submenu: [
-      
+
       { label: "Tipo de Variables", route: "/home/tipoVariables" },
-      { label : "Variables", route: "/home/variables" }
+      { label: "Variables", route: "/home/variables" }
     ]
   },
-  { 
-    icon: <LiaFishSolid />, 
-    label: "Gestionar especies ", 
+  {
+    icon: <LiaFishSolid />,
+    label: "Gestionar especies ",
     submenu: [
-      { label : "Categorias", route: "/home/especies" },
+      { label: "Categorias", route: "/home/especies" },
       { label: "Lista de especies", route: "/home/listaEspecie" }
     ]
   },
   { icon: <FaTv />, label: "Sistema de monitoreo", route: "/home/monitoreo" },
-  { 
-    icon: <FaMicrochip />, 
-    label: "Gestionar dispositivos ", 
+  {
+    icon: <FaMicrochip />,
+    label: "Gestionar dispositivos ",
     submenu: [
       { label: "Tipos de dispositivos", route: "/home/tipos" },
       { label: "Sensores", route: "/home/sensor" },
       { label: "Actuadores", route: "/home/actuador" }
     ]
   },
-  { 
-    icon: <BsBox />, 
-    label: "Gestionar espacios ", 
+  {
+    icon: <BsBox />,
+    label: "Gestionar espacios ",
     submenu: [
       { label: "Tipos de espacios", route: "/home" },
       { label: "Espacios", route: "/home" }
@@ -60,7 +61,7 @@ const menuItems = [
 
 const Sidebar = ({ selectedItem, setSelectedItem }) => {
   const navigate = useNavigate();
-  const [openSubMenu, setOpenSubMenu] = useState(null); 
+  const [openSubMenu, setOpenSubMenu] = useState(null);
 
   const handleClick = (route, index) => {
     setSelectedItem(index);
@@ -68,7 +69,7 @@ const Sidebar = ({ selectedItem, setSelectedItem }) => {
   };
 
   const handleSubMenuClick = (index) => {
-    setOpenSubMenu(openSubMenu === index ? null : index); 
+    setOpenSubMenu(openSubMenu === index ? null : index);
   };
 
   return (
@@ -80,9 +81,8 @@ const Sidebar = ({ selectedItem, setSelectedItem }) => {
         {menuItems.map((item, index) => (
           <div key={index}>
             <button
-              className={`w-full text-left py-2 px-4 rounded-lg mb-2 flex items-center text-lg ${
-                selectedItem === index ? 'bg-[#168C0DFF]' : 'bg-transparent'
-              }`}
+              className={`w-full text-left py-2 px-4 rounded-lg mb-2 flex items-center text-lg ${selectedItem === index ? 'bg-[#168C0DFF]' : 'bg-transparent'
+                }`}
               onClick={() => item.submenu ? handleSubMenuClick(index) : handleClick(item.route, index)}
             >
               <span className="mr-2">{item.icon}</span>
@@ -99,9 +99,8 @@ const Sidebar = ({ selectedItem, setSelectedItem }) => {
                 {item.submenu.map((subItem, subIndex) => (
                   <button
                     key={subIndex}
-                    className={`w-full text-left py-2 px-4 rounded-lg mb-2 flex items-center text-xl ${
-                      selectedItem === `${index}-${subIndex}` ? 'bg-[#168C0DFF]' : 'bg-transparent'
-                    }`}
+                    className={`w-full text-left py-2 px-4 rounded-lg mb-2 flex items-center text-xl ${selectedItem === `${index}-${subIndex}` ? 'bg-[#168C0DFF]' : 'bg-transparent'
+                      }`}
                     onClick={() => handleClick(subItem.route, `${index}-${subIndex}`)}
                   >
                     {subItem.label}
@@ -120,12 +119,12 @@ export default function Component() {
   const [selectedItem, setSelectedItem] = useState(0);
   const [isMobileView, setIsMobileView] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false); 
-  const navigate = useNavigate(); 
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobileView(window.innerWidth < 768);
+      setIsMobileView(window.innerWidth < 1068);
     };
 
     handleResize();
@@ -140,26 +139,30 @@ export default function Component() {
   const handleLogout = () => {
     const confirmLogout = window.confirm("¿Seguro que quieres cerrar sesión?");
     if (confirmLogout) {
-      localStorage.removeItem('authToken'); 
-      navigate('/'); 
+      localStorage.removeItem('authToken');
+      navigate('/');
     }
   };
-  
+
 
   return (
     <div className="flex h-screen bg-gray-100">
       {isMobileView ? (
         <>
           <button
-            className="absolute top-4 left-4 p-2 bg-[#345246] rounded z-20"
+            className="absolute top-7 right-4 p-2 bg-[#345246] rounded z-20 "
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            <FaBars className="text-white text-2xl" />
+            {isMobileMenuOpen ? (
+              <IoMdClose className="text-white text-2xl " />
+            ) : (
+              <FaBars className="text-white text-2xl " />
+            )}
           </button>
 
           {isMobileMenuOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-10">
-              <div className="w-64 h-full">
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-10 ">
+              <div className="w-66 h-full">
                 <Sidebar selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
               </div>
             </div>
@@ -168,9 +171,9 @@ export default function Component() {
       ) : (
         <Sidebar selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
       )}
-      
-      <div className="flex-1"> 
-      <Navbar />
+
+      <div className="flex-1">
+        <Navbar />
         <div className="p-6">
           <Outlet />
         </div>
