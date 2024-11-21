@@ -59,7 +59,7 @@ const TipoVariable = () => {
         if (!companyId) {
           setTypeVariablesList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
           return;
-        }else{
+        } else {
           setNameCompany(selectedCompanyUniversal.label)
         }
 
@@ -69,7 +69,7 @@ const TipoVariable = () => {
         if (data.statusCode === 404) {
           setTypeVariablesList([]);
         } else {
-        setShowErrorAlertTable(false);
+          setShowErrorAlertTable(false);
           setTypeVariablesList(Array.isArray(data) ? data : []);
         }
       } catch (error) {
@@ -87,7 +87,7 @@ const TipoVariable = () => {
 
   const handleCompanyChange = (selectedOption) => {
     setSelectedCompany(selectedOption?.value || null);
-};
+  };
 
 
 
@@ -181,14 +181,14 @@ const TipoVariable = () => {
 
   // Función para actualizar la lista de empresas
   const updateTypeVariable = async () => {
-     // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
-     const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
+    // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
+    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
 
-     // Verifica si companyId no es vacío antes de hacer la llamada
-     if (!companyId) {
-       setTypeVariablesList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
-       return;
-     }
+    // Verifica si companyId no es vacío antes de hacer la llamada
+    if (!companyId) {
+      setTypeVariablesList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
+      return;
+    }
 
     try {
       const data = await VariableType.getAllTypeVariable(companyId);
@@ -224,11 +224,11 @@ const TipoVariable = () => {
           <span>/</span>
           <span>Tipo de variables</span>
           <span>/</span>
-          <span className="text-black font-bold"> {nameCompany ? nameCompany: ''} </span>
+          <span className="text-black font-bold"> {nameCompany ? nameCompany : ''} </span>
           <span className="text-black font-bold"> </span>
           {selectedCompany && (
-    <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
-)}
+            <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
+          )}
 
         </div>
 
@@ -359,16 +359,18 @@ const TipoVariable = () => {
       )}
 
       {showErrorAlertTable && (
-        <div className="alert alert-error flex items-center space-x-2 p-4 bg-red-500 text-white rounded-md">
-          <IoIosWarning size={20} />
-          <p>{messageAlert}</p>
-          <div className="pl-72 ">
-      <button 
-        onClick={handleCloseErrorAlert} 
-        className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
-        Cancelar
-      </button>
-    </div>
+        <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
+          <div className="flex items-center space-x-2">
+            <IoIosWarning size={20} />
+            <p>{messageAlert}</p>
+          </div>
+          <div className="flex justify-end w-full">
+            <button
+              onClick={handleCloseErrorAlert}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
+              Cancelar
+            </button>
+          </div>
         </div>
       )}
     </div>

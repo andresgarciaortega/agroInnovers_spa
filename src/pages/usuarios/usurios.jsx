@@ -29,6 +29,7 @@ const Usuario = () => {
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
   const [nameCompany, setNameCompany] = useState("");
+
   const [usersList, setUsersList] = useState([]);
   const [companyList, setCompanyList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -77,7 +78,7 @@ const Usuario = () => {
       if (!companyId) {
         setUsersList([]);
         return;
-      }else{
+      } else {
         setNameCompany(selectedCompanyUniversal.label)
       }
 
@@ -244,7 +245,7 @@ const Usuario = () => {
         <div className="flex items-center space-x-2 text-gray-700">
           <HiOutlineUserGroup size={20} />
           <span>Usuarios</span>
-          <span className="text-black font-bold"> / {nameCompany ? nameCompany: ''} </span>
+          <span className="text-black font-bold"> / {nameCompany ? nameCompany : ''} </span>
           {selectedCompany && (
             <span className="text-black font-bold">
               {companyList.find(company => company.id === selectedCompany)?.name || 'No seleccionado'}
@@ -388,10 +389,12 @@ const Usuario = () => {
       )}
 
       {showErrorAlertTable && (
-        <div className="alert alert-error flex items-center space-x-2 p-4 bg-red-500 text-white rounded-md">
-          <IoIosWarning size={20} />
-          <p>{messageAlert}</p>
-          <div className="pl-72 ">
+        <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
+          <div className="flex items-center space-x-2">
+            <IoIosWarning size={20} />
+            <p>{messageAlert}</p>
+          </div>
+          <div className="flex justify-end w-full">
             <button
               onClick={handleCloseErrorAlert}
               className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">

@@ -61,11 +61,11 @@ const Variable = () => {
 
   useEffect(() => {
     const fetchVariables = async () => {
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
       if (!companyId) {
-        setVariableList([]); 
+        setVariableList([]);
         return;
-      }else{
+      } else {
         setNameCompany(selectedCompanyUniversal.label)
       }
 
@@ -81,7 +81,7 @@ const Variable = () => {
         setVariableList([])
         console.error('Error fetching variables:', error);
         setMessageAlert('Esta empresa no tiene variables registradas, Intentalo con otra empresa');
-        setShowErrorAlertTable(true); 
+        setShowErrorAlertTable(true);
       }
     };
 
@@ -89,7 +89,7 @@ const Variable = () => {
   }, [selectedCompanyUniversal]);
 
   const handleCompanyChange = (selectedOption) => {
-    setSelectedCompany(selectedOption ? selectedOption.value : null);  
+    setSelectedCompany(selectedOption ? selectedOption.value : null);
   };
 
   const handleSearchChange = (e) => {
@@ -97,7 +97,7 @@ const Variable = () => {
   };
 
   const handleVariableSelect = (variable) => {
-    setSelectedCompany(variable.company_id);  
+    setSelectedCompany(variable.company_id);
   };
 
   const handleCloseErrorAlert = () => {
@@ -110,7 +110,7 @@ const Variable = () => {
     (variable.name && variable.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (variable.unit_of_measurement && variable.unit_of_measurement.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (variable.type_variable_id && variable.type_variable_id.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (variable.type_register_id && variable.location.toLowerCase().includes(searchTerm.toLowerCase()))  
+    (variable.type_register_id && variable.location.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
 
@@ -198,10 +198,10 @@ const Variable = () => {
   const updateService = async () => {
     try {
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
       if (!companyId) {
-        setVariableList([]); 
+        setVariableList([]);
         return;
       }
 
@@ -219,27 +219,23 @@ const Variable = () => {
     <div className="table-container ">
       <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
         <div className="relative w-full">
-        <CompanySelector />
+          <CompanySelector />
 
         </div>
-        
-
         <br />
         <div className="flex items-center space-x-2 text-gray-700">
-          <ImEqualizer2 size={20} /> 
+          <ImEqualizer2 size={20} />
           <span>Gestión de variables</span>
           <span>/</span>
           <span>Variables</span>
           <span>/</span>
-          <span className="text-black font-bold">   { nameCompany ? nameCompany: '' }</span>
+          <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
           <span className="text-black font-bold">  </span>
           {selectedCompanyUniversal && (
             <span>{companyList.find(company => company.id === selectedCompanyUniversal)?.name}</span>
           )}
         </div>
-
       </div>
-
       <div className="relative w-full mt-6 py-5 z-0">
         {/* Input de búsqueda */}
         <input
@@ -370,19 +366,21 @@ const Variable = () => {
         />
       )}
       {showErrorAlertTable && (
-        <div className="alert alert-error flex items-center space-x-2 p-4 bg-red-500 text-white rounded-md">
-          <IoIosWarning size={20} />
-          <p>{messageAlert}</p>
-          <div className="mt-2 flex justify-end">
+        <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
+          <div className="flex items-center space-x-2">
+            <IoIosWarning size={20} />
+            <p>{messageAlert}</p>
+          </div>
+          <div className="flex justify-end w-full">
             <button
               onClick={handleCloseErrorAlert}
-              className="bg-gray-200 text-gray-800 px-4 py-2 flex justify-end rounded-md hover:bg-gray-300">
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
               Cancelar
             </button>
           </div>
         </div>
       )}
-      
+
 
 
 

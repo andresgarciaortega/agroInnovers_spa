@@ -9,8 +9,16 @@ import FormCategory from './FormSpecies/formCategory';
 import SuccessAlert from "../../components/alerts/success";
 import LoadingView from '../../components/Loading/loadingView';
 import CategoryServices from "../../services/CategoryService";
+
+
+import { HiOutlineUserGroup } from "react-icons/hi";
+import { IoIosWarning } from 'react-icons/io';
+
+
+import { ImEqualizer2 } from "react-icons/im";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
+
 
 const Especie = () => {
 
@@ -18,6 +26,11 @@ const Especie = () => {
   const navigate = useNavigate();
 
   const { selectedCompanyUniversal } = useCompanyContext();
+  const [companyList, setCompanyList] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
+  const [nameCompany, setNameCompany] = useState("");
+  const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
 
   const [categoryList, setCategoryList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -38,32 +51,69 @@ const Especie = () => {
   });
 
   useEffect(() => {
-    fetchCategory();
+    const fetchCompanies = async () => {
+      try {
+        const data = await CompanyServices.getAllCompany();
+        console.log("Fetched companies:", data);
+        setCompanyList(data);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
+
+    fetchCompanies();
   }, []);
 
+  // useEffect(() => {
+  //   fetchCategory();
+  // }, []);
 
-  const fetchCategory = async () => {
 
-    const idCompanySelector = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
-    if(!idCompanySelector){
-      setCategoryList([]);
-    }
-    setIsLoading(true);
-    try {
-      const response = await CategoryServices.getAllCategory();
-      const data = response.data;
-      console.log('datos categoria ', data)
-      if (Array.isArray(data)) {
-        setCategoryList(data);
-      } else {
+  useEffect(() => {
+    const fetchCategory = async () => {
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      if (!companyId) {
         setCategoryList([]);
+        return;
+      } else {
+        setNameCompany(selectedCompanyUniversal.label)
       }
-    } catch (error) {
-      console.error('Error fetching Category:', error);
-    } finally {
-      setIsLoading(false);
-    }
+
+      try {
+        const data = await CategoryServices.getAllCategory(companyId);
+        if (data.statusCode === 404) {
+          setCategoryList([]);
+        } else {
+          setShowErrorAlertTable(false)
+          setCategoryList(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        setCategoryList([])
+        console.error('Error fetching variables:', error);
+        setMessageAlert('Esta empresa no tiene categorías registradas, Intentalo con otra empresa');
+        setShowErrorAlertTable(true);
+      }
+    };
+
+    fetchCategory();
+  }, [selectedCompanyUniversal]);
+
+  const handleCompanyChange = (selectedOption) => {
+    setSelectedCompany(selectedOption ? selectedOption.value : null);
   };
+
+  const handleSearchChange = (e) => {
+    setSearchCompanyTerm(e.target.value);
+  };
+
+  const handleVariableSelect = (variable) => {
+    setSelectedCompany(variable.company_id);
+  };
+
+  const handleCloseErrorAlert = () => {
+    setShowErrorAlertTable(false);
+  };
+
 
   const filteredCategory = Array.isArray(categoryList)
     ? categoryList.filter(category =>
@@ -122,14 +172,26 @@ const Especie = () => {
     setTimeout(() => setShowErrorAlert(false), 2500);
   };
 
-  // Función para actualizar la lista de empresas
-  const updateCategory = async () => {
-    try {
-      const data = await CategoryServices.getAllCategory();
+  const handleCloseAlert = () => {
+    setShowErrorAlert(false);
+  };
 
-      setCategoryList(data); // Actualiza companyList con los datos más recientes
+  const updateService = async () => {
+    try {
+
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
+      if (!companyId) {
+        setCategoryList([]);
+        return;
+      }
+
+
+      const data = await CategoryServices.getAllCategory(companyId);
+
+      setCategoryList(data);
     } catch (error) {
-      console.error('Error al actualizar las categorias:', error);
+      console.error('Error al actualizar las categorías:', error);
     }
   };
 
@@ -140,21 +202,37 @@ const Especie = () => {
 
   return (
     <div className="table-container">
-       <div className="relative w-full">
+      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
+        <div className="relative w-full">
           <CompanySelector />
+
         </div>
-
-
-      {isLoading && <LoadingView />}
-      <div className="absolute transform -translate-y-20 right-30 w-1/2">
-        <IoSearch className="absolute left-3 top-3 text-gray-500" />
+        <br />
+        <div className="flex items-center space-x-2 text-gray-700">
+          <ImEqualizer2 size={20} />
+          <span>Gestión de especies</span>
+          <span>/</span>
+          <span>Categoría</span>
+          <span>/</span>
+          <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
+          <span className="text-black font-bold">  </span>
+          {selectedCompanyUniversal && (
+            <span>{companyList.find(company => company.id === selectedCompanyUniversal)?.name}</span>
+          )}
+        </div>
+      </div>
+      <div className="relative w-full mt-6 py-5 z-0">
+        {/* Input de búsqueda */}
         <input
           type="text"
-          placeholder="Buscar categoría "
-          className="w-full border border-gray-300 p-2 pl-10 rounded-md"
+          placeholder="Buscar variable"
+          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+
+        {/* Icono de búsqueda alineado a la izquierda */}
+        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
       <div className="bg-white rounded-lg shadow">
         <div className="flex justify-between items-center p-6 border-b">
@@ -255,7 +333,27 @@ const Especie = () => {
           onClose={() => setIsDeleteModalOpen(false)}
         />
       )}
-      {showErrorAlert && <SuccessAlert message={messageAlert} onClose={() => setShowErrorAlert(false)} />}
+      {showErrorAlert &&
+        <SuccessAlert message={messageAlert}
+          onClose={() => setShowErrorAlert(false)}
+        />}
+
+      {showErrorAlertTable && (
+        <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
+          <div className="flex items-center space-x-2">
+            <IoIosWarning size={20} />
+            <p>{messageAlert}</p>
+          </div>
+          <div className="flex justify-end w-full">
+            <button
+              onClick={handleCloseErrorAlert}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
