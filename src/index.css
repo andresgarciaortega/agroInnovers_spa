@@ -7,3 +7,7 @@
 .select__option {
   text-transform: uppercase;
 }
+
+select{
+    text-transform: capitalize;
+}

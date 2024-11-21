@@ -6,13 +6,17 @@ import ErrorAlert from '../../../components/alerts/error';
 import { IoEye, IoEyeOff } from 'react-icons/io5';
 
 const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
+
+  const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
+
+
   const [formData, setFormData] = React.useState({
     name: '',
     email: '',
     phone: '',
     registrationDate: '',
     typeDocument: '',
-    company: '',
+    company: companySeleector.value || '',
     document: '',
     roles: null,
     password: '',
@@ -77,7 +81,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         phone: '',
         registrationDate: '',
         typeDocument: '', // Inicializa como vacío
-        company: '',
+        company: companySeleector.value || '',
         document: '',
         roles: '',
         password: '',
