@@ -228,8 +228,10 @@ const Variable = () => {
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} /> 
           <span>Gestión de variables</span>
-          <span className="text-black font-bold">   { nameCompany ? nameCompany: '' }/ </span>
+          <span>/</span>
           <span>Variables</span>
+          <span>/</span>
+          <span className="text-black font-bold">   { nameCompany ? nameCompany: '' }</span>
           <span className="text-black font-bold">  </span>
           {selectedCompanyUniversal && (
             <span>{companyList.find(company => company.id === selectedCompanyUniversal)?.name}</span>

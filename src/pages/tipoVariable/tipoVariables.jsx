@@ -221,8 +221,10 @@ const TipoVariable = () => {
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Variables */}
           <span>Gestión de variables</span>
-          <span className="text-black font-bold"> {nameCompany ? nameCompany: ''} / </span>
+          <span>/</span>
           <span>Tipo de variables</span>
+          <span>/</span>
+          <span className="text-black font-bold"> {nameCompany ? nameCompany: ''} </span>
           <span className="text-black font-bold"> </span>
           {selectedCompany && (
     <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>

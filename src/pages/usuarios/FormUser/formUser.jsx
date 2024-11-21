@@ -51,7 +51,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         const types = await TypeDocumentsService.getAllTypeDocuments();
         const companies = await CompanyService.getAllCompany();
         const roles = await TypeDocumentsService.getAllTypeUsers();
-  
+
         const personaTypes = types.filter(type => type.process === 'PERSONA');
         setDocumentTypes(personaTypes);
         setUsersTypes(roles);
@@ -60,27 +60,27 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         console.error('Error al obtener tipos de documentos:', error);
       }
     };
-  
+
     fetchDocumentTypes();
-  
+
     if (mode === 'edit' || mode === 'view') {
+      // Verifica si `user.typeDocument` tiene la propiedad `id` antes de asignarla
+      const userTypeDocumentId = user.typeDocument && user.typeDocument.id ? user.typeDocument.id : '';
       setFormData({
         ...user,
         roles: user.roles.length > 0 ? user.roles[0].id : '',
-        typeDocument: user.typeDocument ? user.typeDocument.id : '', 
-        company: user.company? user.company.id : '', 
-        password: user.password || '', 
-      confirmPass: user.password || ''
+        typeDocument: userTypeDocumentId, // Asegúrate de que esté bien asignado
+        company: user.company ? user.company.id : '',
+        password: user.password || '',
+        confirmPass: user.password || ''
       });
-      console.log("users : ", user)
-
     } else {
       setFormData({
         name: '',
         email: '',
         phone: '',
         registrationDate: '',
-        typeDocument: '', // Inicializa como vacío
+        typeDocument: '',
         company: companySeleector.value || '',
         document: '',
         roles: '',
@@ -88,7 +88,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         confirmPass: ''
       });
     }
-  }, [user, mode]);
+}, [user, mode]);
+
 
   
 
@@ -119,6 +120,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         e.target.style.borderColor = '';
       }
     }
+    
 
     if (name === 'document') {
       if (!/^\d{8,12}$/.test(value)) {
@@ -202,7 +204,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       type_document_id: Number(formData.typeDocument),
       companies_id: Number(formData.company),
       name: formData.name,
-      phone: Number(formData.phone),
+      phone: formData.phone.toString(),
       lastname: formData.lastname || " ",
       email: formData.email,
       password: mode == 'create' ? formData.password : ( changePassword ? formData.password : user.password), 
@@ -332,7 +334,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             name="company"
             value={formData.company} 
             onChange={handleChange}
-            disabled={mode === 'view'}
+            disabled
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           >
