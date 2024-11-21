@@ -26,7 +26,7 @@ const TipoVariable = () => {
   // const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
-
+  const [nameCompany, setNameCompany] = useState("");
   const [typeVariablesList, setTypeVariablesList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedTypeVariable, setSelectedTypeVariable] = useState(null);
@@ -59,6 +59,8 @@ const TipoVariable = () => {
         if (!companyId) {
           setTypeVariablesList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
           return;
+        }else{
+          setNameCompany(selectedCompanyUniversal.label)
         }
 
         const data = await VariableType.getAllTypeVariable(companyId);
@@ -219,9 +221,9 @@ const TipoVariable = () => {
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Variables */}
           <span>Gestión de variables</span>
-          <span className="text-black font-bold"> > </span>
+          <span className="text-black font-bold"> {nameCompany ? nameCompany: ''} / </span>
           <span>Tipo de variables</span>
-          <span className="text-black font-bold"> > </span>
+          <span className="text-black font-bold"> </span>
           {selectedCompany && (
     <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
 )}

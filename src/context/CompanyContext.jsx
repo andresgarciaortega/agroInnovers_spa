@@ -8,7 +8,7 @@ export const CompanyProvider = ({ children }) => {
     const [selectedCompanyUniversal, setSelectedCompanyUniversal] = useState(() => {
         // Intentar leer la empresa guardada en localStorage
         const savedCompany = localStorage.getItem("selectedCompany");
-        return savedCompany ? JSON.parse(savedCompany) : null; // Si no existe, dejarlo en null
+        return savedCompany ? JSON.parse(savedCompany) : {}; // Si no existe, dejarlo en null
     });
 
     // Guardar la empresa seleccionada en localStorage cada vez que cambie

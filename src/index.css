@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.select__single-value,
+.select__option {
+  text-transform: uppercase;
+}
+
+select{
+    text-transform: capitalize;
+}

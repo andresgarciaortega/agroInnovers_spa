@@ -28,7 +28,7 @@ const Usuario = () => {
   // const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
-
+  const [nameCompany, setNameCompany] = useState("");
   const [usersList, setUsersList] = useState([]);
   const [companyList, setCompanyList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -77,6 +77,8 @@ const Usuario = () => {
       if (!companyId) {
         setUsersList([]);
         return;
+      }else{
+        setNameCompany(selectedCompanyUniversal.label)
       }
 
       try {
@@ -242,7 +244,7 @@ const Usuario = () => {
         <div className="flex items-center space-x-2 text-gray-700">
           <HiOutlineUserGroup size={20} />
           <span>Usuarios</span>
-          <span className="text-black font-bold"> > </span>
+          <span className="text-black font-bold"> / {nameCompany ? nameCompany: ''} </span>
           {selectedCompany && (
             <span className="text-black font-bold">
               {companyList.find(company => company.id === selectedCompany)?.name || 'No seleccionado'}
