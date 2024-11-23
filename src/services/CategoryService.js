@@ -6,7 +6,7 @@ const CategoryServices = {
     // LISTAR TODAS LAS CATEGORÍAS
     async getAllCategory(idcompany = 0) {
         try {
-            const response = await api.get(`/categories?company=${idcompany}`);
+            const response = await api.get(`/category-species?company=${idcompany}`);
             return response;
         } catch (error) {
             console.error('Error al obtener las categorías:', error);
@@ -17,7 +17,7 @@ const CategoryServices = {
     // OBTENER UNA CATEGORÍA POR ID
     async getCategoryById(id) {
         try {
-            const response = await api.get(`/categories/${id}`);
+            const response = await api.get(`/category-species/${id}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener la categoría:', error);
@@ -28,7 +28,7 @@ const CategoryServices = {
     // CREAR UNA CATEGORÍA
     async createCategory(data) {
         try {
-            const response = await api.post('/categories/', data);
+            const response = await api.post('/category-species/', data);
             return response;
         } catch (error) {
             console.error('Error al crear la categoría:', error);
@@ -39,7 +39,7 @@ const CategoryServices = {
     // ACTUALIZAR UNA CATEGORÍA
     async updateCategory(id, data) {
         try {
-            const response = await api.put(`/categories/${id}`, data);
+            const response = await api.put(`/category-species/${id}`, data);
             return response.data;
         } catch (error) {
             console.error('Error al actualizar la categoría:', error);
@@ -50,7 +50,7 @@ const CategoryServices = {
     // ELIMINAR UNA CATEGORÍA
     async deleteCategory(id) {
         try {
-            const response = await api.delete(`/categories/${id}`);
+            const response = await api.delete(`/category-species/${id}`);
             return response.data;
         } catch (error) {
             console.error('Error al eliminar la categoría:', error);
