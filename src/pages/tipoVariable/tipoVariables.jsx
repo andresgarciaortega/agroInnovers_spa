@@ -8,6 +8,7 @@ import GenericModal from '../../components/genericModal';
 import FormTypeVariable from './FormTypeVariable/formTypeVariable';
 import VariableType from "../../services/VariableType";
 import SuccessAlert from "../../components/alerts/success";
+import ErrorAlert from "../../components/alerts/error";
 import { IoSearch } from "react-icons/io5";
 import LoadingView from '../../components/Loading/loadingView';
 import CompanyService from "../../services/CompanyService";
@@ -130,20 +131,38 @@ const TipoVariable = () => {
 
 
   //eliminar
-  const handleDelete = (typevariable) => {
-    setSelectedTypeVariable(typevariable);
-    setIsDeleteModalOpen(true);
-  };
+ // Eliminar
+const handleDelete = (typevariable) => {
+  setSelectedTypeVariable(typevariable);
+  setIsDeleteModalOpen(true);
+};
 
-  const handleConfirmDelete = async () => {
-    setIsDeleteModalOpen(false);
-    setSelectedTypeVariable(null);
-    const data = await VariableType.deleteTypeVariable(selectedTypeVariable.id);
-    setMessageAlert("tipo de variable eliminada exitosamente");
-    showErrorAlertSuccess("eliminado");
-    updateTypeVariable();
+const handleConfirmDelete = async () => {
+  try {
+    setIsDeleteModalOpen(false); 
+    setSelectedTypeVariable(null); 
 
-  };
+    await VariableType.deleteTypeVariable(selectedTypeVariable.id); 
+
+    setMessageAlert("Tipo de variable eliminada exitosamente");
+    showErrorAlertSuccess("Eliminado");
+    updateTypeVariable(); 
+  } catch (error) {
+    
+    if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
+      setMessageAlert(error.message);
+      setShowErrorVariableAlert(true); 
+    } else {
+      
+      setMessageAlert("No se puede eliminar el Tipo de variable porque está asociada a uno o más variables");
+      setShowErrorAlert(true);
+    }
+
+    console.error("Error al eliminar el tipo de variable:", error);
+  }
+};
+
+
 
 
   const handleCancelDelete = () => {
@@ -179,12 +198,9 @@ const TipoVariable = () => {
     updateTypeVariable();
   };
 
-  // Función para actualizar la lista de empresas
   const updateTypeVariable = async () => {
-    // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
-    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
+    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
 
-    // Verifica si companyId no es vacío antes de hacer la llamada
     if (!companyId) {
       setTypeVariablesList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
       return;
@@ -207,6 +223,12 @@ const TipoVariable = () => {
       setShowErrorAlert(false)
     }, 2500);
   }
+  const showErrorAlert2 = () => {
+    setShowErrorAlert(true);
+    setTimeout(() => {
+      setShowErrorAlert(false);
+    }, 2500);
+  };
 
 
   return (
@@ -352,7 +374,7 @@ const TipoVariable = () => {
       )}
 
       {showErrorAlert && (
-        <SuccessAlert
+        <ErrorAlert
           message={messageAlert}
           onCancel={handleCloseAlert}
         />
@@ -373,6 +395,22 @@ const TipoVariable = () => {
           </div>
         </div>
       )}
+
+{showErrorVariableAlert && (
+  <div className="alert alert-error fixed top-5 right-5 w-96 shadow-lg">
+    <div>
+      <IoIosWarning className="text-red-500 w-6 h-6" />
+      <span>{messageAlert}</span>
+    </div>
+    <button
+      className="btn btn-sm btn-outline ml-auto"
+      onClick={() => setShowErrorVariableAlert(false)}
+    >
+      Cerrar
+    </button>
+  </div>
+)}
+
     </div>
   );
 };

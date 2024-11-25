@@ -50,12 +50,19 @@ const VariableTypeService = {
     async deleteTypeVariable(id) {
         try {
             const response = await api.delete(`/type-variables/${id}`);
-            return response;
+            return response.data; // Devuelve los datos de la respuesta en caso de éxito
         } catch (error) {
-            console.error('Error al eliminar el tipo de variable:', error);
-            throw error;
+            // Extrae el mensaje del error enviado por el backend
+            const errorMessage = error.response?.data?.message || 'Error desconocido al eliminar el tipo de variable.';
+            
+            // Lanza un objeto con el mensaje y el código de estado
+            throw {
+                statusCode: error.response?.status || 500, // Si no hay un estado, asume error del servidor
+                message: errorMessage,
+            };
         }
     },
+    
 
       
 };

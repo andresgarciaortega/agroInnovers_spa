@@ -45,7 +45,7 @@ const AppRoutes = () => {
         <Route path="listaEspecie" element={<ListaEspecies />} />
         <Route path="crearLista" element={<CrearListas />} />
         <Route path="crearCategoria" element={<CrearCategorias />} />
-        <Route path="editarCategoria" element={<EditarCategorias />} />
+        <Route path="editarCategoria/:id" element={<EditarCategorias/>} />
         <Route path="especies" element={<Especies />} />
         <Route path="monitoreo" element={<Monitoreo />} />
         <Route path="tipos" element={<Tipos />} />

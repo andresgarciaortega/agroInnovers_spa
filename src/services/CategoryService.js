@@ -6,8 +6,8 @@ const CategoryServices = {
     // LISTAR TODAS LAS CATEGORÍAS
     async getAllCategory(idcompany = 0) {
         try {
-            const response = await api.get(`/category-species?company=${idcompany}`);
-            return response;
+            const response = await api.get(`/category-species?companyId=${idcompany}`);
+            return response.data;
         } catch (error) {
             console.error('Error al obtener las categorías:', error);
             throw error;

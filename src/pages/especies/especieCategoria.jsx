@@ -7,8 +7,10 @@ import Delete from '../../components/delete';
 import GenericModal from '../../components/genericModal';
 import FormCategory from './FormSpecies/formCategory';
 import SuccessAlert from "../../components/alerts/success";
+import ErrorAlert from "../../components/alerts/error";
 import LoadingView from '../../components/Loading/loadingView';
 import CategoryServices from "../../services/CategoryService";
+import CompanyServices from "../../services/CompanyService";
 
 
 import { HiOutlineUserGroup } from "react-icons/hi";
@@ -72,6 +74,7 @@ const Especie = () => {
   useEffect(() => {
     const fetchCategory = async () => {
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
       if (!companyId) {
         setCategoryList([]);
         return;
@@ -89,7 +92,7 @@ const Especie = () => {
         }
       } catch (error) {
         setCategoryList([])
-        console.error('Error fetching variables:', error);
+        console.error('Error fetching categories:', error);
         setMessageAlert('Esta empresa no tiene categorías registradas, Intentalo con otra empresa');
         setShowErrorAlertTable(true);
       }
@@ -98,16 +101,19 @@ const Especie = () => {
     fetchCategory();
   }, [selectedCompanyUniversal]);
 
+  
+
   const handleCompanyChange = (selectedOption) => {
     setSelectedCompany(selectedOption ? selectedOption.value : null);
+    console.log("Selected company:", selectedOption ? selectedOption.value : null);
   };
 
   const handleSearchChange = (e) => {
     setSearchCompanyTerm(e.target.value);
   };
 
-  const handleVariableSelect = (variable) => {
-    setSelectedCompany(variable.company_id);
+  const handleVariableSelect = (categoria) => {
+    setSelectedCompany(categoria.company_id);
   };
 
   const handleCloseErrorAlert = () => {
@@ -147,7 +153,7 @@ const Especie = () => {
     setIsDeleteModalOpen(false);
     setSelectedCategory(null);
     await CategoryServices.deleteCategory(selectedCategory.id);
-    setMessageAlert("Categoria eliminada exitosamente");
+    setMessageAlert("Categoría eliminada exitosamente");
     showErrorAlertSuccess("eliminado");
     fetchCategory();
   };
@@ -196,7 +202,7 @@ const Especie = () => {
   };
 
   const handleEditCategory = (category) => {
-    navigate('../editarCategoria', { state: { categoryData: category, mode: 'edit' } });
+    navigate(`../editarCategoria/${category.id}`);
   };
 
 
@@ -216,8 +222,8 @@ const Especie = () => {
           <span>/</span>
           <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
           <span className="text-black font-bold">  </span>
-          {selectedCompanyUniversal && (
-            <span>{companyList.find(company => company.id === selectedCompanyUniversal)?.name}</span>
+          {selectedCompany && (
+            <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
           )}
         </div>
       </div>
@@ -225,7 +231,7 @@ const Especie = () => {
         {/* Input de búsqueda */}
         <input
           type="text"
-          placeholder="Buscar variable"
+          placeholder="Buscar Categoría"
           className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
