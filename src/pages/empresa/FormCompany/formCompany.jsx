@@ -295,9 +295,10 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
             name="nit"
             placeholder="Documento"
             value={formData.nit}
+            disabled={mode === 'view'}
             onChange={handleChange}
             onBlur={handleDocumentBlur}
-            disabled
+          
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />

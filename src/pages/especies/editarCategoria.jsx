@@ -5,9 +5,10 @@ import CategoryService from '../../services/CategoryService';
 import UploadToS3 from '../../config/UploadToS3';
 import CompanyService from '../../services/CompanyService';
 
-const EditarCategorias = ({ showErrorAlert }) => {
+const EditarCategorias = () => {
+
     const navigate = useNavigate();
-    const { categoryId } = useParams();
+    const { id } = useParams();
     const [name, setName] = useState('');
     const [image, setImage] = useState(null);
     const [stages, setStages] = useState([]);
@@ -16,11 +17,18 @@ const EditarCategorias = ({ showErrorAlert }) => {
     const [companies, setCompanies] = useState([]);
     const [showAlertError, setShowAlertError] = useState(false);
     const [messageAlert, setMessageAlert] = useState("");
+    const [formData, setFormData] = useState({
+        name: '',
+        image: null,
+        company_id: '',
+        stage: [],
+        subcategory: [],
+    });
 
     useEffect(() => {
         const fetchCategory = async () => {
             try {
-                const categoryData = await CategoryService.getCategoryById(categoryId);
+                const categoryData = await CategoryService.getCategoryById(id);
                 setName(categoryData.name);
                 setImage(categoryData.image);
                 setCompanyId(categoryData.company_id);
@@ -41,8 +49,8 @@ const EditarCategorias = ({ showErrorAlert }) => {
         };
 
         fetchCompanies();
-        if (categoryId) fetchCategory();
-    }, [categoryId]);
+        if (id) fetchCategory();
+    }, [id]);
 
     const handleImageUpload = (event) => {
         const file = event.target.files[0];
@@ -84,7 +92,8 @@ const EditarCategorias = ({ showErrorAlert }) => {
 
             const parsedCompanyId = parseInt(companyId, 10);
             if (isNaN(parsedCompanyId)) {
-                showErrorAlert("El ID de la empresa debe ser un número válido.");
+                setShowAlertError(true);
+                setMessageAlert("El ID de la empresa debe ser un número válido.");
                 return;
             }
 
@@ -92,30 +101,31 @@ const EditarCategorias = ({ showErrorAlert }) => {
                 name,
                 image: imageUrl,
                 company_id: parsedCompanyId,
-                stages: stages.map((stages) => ({
-                    id: stages.id,
-                    name: stages.name,
-                    description: stages.description,
+                stages: stages.map((stage) => ({
+                    id: stage.id,
+                    name: stage.name,
+                    description: stage.description,
                     company_id: parsedCompanyId,
                 })),
-                subcategories: subcategories.map((subcategories) => ({
-                    id: subcategories.id,
-                    name: subcategories.name,
+                subcategories: subcategories.map((subcategory) => ({
+                    id: subcategory.id,
+                    name: subcategory.name,
                     company_id: parsedCompanyId,
                 })),
             };
 
-            await CategoryService.updateCategory(categoryId, formDataToSubmit);
-            console.log("Categoría editada exitosamente");
+            await CategoryService.updateCategory(id, formDataToSubmit);
             navigate('../especies');
         } catch (error) {
             console.error("Error:", error);
-            showErrorAlert("Hubo un error al editar la categoría");
+            setShowAlertError(true);
+            setMessageAlert("Hubo un error al editar la categoría");
         }
     };
 
     return (
         <form onSubmit={handleSubmit} className="p-6">
+            {showAlertError && <div className="alert alert-error">{messageAlert}</div>}
             <div className="mb-6">
                 <div
                     className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50"
@@ -172,9 +182,9 @@ const EditarCategorias = ({ showErrorAlert }) => {
                         className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                     >
                         <option value="" disabled>Seleccione una opción</option>
-                        {companies.map((type) => (
-                            <option key={type.id} value={type.id}>
-                                {type.name}
+                        {companies.map((company) => (
+                            <option key={company.id} value={company.id}>
+                                {company.name}
                             </option>
                         ))}
                     </select>
@@ -193,7 +203,7 @@ const EditarCategorias = ({ showErrorAlert }) => {
                         Añadir subcategoría
                     </button>
                     <div className="space-y-2">
-                        {subcategories.map((subcategories, index) => (
+                        {subcategories.map((subcategory, index) => (
                             <div key={index} className="p-2 border border-gray-200 rounded-md">
                                 <div className="flex justify-between items-center mb-2">
                                     <span className="font-medium">Subcategoría {index + 1}</span>
@@ -207,10 +217,11 @@ const EditarCategorias = ({ showErrorAlert }) => {
                                 </div>
                                 <input
                                     type="text"
-                                    value={subcategories.name}
+                                    value={subcategory.name}
                                     onChange={(e) => handleSubcategoryChange(index, e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                     placeholder="Nombre de subcategoría"
+                                    required
                                 />
                             </div>
                         ))}
@@ -228,7 +239,7 @@ const EditarCategorias = ({ showErrorAlert }) => {
                         Añadir etapa
                     </button>
                     <div className="space-y-2">
-                        {stages.map((stages, index) => (
+                        {stages.map((stage, index) => (
                             <div key={index} className="p-2 border border-gray-200 rounded-md">
                                 <div className="flex justify-between items-center mb-2">
                                     <span className="font-medium">Etapa {index + 1}</span>
@@ -242,16 +253,17 @@ const EditarCategorias = ({ showErrorAlert }) => {
                                 </div>
                                 <input
                                     type="text"
-                                    value={stages.name}
+                                    value={stage.name}
                                     onChange={(e) => handleStageChange(index, 'name', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                                    placeholder="Nombre de etapa"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                    placeholder="Nombre de la etapa"
+                                    required
                                 />
                                 <textarea
-                                    value={stages.description}
+                                    value={stage.description}
                                     onChange={(e) => handleStageChange(index, 'description', e.target.value)}
-                                    className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                                    placeholder="Descripción de la etapa"
+                                    className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md"
+                                    placeholder="Descripción"
                                 />
                             </div>
                         ))}
@@ -259,22 +271,21 @@ const EditarCategorias = ({ showErrorAlert }) => {
                 </div>
             </div>
 
-            <div className="flex justify-end space-x-4">
+            <div className="mt-6 flex justify-between">
                 <button
                     type="button"
                     onClick={handleCancel}
-                    className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                    className="px-4 py-2 border border-gray-300 rounded-md bg-gray-50 hover:bg-gray-100"
                 >
                     Cancelar
                 </button>
                 <button
                     type="submit"
-                    className="px-4 py-2 bg-[#168C0DFF] text-white hover:bg-[#146A0D] rounded-md"
+                    className="px-4 py-2 border border-transparent rounded-md text-white bg-green-600 hover:bg-green-700"
                 >
-                    Crear Categoría
+                    Guardar cambios
                 </button>
             </div>
-
         </form>
     );
 };

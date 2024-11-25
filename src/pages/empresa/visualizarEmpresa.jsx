@@ -4,7 +4,8 @@ import CompanyService from "../../services/CompanyService";
 import TypeDocumentsService from '../../services/fetchTypes';
 import GenericModal from '../../components/genericModal';
 import FormCompany from './FormCompany/formCompany';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; 
+import { IoArrowBack } from 'react-icons/io5';
 
 import { Package2, Factory, Variable, Activity, Cpu, Users } from 'lucide-react';
 
@@ -12,6 +13,8 @@ import { Package2, Factory, Variable, Activity, Cpu, Users } from 'lucide-react'
 const VisualizarEmpresa = ({ }) => {
 
   const { companyId } = useParams();
+  const navigate = useNavigate(); 
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("edit");
   const [newCompany, setNewCompany] = useState({});
@@ -101,14 +104,24 @@ const VisualizarEmpresa = ({ }) => {
       console.error('Error fetching companies:', error);
     }
   };
-
+ const handleGoBack = () => {
+    navigate("../empresa");  // Redirige a la vista de 'empresa'
+  };
 
 
   return (
     <div className="flex">
       <div className="flex-1 p-6">
         <div className="max-w-7xl mx-auto">
+        <button 
+          className="btn-volver  bottom-5 right-5  text-gray-300  hover:text-gray-500"
+          onClick={handleGoBack}
+          title="Volver"  // El texto que aparece al pasar el cursor
+        >
+          <IoArrowBack size={24} />  {/* El ícono de flecha */}
+        </button>
           <div className="flex justify-between items-center mb-8">
+            
             <h1 className="text-2xl font-bold">{formData.name} </h1>
             <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => handleOpenModal()}>
               Editar empresa
@@ -156,6 +169,8 @@ const VisualizarEmpresa = ({ }) => {
               </div>
             </div>
           </div>
+        
+          
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="border p-4 rounded-md  shadow-lg ">
