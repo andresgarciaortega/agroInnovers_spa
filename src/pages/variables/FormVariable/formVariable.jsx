@@ -13,7 +13,6 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
   const [variableTypes, setVariableTypes] = useState([]);
   const [registerTypes, setRegisterTypes] = useState([]);
   const [companies, setCompanies] = useState([]);
-  const { selectedCompanyUniversal } = useCompanyContext();
 
   const [isDashboard, setIsDashboard] = useState(false);
   const [isIncrement, setIsIncrement] = useState(false);
@@ -45,9 +44,8 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
   useEffect(() => {
     const fetchVariableTypes = async () => {
       try {
-        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
-        const typeVariables = await VariableTypeService.getAllTypeVariable(companyId);
+        const typeVariables = await VariableTypeService.getAllTypeVariable();
         setVariableTypes(typeVariables);
       } catch (error) {
         console.error('Error al obtener los tipos de variable:', error);
