@@ -374,7 +374,7 @@ const handleConfirmDelete = async () => {
       )}
 
       {showErrorAlert && (
-        <ErrorAlert
+        <SuccessAlert
           message={messageAlert}
           onCancel={handleCloseAlert}
         />

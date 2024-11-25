@@ -322,7 +322,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             onChange={handleChange}
             onBlur={handleDocumentBlur}
 
-            disabled={mode === 'view'}
+            disabled={mode === 'edit'}
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
@@ -334,7 +334,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             name="company"
             value={formData.company} 
             onChange={handleChange}
-            disabled
+            disabled={mode === 'edit'}
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           >
@@ -353,7 +353,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             name="roles"
             value={formData.roles}
             onChange={handleChange}
-            disabled={mode === 'view'}
+            disabled={mode === 'edit'}
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           >
