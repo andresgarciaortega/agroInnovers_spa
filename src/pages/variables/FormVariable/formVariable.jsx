@@ -5,6 +5,7 @@ import VariablesService from '../../../services/variableService';
 import VariableTypeService from '../../../services/VariableType';
 import RegistrerTypeServices from '../../../services/RegistrerType';
 import CompanyService from '../../../services/CompanyService';
+import { useCompanyContext } from '../../../context/CompanyContext';
 
 const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mode, closeModal, companyId }) => {
   const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
@@ -12,6 +13,7 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
   const [variableTypes, setVariableTypes] = useState([]);
   const [registerTypes, setRegisterTypes] = useState([]);
   const [companies, setCompanies] = useState([]);
+  const { selectedCompanyUniversal } = useCompanyContext();
 
   const [isDashboard, setIsDashboard] = useState(false);
   const [isIncrement, setIsIncrement] = useState(false);
@@ -43,7 +45,9 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
   useEffect(() => {
     const fetchVariableTypes = async () => {
       try {
-        const typeVariables = await VariableTypeService.getAllTypeVariable();
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
+        const typeVariables = await VariableTypeService.getAllTypeVariable(companyId);
         setVariableTypes(typeVariables);
       } catch (error) {
         console.error('Error al obtener los tipos de variable:', error);
