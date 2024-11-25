@@ -196,6 +196,9 @@ const Variable = () => {
   };
 
   const updateService = async () => {
+    setShowErrorAlertTable(false);
+    setVariableList([]);
+
     try {
 
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
@@ -204,7 +207,6 @@ const Variable = () => {
         setVariableList([]);
         return;
       }
-
 
       const data = await VariableService.getAllVariable(companyId);
 

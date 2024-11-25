@@ -37,6 +37,7 @@ const TipoVariable = () => {
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorVariableAlert, setShowErrorVariableAlert] = useState(false);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
 
@@ -216,17 +217,17 @@ const handleConfirmDelete = async () => {
   };
 
   const showErrorAlertSuccess = (message) => {
-    setShowErrorAlert(true)
+    setShowSuccessAlert(true)
     setMessageAlert(`Tipo de variable ${message} exitosamente`);
 
     setTimeout(() => {
-      setShowErrorAlert(false)
+      setShowSuccessAlert(false)
     }, 2500);
   }
   const showErrorAlert2 = () => {
-    setShowErrorAlert(true);
+    setShowSuccessAlert(true);
     setTimeout(() => {
-      setShowErrorAlert(false);
+      setShowSuccessAlert(false);
     }, 2500);
   };
 
@@ -374,6 +375,14 @@ const handleConfirmDelete = async () => {
       )}
 
       {showErrorAlert && (
+        <ErrorAlert
+          message={messageAlert}
+          onCancel={handleCloseAlert}
+        />
+      )}
+      
+
+      {showSuccessAlert && (
         <SuccessAlert
           message={messageAlert}
           onCancel={handleCloseAlert}
