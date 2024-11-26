@@ -84,6 +84,7 @@ const Especie = () => {
 
       try {
         const data = await CategoryServices.getAllCategory(companyId);
+        console.log("Categorías recibidas:", data);
         if (data.statusCode === 404) {
           setCategoryList([]);
         } else {
