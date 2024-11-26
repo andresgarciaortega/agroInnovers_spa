@@ -26,7 +26,7 @@ const ErrorAlert = ({ message, onCancel, onConfirm, confirmText = 'Aceptar' }) =
         </div>
       </div>
     </div>
-  );
+  ); 
 };
 
 export default ErrorAlert;

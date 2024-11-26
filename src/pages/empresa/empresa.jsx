@@ -19,7 +19,7 @@ const Empresa = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
@@ -185,7 +185,7 @@ if (data.message) {
     <div className="table-container">
     {isLoading && <LoadingView />}
       {/* Barra de búsqueda */}
-      <div className="absolute transform -translate-y-20 right-30 w-1/2">
+      <div className="absolute transform -translate-y-20 right-30 w-1/2 buscadorModulo">
         <IoSearch className="absolute left-3 top-3 text-gray-500" />
         <input
           type="text"
@@ -196,8 +196,9 @@ if (data.message) {
         />
       </div>
       <div className="bg-white rounded-lg shadow">
-        <div className="flex justify-between items-center p-6 border-b">
+        <div className="flex justify-between items-center p-6 border-b seccionNombreBtn">
           <h2 className="text-xl font-semibold">Empresas</h2>
+          <div className="divisor"></div>
           <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => handleOpenModal()}>
             <FiPlusCircle size={20} className="mr-2" />
             Añadir empresa

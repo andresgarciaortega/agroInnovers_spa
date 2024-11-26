@@ -5,6 +5,7 @@ import VariablesService from '../../../services/variableService';
 import VariableTypeService from '../../../services/VariableType';
 import RegistrerTypeServices from '../../../services/RegistrerType';
 import CompanyService from '../../../services/CompanyService';
+import { useCompanyContext } from '../../../context/CompanyContext';
 
 const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mode, closeModal, companyId }) => {
   const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
@@ -43,6 +44,7 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
   useEffect(() => {
     const fetchVariableTypes = async () => {
       try {
+
         const typeVariables = await VariableTypeService.getAllTypeVariable();
         setVariableTypes(typeVariables);
       } catch (error) {

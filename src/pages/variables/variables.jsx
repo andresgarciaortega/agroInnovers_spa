@@ -28,7 +28,7 @@ const Variable = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedVariable, setSelectedVariable] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
@@ -196,6 +196,9 @@ const Variable = () => {
   };
 
   const updateService = async () => {
+    setShowErrorAlertTable(false);
+    setVariableList([]);
+
     try {
 
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
@@ -204,7 +207,6 @@ const Variable = () => {
         setVariableList([]);
         return;
       }
-
 
       const data = await VariableService.getAllVariable(companyId);
 

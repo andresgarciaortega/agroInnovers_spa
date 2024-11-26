@@ -32,11 +32,12 @@ const TipoVariable = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedTypeVariable, setSelectedTypeVariable] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorVariableAlert, setShowErrorVariableAlert] = useState(false);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
 
@@ -64,7 +65,7 @@ const TipoVariable = () => {
           setNameCompany(selectedCompanyUniversal.label)
         }
 
-        const data = await VariableType.getAllTypeVariable(companyId);
+        const data = await VariableType.getAllTypeVariable();
 
         // Verifica si la respuesta es válida y si contiene datos
         if (data.statusCode === 404) {
@@ -207,7 +208,7 @@ const handleConfirmDelete = async () => {
     }
 
     try {
-      const data = await VariableType.getAllTypeVariable(companyId);
+      const data = await VariableType.getAllTypeVariable();
       setTypeVariablesList(data); // Actualiza typevariableList con los datos más recientes
       setShowErrorAlertTable(false);
     } catch (error) {
@@ -216,17 +217,17 @@ const handleConfirmDelete = async () => {
   };
 
   const showErrorAlertSuccess = (message) => {
-    setShowErrorAlert(true)
+    setShowSuccessAlert(true)
     setMessageAlert(`Tipo de variable ${message} exitosamente`);
 
     setTimeout(() => {
-      setShowErrorAlert(false)
+      setShowSuccessAlert(false)
     }, 2500);
   }
   const showErrorAlert2 = () => {
-    setShowErrorAlert(true);
+    setShowSuccessAlert(true);
     setTimeout(() => {
-      setShowErrorAlert(false);
+      setShowSuccessAlert(false);
     }, 2500);
   };
 
@@ -236,7 +237,7 @@ const handleConfirmDelete = async () => {
 
       <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
         <div className="relative w-full">
-          <CompanySelector />
+          {/* <CompanySelector /> */}
         </div>
 
         <br />
@@ -374,6 +375,14 @@ const handleConfirmDelete = async () => {
       )}
 
       {showErrorAlert && (
+        <ErrorAlert
+          message={messageAlert}
+          onCancel={handleCloseAlert}
+        />
+      )}
+      
+
+      {showSuccessAlert && (
         <SuccessAlert
           message={messageAlert}
           onCancel={handleCloseAlert}
