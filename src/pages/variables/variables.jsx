@@ -110,7 +110,7 @@ const Variable = () => {
     (variable.name && variable.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (variable.unit_of_measurement && variable.unit_of_measurement.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (variable.type_variable_id && variable.type_variable_id.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (variable.type_register_id && variable.location.toLowerCase().includes(searchTerm.toLowerCase()))
+    (variable.type_register_id && variable.type_register_id.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
 
@@ -304,13 +304,13 @@ const Variable = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="view-button mr-5" onClick={() => handleOpenModal(variable, 'view')}>
+                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(variable, 'view')}>
                       <Eye size={18} />
                     </button>
-                    <button className="edit-button mr-5" onClick={() => handleOpenModal(variable, 'edit')}>
+                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(variable, 'edit')}>
                       <Edit size={18} />
                     </button>
-                    <button onClick={() => handleDelete(variable)} className="delete-button">
+                    <button onClick={() => handleDelete(variable)} className=" text-[#168C0DFF] px-2 py-2 rounded">
                       <Trash size={18} />
                     </button>
                   </td>

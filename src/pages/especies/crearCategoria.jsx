@@ -6,7 +6,7 @@ import UploadToS3 from '../../config/UploadToS3';
 import CompanyService from '../../services/CompanyService';
 import { IoCloudUploadOutline } from "react-icons/io5";
 
-const CrearCategorias = ({ showErrorAlert }) => {
+const CrearCategorias = ({ }) => {
     const navigate = useNavigate();
     const [name, setName] = useState('');
     const [image, setImage] = useState(null);
@@ -14,12 +14,12 @@ const CrearCategorias = ({ showErrorAlert }) => {
     const [companyId, setCompanyId] = useState('');
     const [subcategory, setSubcategory] = useState([]);
     const [companies, setCompanies] = useState([]);
-    const [showAlertError, setShowAlertError] = useState(false);
+    const [ setShowErrorAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("");
     const [formData, setFormData] = useState({
         name: '',
         image: null,
-        company_id: '',
+        company_id: null,
         stage: [],
         subcategory: [],
     });
@@ -51,28 +51,10 @@ const CrearCategorias = ({ showErrorAlert }) => {
         }
     };
 
-    const validateForm = () => {
-        if (!name) {
-            showErrorAlert("El nombre de la categoría es obligatorio.");
-            return false;
-        }
-        if (!companyId) {
-            showErrorAlert("La empresa es obligatoria.");
-            return false;
-        }
-        if (stage.length === 0) {
-            showErrorAlert("Debe agregar al menos una etapa.");
-            return false;
-        }
-        if (subcategory.length === 0) {
-            showErrorAlert("Debe agregar al menos una subcategoría.");
-            return false;
-        }
-        return true;
-    };
 
 
     const handleSubmit = async (event) => {
+    
         event.preventDefault();
         if (!validateForm()) return;
 
@@ -103,8 +85,10 @@ const CrearCategorias = ({ showErrorAlert }) => {
                     company_id: parsedCompanyId,
                 })),
             };
+            console.log('datos', formDataToSubmit)
 
             const createdCategory = await CategoryService.createCategory(formDataToSubmit);
+            console.log('crear categoría',createdCategory)
             console.log("Categoría creada exitosamente");
             navigate('../especies');
         } catch (error) {
@@ -140,15 +124,48 @@ const CrearCategorias = ({ showErrorAlert }) => {
         updatedsubcategory[index].name = value;
         setSubcategory(updatedsubcategory);
     };
-    const handleErrorAlert = (message) => {
-        // Lógica para mostrar el mensaje de error, por ejemplo:
+  
+
+ 
+    const showErrorAlert = (message) => {
         console.error(message);
+    };
+
+    const handleErrorAlert = (message) => {
+        setMessageAlert(message);
+        setShowErrorAlert(true);
+    
+        setTimeout(() => {
+            setShowErrorAlert(false);
+            setMessageAlert('');
+        }, 3000);
+    };
+    const validateForm = () => {
+        if (!name) {
+            handleErrorAlert("El nombre de la categoría es obligatorio.");
+            return false;
+        }
+        if (!companyId) {
+            handleErrorAlert("La empresa es obligatoria.");
+            return false;
+        }
+        if (stage.length === 0) {
+            handleErrorAlert("Debe agregar al menos una etapa.");
+            return false;
+        }
+        if (subcategory.length === 0) {
+            handleErrorAlert("Debe agregar al menos una subcategoría.");
+            return false;
+        }
+        return true;
     };
 
     <CrearCategorias showErrorAlert={handleErrorAlert} />
     const handleCancel = () => {
         navigate('../especies');
     };
+    
+    
 
     return (
         <form onSubmit={handleSubmit} className="p-6">
@@ -310,11 +327,18 @@ const CrearCategorias = ({ showErrorAlert }) => {
                 </button>
                 <button
                     type="submit"
+                    onClick={handleSubmit}
                     className="px-4 py-2 bg-[#168C0DFF] text-white hover:bg-[#146A0D] rounded-md"
                 >
                     Crear Categoría
                 </button>
             </div>
+            {showErrorAlert && (
+    <div className="alert alert-danger p-4 rounded-md text-red-600">
+        {messageAlert}
+    </div>
+)}
+
 
         </form>
     );

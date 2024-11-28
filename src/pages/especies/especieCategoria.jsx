@@ -145,19 +145,49 @@ const Especie = () => {
     }
   };
 
-  const handleDelete = (category) => {
-    setSelectedCategory(category);
-    setIsDeleteModalOpen(true);
-  };
+  
 
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
     setSelectedCategory(null);
-    await CategoryServices.deleteCategory(selectedCategory.id);
-    setMessageAlert("Categoría eliminada exitosamente");
-    showErrorAlertSuccess("eliminado");
-    fetchCategory();
+  
+    try {
+      // Intentamos eliminar la categoría
+      await CategoryServices.deleteCategory(selectedCategory.id);
+  
+      // Si no hubo errores, mostramos el mensaje de éxito
+      setMessageAlert("Categoría eliminada exitosamente");
+      showErrorAlertSuccess("eliminado"); // Solo pasamos "eliminado" al mensaje de éxito
+  
+      // Actualizamos la lista de categorías
+      fetchCategory();
+    } catch (error) {
+      // Verificamos si el error tiene un código de estado 409 (conflicto)
+      if (error.response && error.response.status === 409) {
+        // Capturamos el mensaje específico
+        setMessageAlert("Hay subcategorías y etapas asociadas, no se puede eliminar.");
+        showErrorAlertError("No se pudo eliminar la categoría"); // Usamos un mensaje de error
+      } else {
+        // Si ocurre otro tipo de error, mostramos un mensaje genérico
+        setMessageAlert("Hubo un error inesperado al intentar eliminar la categoría");
+        showErrorAlertError("La categoría está asociada a etapas o subcategorías y no puede ser eliminada"
+); 
+      }
+    }
   };
+  
+  const showErrorAlertSuccess = (message) => {
+    setShowErrorAlert(true);
+    setMessageAlert(`Categoría ${message} exitosamente`); // Agregamos "exitosamente" solo cuando es un éxito
+    setTimeout(() => setShowErrorAlert(false), 2500);
+  };
+  
+  const showErrorAlertError = (message) => {
+    setShowErrorAlert(true);
+    setMessageAlert(message); // Solo mostramos el mensaje sin "exitosamente"
+    setTimeout(() => setShowErrorAlert(false), 2500);
+  };
+  
 
   const handleOpenModal = (category = null, mode = 'create') => {
     setSelectedCategory(category);
@@ -169,14 +199,6 @@ const Especie = () => {
       subcategories: ''
     });
     setIsModalOpen(true);
-  };
-
-
-
-  const showErrorAlertSuccess = (message) => {
-    setShowErrorAlert(true);
-    setMessageAlert(`Categoría ${message} exitosamente`);
-    setTimeout(() => setShowErrorAlert(false), 2500);
   };
 
   const handleCloseAlert = () => {
