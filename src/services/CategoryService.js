@@ -6,7 +6,7 @@ const CategoryServices = {
     // LISTAR TODAS LAS CATEGORÍAS
     async getAllCategory(idcompany = 0) {
         try {
-            const response = await api.get(`/category-species?companyId=${idcompany}`);
+            const response = await api.get(`/category-species?page=1&limit=100&companyId=${idcompany}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener las categorías:', error);
@@ -18,7 +18,7 @@ const CategoryServices = {
     async getCategoryById(id) {
         try {
             const response = await api.get(`/category-species/${id}`);
-            return response.data;
+            return response;
         } catch (error) {
             console.error('Error al obtener la categoría:', error);
             throw error;
@@ -47,6 +47,8 @@ const CategoryServices = {
         }
     },
 
+    
+
     // ELIMINAR UNA CATEGORÍA
     async deleteCategory(id) {
         try {
@@ -57,6 +59,26 @@ const CategoryServices = {
             throw error;
         }
     },
+
+    async deleteSubcategory(id) {
+        try {
+            const response = await api.delete(`/category-species/subcategory/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error al eliminar la subcategoria:', error);
+            throw error;
+        }
+    },
+    async deleteStages(id) {
+        try {
+            const response = await api.delete(`/category-species/stage/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error al eliminar la etapa:', error);
+            throw error;
+        }
+    },
+    
 };
 
 export default CategoryServices;

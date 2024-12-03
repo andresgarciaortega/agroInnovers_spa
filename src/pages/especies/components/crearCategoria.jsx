@@ -1,45 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { X, Upload, Plus } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
-import CategoryService from '../../services/CategoryService';
-import UploadToS3 from '../../config/UploadToS3';
-import CompanyService from '../../services/CompanyService';
+import { useNavigate } from 'react-router-dom';
+import CategoryService from '../../../services/CategoryService';
+import SubCategoryService from '../../../services/SubcategoryService';
+import StagesService from '../../../services/StagesService';
+import UploadToS3 from '../../../config/UploadToS3';
+import CompanyService from '../../../services/CompanyService';
+import { IoCloudUploadOutline } from "react-icons/io5";
 
-const EditarCategorias = () => {
-
+const CrearCategorias = ({ }) => {
     const navigate = useNavigate();
-    const { id } = useParams();
     const [name, setName] = useState('');
     const [image, setImage] = useState(null);
-    const [stages, setStages] = useState([]);
+    const [stage, setStage] = useState([]);
     const [companyId, setCompanyId] = useState('');
-    const [subcategories, setSubcategories] = useState([]);
+    const [subcategory, setSubcategory] = useState([]);
     const [companies, setCompanies] = useState([]);
-    const [showAlertError, setShowAlertError] = useState(false);
+    const [setShowErrorAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("");
     const [formData, setFormData] = useState({
         name: '',
         image: null,
-        company_id: '',
+        company_id: null,
         stage: [],
         subcategory: [],
     });
 
     useEffect(() => {
-        const fetchCategory = async () => {
-            try {
-                const categoryData = await CategoryService.getCategoryById(id);
-                setName(categoryData.name);
-                setImage(categoryData.image);
-                setCompanyId(categoryData.company_id);
-                setStages(categoryData.stages || []);
-                setSubcategories(categoryData.subcategories || []);
-            } catch (error) {
-                console.error('Error fetching category data:', error);
-            }
-        };
-
-        const fetchCompanies = async () => {
+        const fetchCompany = async () => {
             try {
                 const data = await CompanyService.getAllCompany();
                 setCompanies(data);
@@ -47,98 +35,188 @@ const EditarCategorias = () => {
                 console.error('Error fetching companies:', error);
             }
         };
-
-        fetchCompanies();
-        if (id) fetchCategory();
-    }, [id]);
+        fetchCompany();
+    }, []);
 
     const handleImageUpload = (event) => {
         const file = event.target.files[0];
         if (file) {
+            setFormData({
+                ...formData,
+                image: file,
+            });
             const reader = new FileReader();
-            reader.onloadend = () => setImage(reader.result);
+            reader.onloadend = () => {
+                setImage(reader.result);
+            };
             reader.readAsDataURL(file);
         }
     };
 
-    const handleAddStage = () => setStages([...stages, { id: null, name: '', description: '' }]);
-    const handleRemoveStage = (index) => setStages(stages.filter((_, i) => i !== index));
-
-    const handleAddSubcategory = () => setSubcategories([...subcategories, { id: null, name: '' }]);
-    const handleRemoveSubcategory = (index) => setSubcategories(subcategories.filter((_, i) => i !== index));
-
-    const handleStageChange = (index, field, value) => {
-        const updatedStages = [...stages];
-        updatedStages[index][field] = value;
-        setStages(updatedStages);
-    };
-
-    const handleSubcategoryChange = (index, value) => {
-        const updatedSubcategories = [...subcategories];
-        updatedSubcategories[index].name = value;
-        setSubcategories(updatedSubcategories);
-    };
-
-    const handleCancel = () => navigate('../especies');
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        
+        if (!validateForm()) return;
+    
         try {
-            let imageUrl = image;
-            if (image && typeof image === 'object') {
-                imageUrl = await UploadToS3(image);
+            let imageUrl = '';
+            if (formData.image) {
+                imageUrl = await UploadToS3(formData.image);
             }
-
+    
             const parsedCompanyId = parseInt(companyId, 10);
             if (isNaN(parsedCompanyId)) {
-                setShowAlertError(true);
-                setMessageAlert("El ID de la empresa debe ser un número válido.");
+                showErrorAlert("El ID de la empresa debe ser un número válido.");
                 return;
             }
-
-            const formDataToSubmit = {
-                name,
-                image: imageUrl,
+    
+            // Create category first
+            const categoryData = {
+                name: String(name).trim(), 
+                image: String(imageUrl || ''), 
                 company_id: parsedCompanyId,
-                stages: stages.map((stage) => ({
-                    id: stage.id,
-                    name: stage.name,
-                    description: stage.description,
-                    company_id: parsedCompanyId,
-                })),
-                subcategories: subcategories.map((subcategory) => ({
-                    id: subcategory.id,
-                    name: subcategory.name,
-                    company_id: parsedCompanyId,
-                })),
             };
-
-            await CategoryService.updateCategory(id, formDataToSubmit);
+    
+            const createdCategory = await CategoryService.createCategory(categoryData);
+            const createdCategoryId = createdCategory.id;
+    
+            // Create stages with category ID
+            const stageResponses = await Promise.all(
+                stage.map(stageData =>
+                    StagesService.createStages({
+                        ...stageData,
+                        company_id: parsedCompanyId,
+                        category_species_id: createdCategoryId,
+                    })
+                )
+            );
+    
+            // Create subcategories with category ID
+            const subcategoryResponses = await Promise.all(
+                subcategory.map(subcategoryData =>
+                    SubCategoryService.createSubcategory({
+                        ...subcategoryData,
+                        company_id: parsedCompanyId,
+                        category_species_id: createdCategoryId,
+                    })
+                )
+            );
+    
+            // Prepare update data
+            const updateData = {
+                subcategories: subcategoryResponses.map(sc => sc.id),
+                stages: stageResponses.map(s => s.id)
+            };
+    
+            // Ensure we have actual IDs
+            if (updateData.subcategories.length > 0 || updateData.stages.length > 0) {
+                const updatedCategory = await CategoryService.updateCategory(createdCategoryId, updateData);
+                console.log('Categoría creada y actualizada:', updatedCategory);
+            }
+    
             navigate('../especies');
         } catch (error) {
-            console.error("Error:", error);
-            setShowAlertError(true);
-            setMessageAlert("Hubo un error al editar la categoría");
+            console.error("Detailed Error:", error.response || error);
+            showErrorAlert(`Hubo un error al crear la categoría: ${error.message}`);
         }
     };
 
+    
+    
+    
+    
+
+
+    const handleAddStage = () => {
+        setStage([...stage, { name: '', description: '' }]);
+    };
+
+    const handleRemoveStage = (index) => {
+        setStage(stage.filter((_, i) => i !== index));
+    };
+
+    const handleAddSubcategory = () => {
+        setSubcategory([...subcategory, { name: '' }]);
+    };
+
+    const handleRemoveSubcategory = (index) => {
+        setSubcategory(subcategory.filter((_, i) => i !== index));
+    };
+
+    const handleStageChange = (index, field, value) => {
+        const updatedstage = [...stage];
+        updatedstage[index][field] = value;
+        setStage(updatedstage);
+    };
+
+    const handleSubcategoryChange = (index, value) => {
+        const updatedsubcategory = [...subcategory];
+        updatedsubcategory[index].name = value;
+        setSubcategory(updatedsubcategory);
+    };
+
+
+
+    const showErrorAlert = (message) => {
+        console.error(message);
+    };
+
+    const handleErrorAlert = (message) => {
+        setMessageAlert(message);
+        setShowErrorAlert(true);
+
+        setTimeout(() => {
+            setShowErrorAlert(false);
+            setMessageAlert('');
+        }, 3000);
+    };
+    const validateForm = () => {
+        if (!name) {
+            handleErrorAlert("El nombre de la categoría es obligatorio.");
+            return false;
+        }
+        if (!companyId) {
+            handleErrorAlert("La empresa es obligatoria.");
+            return false;
+        }
+        if (stage.length === 0) {
+            handleErrorAlert("Debe agregar al menos una etapa.");
+            return false;
+        }
+        if (subcategory.length === 0) {
+            handleErrorAlert("Debe agregar al menos una subcategoría.");
+            return false;
+        }
+        return true;
+    };
+
+    <CrearCategorias showErrorAlert={handleErrorAlert} />
+    const handleCancel = () => {
+        navigate('../especies');
+    };
+
+
+
     return (
         <form onSubmit={handleSubmit} className="p-6">
-            {showAlertError && <div className="alert alert-error">{messageAlert}</div>}
             <div className="mb-6">
-                <div
-                    className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50"
-                    onClick={() => document.getElementById('image-upload').click()}
-                >
-                    {image && typeof image === 'string' ? (
-                        <img src={image} alt="Category" className="mx-auto h-32 object-contain" />
-                    ) : (
-                        <div className="text-gray-500">
-                            <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                            <p className="mt-1">Subir imagen</p>
-                        </div>
-                    )}
+
+                <div className="mb- py-">
+                    <label className="block text-sm font-medium text-gray-700 mb-1" >Adjuntar Logo</label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50"
+                        onClick={() => document.getElementById('image-upload').click()}>
+                        {image && typeof image === 'string' ? (
+                            <img src={image} alt="Category" className="mx-auto h-32 object-contain" />
+                        ) : (
+                            <>
+                                <IoCloudUploadOutline className="mx-auto h-12 w-12 text-gray-400" />
+                                <p className="mt-1 text-sm text-gray-600">
+                                    Haga <span className="text-cyan-500 underline">clic aquí</span> para cargar o arrastre y suelte
+                                </p>
+                                <p className="text-xs text-gray-500">Archivos máximo 10 mb</p>
+                            </>
+                        )}
+                    </div>
                 </div>
 
                 <input
@@ -182,9 +260,9 @@ const EditarCategorias = () => {
                         className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                     >
                         <option value="" disabled>Seleccione una opción</option>
-                        {companies.map((company) => (
-                            <option key={company.id} value={company.id}>
-                                {company.name}
+                        {companies.map((type) => (
+                            <option key={type.id} value={type.id}>
+                                {type.name}
                             </option>
                         ))}
                     </select>
@@ -203,7 +281,7 @@ const EditarCategorias = () => {
                         Añadir subcategoría
                     </button>
                     <div className="space-y-2">
-                        {subcategories.map((subcategory, index) => (
+                        {subcategory.map((subcategory, index) => (
                             <div key={index} className="p-2 border border-gray-200 rounded-md">
                                 <div className="flex justify-between items-center mb-2">
                                     <span className="font-medium">Subcategoría {index + 1}</span>
@@ -219,9 +297,8 @@ const EditarCategorias = () => {
                                     type="text"
                                     value={subcategory.name}
                                     onChange={(e) => handleSubcategoryChange(index, e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
                                     placeholder="Nombre de subcategoría"
-                                    required
                                 />
                             </div>
                         ))}
@@ -239,7 +316,7 @@ const EditarCategorias = () => {
                         Añadir etapa
                     </button>
                     <div className="space-y-2">
-                        {stages.map((stage, index) => (
+                        {stage.map((stage, index) => (
                             <div key={index} className="p-2 border border-gray-200 rounded-md">
                                 <div className="flex justify-between items-center mb-2">
                                     <span className="font-medium">Etapa {index + 1}</span>
@@ -255,15 +332,14 @@ const EditarCategorias = () => {
                                     type="text"
                                     value={stage.name}
                                     onChange={(e) => handleStageChange(index, 'name', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                    placeholder="Nombre de la etapa"
-                                    required
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                                    placeholder="Nombre de etapa"
                                 />
                                 <textarea
                                     value={stage.description}
                                     onChange={(e) => handleStageChange(index, 'description', e.target.value)}
-                                    className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md"
-                                    placeholder="Descripción"
+                                    className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                                    placeholder="Descripción de la etapa"
                                 />
                             </div>
                         ))}
@@ -271,23 +347,31 @@ const EditarCategorias = () => {
                 </div>
             </div>
 
-            <div className="mt-6 flex justify-between">
+            <div className="flex justify-end space-x-4 ">
                 <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-4 py-2 border border-gray-300 rounded-md bg-gray-50 hover:bg-gray-100"
+                    className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
                 >
                     Cancelar
                 </button>
                 <button
                     type="submit"
-                    className="px-4 py-2 border border-transparent rounded-md text-white bg-green-600 hover:bg-green-700"
+                    onClick={handleSubmit}
+                    className="px-4 py-2 bg-[#168C0DFF] text-white hover:bg-[#146A0D] rounded-md"
                 >
-                    Guardar cambios
+                    Crear Categoría
                 </button>
             </div>
+            {showErrorAlert && (
+                <div className="alert alert-danger p-4 rounded-md text-red-600">
+                    {messageAlert}
+                </div>
+            )}
+
+
         </form>
     );
 };
 
-export default EditarCategorias;
+export default CrearCategorias;

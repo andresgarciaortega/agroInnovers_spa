@@ -1,58 +1,150 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+
 import { Edit, Trash, Eye, Plus } from 'lucide-react';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { useNavigate } from 'react-router-dom';
-import { IoCloudUploadOutline } from "react-icons/io5";
+import { IoIosWarning } from 'react-icons/io';
 import Delete from '../../components/delete';
+import GenericModal from '../../components/genericModal';
+// import FormEspecie from './FormEspecie/formSpecies';
+import SpeciesService from "../../services/SpeciesService";
+import CompanyService from "../../services/CompanyService";
+import CategoryService from "../../services/CategoryService";
+import SuccessAlert from "../../components/alerts/success";
+import { IoSearch } from "react-icons/io5";
 
-const species = [
-  { id: '01', commonName: 'Carpas', scientificName: 'Cyprinus carpio', category: 'Agua dulce', productionTime: '2021-03-19' },
-  { id: '02', commonName: 'Tilapia', scientificName: 'Oreochromis niloticus', category: 'Agua dulce', productionTime: '2021-04-15' },
-  { id: '03', commonName: 'Trucha', scientificName: 'Oncorhynchus mykiss', category: 'Agua dulce', productionTime: '2021-05-10' },
-  { id: '04', commonName: 'Salmon', scientificName: 'Salmo salar', category: 'Agua dulce', productionTime: '2021-06-01' },
-  { id: '05', commonName: 'Gambusia', scientificName: 'Gambusia affinis', category: 'Agua dulce', productionTime: '2021-07-12' },
-  { id: '06', commonName: 'Bagre', scientificName: 'Ictalurus punctatus', category: 'Agua dulce', productionTime: '2021-08-25' },
-  { id: '07', commonName: 'Perca', scientificName: 'Perca fluviatilis', category: 'Agua dulce', productionTime: '2021-09-30' },
-  { id: '08', commonName: 'Largemouth Bass', scientificName: 'Micropterus salmoides', category: 'Agua dulce', productionTime: '2021-10-20' },
-  { id: '09', commonName: 'Pejerrey', scientificName: 'Odontesthes bonariensis', category: 'Agua dulce', productionTime: '2021-11-15' },
-  { id: '10', commonName: 'Mojarra', scientificName: 'Mojarra spp.', category: 'Agua dulce', productionTime: '2021-12-05' }
 
-];
+import { ImEqualizer2 } from "react-icons/im";
+
+
+import Select from "react-select";
+import CompanySelector from "../../components/shared/companySelect";
+import { useCompanyContext } from "../../context/CompanyContext";
 
 const ListaEspecies = () => {
-  const [companies, setCompanies] = useState(species);
+  const [companyList, setCompanyList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
+  const { selectedCompanyUniversal } = useCompanyContext();
+
+  const navigate = useNavigate();
+
+
+  const [speciesList, setSpeciesList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedEspecie, setSelectedEspecie] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
-  const navigate = useNavigate();
-  const [newCompany, setNewCompany] = useState({
-    name: '',
-    Type: '',
-    unit: '',
-    typerecord: ''
+  const [messageAlert, setMessageAlert] = useState("");
+  const [nameCompany, setNameCompany] = useState("");
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
+  const [newEspecie, setNewEspecie] = useState({
+    scientific_name: '',
+    common_name: '',
+    category_id: '',
+    time_to_production: ''
   });
 
-  const handleLogoUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewCompany((prev) => ({ ...prev, logo: reader.result }));
-      };
-      reader.readAsDataURL(file);
-    }
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const data = await CompanyService.getAllCompany();
+        console.log("comáñia:", data);
+        setCompanyList(data);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
+
+
+    fetchCompanies();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const data = await CategoryService.getAllCategory();
+        console.log("categoria:", data);
+        setCategoryList(data);
+      } catch (error) {
+        console.error('Error fetching Category:', error);
+      }
+    };
+
+
+    fetchCategory();
+  }, []);
+
+  useEffect(() => {
+    const fetchEspecies = async () => {
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
+      if (!companyId) {
+        setSpeciesList([]);
+        return;
+      } else {
+        setNameCompany(selectedCompanyUniversal.label)
+      }
+
+      try {
+        const data = await SpeciesService.getAllSpecie(companyId);
+        if (data.statusCode === 404) {
+          setSpeciesList([]);
+        } else {
+          setShowErrorAlertTable(false)
+          setSpeciesList(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        setSpeciesList([])
+        console.error('Error fetching especies:', error);
+        setMessageAlert('Esta empresa no tiene especies registradas, Intentalo con otra empresa');
+        setShowErrorAlertTable(true);
+      }
+    };
+
+    fetchEspecies();
+  }, [selectedCompanyUniversal]);
+
+  const handleCompanyChange = (selectedOption) => {
+    setSelectedCompany(selectedOption ? selectedOption.value : null);
   };
 
+  const handleSearchChange = (e) => {
+    setSearchCompanyTerm(e.target.value);
+  };
+
+  const handleEspecieSelect = (especie) => {
+    setSelectedCompany(especie.company_id);
+  };
+
+  const handleCloseErrorAlert = () => {
+    setShowErrorAlertTable(false);
+  };
+
+
+
+  const filteredEspecie = speciesList.filter(especie =>
+    (especie.scientific_name && especie.scientific_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (especie.common_name && especie.common_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (especie.type_especie_id && especie.type_especie_id.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (especie.time_to_production && especie.time_to_production.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+
   // Paginación
-  const indexOfLastCompany = currentPage * itemsPerPage;
-  const indexOfFirstCompany = indexOfLastCompany - itemsPerPage;
-  const currentCompanies = companies.slice(indexOfFirstCompany, indexOfLastCompany);
+  const indexOfLastEspecie = currentPage * itemsPerPage;
+  const indexOfFirstEspecie = indexOfLastEspecie - itemsPerPage;
+  const currentCompanies = filteredEspecie.slice(indexOfFirstEspecie, indexOfLastEspecie);
 
   const handleNextPage = () => {
-    if (currentPage < Math.ceil(companies.length / itemsPerPage)) {
+    if (currentPage < Math.ceil(filteredEspecie.length / itemsPerPage)) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -68,155 +160,215 @@ const ListaEspecies = () => {
     setCurrentPage(1);
   };
 
-  const handleOpenModal = () => {
+  const handleOpenModal = (especie = null, mode = 'create') => {
+    setSelectedEspecie(especie);
+    setModalMode(mode);
+    if (mode === 'edit' || mode === 'view') {
+      setNewEspecie(especie);
+    } else {
+      setNewEspecie({
+        icon: '',
+        scientific_name: '',
+        common_name: '',
+        category_id: '',
+        time_to_production: [],
+
+      });
+    }
     setIsModalOpen(true);
   };
 
+  // Cerrar el modal
+  const closeModal = async () => {
+    setIsModalOpen(false);
+    setSelectedEspecie(null);
+    setModalMode('create');
+    updateService();
+  };
 
   //eliminar
-  const handleDelete = (user) => {
-    setSelectedCompany(user);
+  const handleDelete = (especie) => {
+    setSelectedEspecie(especie);
     setIsDeleteModalOpen(true);
   };
 
+  const showErrorAlertSuccess = (message) => {
+    setShowErrorAlert(true)
+    setMessageAlert(`Especie ${message} exitosamente`);
 
-  const handleConfirmDelete = () => {
-    setCompanies(companies.filter((user) => user.name !== selectedCompany.name));
+    setTimeout(() => {
+      setShowErrorAlert(false)
+    }, 2500);
+  }
+
+  const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
-    setSelectedCompany(null);
+    setSelectedEspecie(null);
+    const data = await SpeciesService.deleteSpecie(selectedEspecie.id);
+    setMessageAlert("Especie eliminada exitosamente");
+    showErrorAlertSuccess("eliminado");
+    updateService();
   };
 
 
   const handleCancelDelete = () => {
-    setSelectedCompany(null);
+    setSelectedEspecie(null);
     setIsDeleteModalOpen(false);
   };
-
-  // Abrir Crear
-  //   const handleNavigate = () => {
-  //     navigate('/');
-  //   };
-
-  // Abrir Editar
-  const handleOpenEditModal = (variables) => {
-    setModalMode("edit");
-    setNewCompany(variables);
-    setIsModalOpen(true);
+  const handleCloseAlert = () => {
+    setShowErrorAlert(false);
   };
 
-  // Abrir Visualizar
-  const handleOpenViewModal = (variables) => {
-    setModalMode("view");
-    setNewCompany(variables);
-    setIsModalOpen(true);
-  };
+  const updateService = async () => {
+    setShowErrorAlertTable(false);
+    setSpeciesList([]);
 
-  // Cerrar modal
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setNewCompany({
-      name: '',
-      Type: '',
-      unit: '',
-      typerecord: ''
+    try {
 
-    });
-  };
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setNewCompany((prevCompany) => ({
-      ...prevCompany,
-      [name]: value,
-    }));
-  };
+      if (!companyId) {
+        setSpeciesList([]);
+        return;
+      }
 
-  const handleCreateOrEditCompany = (event) => {
-    event.preventDefault();
-    if (modalMode === "create") {
-      const newCompanyData = {
-        id: (companies.length + 1).toString().padStart(2, '0'),
-        ...newCompany,
-        date: new Date().toLocaleDateString(),
-      };
-      setCompanies([...companies, newCompanyData]);
-    } else if (modalMode === "edit") {
-      const updatedCompanies = companies.map(variables =>
-        variables.id === newCompany.id ? newCompany : variables
-      );
-      setCompanies(updatedCompanies);
+      const data = await SpeciesService.getAllSpecie(companyId);
+
+      setSpeciesList(data);
+    } catch (error) {
+      console.error('Error al actualizar las variables:', error);
     }
-    handleCloseModal();
   };
+
+  const handleEditSpecie = (species) => {
+    navigate(`../editarLista/${species.id}`);
+  };
+  const handleViewSpecie = (species) => {
+    navigate(`../visualizarLista/${species.id}`);
+  };
+
+
 
 
   return (
-    <div className="table-container">
-      <div className="bg-white rounded-lg shadow">
+    <div className="table-container ">
+      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
+        <div className="relative w-full">
+          <CompanySelector />
+
+        </div>
+        <br />
+        <div className="flex items-center space-x-2 text-gray-700">
+          <ImEqualizer2 size={20} />
+          <span>Gestión de Especies</span>
+          <span>/</span>
+          <span>Lista de Especies</span>
+          <span>/</span>
+          <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
+          <span className="text-black font-bold">  </span>
+          {selectedCompanyUniversal && (
+            <span>{companyList.find(company => company.id === selectedCompanyUniversal)?.name}</span>
+          )}
+        </div>
+      </div>
+      <div className="relative w-full mt-6 py-5 z-0">
+        {/* Input de búsqueda */}
+        <input
+          type="text"
+          placeholder="Buscar Especie"
+          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+      </div>
+
+
+
+      <div className="bg-white  rounded-lg shadow ">
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Especies</h2>
-          <button
-            className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center"
-            onClick={() => navigate('../crearLista')}
-          >
-            Crear especie
+          <h2 className="text-xl font-semibold">Lista de Especies</h2>
+          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => navigate('../crearLista')}>
+
+            Crear Especie
           </button>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-300 ">
+          <table className="w-full ">
+            <thead className="bg-gray-300  ">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">Icono</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre común</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre cientifico</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre cientifíco</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo producción</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tiempo producción</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {currentCompanies.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{user.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 flex items-center">
-                    <img
-                      src="../assets/imagenes/logo.jpegg"
-                      alt=""
-                      className="w-6 h-6 rounded-full mr-2"
-                    />
-                    {user.commonName}
+              {speciesList.map((species, index) => (
+                <tr key={index}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{species.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {species.photo && (
+                      <img
+                        src={species.photo}
+                        alt={species.common_name}
+                        className="h-10 w-10 object-cover rounded-full"
+                      />
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{species.common_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{species.scientific_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <span className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {species.category && species.category.name ? species.category.name : 'Categoría no disponible'}
+                    </span>
+                  </td>
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {species.stages?.map((stage, stageIndex) => (
+                      <div key={stageIndex}>
+                        {Math.round(stage.time_to_production / 30)} meses
+                      </div>
+                    ))}
+                  </td> */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {species.stages?.reduce((totalTime, stage, stageIndex) => {
+                    
+                      return totalTime + stage.time_to_production;
+                    }, 0) / 30} meses
                   </td>
 
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.scientificName}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.category}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.productionTime}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="view-button mr-5" onClick={() => handleOpenViewModal(user)}>
+                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewSpecie(species, 'view')}>
                       <Eye size={18} />
                     </button>
-                    <button className="edit-button mr-5" onClick={() => handleOpenEditModal(user)}>
+                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleEditSpecie(species)}>
                       <Edit size={18} />
                     </button>
-                    <button onClick={() => handleDelete(user)} className="delete-button">
+                    <button onClick={() => handleDelete(especie)} className=" text-[#168C0DFF] px-2 py-2 rounded">
                       <Trash size={18} />
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
+
           </table>
           {/* Modaeliminación */}
           {isDeleteModalOpen && (
             <Delete
-              message={`¿Seguro que desea eliminar el usuario ${selectedCompany?.name}?`}
+              message={`¿Seguro que desea eliminar el usuario ${selectedEspecie?.name}?`}
               onCancel={handleCancelDelete}
               onConfirm={handleConfirmDelete}
             />
           )}
         </div>
       </div>
-      <div className="pagination-container">
-        <div className="pagination-info text-xs">
+      <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+        <div className="border border-gray-200 rounded py-2 text-sm m-2">
           <span>Cantidad de filas</span>
           <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
             <option value={5}>5</option>
@@ -224,113 +376,54 @@ const ListaEspecies = () => {
             <option value={15}>15</option>
           </select>
         </div>
-        <div className="pagination-controls text-xs ">
-          <span>{indexOfFirstCompany + 1}-{indexOfLastCompany} de {companies.length}</span>
-          <button className="mr-2" onClick={handlePrevPage} disabled={currentPage === 1}>
+        <div className="pagination-controls text-xs flex items-center space-x-2">
+          <span>{indexOfFirstEspecie + 1}-{indexOfLastEspecie} de {speciesList.length}</span>
+          <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+            onClick={handlePrevPage} disabled={currentPage === 1}>
             <IoIosArrowBack size={20} />
           </button>
-          <button onClick={handleNextPage} disabled={currentPage === Math.ceil(companies.length / itemsPerPage)}>
+          <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+            onClick={handleNextPage} disabled={currentPage === Math.ceil(speciesList.length / itemsPerPage)}>
             <IoIosArrowForward size={20} />
           </button>
         </div>
       </div>
 
       {/* Modalcrear-editar-visualizar*/}
-      {isModalOpen && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2 className="titlee">
-              {modalMode === "create" ? "Añadir Variable" : modalMode === "edit" ? "Editar Variable" : "Visualizar Variable"}
-            </h2>
-            <form onSubmit={handleCreateOrEditCompany}>
-              <div className="mb-6 py-5">
-                <label>Adjuntar Logo</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
-                  {newCompany.logo ? (
-                    <img src={newCompany.logo} alt="Company Logo" className="mx-auto h-20 object-contain" />
-                  ) : (
-                    <>
-                      <IoCloudUploadOutline className="mx-auto h-12 w-12 text-gray-400" />
-                      <p className="mt-1 text-sm text-gray-600">
-                        Haga <span className="text-cyan-500 underline">clic aquí</span> para cargar o arrastre y suelte
-                      </p>
-                      <p className="text-xs text-gray-500">Archivos máximo 10 mb</p>
-                    </>
-                  )}
-                </div>
-                <input id="logo-upload" type="file" className="hidden" onChange={handleLogoUpload} accept="image/*" />
-              </div>
-              <div >
-                <label htmlFor="company-name" className="block text-sm font-medium text-gray-700 ">Nombre de la variable</label>
-                <input
-                  type="text"
-                  id="company-name"
-                  name="name"
-                  value={newCompany.name}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-5">
-                <div>
-                  <label htmlFor="company-name" className="block text-sm font-medium text-gray-700">Unidad de medida</label>
-                  <input
-                    type="text"
-                    id="company-name"
-                    name="unit"
-                    value={newCompany.unit}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="company-email" className="block text-sm font-medium text-gray-700">Tipo de registro</label>
-                  <input
-                    type="email"
-                    id="company-email"
-                    name="typerecord"
-                    value={newCompany.typerecord}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                    required
-                  />
-                </div>
+      {/* {isModalOpen && (
+        <GenericModal
+          title={modalMode === 'edit' ? 'Editar Especie' : modalMode === 'view' ? 'Ver Cariable' : 'Añadir Especie'}
+          onClose={closeModal}
 
-              </div>
-              <div className="mt-5">
-                <label htmlFor="document" className="block text-sm font-medium text-gray-700">Tipo de variable</label>
-                <input
-                  type="text"
-                  id="document"
-                  name="Type"
-                  value={newCompany.Type}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                  required
-                />
-              </div>
-              <div className="modal-actions">
-                {modalMode === "view" ? (
-                  <button type="button" className="cancelbutton" onClick={handleCloseModal}>
-                    Volver
-                  </button>
-                ) : (
-                  <>
-                    <button type="button" className="cancelbutton" onClick={handleCloseModal}>
-                      Cerrar
-                    </button>
-                    <button type="submit" className="createbutton">
-                      {modalMode === "create" ? "Crear Empresa" : "Guardar Cambios"}
-                    </button>
-                  </>
-                )}
-              </div>
-            </form>
+          companyId={selectedCompany} >
+
+          <FormEspecie showErrorAlert={showErrorAlertSuccess} onUpdate={updateService} especie={newEspecie} mode={modalMode} closeModal={closeModal} />
+        </GenericModal>
+      )} */}
+      {showErrorAlert && (
+        <SuccessAlert
+          message={messageAlert}
+          onCancel={handleCloseAlert}
+        />
+      )}
+      {showErrorAlertTable && (
+        <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
+          <div className="flex items-center space-x-2">
+            <IoIosWarning size={20} />
+            <p>{messageAlert}</p>
+          </div>
+          <div className="flex justify-end w-full">
+            <button
+              onClick={handleCloseErrorAlert}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
+              Cancelar
+            </button>
           </div>
         </div>
       )}
+
+
+
 
     </div>
   );
