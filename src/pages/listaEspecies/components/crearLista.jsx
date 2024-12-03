@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState ,useEffect} from 'react'
 import { ChevronDown, Upload, Plus, X } from 'lucide-react'
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
@@ -112,40 +112,8 @@ const ParameterModal = ({ isOpen, onClose, onSave }) => {
                 />
               </div>
             </div>
-            <div>
-              <label htmlFor="minAlertMessage" className="block text-sm font-medium text-gray-700 mb-1">Mensaje alerta límite mínimo</label>
-              <select
-                id="minAlertMessage"
-                name="minAlertMessage"
-                value={parameter.minAlertMessage}
-                onChange={handleChange}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm appearance-none bg-no-repeat bg-right pr-10"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                  backgroundSize: '1.5em 1.5em'
-                }}
-              >
-                <option value="">Seleccionar mensaje</option>
-                {/* Add options here */}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="maxAlertMessage" className="block text-sm font-medium text-gray-700 mb-1">Límite alerta límite máximo</label>
-              <select
-                id="maxAlertMessage"
-                name="maxAlertMessage"
-                value={parameter.maxAlertMessage}
-                onChange={handleChange}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm appearance-none bg-no-repeat bg-right pr-10"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                  backgroundSize: '1.5em 1.5em'
-                }}
-              >
-                <option value="">Seleccionar mensaje</option>
-                {/* Add options here */}
-              </select>
-            </div>
+         
+          
           </div>
         </div>
         <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
@@ -173,19 +141,11 @@ const ParameterModal = ({ isOpen, onClose, onSave }) => {
 
 
 import { FaCheckCircle } from 'react-icons/fa'; // Icono de verificación
-import { useNavigate } from 'react-router-dom';
+
 const CrearListas = () => {
-  const navigate = useNavigate();
-
   const [step, setStep] = useState(0);
-const [stage, setStage] = useState([
-  { name: "", description: "" }, // Inicializa con una etapa vacía
-]);
-
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
-  
-
   const [variables, setVariables] = useState([]);
   const [selectedVariables, setSelectedVariables] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -220,20 +180,6 @@ const [stage, setStage] = useState([
     }
   };
 
-  const handleAddStage = () => {
-    setStage([...stage, { name: '', description: '' }]);
-  };
-
-  const handleRemoveStage = (index) => {
-    setStage(stage.filter((_, i) => i !== index));
-  };
-
-  const handleStageChange = (index, field, value) => {
-    const updatedstage = [...stage];
-    updatedstage[index][field] = value;
-    setStage(updatedstage);
-  };
-
   const handleVariableChange = (e) => {
     const { value } = e.target;
     setSelectedVariables(value);
@@ -259,9 +205,6 @@ const [stage, setStage] = useState([
     setParameters((prev) => [...prev, newParameter]);
     setModalOpen(false);
   };
-  const handleGoBack = () => {
-    navigate('../listaEspecie'); // Redirige a la ruta listaEspecies
-  };
 
   return (
     <div className="container mx-auto p-8">
@@ -271,7 +214,7 @@ const [stage, setStage] = useState([
         <div className="flex flex-col mb-6">
           <div className="flex items-center justify-between mb-2">
             <div className={`${step === 0 ? 'text-black font-bold' : 'text-black font-bold'} flex items-center`}>
-
+             
               1.Creación de Parámetros de Producción
               {step > 0 && <FaCheckCircle className="text-[#168C0DFF]  m-1" />}
             </div>
@@ -282,7 +225,7 @@ const [stage, setStage] = useState([
 
           <div className="flex items-center mb-6">
             <div className="flex items-center w-full">
-              <div
+              <div 
                 className={`flex-grow h-1 ${step === 0 ? 'bg-[#168C0DFF]' : step > 0 ? 'bg-[#168C0DFF]' : 'bg-gray-300'}`}
               ></div>
 
@@ -291,7 +234,7 @@ const [stage, setStage] = useState([
                 <div className="h-1 bg-transparent" />
               </div>
 
-              <div
+              <div 
                 className={`w-[50%] h-1 ${step === 1 ? 'bg-[#168C0DFF]' : 'bg-gray-300'}`}
               ></div>
             </div>
@@ -394,30 +337,30 @@ const [stage, setStage] = useState([
                 </select>
               </div>
               <div>
-                <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">Imagen de especie</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    id="image"
-                    name="image"
-                    value={formData.image ? formData.image.name : ''}
-                    readOnly
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer"
-                    placeholder="Subir imagen"
-                    onClick={() => document.getElementById('image-upload')?.click()}
-                  />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <Upload className="h-5 w-5 text-gray-800" />
-                  </div>
-                </div>
+              <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">Imagen de especie</label>
+              <div className="relative">
                 <input
-                  id="image-upload"
-                  type="file"
-                  className="hidden "
-                  onChange="{handleImageUpload}"
-                  accept="image/*"
+                  type="text"
+                  id="image"
+                  name="image"
+                  value={formData.image ? formData.image.name : ''}
+                  readOnly
+                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer"
+                  placeholder="Subir imagen" 
+                  onClick={() => document.getElementById('image-upload')?.click()} 
                 />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <Upload className="h-5 w-5 text-gray-800" />
+                </div>
               </div>
+              <input
+                id="image-upload"
+                type="file"
+                className="hidden "
+                onChange="{handleImageUpload}"
+                accept="image/*"
+              />
+            </div>
 
               <div className="col-span-2">
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
@@ -436,46 +379,28 @@ const [stage, setStage] = useState([
           )}
 
           {step === 1 && (
-            <div className="mb-6">
-
-              <div className="space-y-2">
-                {stage.map((stage, index) => (
-
-                  <div key={index} className="p-2 border border-gray-200 rounded-md">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium">Etapa {index + 1}</span>
-                      <button
-                        type="button"
-                        onClick={handleAddStage}
-                        className="mb-2 inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                      >
-                        <Plus size={16} className="mr-2" />
-                        Añadir etapa
-                      </button>
-
-                    </div>
-                    <input
-                      type="text"
-                      value={stage.name}
-                      onChange={(e) => handleStageChange(index, 'name', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                      placeholder="Nombre de etapa"
-                    />
-                    <textarea
-                      value={stage.description}
-                      onChange={(e) => handleStageChange(index, 'description', e.target.value)}
-                      className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                      placeholder="Descripción de la etapa"
-                    />
-                  </div>
-                ))}
+            <div className="grid grid-cols-2 gap-4 mt-5 border-spacing-2">
+              <div>
+                <button
+                  onClick={handleOpenModal}
+                  className="mb-2 inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
+                  Añadir Parámetro
+                </button>
               </div>
+
+              <ul className="space-y-2 mt-4">
+                {parameters.map((param, index) => (
+                  <li key={index} className="border border-gray-300 rounded-md p-4">
+                    <strong>Variable:</strong> {param.variable}, <strong>Min Normal:</strong> {param.minNormal}, <strong>Max Normal:</strong> {param.maxNormal}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
 
         <div className="mt-6 flex justify-end space-x-4">
-  {/* Mostrar "Anterior" solo si no estamos en el primer paso */}
   {step > 0 && (
     <button
       onClick={handlePrevStep}
@@ -484,18 +409,6 @@ const [stage, setStage] = useState([
       Anterior
     </button>
   )}
-
-  {/* Mostrar "Volver" solo si estamos en el primer paso */}
-  {step === 0 && (
-    <button
-      onClick={handleGoBack}
-      className="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
-    >
-      Volver
-    </button>
-  )}
-
-  {/* Mostrar "Siguiente" solo si estamos en el primer paso */}
   {step < 1 && (
     <button
       onClick={handleNextStep}
@@ -504,8 +417,6 @@ const [stage, setStage] = useState([
       Siguiente
     </button>
   )}
-
-  {/* Mostrar "Finalizar" solo si estamos en el segundo paso */}
   {step === 1 && (
     <button
       onClick={() => alert('Finalizar')}
@@ -515,7 +426,6 @@ const [stage, setStage] = useState([
     </button>
   )}
 </div>
-
 
       </div>
 
