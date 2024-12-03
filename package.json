@@ -53,6 +53,7 @@
       "output": "dist"
     },
     "linux": {
+      "category": "Utility",
       "icon": "src/assets/icons/Logo.png",
       "target": "AppImage"
     }
