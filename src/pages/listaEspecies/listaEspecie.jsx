@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+
 import { Edit, Trash, Eye, Plus } from 'lucide-react';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoIosWarning } from 'react-icons/io';
@@ -7,6 +9,7 @@ import GenericModal from '../../components/genericModal';
 // import FormEspecie from './FormEspecie/formSpecies';
 import SpeciesService from "../../services/SpeciesService";
 import CompanyService from "../../services/CompanyService";
+import CategoryService from "../../services/CategoryService";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
 
@@ -20,9 +23,13 @@ import { useCompanyContext } from "../../context/CompanyContext";
 
 const ListaEspecies = () => {
   const [companyList, setCompanyList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
   const { selectedCompanyUniversal } = useCompanyContext();
+
+  const navigate = useNavigate();
+
 
   const [speciesList, setSpeciesList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -56,13 +63,29 @@ const ListaEspecies = () => {
       }
     };
 
+
     fetchCompanies();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const data = await CategoryService.getAllCategory();
+        console.log("categoria:", data);
+        setCategoryList(data);
+      } catch (error) {
+        console.error('Error fetching Category:', error);
+      }
+    };
+
+
+    fetchCategory();
   }, []);
 
   useEffect(() => {
     const fetchEspecies = async () => {
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
-      
+
       if (!companyId) {
         setSpeciesList([]);
         return;
@@ -217,6 +240,15 @@ const ListaEspecies = () => {
     }
   };
 
+  const handleEditSpecie = (species) => {
+    navigate(`../editarLista/${species.id}`);
+  };
+  const handleViewSpecie = (species) => {
+    navigate(`../visualizarLista/${species.id}`);
+  };
+
+
+
 
   return (
     <div className="table-container ">
@@ -244,7 +276,7 @@ const ListaEspecies = () => {
         <input
           type="text"
           placeholder="Buscar Especie"
-          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" 
+          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -257,7 +289,7 @@ const ListaEspecies = () => {
       <div className="bg-white  rounded-lg shadow ">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">Lista de Especies</h2>
-          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
+          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => navigate('../crearLista')}>
 
             Crear Especie
           </button>
@@ -290,26 +322,30 @@ const ListaEspecies = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{species.common_name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{species.scientific_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{species.category_id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <span className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {species.category && species.category.name ? species.category.name : 'Categoría no disponible'}
+                    </span>
+                  </td>
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {species.stages?.map((stage, stageIndex) => (
                       <div key={stageIndex}>
-                        <strong>{stage.time_to_production}</strong>: {stage.time_to_production} días
-                        {/* <ul>
-                          {stage.parameters.map((param, paramIndex) => (
-                            <li key={paramIndex}>
-                              Variable {param.variable_id}: {param.min_normal_value}-{param.max_normal_value} ({param.min_limit}-{param.max_limit})
-                            </li>
-                          ))}
-                        </ul> */}
+                        {Math.round(stage.time_to_production / 30)} meses
                       </div>
                     ))}
+                  </td> */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {species.stages?.reduce((totalTime, stage, stageIndex) => {
+                    
+                      return totalTime + stage.time_to_production;
+                    }, 0) / 30} meses
                   </td>
+
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(especie, 'view')}>
+                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewSpecie(species, 'view')}>
                       <Eye size={18} />
                     </button>
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(especie, 'edit')}>
+                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleEditSpecie(species)}>
                       <Edit size={18} />
                     </button>
                     <button onClick={() => handleDelete(especie)} className=" text-[#168C0DFF] px-2 py-2 rounded">

@@ -6,7 +6,7 @@ const SpeciesService = {
     // LISTAR TODAS LAS CATEGORÍAS
     async getAllSpecie(idcompany = 0) {
         try {
-            const response = await api.get(`/species?company=${idcompany}`);
+            const response = await api.get(`/species?company_id=${idcompany}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener las Especies:', error);

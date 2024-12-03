@@ -5,16 +5,16 @@ import { X, Upload, Plus } from 'lucide-react';
 import { Edit, Trash, Eye } from 'lucide-react';
 
 import { useNavigate, useParams } from 'react-router-dom';
-import CategoryService from '../../services/CategoryService';
-import UploadToS3 from '../../config/UploadToS3';
-import CompanyService from '../../services/CompanyService';
+import CategoryService from '../../../services/CategoryService';
+import UploadToS3 from '../../../config/UploadToS3';
+import CompanyService from '../../../services/CompanyService';
 
 
-import CompanySelector from "../../components/shared/companySelect";
-import { useCompanyContext } from "../../context/CompanyContext";
-import { ImEqualizer2 } from "react-icons/im";
+import CompanySelector from "../../../components/shared/companySelect";
+import { useCompanyContext } from "../../../context/CompanyContext";
+import { BiWorld } from "react-icons/bi";
 
-const EditarCategorias = () => {
+const VisualizarCategoria = () => {
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -24,7 +24,7 @@ const EditarCategorias = () => {
     const [nameCompany, setNameCompany] = useState("");
     const [selectedCompany, setSelectedCompany] = useState('');
 
-
+    const [isEditMode, setIsEditMode] = useState(true)
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [image, setImage] = useState("edit");
@@ -54,8 +54,8 @@ const EditarCategorias = () => {
                 name: data.name || '',
                 image: data.image || null,
                 company_id: data.company_id || 0,
-                stage: data.stages || [], // Aquí tomas las etapas desde la respuesta
-                subcategory: data.subcategories || [] // Aquí tomas las subcategorías
+                stage: data.stages || [], 
+                subcategory: data.subcategories || []
             });
             setNewCategory(data);
         } catch (error) {
@@ -143,24 +143,24 @@ const EditarCategorias = () => {
         }
     };
     const handleDeleteImage = () => {
-        // Restablecer el estado de la imagen a null
+       
         setFormData({ ...formData, image: null });
     };
 
     const handleEditSubcategory = (index) => {
-        setEditIndex(index); // Activamos la edición de la subcategoría
+        setEditIndex(index); 
     };
 
     const handleCancelEdit = () => {
-        setEditIndex(null); // Cancelamos la edición
+        setEditIndex(null);
     };
 
     const handleEditEtapa = (index) => {
-        setEditEtapandex(index); // Activamos la edición de la subcategoría
+        setEditEtapandex(index); 
     };
 
     const handleCancelEditEtapa = () => {
-        setEditEtapandex(null); // Cancelamos la edición
+        setEditEtapandex(null);
     };
 
 
@@ -173,7 +173,7 @@ const EditarCategorias = () => {
                 </div>
                 <br />
                 <div className="flex items-center space-x-2 text-gray-700">
-                    <ImEqualizer2 size={20} />
+                    <BiWorld size={20} />
                     <span>Gestión de especies</span>
                     <span>/</span>
                     <span>Categoría</span>
@@ -185,16 +185,15 @@ const EditarCategorias = () => {
                     )}
 
                     <span>/</span>
-                    <span>Editar Categoría</span>
+                    <span>Visualizar Categoría</span>
                 </div>
             </div>
             {showAlertError && <div className="alert alert-error">{messageAlert}</div>}
             <div className="mb-6">
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50">
                     {formData.image ? (
-                        <img
-                            onClick={() => document.getElementById('image-upload').click()} // Abre el selector de archivos al hacer clic en la imagen
-                            src={formData.image}  // Usa la URL de la imagen que has obtenido
+                        <img 
+                            src={formData.image} 
                             alt="Category"
                             className="mx-auto h-32 object-contain"
                         />
@@ -210,20 +209,12 @@ const EditarCategorias = () => {
                         type="file"
                         className="hidden"
                         onChange={handleImageUpload}
+
                         accept="image/*"
                     />
                 </div>
 
-                {/* Mostrar el botón "Eliminar imagen" solo si hay una imagen */}
-                {formData.image && (
-                    <button
-                        type="button"
-                        onClick={handleDeleteImage}
-                        className="mt-2 text-red-600 hover:text-red-800"
-                    >
-                        Eliminar imagen
-                    </button>
-                )}
+            
             </div>
 
 
@@ -238,39 +229,18 @@ const EditarCategorias = () => {
                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
                         placeholder="Nombre de la categoría"
                         required
+                        disabled
                     />
                 </div>
-                {/* <div>
-                    <label className="block text-sm font-medium text-gray-700">Empresa</label>
-                    <select
-                        name="company"
-                        value={formData.company_id || ''}
-                        onChange={(e) => setFormData({ ...formData, company_id: e.target.value })}
-                        required
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                    >
-                        <option value="" disabled>Seleccione una opción</option>
-                        {companies.map((company) => (
-                            <option key={company.id} value={company.id}>
-                                {company.name}
-                            </option>
-                        ))}
-                    </select>
-                </div> */}
+                
             </div>
+            <hr className="my-6 border-gray-400" />
 
             {/* Subcategorías */}
             <div className="mt-6">
                 <div className="flex items-center justify-between">
                     <label className="block text-lg font-medium text-gray-700 font-bold">Subcategorías</label>
-                    <button
-                        type="button"
-                        onClick={handleAddSubcategory}
-                        className="mb-2 inline-flex items-center px-2 py-1 border border-[#168C0DFF] text-sm leading-1 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                        <Plus className="mr-2" />
-                        Agregar subcategoría
-                    </button>
+                    
                 </div>
 
                 {formData.subcategory.map((subcategory, index) => (
@@ -283,49 +253,18 @@ const EditarCategorias = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md"
                             disabled={editIndex !== index}
                         />
-                        <div className="flex gap-2">
-                            {editIndex === index ? (
-                                <button
-                                    type="button"
-                                    onClick={handleCancelEdit}
-                                    className="text-[#168C0DFF] hover:text-red-500"
-                                >
-                                    Cancelar
-                                </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => handleEditSubcategory(index)}
-                                    className="text-[#168C0DFF] hover:text-[#0F6A06]"
-                                >
-                                    <Edit />
-                                </button>
-                            )}
-                            <button
-                                type="button"
-                                onClick={() => handleRemoveSubcategory(index)}
-                                className="text-[#168C0DFF] hover:text-[#0F6A06]"
-                            >
-                                <Trash />
-                            </button>
-                        </div>
+                       
                     </div>
                 ))}
             </div>
+            <hr className="my-6 border-gray-400" />
 
 
             {/* Etapas */}
             <div className="mt-6">
                 <div className="flex items-center justify-between">
                     <label className="block text-lg font-medium text-gray-700 ">Etapas</label>
-                    <button
-                        type="button"
-                        onClick={handleAddStage}
-                        className="mb-2 inline-flex items-center px-8 py-1 border border-[#168C0DFF] text-sm leading-1 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                        <Plus className="mr-2" />
-                        Agregar etapa
-                    </button>
+                    
                 </div>
 
                 {formData.stage.map((stage, index) => (
@@ -335,44 +274,18 @@ const EditarCategorias = () => {
                             <h3 className="text-sm font-semibold text-gray-800">
                                 {`Etapa ${index + 1}`}
                             </h3>
-                            <div className="flex gap-4">
-                                {editEtapaIndex === index ? (
-                                    <button
-                                        type="button"
-                                        onClick={handleCancelEditEtapa}
-                                        className="text-[#168C0DFF] hover:text-red-500"
-                                    >
-                                        Cancelar
-                                    </button>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        onClick={() => handleEditEtapa(index)}
-                                        className="text-[#168C0DFF] hover:text-[#0F6A06]"
-                                    >
-                                        <Edit />
-                                    </button>
-                                )}
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemoveStage(index)}
-                                    className="text-[#168C0DFF] hover:text-[#0F6A06]"
-                                >
-                                    <Trash />
-                                </button>
-                            </div>
+                            
                         </div>
 
                         <div className="flex justify-between items-center">
                             <div className="w-full">
-                                {/* Nombre de la etapa */}
                                 <input
                                     type="text"
                                     value={stage.name}
                                     onChange={(e) => handleStageChange(index, 'name', e.target.value)}
                                     placeholder="Nombre de la etapa"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                    disabled={editEtapaIndex !== index} // Deshabilita el campo si no está en edición
+                                    disabled
                                 />
                             </div>
                         </div>
@@ -394,13 +307,14 @@ const EditarCategorias = () => {
 
 
 
+            <div className="flex justify-end space-x-4 mt-8">
+                <button type="button"
+                 onClick={handleCancel} 
+                 className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400">
 
-
-            <div className="mt-8 flex gap-4">
-                <button type="button" onClick={handleCancel} className="px-6 py-2 text-white bg-gray-400 rounded-lg hover:bg-gray-500">
                     Cancelar
                 </button>
-                <button type="submit" className="px-6 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700">
+                <button type="submit" className="px-4 py-2 bg-[#168C0DFF] text-white hover:bg-[#146A0D] rounded-md">
                     Guardar
                 </button>
             </div>
@@ -408,4 +322,4 @@ const EditarCategorias = () => {
     );
 };
 
-export default EditarCategorias;
+export default VisualizarCategoria;

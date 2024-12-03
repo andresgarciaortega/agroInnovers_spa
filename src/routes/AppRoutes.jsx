@@ -12,10 +12,13 @@ import Usuarios from "../pages/usuarios/usurios";
 import Variables from "../pages/variables/variables";
 import TipoVariable from "../pages/tipoVariable/tipoVariables";
 import Especies from "../pages/especies/especieCategoria";
-import CrearCategorias from "../pages/especies/crearCategoria";
-import EditarCategorias from "../pages/especies/editarCategoria";
+import CrearCategorias from "../pages/especies/components/crearCategoria";
+import EditarCategorias from "../pages/especies/components/editarCategoria";
+import VisualizarCategoria from "../pages/especies/components/visualizarCategoria";
 import ListaEspecies from "../pages/listaEspecies/listaEspecie";
-import CrearListas from "../pages/listaEspecies/crearLista";
+import CrearListas from "../pages/listaEspecies/components/crearLista";
+import EditarLista from "../pages/listaEspecies/components/editarLista";
+import VisualizarLista from "../pages/listaEspecies/components/visualizarLista";
 import Monitoreo from "../pages/monitoreo/monitoreo";
 import Tipos from "../pages/tiposDispositivos/tipos";
 import Sensores from "../pages/Sensores/sensor";
@@ -43,9 +46,13 @@ const AppRoutes = () => {
         <Route path="variables" element={<Variables />} />
         <Route path="tipoVariables" element={<TipoVariable />} />
         <Route path="listaEspecie" element={<ListaEspecies />} />
+        <Route path="visualizarLista/:id" element={<VisualizarLista/>} />
+        <Route path="editarLista/:id" element={<EditarLista/>} />
+
         <Route path="crearLista" element={<CrearListas />} />
         <Route path="crearCategoria" element={<CrearCategorias />} />
         <Route path="editarCategoria/:id" element={<EditarCategorias/>} />
+        <Route path="visualizarCategoria/:id" element={<VisualizarCategoria/>} />
         <Route path="especies" element={<Especies />} />
         <Route path="monitoreo" element={<Monitoreo />} />
         <Route path="tipos" element={<Tipos />} />

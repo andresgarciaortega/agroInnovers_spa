@@ -5,7 +5,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoSearch } from "react-icons/io5";
 import Delete from '../../components/delete';
 import GenericModal from '../../components/genericModal';
-import FormCategory from './FormSpecies/formCategory';
+import FormCategory from './components/formCategory';
 import SuccessAlert from "../../components/alerts/success";
 import ErrorAlert from "../../components/alerts/error";
 import LoadingView from '../../components/Loading/loadingView';
@@ -17,7 +17,7 @@ import { HiOutlineUserGroup } from "react-icons/hi";
 import { IoIosWarning } from 'react-icons/io';
 
 
-import { ImEqualizer2 } from "react-icons/im";
+import { BiWorld } from "react-icons/bi";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 
@@ -102,7 +102,7 @@ const Especie = () => {
     fetchCategory();
   }, [selectedCompanyUniversal]);
 
-  
+
 
   const handleCompanyChange = (selectedOption) => {
     setSelectedCompany(selectedOption ? selectedOption.value : null);
@@ -145,49 +145,50 @@ const Especie = () => {
     }
   };
 
-  
+
+
+  const handleDeleteCategory = (category) => {
+    setSelectedCategory(category);
+    setIsDeleteModalOpen(true);
+  };
 
   const handleConfirmDelete = async () => {
-    setIsDeleteModalOpen(false);
-    setSelectedCategory(null);
-  
+    if (!selectedCategory) return;
+
     try {
-      // Intentamos eliminar la categoría
+      setIsDeleteModalOpen(false);
+
       await CategoryServices.deleteCategory(selectedCategory.id);
-  
-      // Si no hubo errores, mostramos el mensaje de éxito
+
       setMessageAlert("Categoría eliminada exitosamente");
-      showErrorAlertSuccess("eliminado"); // Solo pasamos "eliminado" al mensaje de éxito
-  
-      // Actualizamos la lista de categorías
-      fetchCategory();
+      showErrorAlertSuccess("eliminada");
+
+      updateService();
     } catch (error) {
-      // Verificamos si el error tiene un código de estado 409 (conflicto)
       if (error.response && error.response.status === 409) {
-        // Capturamos el mensaje específico
-        setMessageAlert("Hay subcategorías y etapas asociadas, no se puede eliminar.");
-        showErrorAlertError("No se pudo eliminar la categoría"); // Usamos un mensaje de error
+        setMessageAlert(
+          "La categoría tiene subcategorías o etapas asociadas y no puede ser eliminada."
+        );
       } else {
-        // Si ocurre otro tipo de error, mostramos un mensaje genérico
-        setMessageAlert("Hubo un error inesperado al intentar eliminar la categoría");
-        showErrorAlertError("La categoría está asociada a etapas o subcategorías y no puede ser eliminada"
-); 
+        setMessageAlert("Hubo un error al intentar eliminar la categoría.");
       }
+      showErrorAlertError(messageAlert);
     }
   };
-  
+
+
   const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true);
-    setMessageAlert(`Categoría ${message} exitosamente`); // Agregamos "exitosamente" solo cuando es un éxito
+    setMessageAlert(`Categoría ${message} exitosamente`); 
     setTimeout(() => setShowErrorAlert(false), 2500);
   };
-  
+
   const showErrorAlertError = (message) => {
     setShowErrorAlert(true);
-    setMessageAlert(message); // Solo mostramos el mensaje sin "exitosamente"
+    setMessageAlert(message); 
     setTimeout(() => setShowErrorAlert(false), 2500);
   };
-  
+
 
   const handleOpenModal = (category = null, mode = 'create') => {
     setSelectedCategory(category);
@@ -227,6 +228,9 @@ const Especie = () => {
   const handleEditCategory = (category) => {
     navigate(`../editarCategoria/${category.id}`);
   };
+  const handleViewCategory = (category) => {
+    navigate(`../visualizarCategoria/${category.id}`);
+  };
 
 
   return (
@@ -238,7 +242,7 @@ const Especie = () => {
         </div>
         <br />
         <div className="flex items-center space-x-2 text-gray-700">
-          <ImEqualizer2 size={20} />
+          <BiWorld size={20} />
           <span>Gestión de especies</span>
           <span>/</span>
           <span>Categoría</span>
@@ -255,12 +259,11 @@ const Especie = () => {
         <input
           type="text"
           placeholder="Buscar Categoría"
-          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
+          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        {/* Icono de búsqueda alineado a la izquierda */}
         <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
       <div className="bg-white rounded-lg shadow">
@@ -308,13 +311,16 @@ const Especie = () => {
 
                   {/* Acciones */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(category, 'view')}>
+                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewCategory(category, 'view')}>
                       <Eye size={18} />
                     </button>
                     <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleEditCategory(category)}>
                       <Edit size={18} />
                     </button>
-                    <button onClick={() => handleDelete(category)} className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded">
+                    <button
+                      onClick={() => handleDeleteCategory(category)} // Cambiado para abrir el modal
+                      className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
+                    >
                       <Trash size={18} />
                     </button>
                   </td>

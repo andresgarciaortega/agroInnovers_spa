@@ -8,7 +8,7 @@ import { RxDashboard } from "react-icons/rx";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { BsBox } from "react-icons/bs";
 import { PiArrowsCounterClockwiseBold } from "react-icons/pi";
-import { LiaFishSolid } from "react-icons/lia";
+import { BiWorld } from "react-icons/bi";
 import { FaMicrochip } from "react-icons/fa6";
 import { ImEqualizer2 } from "react-icons/im";
 import { IoMdNotificationsOutline, IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
@@ -31,7 +31,7 @@ const menuItems = [
     ]
   },
   {
-    icon: <LiaFishSolid />,
+    icon: <BiWorld />,
     label: "Gestionar especies ",
     submenu: [
       { label: "Categorias", route: "/home/especies" },

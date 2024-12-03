@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { X, Upload, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import CategoryService from '../../services/CategoryService';
-import UploadToS3 from '../../config/UploadToS3';
-import CompanyService from '../../services/CompanyService';
+import CategoryService from '../../../services/CategoryService';
+import SubCategoryService from '../../../services/SubcategoryService';
+import StagesService from '../../../services/StagesService';
+import UploadToS3 from '../../../config/UploadToS3';
+import CompanyService from '../../../services/CompanyService';
 import { IoCloudUploadOutline } from "react-icons/io5";
 
 const CrearCategorias = ({ }) => {
@@ -14,7 +16,7 @@ const CrearCategorias = ({ }) => {
     const [companyId, setCompanyId] = useState('');
     const [subcategory, setSubcategory] = useState([]);
     const [companies, setCompanies] = useState([]);
-    const [ setShowErrorAlert] = useState(false);
+    const [setShowErrorAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("");
     const [formData, setFormData] = useState({
         name: '',
@@ -52,50 +54,78 @@ const CrearCategorias = ({ }) => {
     };
 
 
-
     const handleSubmit = async (event) => {
-    
         event.preventDefault();
         if (!validateForm()) return;
-
+    
         try {
             let imageUrl = '';
             if (formData.image) {
                 imageUrl = await UploadToS3(formData.image);
             }
-
+    
             const parsedCompanyId = parseInt(companyId, 10);
             if (isNaN(parsedCompanyId)) {
                 showErrorAlert("El ID de la empresa debe ser un número válido.");
                 return;
             }
-
-            const formDataToSubmit = {
-                ...formData,
-                name,
-                image: imageUrl,
+    
+            // Create category first
+            const categoryData = {
+                name: String(name).trim(), 
+                image: String(imageUrl || ''), 
                 company_id: parsedCompanyId,
-                stage: stage.map(stage => ({
-                    name: stage.name,
-                    description: stage.description,
-                    company_id: parsedCompanyId,
-                })),
-                subcategory: subcategory.map(subcategory => ({
-                    name: subcategory.name,
-                    company_id: parsedCompanyId,
-                })),
             };
-            console.log('datos', formDataToSubmit)
-
-            const createdCategory = await CategoryService.createCategory(formDataToSubmit);
-            console.log('crear categoría',createdCategory)
-            console.log("Categoría creada exitosamente");
+    
+            const createdCategory = await CategoryService.createCategory(categoryData);
+            const createdCategoryId = createdCategory.id;
+    
+            // Create stages with category ID
+            const stageResponses = await Promise.all(
+                stage.map(stageData =>
+                    StagesService.createStages({
+                        ...stageData,
+                        company_id: parsedCompanyId,
+                        category_species_id: createdCategoryId,
+                    })
+                )
+            );
+    
+            // Create subcategories with category ID
+            const subcategoryResponses = await Promise.all(
+                subcategory.map(subcategoryData =>
+                    SubCategoryService.createSubcategory({
+                        ...subcategoryData,
+                        company_id: parsedCompanyId,
+                        category_species_id: createdCategoryId,
+                    })
+                )
+            );
+    
+            // Prepare update data
+            const updateData = {
+                subcategories: subcategoryResponses.map(sc => sc.id),
+                stages: stageResponses.map(s => s.id)
+            };
+    
+            // Ensure we have actual IDs
+            if (updateData.subcategories.length > 0 || updateData.stages.length > 0) {
+                const updatedCategory = await CategoryService.updateCategory(createdCategoryId, updateData);
+                console.log('Categoría creada y actualizada:', updatedCategory);
+            }
+    
             navigate('../especies');
         } catch (error) {
-            console.error("Error:", error);
-            console.log("Hubo un error al crear la categoría");
+            console.error("Detailed Error:", error.response || error);
+            showErrorAlert(`Hubo un error al crear la categoría: ${error.message}`);
         }
     };
+
+    
+    
+    
+    
+
 
     const handleAddStage = () => {
         setStage([...stage, { name: '', description: '' }]);
@@ -124,9 +154,9 @@ const CrearCategorias = ({ }) => {
         updatedsubcategory[index].name = value;
         setSubcategory(updatedsubcategory);
     };
-  
 
- 
+
+
     const showErrorAlert = (message) => {
         console.error(message);
     };
@@ -134,7 +164,7 @@ const CrearCategorias = ({ }) => {
     const handleErrorAlert = (message) => {
         setMessageAlert(message);
         setShowErrorAlert(true);
-    
+
         setTimeout(() => {
             setShowErrorAlert(false);
             setMessageAlert('');
@@ -164,15 +194,15 @@ const CrearCategorias = ({ }) => {
     const handleCancel = () => {
         navigate('../especies');
     };
-    
-    
+
+
 
     return (
         <form onSubmit={handleSubmit} className="p-6">
             <div className="mb-6">
 
                 <div className="mb- py-">
-                    <label  className="block text-sm font-medium text-gray-700 mb-1" >Adjuntar Logo</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1" >Adjuntar Logo</label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50"
                         onClick={() => document.getElementById('image-upload').click()}>
                         {image && typeof image === 'string' ? (
@@ -317,7 +347,7 @@ const CrearCategorias = ({ }) => {
                 </div>
             </div>
 
-            <div className="flex justify-end space-x-4">
+            <div className="flex justify-end space-x-4 ">
                 <button
                     type="button"
                     onClick={handleCancel}
@@ -334,10 +364,10 @@ const CrearCategorias = ({ }) => {
                 </button>
             </div>
             {showErrorAlert && (
-    <div className="alert alert-danger p-4 rounded-md text-red-600">
-        {messageAlert}
-    </div>
-)}
+                <div className="alert alert-danger p-4 rounded-md text-red-600">
+                    {messageAlert}
+                </div>
+            )}
 
 
         </form>
