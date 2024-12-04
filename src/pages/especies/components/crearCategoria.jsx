@@ -66,66 +66,59 @@ const CrearCategorias = ({ }) => {
     
             const parsedCompanyId = parseInt(companyId, 10);
             if (isNaN(parsedCompanyId)) {
-                showErrorAlert("El ID de la empresa debe ser un número válido.");
+                handleErrorAlert("El ID de la empresa debe ser un número válido.");
                 return;
             }
     
-            // Create category first
             const categoryData = {
-                name: String(name).trim(), 
-                image: String(imageUrl || ''), 
+                name: name.trim(),
+                image: imageUrl || '',
                 company_id: parsedCompanyId,
             };
     
             const createdCategory = await CategoryService.createCategory(categoryData);
             const createdCategoryId = createdCategory.id;
     
-            // Create stages with category ID
-            const stageResponses = await Promise.all(
-                stage.map(stageData =>
-                    StagesService.createStages({
-                        ...stageData,
-                        company_id: parsedCompanyId,
-                        category_species_id: createdCategoryId,
-                    })
-                )
-            );
-    
-            // Create subcategories with category ID
             const subcategoryResponses = await Promise.all(
-                subcategory.map(subcategoryData =>
-                    SubCategoryService.createSubcategory({
-                        ...subcategoryData,
-                        company_id: parsedCompanyId,
-                        category_species_id: createdCategoryId,
-                    })
-                )
+                subcategory.map(async (subcategoryData) => {
+                    try {
+                        const response = await SubCategoryService.createSubcategory({
+                            ...subcategoryData,
+                            company_id: parsedCompanyId,
+                            category_species_id: createdCategoryId,
+                        });
+                        return response;
+                    } catch (error) {
+                        console.error("Error creando subcategoría:", subcategoryData, error);
+                        throw error;
+                    }
+                })
             );
     
-            // Prepare update data
-            const updateData = {
-                subcategories: subcategoryResponses.map(sc => sc.id),
-                stages: stageResponses.map(s => s.id)
-            };
+            const stageResponses = await Promise.all(
+                stage.map(async (stageData) => {
+                    try {
+                        const response = await StagesService.createStages({
+                            ...stageData,
+                            company_id: parsedCompanyId,
+                            category_species_id: createdCategoryId,
+                        });
+                        return response;
+                    } catch (error) {
+                        console.error("Error creando etapa:", stageData, error);
+                        throw error;
+                    }
+                })
+            );
     
-            // Ensure we have actual IDs
-            if (updateData.subcategories.length > 0 || updateData.stages.length > 0) {
-                const updatedCategory = await CategoryService.updateCategory(createdCategoryId, updateData);
-                console.log('Categoría creada y actualizada:', updatedCategory);
-            }
-    
+            console.log("Categoría, subcategorías y etapas creadas correctamente.");
             navigate('../especies');
         } catch (error) {
-            console.error("Detailed Error:", error.response || error);
-            showErrorAlert(`Hubo un error al crear la categoría: ${error.message}`);
+            console.error("Error durante la creación:", error);
+            handleErrorAlert(`Hubo un error al crear la categoría: ${error.message}`);
         }
     };
-
     
-    
-    
-    
-
 
     const handleAddStage = () => {
         setStage([...stage, { name: '', description: '' }]);
