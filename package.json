@@ -52,11 +52,8 @@
     "directories": {
       "output": "dist"
     },
-    "mac": {
-      "icon": "build/icon.icns",
-      "target": "dmg"
-    },
     "linux": {
+      "category": "Utility",
       "icon": "src/assets/icons/Logo.png",
       "target": "AppImage"
     }

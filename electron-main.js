@@ -15,8 +15,8 @@ const createWindow = () => {
   });
 
   // Cargar la aplicación React, que estará corriendo en el servidor de desarrollo
-  mainWindow.loadURL('http://localhost:5173');  // Si usas `npm start`, React se sirve en localhost:3000
-//   mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
+  mainWindow.loadURL('https://qa-huilainnovers.web.app/');  // Si usas `npm start`, React se sirve en localhost:3000
+  // mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
 
   mainWindow.on('closed', () => {
     mainWindow = null;
