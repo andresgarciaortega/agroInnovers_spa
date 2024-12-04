@@ -4,6 +4,8 @@ import { X, Upload, Plus } from 'lucide-react';
 import { IoCloudUploadOutline } from "react-icons/io5";
 
 import { Edit, Trash, Eye } from 'lucide-react';
+import SuccessAlert from "../../../components/alerts/success";
+import ErrorAlert from "../../../components/alerts/error";
 
 import { useNavigate, useParams } from 'react-router-dom';
 import CategoryService from '../../../services/CategoryService';
@@ -21,6 +23,8 @@ const EditarCategorias = () => {
 
     const [editIndex, setEditIndex] = useState(null);
     const [editEtapaIndex, setEditEtapandex] = useState(null);
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+
 
     const [nameCompany, setNameCompany] = useState("");
     const [selectedCompany, setSelectedCompany] = useState('');
@@ -95,13 +99,35 @@ const EditarCategorias = () => {
         }
     };
 
+    const handleAddStage = () => {
+
+        setFormData
+            ({
+                ...formData,
+                stage: [...formData.stage,
+                { id: null, name: '', description: '' }]
+            });
+    };
+
+    const handleAddSubcategory = () => {
+
+        setFormData({
+            ...formData,
+            subcategory: [...formData.subcategory,
+            { id: null, name: '' }]
+        });
+    };
+
+    const handleRemoveStage = (index) => setFormData({
+        ...formData, stage: formData.stage.filter((_, i) => i !== index)
+    });
 
 
-    const handleAddStage = () => setFormData({ ...formData, stage: [...formData.stage, { id: null, name: '', description: '' }] });
-    const handleRemoveStage = (index) => setFormData({ ...formData, stage: formData.stage.filter((_, i) => i !== index) });
+    const handleRemoveSubcategory = (index) =>
+        setFormData({
+            ...formData, subcategory: formData.subcategory.filter((_, i) => i !== index)
 
-    const handleAddSubcategory = () => setFormData({ ...formData, subcategory: [...formData.subcategory, { id: null, name: '' }] });
-    const handleRemoveSubcategory = (index) => setFormData({ ...formData, subcategory: formData.subcategory.filter((_, i) => i !== index) });
+        });
 
     const handleStageChange = (index, field, value) => {
         const updatedStages = [...formData.stage];
@@ -114,6 +140,7 @@ const EditarCategorias = () => {
         updatedSubcategories[index].name = value;
         setFormData({ ...formData, subcategory: updatedSubcategories });
     };
+
 
     const handleCancel = () => navigate('../especies');
 
@@ -143,30 +170,56 @@ const EditarCategorias = () => {
             }
 
             const formDataToSubmit = {
+
                 name: formData.name,
                 image: imageUrl,
                 company_id: parsedCompanyId,
                 stages: formData.stage.map((stage) => ({
-                    id: stage.id,
+                    id: stage.id && !isNaN(parseInt(stage.id, 10)) ? parseInt(stage.id, 10) : 0,
                     name: stage.name,
                     description: stage.description,
                     company_id: parsedCompanyId,
                 })),
                 subcategories: formData.subcategory.map((subcategory) => ({
-                    id: subcategory.id,
+                    id: subcategory.id && !isNaN(parseInt(subcategory.id, 10)) ? parseInt(subcategory.id, 10) : 0,
                     name: subcategory.name,
                     company_id: parsedCompanyId,
                 })),
+
             };
 
+            console.log(formDataToSubmit);
+
             await CategoryService.updateCategory(id, formDataToSubmit);
+
+            setShowSuccessAlert(true);
+            setTimeout(() => setShowSuccessAlert(false), 3000);
+            console.log("Show success alert:", showSuccessAlert);
             navigate('../especies');
+
         } catch (error) {
             console.error("Error:", error);
             setShowAlertError(true);
             setMessageAlert("Hubo un error al editar la categoría");
+            console.log("Show error alert:", showAlertError);
+
         }
+
+
     };
+
+    useEffect(() => {
+        if (showSuccessAlert) {
+            console.log("Show success alert:", showSuccessAlert);
+        }
+    }, [showSuccessAlert]);
+
+    useEffect(() => {
+        if (showAlertError) {
+            console.log("Show error alert:", showAlertError);
+        }
+    }, [showAlertError]);
+
     const handleDeleteImage = () => {
 
         setFormData({ ...formData, image: null });
@@ -186,6 +239,15 @@ const EditarCategorias = () => {
 
     const handleCancelEditEtapa = () => {
         setEditEtapandex(null);
+    };
+
+    const handleCloseAlertError = () => {
+        setShowAlertError(false);
+    };
+
+
+    const handleCancelAlertError = () => {
+        setShowAlertError(false);
     };
 
 
@@ -213,8 +275,8 @@ const EditarCategorias = () => {
                     <span>Editar Categoría</span>
                 </div>
             </div>
-            {showAlertError && <div className="alert alert-error">{messageAlert}
-            </div>}
+
+
             <div className="mb-6">
                 <div className="mb- py-">
                     <label>Adjuntar Logo</label>
@@ -259,30 +321,14 @@ const EditarCategorias = () => {
                         required
                     />
                 </div>
-                {/* <div>
-                    <label className="block text-sm font-medium text-gray-700">Empresa</label>
-                    <select
-                        name="company"
-                        value={formData.company_id || ''}
-                        onChange={(e) => setFormData({ ...formData, company_id: e.target.value })}
-                        required
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                    >
-                        <option value="" disabled>Seleccione una opción</option>
-                        {companies.map((company) => (
-                            <option key={company.id} value={company.id}>
-                                {company.name}
-                            </option>
-                        ))}
-                    </select>
-                </div> */}
+                
             </div>
             <hr className="my-6 border-gray-400" />
 
             {/* Subcategorías */}
             <div className="mt-6">
                 <div className="flex items-center justify-between">
-                    <label className="block text-lg font-medium text-gray-700 font-bold">Subcategorías</label>
+                    <label className="block text-lg font-medium text-gray-700 ">Subcategorías</label>
                     <button
                         type="button"
                         onClick={handleAddSubcategory}
@@ -386,27 +432,27 @@ const EditarCategorias = () => {
 
                         <div className="flex justify-between items-center">
                             <div className="w-full">
-                                {/* Nombre de la etapa */}
+
                                 <input
                                     type="text"
                                     value={stage.name}
                                     onChange={(e) => handleStageChange(index, 'name', e.target.value)}
                                     placeholder="Nombre de la etapa"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                    disabled={editEtapaIndex !== index} // Deshabilita el campo si no está en edición
+                                    disabled={editEtapaIndex !== index}
                                 />
                             </div>
                         </div>
 
                         <div className="mt-2">
-                            {/* Descripción de la etapa */}
+
                             <input
                                 type="text"
                                 value={stage.description}
                                 onChange={(e) => handleStageChange(index, 'description', e.target.value)}
                                 placeholder="Descripción de la etapa"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                disabled={editEtapaIndex !== index} // Deshabilita el campo si no está en edición
+                                disabled={editEtapaIndex !== index}
                             />
                         </div>
                     </div>
@@ -416,8 +462,8 @@ const EditarCategorias = () => {
 
             <div className="flex justify-end space-x-4 mt-8">
                 <button type="button"
-                 onClick={handleCancel} 
-                 className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400">
+                    onClick={handleCancel}
+                    className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400">
 
                     Cancelar
                 </button>
@@ -425,6 +471,20 @@ const EditarCategorias = () => {
                     Guardar
                 </button>
             </div>
+            {showSuccessAlert && (
+                <div className="alert alert-success text-green-700 bg-green-100 border border-green-400 rounded-lg p-4">
+                    ¡Categoría editada con éxito!
+                </div>
+            )}
+            {showSuccessAlert && <SuccessAlert message="Categoría actualizada exitosamente!" />}
+
+            {showAlertError && (
+                <ErrorAlert
+                    message={messageAlert}
+
+                    onCancel={handleCancelAlertError}
+                />
+            )}
         </form>
     );
 };

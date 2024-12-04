@@ -156,15 +156,20 @@ const Especie = () => {
     if (!selectedCategory) return;
 
     try {
+      // Cierra el modal de confirmación
       setIsDeleteModalOpen(false);
 
+      // Llama al servicio para eliminar la categoría
       await CategoryServices.deleteCategory(selectedCategory.id);
 
+      // Mensaje de éxito
       setMessageAlert("Categoría eliminada exitosamente");
       showErrorAlertSuccess("eliminada");
 
+      // Actualiza la lista de categorías
       updateService();
     } catch (error) {
+      // Manejo de errores
       if (error.response && error.response.status === 409) {
         setMessageAlert(
           "La categoría tiene subcategorías o etapas asociadas y no puede ser eliminada."
@@ -179,15 +184,18 @@ const Especie = () => {
 
   const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true);
-    setMessageAlert(`Categoría ${message} exitosamente`); 
+    setMessageAlert(`Categoría ${message} exitosamente`); // Agregamos "exitosamente" solo cuando es un éxito
     setTimeout(() => setShowErrorAlert(false), 2500);
   };
 
   const showErrorAlertError = (message) => {
     setShowErrorAlert(true);
-    setMessageAlert(message); 
-    setTimeout(() => setShowErrorAlert(false), 2500);
+    setMessageAlert(`Esta categoría no se puede eliminar por que tiene etapas y subcategorías acosiadas`); // Agregamos "exitosamente" solo cuando es un éxito
+    setTimeout(() => setShowErrorAlert(false), 3000);
   };
+  const handleCancel = () => {
+    setShowErrorAlert(false); // Esto cierra el modal cuando se hace clic en "Cancelar"
+};
 
 
   const handleOpenModal = (category = null, mode = 'create') => {
@@ -259,11 +267,12 @@ const Especie = () => {
         <input
           type="text"
           placeholder="Buscar Categoría"
-          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" 
+          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
+        {/* Icono de búsqueda alineado a la izquierda */}
         <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
       <div className="bg-white rounded-lg shadow">
@@ -368,10 +377,16 @@ const Especie = () => {
           onClose={() => setIsDeleteModalOpen(false)}
         />
       )}
-      {showErrorAlert &&
-        <SuccessAlert message={messageAlert}
-          onClose={() => setShowErrorAlert(false)}
-        />}
+      {showErrorAlert && (
+  <div className="alert-container">
+    {messageAlert.includes("exitosamente") ? (
+      <SuccessAlert message={messageAlert} />
+    ) : (
+      <ErrorAlert message={messageAlert} 
+      onCancel={handleCancel}/>
+    )}
+  </div>
+)}
 
       {showErrorAlertTable && (
         <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
