@@ -3,6 +3,7 @@ import { ChevronDown, Upload, Plus, X } from 'lucide-react'
 import CategoryService from '../../../services/CategoryService';
 import VaiableService from '../../../services/variableService';
 import ParameterModal from './formLimit';
+import SpeciesService from '../../../services/SpeciesService';
 import { FaCheckCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,12 +20,13 @@ const CrearListas = () => {
   const [parameters, setParameters] = useState([]);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
-    variable: '',
-    subcategory: '',
+    variable: 0,
+    subcategory: 0,
     scientificName: '',
+    subcategory:0,
     commonName: '',
-    variable: '',
-    image: '',
+    category: 0,
+    image: null,
     description: '',
   });
 
@@ -116,17 +118,67 @@ const CrearListas = () => {
     setModalOpen(false);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!formData.category || !formData.subcategory) {
-      alert("Por favor selecciona una categoría y una subcategoría.");
-      return;
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        setFormData({
+            ...formData,
+            image: file,
+        });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImage(reader.result);
+        };
+        reader.readAsDataURL(file);
     }
+};
+const handleSubmit = async (event) => {
+    
+  event.preventDefault();
+  if (!validateForm()) return;
 
-    console.log("Formulario enviado:", formData);
-  };
+  try {
+      let imageUrl = '';
+      if (formData.image) {
+          imageUrl = await UploadToS3(formData.image);
+      }
 
+      const parsedCompanyId = parseInt(companyId, 10);
+      if (isNaN(parsedCompanyId)) {
+          showErrorAlert("El ID de la empresa debe ser un número válido.");
+          return;
+      }
+
+      const formDataToSubmit = {
+          ...formData,
+          scientific_name,
+          common_name: commonName,
+          description: description,
+          category_id:category,
+          subcategory_id:subcategory,
+          image: imageUrl,
+          company_id: parsedCompanyId,
+          stage: stage.map(stage => ({
+              name: stage.name,
+              description: stage.description,
+              time_to_production: time_to_productionanyId,
+          })),
+          subcategory: subcategory.map(subcategory => ({
+              name: subcategory.name,
+              company_id: parsedCompanyId,
+          })),
+      };
+      console.log('datos', formDataToSubmit)
+
+      const createdCategory = await CategoryService.createCategory(formDataToSubmit);
+      console.log('crear categoría',createdCategory)
+      console.log("Categoría creada exitosamente");
+      navigate('../especies');
+  } catch (error) {
+      console.error("Error:", error);
+      console.log("Hubo un error al crear la categoría");
+  }
+};
 
   return (
     <div className="container mx-auto p-8">
