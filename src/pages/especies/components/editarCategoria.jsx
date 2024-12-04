@@ -321,30 +321,14 @@ const EditarCategorias = () => {
                         required
                     />
                 </div>
-                {/* <div>
-                    <label className="block text-sm font-medium text-gray-700">Empresa</label>
-                    <select
-                        name="company"
-                        value={formData.company_id || ''}
-                        onChange={(e) => setFormData({ ...formData, company_id: e.target.value })}
-                        required
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                    >
-                        <option value="" disabled>Seleccione una opción</option>
-                        {companies.map((company) => (
-                            <option key={company.id} value={company.id}>
-                                {company.name}
-                            </option>
-                        ))}
-                    </select>
-                </div> */}
+                
             </div>
             <hr className="my-6 border-gray-400" />
 
             {/* Subcategorías */}
             <div className="mt-6">
                 <div className="flex items-center justify-between">
-                    <label className="block text-lg font-medium text-gray-700 font-bold">Subcategorías</label>
+                    <label className="block text-lg font-medium text-gray-700 ">Subcategorías</label>
                     <button
                         type="button"
                         onClick={handleAddSubcategory}

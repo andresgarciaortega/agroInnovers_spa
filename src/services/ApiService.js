@@ -1,8 +1,9 @@
 // services/ApiService.js
 
 // const BASE_URL = import.meta.env.VITE_API_BASE_URL; // Cambia a VITE_API_BASE_URL
-const BASE_URL =  'http://localhost:3000';
+// const BASE_URL =  'http://localhost:3000';
 // const BASE_URL =  'https://huilaproject-d9160204a6cf.herokuapp.com';
+const BASE_URL = 'https://innovers-87476345f7f3.herokuapp.com'
 const TIMEOUT = 5000; // Timeout en milisegundos
 
 // Función de ayuda para realizar solicitudes con `fetch` y timeout
