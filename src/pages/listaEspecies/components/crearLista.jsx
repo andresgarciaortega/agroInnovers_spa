@@ -13,7 +13,6 @@ const CrearListas = () => {
   const [categories, setCategories] = useState([]);
   const [subcategory, setSubcategory] = useState([]);
   const [stages, setStages] = useState([]);
-  const [variables, setVariables] = useState([]);
   const [selectedVariables, setSelectedVariables] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [parameters, setParameters] = useState([]);
@@ -23,10 +22,31 @@ const CrearListas = () => {
     subcategory: '',
     scientificName: '',
     commonName: '',
-    variable: '',
     image: '',
     description: '',
   });
+
+  const [dataSage, setDataStage] = useState({
+    stage_id: '',
+    description: '',
+    time_to_production: '',
+  })
+
+
+  const [categoryId, setCategoryId] = useState(0)
+  const [subCategorya, setSubCategoria] = useState(0)
+  const [nombreCientifico, setNombreCientifico] = useState("")
+  const [nombreComun, setNombreComun] = useState("")
+  const [imagen, setImagen] = useState("")
+  const [descripcion, setDescripcion] = useState("")
+  const [variables, setVariables] = useState([]);
+
+
+  // STAGES
+  const [descripcionStage, setDescripcionSatage] = useState("")
+  const [tiempoStage, setTiempoStage] = useState("")
+  const [idStage, setIdStage] = useState(0)
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,6 +64,23 @@ const CrearListas = () => {
     fetchData();
   }, []);
 
+  const listarSubCategorias = async (e) =>{
+    const { name, value } = e.target;
+    console.log(value)
+    const subcategory = await CategoryService.getCategoryById(value);
+    console.log('subcategorias', subcategory.subcategories)
+    setSubcategory(subcategory.subcategories);
+
+
+
+    
+    const stages = await CategoryService.getCategoryById(value);
+    console.log('etapas', stages.stages)
+
+    setStages(stages.stages);
+
+
+  }
 
   const handleChange = async (e) => {
     const { name, value } = e.target;
@@ -95,6 +132,14 @@ const CrearListas = () => {
     // }
 
     // Si no hay errores, continuar al siguiente paso
+    console.log(JSON.stringify({
+      categoryId,
+      subCategorya,
+      nombreCientifico,
+      nombreComun,
+      imagen,
+      descripcion,
+    }))
     setStep((prev) => prev + 1);
   };
 
@@ -174,8 +219,9 @@ const CrearListas = () => {
                 <select
                   id="category"
                   name="category"
-                  value={formData.category}
-                  onChange={handleChange}
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  onClick={listarSubCategorias }
                   className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.category ? 'border-red-500' : 'text-gray-500'}`}
                 >
                   <option value="" className="text-gray-500">Selecciona una opción</option>
@@ -195,8 +241,8 @@ const CrearListas = () => {
                 <select
                   id="subcategory"
                   name="subcategory"
-                  value={formData.subcategory}
-                  onChange={handleChange}
+                  value={subCategorya}
+                  onChange={(e) => setSubCategoria(e.target.value)}
                   className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.subcategory ? 'border-red-500' : 'text-gray-500'}`}
                 >
                   <option value="" className="text-gray-500">Selecciona una opción</option>
@@ -218,8 +264,8 @@ const CrearListas = () => {
                   id="scientificName"
                   name="scientificName"
                   placeholder="Nombre científico"
-                  value={formData.scientificName}
-                  onChange={handleChange}
+                  value={nombreCientifico}
+                  onChange={(e) => setNombreCientifico(e.target.value)}
                   className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.scientificName ? 'border-red-500' : ''}`}
                 />
                 {errors.scientificName && <p className="text-red-500 text-xs mt-1">{errors.scientificName}</p>}
@@ -234,8 +280,8 @@ const CrearListas = () => {
                   id="commonName"
                   name="commonName"
                   placeholder="Nombre común"
-                  value={formData.commonName}
-                  onChange={handleChange}
+                  value={nombreComun}
+                  onChange={(e) => setNombreComun(e.target.value)}
                   className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.commonName ? 'border-red-500' : ''}`}
                 />
                 {errors.commonName && <p className="text-red-500 text-xs mt-1">{errors.commonName}</p>}
@@ -293,8 +339,8 @@ const CrearListas = () => {
                 <textarea
                   id="description"
                   name="description"
-                  value={formData.description}
-                  onChange={handleChange}
+                  value={descripcion}
+                  onChange={(e) => setDescripcion(e.target.value)}
                   rows={4}
                   className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.description ? 'border-red-500' : ''}`}
                 />
@@ -304,79 +350,79 @@ const CrearListas = () => {
           )}
 
           {step === 1 && (
-           <div className="grid grid-cols-1 gap-4 mt-5 border-spacing-2">
-           <div>
-             <div className="mt-4">
-               <label htmlFor="stages" className="block text-sm font-medium text-gray-700 mb-1">
-                 Etapas
-               </label>
-               <div className="space-y-4">
-                 {stages.map((stage, index) => (
-                   <div key={index} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
-                     <div className="flex justify-between items-center mb-2">
-                       <h3 className="text-sm font-semibold text-gray-800">
-                         {`Etapa ${index + 1}`}
-                       </h3>
-                       <button
-                         onClick={() => handleOpenModal(stage.id)}
-                         className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                       >
-                         Añadir Parámetro
-                       </button>
-                     </div>
-         
-                     <div className="flex justify-between mb-2">
-                       <div className="w-1/2">
-                         <label className="text-sm font-medium text-gray-700">Nombre de la etapa</label>
-                       </div>
-                       <div className="w-1/2">
-                         <label className="text-sm font-medium text-gray-700">Tiempo de Producción</label>
-                       </div>
-                     </div>
-         
-                     {/* Alineación horizontal de Nombre y Descripción */}
-                     <div className="flex gap-4">
-                       <div className="w-1/2">
-                         <input
-                           type="text"
-                           value={stage.name}
-                           placeholder="Nombre de la etapa"
-                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                           disabled
-                         />
-                       </div>
-                       <div className="w-1/2">
-                         <input
-                           type="text"
-                           value={stage.description}
-                           placeholder="Tiempo de producción"
-                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                           disabled
-                         />
-                       </div>
-                     </div>
-                   </div>
-                 ))}
-               </div>
-             </div>
-           </div>
-         
-           <ul className="space-y-2 mt-4">
-             {parameters.map((param, index) => (
-               <li key={index} className="border border-gray-300 rounded-md p-4">
-                 <strong>Variable:</strong> {param.variable}, <strong>Min Normal:</strong> {param.minNormal}, <strong>Max Normal:</strong> {param.maxNormal}
-               </li>
-             ))}
-           </ul>
-         </div>
-         
-         
+            <div className="grid grid-cols-1 gap-4 mt-5 border-spacing-2">
+              <div>
+                <div className="mt-4">
+                  <label htmlFor="stages" className="block text-sm font-medium text-gray-700 mb-1">
+                    Etapas
+                  </label>
+                  <div className="space-y-4">
+                    {stages.map((stage, index) => (
+                      <div key={index} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
+                        <div className="flex justify-between items-center mb-2">
+                          <h3 className="text-sm font-semibold text-gray-800">
+                            {`Etapa ${index + 1}`}
+                          </h3>
+                          <button
+                            onClick={() => handleOpenModal(stage.id)}
+                            className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          >
+                            Añadir Parámetro
+                          </button>
+                        </div>
+
+                        <div className="flex justify-between mb-2">
+                          <div className="w-1/2">
+                            <label className="text-sm font-medium text-gray-700">Nombre de la etapa</label>
+                          </div>
+                          <div className="w-1/2">
+                            <label className="text-sm font-medium text-gray-700">Tiempo de Producción</label>
+                          </div>
+                        </div>
+
+                        {/* Alineación horizontal de Nombre y Descripción */}
+                        <div className="flex gap-4">
+                          <div className="w-1/2">
+                            <input
+                              type="text"
+                              value={stage.name}
+                              placeholder="Nombre de la etapa"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              disabled
+                            />
+                          </div>
+                          <div className="w-1/2">
+                            <input
+                              type="text"
+                              value={stage.description}
+                              placeholder="Tiempo de producción"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              disabled
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <ul className="space-y-2 mt-4">
+                {parameters.map((param, index) => (
+                  <li key={index} className="border border-gray-300 rounded-md p-4">
+                    <strong>Variable:</strong> {param.variable}, <strong>Min Normal:</strong> {param.minNormal}, <strong>Max Normal:</strong> {param.maxNormal}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+
           )}
         </div>
         <div className="mt-6 flex justify-end space-x-4">
-          {step !== 1 && ( 
+          {step !== 1 && (
             <button
-              onClick={() => navigate('../listaEspecie')} 
+              onClick={() => navigate('../listaEspecie')}
               className="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 mb- hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
             >
               Cancelar
