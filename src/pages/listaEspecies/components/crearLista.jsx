@@ -3,8 +3,11 @@ import { ChevronDown, Upload, Plus, X } from 'lucide-react'
 import CategoryService from '../../../services/CategoryService';
 import VaiableService from '../../../services/variableService';
 import ParameterModal from './formLimit';
+import SpeciesService from '../../../services/SpeciesService';
 import { FaCheckCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } from '@mui/material';
+
 
 const CrearListas = () => {
   const navigate = useNavigate();
@@ -12,40 +15,45 @@ const CrearListas = () => {
   const [step, setStep] = useState(0);
   const [categories, setCategories] = useState([]);
   const [subcategory, setSubcategory] = useState([]);
-  const [stages, setStages] = useState([]);
+  const [variables, setVariables] = useState([]);
   const [selectedVariables, setSelectedVariables] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [parameters, setParameters] = useState([]);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
-    variable: '',
-    subcategory: '',
+    variable: [],
+    subcategory: 0,
     scientificName: '',
+    subcategory: 0,
     commonName: '',
-    image: '',
+    category: 0,
+    image: null,
     description: '',
   });
+  const [stages, setStages] = useState();
 
-  const [dataSage, setDataStage] = useState({
-    stage_id: '',
-    description: '',
-    time_to_production: '',
-  })
-
-
-  const [categoryId, setCategoryId] = useState(0)
-  const [subCategorya, setSubCategoria] = useState(0)
-  const [nombreCientifico, setNombreCientifico] = useState("")
-  const [nombreComun, setNombreComun] = useState("")
-  const [imagen, setImagen] = useState("")
-  const [descripcion, setDescripcion] = useState("")
-  const [variables, setVariables] = useState([]);
+  const [stagesJson, setStagesJson] = useState(
+    {
+      stage_id: '',
+      description: '',
+      time_to_production: '',
+    }
+  );
 
 
-  // STAGES
-  const [descripcionStage, setDescripcionSatage] = useState("")
-  const [tiempoStage, setTiempoStage] = useState("")
-  const [idStage, setIdStage] = useState(0)
+  const [selected, setSelected] = useState([]);
+
+  const handleChangeCategory = (event) => {
+    const { value } = event.target;
+
+    setFormData((prevState) => ({
+      ...prevState,
+      variable: value, // Actualiza `formData.variable` con los IDs seleccionados
+    }));
+  };
+
+
+
 
 
   useEffect(() => {
@@ -64,40 +72,20 @@ const CrearListas = () => {
     fetchData();
   }, []);
 
-  const listarSubCategorias = async (e) =>{
-    const { name, value } = e.target;
-    console.log(value)
-    const subcategory = await CategoryService.getCategoryById(value);
-    console.log('subcategorias', subcategory.subcategories)
-    setSubcategory(subcategory.subcategories);
-
-
-
-    
-    const stages = await CategoryService.getCategoryById(value);
-    console.log('etapas', stages.stages)
-
-    setStages(stages.stages);
-
-
-  }
 
   const handleChange = async (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    console.log(formData.category)
 
     if (name === "category") {
       try {
 
         const subcategory = await CategoryService.getCategoryById(value);
-        console.log('subcategorias', subcategory.subcategories)
         setSubcategory(subcategory.subcategories);
 
 
 
         const stages = await CategoryService.getCategoryById(value);
-        console.log('etapas', stages.stages)
 
         setStages(stages.stages);
       } catch (error) {
@@ -105,7 +93,6 @@ const CrearListas = () => {
       }
     }
   };
-  console.log(formData.category)
 
 
   const handleVariableChange = (e) => {
@@ -118,28 +105,20 @@ const CrearListas = () => {
 
     let newErrors = {};
 
-    // if (!category) newErrors.category = 'Este campo es obligatorio';
-    // if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
-    // if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
-    // if (!commonName) newErrors.commonName = 'Este campo es obligatorio';
-    // if (!variable) newErrors.variable = 'Este campo es obligatorio';
-    // // if (!image) newErrors.image = 'Este campo es obligatorio';
-    // if (!description) newErrors.description = 'Este campo es obligatorio';
+    if (!category) newErrors.category = 'Este campo es obligatorio';
+    if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
+    if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
+    if (!commonName) newErrors.commonName = 'Este campo es obligatorio';
+    if (!variable) newErrors.variable = 'Este campo es obligatorio';
+    // if (!image) newErrors.image = 'Este campo es obligatorio';
+    if (!description) newErrors.description = 'Este campo es obligatorio';
 
-    // if (Object.keys(newErrors).length > 0) {
-    //   setErrors(newErrors);
-    //   return;
-    // }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     // Si no hay errores, continuar al siguiente paso
-    console.log(JSON.stringify({
-      categoryId,
-      subCategorya,
-      nombreCientifico,
-      nombreComun,
-      imagen,
-      descripcion,
-    }))
     setStep((prev) => prev + 1);
   };
 
@@ -161,18 +140,99 @@ const CrearListas = () => {
     setModalOpen(false);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!formData.category || !formData.subcategory) {
-      alert("Por favor selecciona una categoría y una subcategoría.");
-      return;
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFormData({
+        ...formData,
+        image: file,
+      });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
+  };
+  const handleSubmit = async (event) => {
 
-    console.log("Formulario enviado:", formData);
+    event.preventDefault();
+    if (!validateForm()) return;
+
+    try {
+      let imageUrl = '';
+      if (formData.image) {
+        imageUrl = await UploadToS3(formData.image);
+      }
+
+      const parsedCompanyId = parseInt(companyId, 10);
+      if (isNaN(parsedCompanyId)) {
+        showErrorAlert("El ID de la empresa debe ser un número válido.");
+        return;
+      }
+
+      const formDataToSubmit = {
+        ...formData,
+        scientific_name,
+        common_name: commonName,
+        description: description,
+        category_id: category,
+        subcategory_id: subcategory,
+        image: imageUrl,
+        company_id: parsedCompanyId,
+        stage: stage.map(stage => ({
+          name: stage.name,
+          description: stage.description,
+          time_to_production: time_to_productionanyId,
+        })),
+        subcategory: subcategory.map(subcategory => ({
+          name: subcategory.name,
+          company_id: parsedCompanyId,
+        })),
+      };
+
+      const createdCategory = await CategoryService.createCategory(formDataToSubmit);
+      navigate('../especies');
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
 
+
+  // GUARDAR DATOS DE LOS STAGES 
+  const handleStageChange = (index, field, value) => {
+    setStages((prevStages) =>
+      prevStages.map((stage, i) =>
+        i === index
+          ? { ...stage, [field]: value } // Solo actualiza el campo del stage correspondiente
+          : stage
+      )
+    );
+  };
+
+  const [formattedStages, setFormattedStages] = useState([]);
+
+  const formatStages = () => {
+    const transformed = stages.map(stage => ({
+      stage_id: stage.id,
+      description: stage.description,
+      time_to_production: stage.time_to_production,
+    }));
+    console.log(transformed)
+    setFormattedStages(transformed);
+  };
+
+
+  const verData = () => {
+    const transformed = stages.map(stage => ({
+      stage_id: stage.id,
+      description: stage.description,
+      time_to_production: stage.time_to_production,
+    }));
+    setFormattedStages(transformed);
+    console.log(formattedStages)
+  }
   return (
     <div className="container mx-auto p-8">
       <div className="bg-white rounded-lg shadow-xl p-6">
@@ -219,9 +279,8 @@ const CrearListas = () => {
                 <select
                   id="category"
                   name="category"
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  onClick={listarSubCategorias }
+                  value={formData.category}
+                  onChange={handleChange}
                   className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.category ? 'border-red-500' : 'text-gray-500'}`}
                 >
                   <option value="" className="text-gray-500">Selecciona una opción</option>
@@ -241,8 +300,8 @@ const CrearListas = () => {
                 <select
                   id="subcategory"
                   name="subcategory"
-                  value={subCategorya}
-                  onChange={(e) => setSubCategoria(e.target.value)}
+                  value={formData.subcategory}
+                  onChange={handleChange}
                   className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.subcategory ? 'border-red-500' : 'text-gray-500'}`}
                 >
                   <option value="" className="text-gray-500">Selecciona una opción</option>
@@ -264,8 +323,8 @@ const CrearListas = () => {
                   id="scientificName"
                   name="scientificName"
                   placeholder="Nombre científico"
-                  value={nombreCientifico}
-                  onChange={(e) => setNombreCientifico(e.target.value)}
+                  value={formData.scientificName}
+                  onChange={handleChange}
                   className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.scientificName ? 'border-red-500' : ''}`}
                 />
                 {errors.scientificName && <p className="text-red-500 text-xs mt-1">{errors.scientificName}</p>}
@@ -280,8 +339,8 @@ const CrearListas = () => {
                   id="commonName"
                   name="commonName"
                   placeholder="Nombre común"
-                  value={nombreComun}
-                  onChange={(e) => setNombreComun(e.target.value)}
+                  value={formData.commonName}
+                  onChange={handleChange}
                   className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.commonName ? 'border-red-500' : ''}`}
                 />
                 {errors.commonName && <p className="text-red-500 text-xs mt-1">{errors.commonName}</p>}
@@ -290,7 +349,7 @@ const CrearListas = () => {
                 <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">
                   Variable
                 </label>
-                <select
+                {/* <select
                   id="variable"
                   name="variable"
                   value={formData.variable}
@@ -303,8 +362,34 @@ const CrearListas = () => {
                       {variable.name}
                     </option>
                   ))}
-                </select>
+                </select> 
                 {errors.variable && <p className="text-red-500 text-xs mt-1">{errors.variable}</p>}
+                <hr />*/}
+                <FormControl
+                  className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.variable ? 'border-red-500' : 'text-gray-500'
+                    }`}
+                >
+                  <Select
+                    multiple
+                    value={formData.variable || []} // Usa `formData.variable` como valor
+                    onChange={handleChangeCategory}
+                    renderValue={(selectedIds) =>
+                      variables
+                        .filter((option) => selectedIds.includes(option.id))
+                        .map((option) => option.name)
+                        .join(', ')
+                    }
+                  >
+                    {variables.map((option) => (
+                      <MenuItem key={option.id} value={option.id}>
+                        <Checkbox checked={formData.variable?.includes(option.id)} />
+                        <ListItemText primary={option.name} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+
               </div>
               <div>
                 <label htmlFor="image" className="block text-sm font-medium text-gray-700  mb-1">Imagen de especie</label>
@@ -339,8 +424,8 @@ const CrearListas = () => {
                 <textarea
                   id="description"
                   name="description"
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
+                  value={formData.description}
+                  onChange={handleChange}
                   rows={4}
                   className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.description ? 'border-red-500' : ''}`}
                 />
@@ -359,6 +444,7 @@ const CrearListas = () => {
                   <div className="space-y-4">
                     {stages.map((stage, index) => (
                       <div key={index} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
+                        {/* Título de la etapa y botón para añadir parámetros */}
                         <div className="flex justify-between items-center mb-2">
                           <h3 className="text-sm font-semibold text-gray-800">
                             {`Etapa ${index + 1}`}
@@ -371,39 +457,32 @@ const CrearListas = () => {
                           </button>
                         </div>
 
+                        {/* Campos de descripción y tiempo de producción */}
                         <div className="flex justify-between mb-2">
                           <div className="w-1/2">
-                            <label className="text-sm font-medium text-gray-700">Nombre de la etapa</label>
-                          </div>
-                          <div className="w-1/2">
-                            <label className="text-sm font-medium text-gray-700">Tiempo de Producción</label>
-                          </div>
-                        </div>
-
-                        {/* Alineación horizontal de Nombre y Descripción */}
-                        <div className="flex gap-4">
-                          <div className="w-1/2">
+                            <label className="text-sm font-medium text-gray-700">Descripción</label>
                             <input
                               type="text"
-                              value={stage.name}
-                              placeholder="Nombre de la etapa"
+                              placeholder="Descripción de la etapa"
                               className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                              disabled
+                              onChange={(e) => handleStageChange(index, 'description', e.target.value)}
                             />
                           </div>
                           <div className="w-1/2">
+                            <label className="text-sm font-medium text-gray-700">Tiempo de Producción</label>
                             <input
-                              type="text"
-                              value={stage.description}
+                              type="number"
                               placeholder="Tiempo de producción"
                               className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                              disabled
+                              onChange={(e) => handleStageChange(index, 'time_to_production', e.target.value)}
                             />
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
+
+
                 </div>
               </div>
 
@@ -449,7 +528,7 @@ const CrearListas = () => {
 
           {step === 1 && (
             <button
-              onClick={() => alert('Finalizar')}
+              onClick={verData}
               className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-base font-medium text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
             >
               Finalizar
