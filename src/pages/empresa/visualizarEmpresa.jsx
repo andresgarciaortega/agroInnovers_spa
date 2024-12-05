@@ -38,6 +38,7 @@ const VisualizarEmpresa = ({ }) => {
   useEffect(() => {
     fetchCompaniesData();
     fetchTypeDocumento();
+    fetchTypeDocumento();
   }, []);
 
   const fetchCompaniesData = async () => {
@@ -49,6 +50,7 @@ const VisualizarEmpresa = ({ }) => {
       console.error('Error fetching companies:', error);
     }
   };
+ 
   const fetchTypeDocumento = async () => {
     try {
       const data = await fectchTypes.getAllTypeDocuments();
@@ -58,13 +60,6 @@ const VisualizarEmpresa = ({ }) => {
       console.error('Error fetching companies:', error);
     }
   };
-
-
-
-
-
-
-
 
   // Abrir el modal
   const handleOpenModal = async () => {

@@ -83,18 +83,18 @@ const CrearListas = () => {
 
     let newErrors = {};
 
-    // if (!category) newErrors.category = 'Este campo es obligatorio';
-    // if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
-    // if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
-    // if (!commonName) newErrors.commonName = 'Este campo es obligatorio';
-    // if (!variable) newErrors.variable = 'Este campo es obligatorio';
-    // // if (!image) newErrors.image = 'Este campo es obligatorio';
-    // if (!description) newErrors.description = 'Este campo es obligatorio';
+    if (!category) newErrors.category = 'Este campo es obligatorio';
+    if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
+    if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
+    if (!commonName) newErrors.commonName = 'Este campo es obligatorio';
+    if (!variable) newErrors.variable = 'Este campo es obligatorio';
+    // if (!image) newErrors.image = 'Este campo es obligatorio';
+    if (!description) newErrors.description = 'Este campo es obligatorio';
 
-    // if (Object.keys(newErrors).length > 0) {
-    //   setErrors(newErrors);
-    //   return;
-    // }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     // Si no hay errores, continuar al siguiente paso
     setStep((prev) => prev + 1);

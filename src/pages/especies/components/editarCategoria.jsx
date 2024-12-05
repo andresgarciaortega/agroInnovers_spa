@@ -148,10 +148,6 @@ const EditarCategorias = () => {
         event.preventDefault();
 
         try {
-            // let imageUrl = image;
-            // if (image && typeof image === 'object') {
-            //     imageUrl = await UploadToS3(image);
-            // }
             let imageUrl = '';
 
             if (formData.image.name) {

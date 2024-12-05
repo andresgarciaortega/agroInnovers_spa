@@ -18,7 +18,7 @@ const SpeciesService = {
     async getSpecieById(id) {
         try {
             const response = await api.get(`/species/${id}`);
-            return response.data;
+            return response;
         } catch (error) {
             console.error('Error al obtener la especies:', error);
             throw error;
@@ -40,7 +40,7 @@ const SpeciesService = {
     async updateSpecie(id, data) {
         try {
             const response = await api.put(`/species/${id}`, data);
-            return response.data;
+            return response;
         } catch (error) {
             console.error('Error al actualizar la especies:', error);
             throw error;
