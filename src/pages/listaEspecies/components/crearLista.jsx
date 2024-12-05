@@ -21,10 +21,17 @@ const CrearListas = () => {
   const [parameters, setParameters] = useState([]);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
+<<<<<<< HEAD
     variable: [],
     subcategory: 0,
     scientificName: '',
     subcategory: 0,
+=======
+    variable: 0,
+    subcategory: 0,
+    scientificName: '',
+    subcategory:0,
+>>>>>>> 1e4a8212c601a8d35da4846a150a8f70d67db44e
     commonName: '',
     category: 0,
     image: null,
@@ -143,61 +150,64 @@ const CrearListas = () => {
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setFormData({
-        ...formData,
-        image: file,
-      });
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+        setFormData({
+            ...formData,
+            image: file,
+        });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImage(reader.result);
+        };
+        reader.readAsDataURL(file);
     }
-  };
-  const handleSubmit = async (event) => {
+};
+const handleSubmit = async (event) => {
+    
+  event.preventDefault();
+  if (!validateForm()) return;
 
-    event.preventDefault();
-    if (!validateForm()) return;
-
-    try {
+  try {
       let imageUrl = '';
       if (formData.image) {
-        imageUrl = await UploadToS3(formData.image);
+          imageUrl = await UploadToS3(formData.image);
       }
 
       const parsedCompanyId = parseInt(companyId, 10);
       if (isNaN(parsedCompanyId)) {
-        showErrorAlert("El ID de la empresa debe ser un número válido.");
-        return;
+          showErrorAlert("El ID de la empresa debe ser un número válido.");
+          return;
       }
 
       const formDataToSubmit = {
-        ...formData,
-        scientific_name,
-        common_name: commonName,
-        description: description,
-        category_id: category,
-        subcategory_id: subcategory,
-        image: imageUrl,
-        company_id: parsedCompanyId,
-        stage: stage.map(stage => ({
-          name: stage.name,
-          description: stage.description,
-          time_to_production: time_to_productionanyId,
-        })),
-        subcategory: subcategory.map(subcategory => ({
-          name: subcategory.name,
+          ...formData,
+          scientific_name,
+          common_name: commonName,
+          description: description,
+          category_id:category,
+          subcategory_id:subcategory,
+          image: imageUrl,
           company_id: parsedCompanyId,
-        })),
+          stage: stage.map(stage => ({
+              name: stage.name,
+              description: stage.description,
+              time_to_production: time_to_productionanyId,
+          })),
+          subcategory: subcategory.map(subcategory => ({
+              name: subcategory.name,
+              company_id: parsedCompanyId,
+          })),
       };
+      console.log('datos', formDataToSubmit)
 
       const createdCategory = await CategoryService.createCategory(formDataToSubmit);
+      console.log('crear categoría',createdCategory)
+      console.log("Categoría creada exitosamente");
       navigate('../especies');
-    } catch (error) {
+  } catch (error) {
       console.error("Error:", error);
-    }
-  };
-
+      console.log("Hubo un error al crear la categoría");
+  }
+};
 
 
   // GUARDAR DATOS DE LOS STAGES 
