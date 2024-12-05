@@ -6,6 +6,8 @@ import ParameterModal from './formLimit';
 import SpeciesService from '../../../services/SpeciesService';
 import { FaCheckCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } from '@mui/material';
+
 
 const CrearListas = () => {
   const navigate = useNavigate();
@@ -13,22 +15,53 @@ const CrearListas = () => {
   const [step, setStep] = useState(0);
   const [categories, setCategories] = useState([]);
   const [subcategory, setSubcategory] = useState([]);
-  const [stages, setStages] = useState([]);
   const [variables, setVariables] = useState([]);
   const [selectedVariables, setSelectedVariables] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [parameters, setParameters] = useState([]);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
+<<<<<<< HEAD
+    variable: [],
+    subcategory: 0,
+    scientificName: '',
+    subcategory: 0,
+=======
     variable: 0,
     subcategory: 0,
     scientificName: '',
     subcategory:0,
+>>>>>>> 1e4a8212c601a8d35da4846a150a8f70d67db44e
     commonName: '',
     category: 0,
     image: null,
     description: '',
   });
+  const [stages, setStages] = useState();
+
+  const [stagesJson, setStagesJson] = useState(
+    {
+      stage_id: '',
+      description: '',
+      time_to_production: '',
+    }
+  );
+
+
+  const [selected, setSelected] = useState([]);
+
+  const handleChangeCategory = (event) => {
+    const { value } = event.target;
+
+    setFormData((prevState) => ({
+      ...prevState,
+      variable: value, // Actualiza `formData.variable` con los IDs seleccionados
+    }));
+  };
+
+
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,19 +83,16 @@ const CrearListas = () => {
   const handleChange = async (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    console.log(formData.category)
 
     if (name === "category") {
       try {
 
         const subcategory = await CategoryService.getCategoryById(value);
-        console.log('subcategorias', subcategory.subcategories)
         setSubcategory(subcategory.subcategories);
 
 
 
         const stages = await CategoryService.getCategoryById(value);
-        console.log('etapas', stages.stages)
 
         setStages(stages.stages);
       } catch (error) {
@@ -70,7 +100,6 @@ const CrearListas = () => {
       }
     }
   };
-  console.log(formData.category)
 
 
   const handleVariableChange = (e) => {
@@ -180,6 +209,40 @@ const handleSubmit = async (event) => {
   }
 };
 
+
+  // GUARDAR DATOS DE LOS STAGES 
+  const handleStageChange = (index, field, value) => {
+    setStages((prevStages) =>
+      prevStages.map((stage, i) =>
+        i === index
+          ? { ...stage, [field]: value } // Solo actualiza el campo del stage correspondiente
+          : stage
+      )
+    );
+  };
+
+  const [formattedStages, setFormattedStages] = useState([]);
+
+  const formatStages = () => {
+    const transformed = stages.map(stage => ({
+      stage_id: stage.id,
+      description: stage.description,
+      time_to_production: stage.time_to_production,
+    }));
+    console.log(transformed)
+    setFormattedStages(transformed);
+  };
+
+
+  const verData = () => {
+    const transformed = stages.map(stage => ({
+      stage_id: stage.id,
+      description: stage.description,
+      time_to_production: stage.time_to_production,
+    }));
+    setFormattedStages(transformed);
+    console.log(formattedStages)
+  }
   return (
     <div className="container mx-auto p-8">
       <div className="bg-white rounded-lg shadow-xl p-6">
@@ -296,7 +359,7 @@ const handleSubmit = async (event) => {
                 <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">
                   Variable
                 </label>
-                <select
+                {/* <select
                   id="variable"
                   name="variable"
                   value={formData.variable}
@@ -309,8 +372,34 @@ const handleSubmit = async (event) => {
                       {variable.name}
                     </option>
                   ))}
-                </select>
+                </select> 
                 {errors.variable && <p className="text-red-500 text-xs mt-1">{errors.variable}</p>}
+                <hr />*/}
+                <FormControl
+                  className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.variable ? 'border-red-500' : 'text-gray-500'
+                    }`}
+                >
+                  <Select
+                    multiple
+                    value={formData.variable || []} // Usa `formData.variable` como valor
+                    onChange={handleChangeCategory}
+                    renderValue={(selectedIds) =>
+                      variables
+                        .filter((option) => selectedIds.includes(option.id))
+                        .map((option) => option.name)
+                        .join(', ')
+                    }
+                  >
+                    {variables.map((option) => (
+                      <MenuItem key={option.id} value={option.id}>
+                        <Checkbox checked={formData.variable?.includes(option.id)} />
+                        <ListItemText primary={option.name} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+
               </div>
               <div>
                 <label htmlFor="image" className="block text-sm font-medium text-gray-700  mb-1">Imagen de especie</label>
@@ -356,79 +445,73 @@ const handleSubmit = async (event) => {
           )}
 
           {step === 1 && (
-           <div className="grid grid-cols-1 gap-4 mt-5 border-spacing-2">
-           <div>
-             <div className="mt-4">
-               <label htmlFor="stages" className="block text-sm font-medium text-gray-700 mb-1">
-                 Etapas
-               </label>
-               <div className="space-y-4">
-                 {stages.map((stage, index) => (
-                   <div key={index} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
-                     <div className="flex justify-between items-center mb-2">
-                       <h3 className="text-sm font-semibold text-gray-800">
-                         {`Etapa ${index + 1}`}
-                       </h3>
-                       <button
-                         onClick={() => handleOpenModal(stage.id)}
-                         className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                       >
-                         Añadir Parámetro
-                       </button>
-                     </div>
-         
-                     <div className="flex justify-between mb-2">
-                       <div className="w-1/2">
-                         <label className="text-sm font-medium text-gray-700">Nombre de la etapa</label>
-                       </div>
-                       <div className="w-1/2">
-                         <label className="text-sm font-medium text-gray-700">Tiempo de Producción</label>
-                       </div>
-                     </div>
-         
-                     {/* Alineación horizontal de Nombre y Descripción */}
-                     <div className="flex gap-4">
-                       <div className="w-1/2">
-                         <input
-                           type="text"
-                           value={stage.name}
-                           placeholder="Nombre de la etapa"
-                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                           disabled
-                         />
-                       </div>
-                       <div className="w-1/2">
-                         <input
-                           type="text"
-                           value={stage.description}
-                           placeholder="Tiempo de producción"
-                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                           disabled
-                         />
-                       </div>
-                     </div>
-                   </div>
-                 ))}
-               </div>
-             </div>
-           </div>
-         
-           <ul className="space-y-2 mt-4">
-             {parameters.map((param, index) => (
-               <li key={index} className="border border-gray-300 rounded-md p-4">
-                 <strong>Variable:</strong> {param.variable}, <strong>Min Normal:</strong> {param.minNormal}, <strong>Max Normal:</strong> {param.maxNormal}
-               </li>
-             ))}
-           </ul>
-         </div>
-         
-         
+            <div className="grid grid-cols-1 gap-4 mt-5 border-spacing-2">
+              <div>
+                <div className="mt-4">
+                  <label htmlFor="stages" className="block text-sm font-medium text-gray-700 mb-1">
+                    Etapas
+                  </label>
+                  <div className="space-y-4">
+                    {stages.map((stage, index) => (
+                      <div key={index} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
+                        {/* Título de la etapa y botón para añadir parámetros */}
+                        <div className="flex justify-between items-center mb-2">
+                          <h3 className="text-sm font-semibold text-gray-800">
+                            {`Etapa ${index + 1}`}
+                          </h3>
+                          <button
+                            onClick={() => handleOpenModal(stage.id)}
+                            className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          >
+                            Añadir Parámetro
+                          </button>
+                        </div>
+
+                        {/* Campos de descripción y tiempo de producción */}
+                        <div className="flex justify-between mb-2">
+                          <div className="w-1/2">
+                            <label className="text-sm font-medium text-gray-700">Descripción</label>
+                            <input
+                              type="text"
+                              placeholder="Descripción de la etapa"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              onChange={(e) => handleStageChange(index, 'description', e.target.value)}
+                            />
+                          </div>
+                          <div className="w-1/2">
+                            <label className="text-sm font-medium text-gray-700">Tiempo de Producción</label>
+                            <input
+                              type="number"
+                              placeholder="Tiempo de producción"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              onChange={(e) => handleStageChange(index, 'time_to_production', e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+
+                </div>
+              </div>
+
+              <ul className="space-y-2 mt-4">
+                {parameters.map((param, index) => (
+                  <li key={index} className="border border-gray-300 rounded-md p-4">
+                    <strong>Variable:</strong> {param.variable}, <strong>Min Normal:</strong> {param.minNormal}, <strong>Max Normal:</strong> {param.maxNormal}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+
           )}
         </div>
         <div className="mt-6 flex justify-end space-x-4">
-          {step !== 1 && ( 
+          {step !== 1 && (
             <button
-              onClick={() => navigate('../listaEspecie')} 
+              onClick={() => navigate('../listaEspecie')}
               className="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 mb- hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
             >
               Cancelar
@@ -455,7 +538,7 @@ const handleSubmit = async (event) => {
 
           {step === 1 && (
             <button
-              onClick={() => alert('Finalizar')}
+              onClick={verData}
               className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-base font-medium text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
             >
               Finalizar
