@@ -2,40 +2,41 @@ import React, { useState, useEffect } from 'react'
 import { ChevronDown, Upload, Plus, X } from 'lucide-react'
 import CategoryService from '../../../services/CategoryService';
 import VaiableService from '../../../services/variableService';
+import CompanyService from '../../../services/CompanyService';
 import ParameterModal from './formLimit';
 import SpeciesService from '../../../services/SpeciesService';
 import { FaCheckCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } from '@mui/material';
+import UploadToS3 from '../../../config/UploadToS3';
 
 
 const CrearListas = () => {
   const navigate = useNavigate();
-
+  const [image, setImage] = useState(null);
+const [selectedStageId, setSelectedStageId] = useState(null);
+const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [step, setStep] = useState(0);
+  const [companyId, setCompanies] = useState(null);
+
   const [categories, setCategories] = useState([]);
   const [subcategory, setSubcategory] = useState([]);
   const [variables, setVariables] = useState([]);
   const [selectedVariables, setSelectedVariables] = useState([]);
-  const [isModalOpen, setModalOpen] = useState(false);
   const [parameters, setParameters] = useState([]);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
-<<<<<<< HEAD
     variable: [],
     subcategory: 0,
     scientificName: '',
-    subcategory: 0,
-=======
-    variable: 0,
-    subcategory: 0,
-    scientificName: '',
-    subcategory:0,
->>>>>>> 1e4a8212c601a8d35da4846a150a8f70d67db44e
+    company_id: 0,
     commonName: '',
     category: 0,
     image: null,
     description: '',
+    stage: [],
+    parameters: [],
   });
   const [stages, setStages] = useState();
 
@@ -60,7 +61,17 @@ const CrearListas = () => {
   };
 
 
-
+  useEffect(() => {
+    const fetchCompany = async () => {
+        try {
+            const data = await CompanyService.getAllCompany();
+            setCompanies(data);
+        } catch (error) {
+            console.error('Error fetching companies:', error);
+        }
+    };
+    fetchCompany();
+}, []);
 
 
   useEffect(() => {
@@ -112,13 +123,13 @@ const CrearListas = () => {
 
     let newErrors = {};
 
-    if (!category) newErrors.category = 'Este campo es obligatorio';
-    if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
-    if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
-    if (!commonName) newErrors.commonName = 'Este campo es obligatorio';
-    if (!variable) newErrors.variable = 'Este campo es obligatorio';
-    // if (!image) newErrors.image = 'Este campo es obligatorio';
-    if (!description) newErrors.description = 'Este campo es obligatorio';
+    // if (!category) newErrors.category = 'Este campo es obligatorio';
+    // if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
+    // if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
+    // if (!commonName) newErrors.commonName = 'Este campo es obligatorio';
+    // if (!variable) newErrors.variable = 'Este campo es obligatorio';
+    // // if (!image) newErrors.image = 'Este campo es obligatorio';
+    // if (!description) newErrors.description = 'Este campo es obligatorio';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -135,16 +146,17 @@ const CrearListas = () => {
   };
 
   const handleOpenModal = () => {
-    setModalOpen(true);
+    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setModalOpen(false);
+    setIsModalOpen(false);
   };
 
   const handleSaveParameter = (newParameter) => {
     setParameters((prev) => [...prev, newParameter]);
-    setModalOpen(false);
+    console.log('Parámetro guardado:', parameter);
+    setIsModalOpen(false);
   };
 
   const handleImageUpload = (event) => {
@@ -161,56 +173,64 @@ const CrearListas = () => {
         reader.readAsDataURL(file);
     }
 };
+const showErrorAlert = (message) => {
+  console.error(message);
+};
+
 const handleSubmit = async (event) => {
-    
   event.preventDefault();
-  if (!validateForm()) return;
 
   try {
       let imageUrl = '';
       if (formData.image) {
           imageUrl = await UploadToS3(formData.image);
       }
+      const parsedCompanyId = parseInt(formData.company_id, 10);
 
-      const parsedCompanyId = parseInt(companyId, 10);
-      if (isNaN(parsedCompanyId)) {
-          showErrorAlert("El ID de la empresa debe ser un número válido.");
-          return;
-      }
+      const selectedVariables = formData.variable || [];
+
+      // Asegurarse de que category_id y subcategory_id sean enteros
+      const categoryId = isNaN(formData.category) ? 0 : parseInt(formData.category, 10);
+      const subcategoryId = isNaN(formData.subcategory) ? 0 : parseInt(formData.subcategory, 10);
+
+      // Asegurarse de que time_to_production sea un número entero
+      const updatedStages = stages.map(stage => ({
+          stage_id: stage.id, 
+          description: stage.description,
+          time_to_production: isNaN(stage.time_to_production) ? 0 : parseInt(stage.time_to_production, 10),
+          parameters: (stage.parameters || []).map(param => ({
+              variable_id: param.variable_id,
+              min_normal_value: param.min_normal_value,
+              max_normal_value: param.max_normal_value,
+              min_limit: param.min_limit,
+              max_limit: param.max_limit
+          }))
+      }));
 
       const formDataToSubmit = {
-          ...formData,
-          scientific_name,
-          common_name: commonName,
-          description: description,
-          category_id:category,
-          subcategory_id:subcategory,
-          image: imageUrl,
+          scientific_name: formData.scientificName,
+          common_name: formData.commonName,
+          description: formData.description,
+          photo: imageUrl, 
+          category_id: categoryId,
+          subcategory_id: subcategoryId,
           company_id: parsedCompanyId,
-          stage: stage.map(stage => ({
-              name: stage.name,
-              description: stage.description,
-              time_to_production: time_to_productionanyId,
-          })),
-          subcategory: subcategory.map(subcategory => ({
-              name: subcategory.name,
-              company_id: parsedCompanyId,
-          })),
+          stages: updatedStages,
+          variables: selectedVariables
       };
-      console.log('datos', formDataToSubmit)
 
-      const createdCategory = await CategoryService.createCategory(formDataToSubmit);
-      console.log('crear categoría',createdCategory)
-      console.log("Categoría creada exitosamente");
-      navigate('../especies');
+      console.log('datos', formDataToSubmit);
+
+      const createdSpecie = await SpeciesService.createSpecie(formDataToSubmit);
+      console.log('crear especie', createdSpecie);
+      console.log("especie creada exitosamente");
+      navigate('../ListaEspecie');
   } catch (error) {
       console.error("Error:", error);
-      console.log("Hubo un error al crear la categoría");
+      console.log("Hubo un error al crear la especie");
   }
 };
 
-
-  // GUARDAR DATOS DE LOS STAGES 
   const handleStageChange = (index, field, value) => {
     setStages((prevStages) =>
       prevStages.map((stage, i) =>
@@ -244,6 +264,7 @@ const handleSubmit = async (event) => {
     console.log(formattedStages)
   }
   return (
+    <form onSubmit={handleSubmit} className="p-6">
     <div className="container mx-auto p-8">
       <div className="bg-white rounded-lg shadow-xl p-6">
         <h2 className="text-2xl font-semibold mb-6">Crear Lista de Especies</h2>
@@ -280,6 +301,7 @@ const handleSubmit = async (event) => {
 
         <div className="space-y-6">
           {step === 0 && (
+            
             <div className="grid grid-cols-2 gap-4 mt-5">
 
               <div>
@@ -302,6 +324,7 @@ const handleSubmit = async (event) => {
                 </select>
                 {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
               </div>
+              
 
               <div>
                 <label htmlFor="subcategory" className="block text-sm font-medium text-gray-700 mb-1">
@@ -359,22 +382,6 @@ const handleSubmit = async (event) => {
                 <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">
                   Variable
                 </label>
-                {/* <select
-                  id="variable"
-                  name="variable"
-                  value={formData.variable}
-                  onChange={handleChange}
-                  className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.variable ? 'border-red-500' : 'text-gray-500'}`}
-                >
-                  <option value="" className="text-gray-500">Selecciona una opción</option>
-                  {variables?.map((variable) => (
-                    <option key={variable.id} value={variable.id}>
-                      {variable.name}
-                    </option>
-                  ))}
-                </select> 
-                {errors.variable && <p className="text-red-500 text-xs mt-1">{errors.variable}</p>}
-                <hr />*/}
                 <FormControl
                   className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.variable ? 'border-red-500' : 'text-gray-500'
                     }`}
@@ -422,10 +429,31 @@ const handleSubmit = async (event) => {
                   id="image-upload"
                   type="file"
                   className="hidden "
-                  onChange="{handleImageUpload}"
+                  onChange={handleImageUpload}
                   accept="image/*"
                 />
                 {errors.variable && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
+              </div>
+
+              <div className="col-span-2">
+                <label htmlFor="company_id" className="block text-sm font-medium text-gray-700 mb-1">
+                  Empresa
+                </label>
+                <select
+                  id="company_id"
+                  name="company_id"
+                  value={formData.company_id}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.company_id ? 'border-red-500' : 'text-gray-500'}`}
+                >
+                  <option value="" className="text-gray-500">Selecciona una opción</option>
+                  {companyId?.map((company_id) => (
+                    <option key={company_id.id} value={company_id.id}>
+                      {company_id.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
               </div>
               <div className="col-span-2">
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
@@ -460,7 +488,7 @@ const handleSubmit = async (event) => {
                             {`Etapa ${index + 1}`}
                           </h3>
                           <button
-                            onClick={() => handleOpenModal(stage.id)}
+                            onClick={() => handleOpenModal}
                             className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                           >
                             Añadir Parámetro
@@ -487,6 +515,13 @@ const handleSubmit = async (event) => {
                               onChange={(e) => handleStageChange(index, 'time_to_production', e.target.value)}
                             />
                           </div>
+                          <ul className="space-y-2 mt-4">
+                          {stage.parameters && stage.parameters.map((parameter, paramIndex) => (
+                  <li key={index} className="border border-gray-300 rounded-md p-4">
+                    <strong>Variable:</strong> {param.variable}, <strong>Min Normal:</strong> {param.minNormal}, <strong>Max Normal:</strong> {param.maxNormal}
+                  </li>
+                ))}
+              </ul>
                         </div>
                       </div>
                     ))}
@@ -496,13 +531,7 @@ const handleSubmit = async (event) => {
                 </div>
               </div>
 
-              <ul className="space-y-2 mt-4">
-                {parameters.map((param, index) => (
-                  <li key={index} className="border border-gray-300 rounded-md p-4">
-                    <strong>Variable:</strong> {param.variable}, <strong>Min Normal:</strong> {param.minNormal}, <strong>Max Normal:</strong> {param.maxNormal}
-                  </li>
-                ))}
-              </ul>
+             
             </div>
 
 
@@ -558,6 +587,7 @@ const handleSubmit = async (event) => {
         />
       )}
     </div>
+    </form>
   );
 };
 

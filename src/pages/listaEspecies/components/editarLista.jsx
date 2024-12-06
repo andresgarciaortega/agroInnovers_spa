@@ -7,7 +7,8 @@ import { FaCheckCircle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import SpeciesService from '../../../services/SpeciesService';
 import ParameterModal from './formLimit';
-
+import SuccessAlert from "../../../components/alerts/success";
+import ErrorAlert from "../../../components/alerts/error";
 import UploadToS3 from '../../../config/UploadToS3';
 import CompanyService from '../../../services/CompanyService';
 import { IoCloudUploadOutline } from "react-icons/io5";
@@ -18,11 +19,29 @@ const EditarLista = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [imagePreview, setImagePreview] = useState(null);
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [isEditModalOpen, setEditModalOpen] = useState(false);
+    const [selectedParameter, setSelectedParameter] = useState(null);
 
     const [step, setStep] = useState(0);
     const [stage, setStage] = useState([
         { name: "", description: "" },
     ]);
+    const [newParameter, setNewParameter] = useState({
+        min_normal_value: '',
+        max_normal_value: '',
+        min_limit: '',
+        max_limit: ''
+    });
+    const [showModal, setShowModal] = useState(false); // Para controlar si el modal está visible
+    const [selectedStageId, setSelectedStageId] = useState(null); // Para guardar la etapa seleccionada
+    const [newParamValues, setNewParamValues] = useState({
+        minNormalValue: '',
+        maxNormalValue: '',
+        minLimit: '',
+        maxLimit: '',
+    }); // Para manejar los valores de los nuevos parámetros
+
 
     const [categories, setCategories] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
@@ -37,9 +56,9 @@ const EditarLista = () => {
     const [companies, setCompanies] = useState([]);
     const [parameters, setParameters] = useState([]);
     const [formData, setFormData] = useState({
-        category_id: '',
+        category_id: 0,
         company_id: 0,
-        subcategory_id: '',
+        subcategory_id: 0,
         scientificName: '',
         commonName: '',
         variable_id: 0,
@@ -55,8 +74,6 @@ const EditarLista = () => {
         fetchSpecie();
         fetchCompanies();
         fetchCategory();
-        fetchSubcategories();
-
 
     }, []);
 
@@ -77,17 +94,14 @@ const EditarLista = () => {
             console.error('Error fetching subcategories:', error);
         }
     };
-
-
-
     const fetchSpecie = async () => {
         try {
             const data = await SpeciesService.getSpecieById(id);
             console.log("Datos de especie:", data);
             setFormData({
-                category_id: data.category || 0,
+                category_id: data.category?.id || 0,
                 company_id: data.company_id || 0,
-                subcategory_id: data.subcategory || 0,
+                subcategory_id: data.subcategory?.id || 0,
                 scientificName: data.scientific_name || '',
                 commonName: data.common_name || '',
                 variable_id: data.variables || 0,
@@ -100,7 +114,7 @@ const EditarLista = () => {
             setImagePreview(data.photo);
 
             if (data.category) {
-                fetchSubcategories(data.category);
+                await fetchSubcategories(data.category?.id);
             }
         } catch (error) {
             console.error("Error fetching specie data:", error);
@@ -168,9 +182,13 @@ const EditarLista = () => {
     };
 
     const handleStageChange = (index, field, value) => {
-        const updatedStages = [...formData.stage];
-        updatedStages[index][field] = value;
-        setFormData({ ...formData, stage: updatedStages });
+        setStages((prevStages) =>
+            prevStages.map((stage, i) =>
+                i === index
+                    ? { ...stage, [field]: value } // Solo actualiza el campo del stage correspondiente
+                    : stage
+            )
+        );
     };
 
     const handleVariableChange = (e) => {
@@ -186,17 +204,46 @@ const EditarLista = () => {
         setStep((prev) => prev - 1);
     };
 
-    const handleOpenModal = () => {
-        setModalOpen(true);
+    const handleOpenModal = (stageId) => {
+        setSelectedStageId(stageId); 
+        setModalOpen(true); 
     };
 
     const handleCloseModal = () => {
         setModalOpen(false);
     };
 
-    const handleSaveParameter = (newParameter) => {
-        setParameters((prev) => [...prev, newParameter]);
-        setModalOpen(false);
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewParameter({
+            ...newParameter,
+            [name]: value
+        });
+    };
+    const handleSaveParameter = () => {
+        const updatedStages = formData.stage.map((stage) => {
+            if (stage.id === selectedStageId) {
+                return {
+                    ...stage,
+                    parameters: [
+                        ...stage.parameters,
+                        {
+                            id: newParameterId,
+                            min_normal_value: newParamValues.minNormalValue,
+                            max_normal_value: newParamValues.maxNormalValue,
+                            min_limit: newParamValues.minLimit,
+                            max_limit: newParamValues.maxLimit,
+                        },
+                    ],
+                };
+            }
+            return stage;
+        });
+        setFormData({
+            ...formData,
+            stage: updatedStages,
+        });
+        setShowModal(false);
     };
 
     const handleGoBack = () => {
@@ -219,8 +266,29 @@ const EditarLista = () => {
             reader.readAsDataURL(file);
         }
     };
+    const handleAddParameter = () => {
+        const updatedStages = formData.stage.map((stage) => {
+            if (stage.id === selectedStageId) {
+                return {
+                    ...stage,
+                    parameters: [
+                        ...stage.parameters,
+                        {
+                            id: stage.parameters.length + 1, // Asigna un id único
+                            ...newParameter
+                        }
+                    ]
+                };
+            }
+            return stage;
+        });
 
+        // Actualiza el estado con las etapas modificadas
+        setFormData({ ...formData, stage: updatedStages });
 
+        // Cierra el modal después de agregar el parámetro
+        handleCloseModal();
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -235,13 +303,6 @@ const EditarLista = () => {
             }
 
             const parsedCompanyId = parseInt(formData.company_id, 10);
-            // if (isNaN(parsedCompanyId)) {
-            //     setShowAlertError(true);
-            //     setMessageAlert("El ID de la empresa debe ser un número válido.");
-            //     return;
-            // }
-
-
 
             const formDataToSubmit = {
                 scientific_name: formData.scientificName,
@@ -268,14 +329,7 @@ const EditarLista = () => {
                 variables: formData.variable_id ? formData.variable_id.map(variable => variable.id && !isNaN(parseInt(variable.id, 10)) ? parseInt(variable.id, 10) : null) : [],
             };
 
-
-
-            console.log('datos', formData)
-            console.log('id compañia', formData.company_id)
-            console.log('datos de entrada', formDataToSubmit)
-
             await SpeciesService.updateSpecie(id, formDataToSubmit);
-
             setShowSuccessAlert(true);
             setTimeout(() => setShowSuccessAlert(false), 3000);
             navigate('../Listaespecie');
@@ -285,17 +339,30 @@ const EditarLista = () => {
             setShowAlertError(true);
             setMessageAlert("Hubo un error al editar la especie.");
         }
-
+    };
+    const handleEditClick = (parameter) => {
+        setSelectedParameter(parameter); // Establece el parámetro seleccionado
+        setEditModalOpen(true); // Abre el modal
     };
 
+    const handleDeleteClick = (paramId) => {
+        setFormData((prevData) => {
+            return {
+                ...prevData,
+                stage: prevData.stage.map((stage) => ({
+                    ...stage,
+                    parameters: stage.parameters.filter((param) => param.id !== paramId), // Eliminar parámetro por id
+                })),
+            };
+        });
+    };
 
     const handleCancel = () => navigate('../Listaespecie');
-    return (
-        <form onSubmit={handleSubmit} className="p-6">
-            <div className="container mx-auto p-8">
-                <div className="bg-white rounded-lg shadow-xl p-6">
 
-                    {/* Sección dividida en tres partes */}
+    return (
+        <form onSubmit={handleSubmit} className="">
+            <div className="container mx-auto p-2">
+                <div className="bg-white rounded-lg shadow-xl p-6">
                     <div className="grid grid-cols-3 gap-4 mb-6">
                         <div className="mb- py-">
                             <label>Adjuntar Logo</label>
@@ -314,9 +381,6 @@ const EditarLista = () => {
                             </div>
                             <input id="logo-upload" type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
                         </div>
-
-
-                        {/* Sección 2: Nombre Común y Científico */}
                         <div className="flex flex-col justify-center">
                             <div className="mb-2">
                                 <label htmlFor="commonName" className="block text-sm font-medium text-gray-700">
@@ -393,8 +457,6 @@ const EditarLista = () => {
                                     ))}
                                 </select>
                             </div>
-
-
                         </div>
                     </div>
 
@@ -423,7 +485,6 @@ const EditarLista = () => {
 
                                     {stage.parameters.length > 0 && (
                                         <div className="mt-4">
-
                                             <div className="flex justify-between space-x-">
                                                 <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
                                                     Condiciones operación normal
@@ -432,11 +493,9 @@ const EditarLista = () => {
                                                     Condiciones operación Criticas
                                                 </h4>
                                             </div>
-
                                             <table className="min-w-full table-auto border-collapse">
                                                 <thead>
                                                     <tr className="bg-gray-200">
-                                                        {/* Aquí solo "Variable" tendrá negrita */}
                                                         <th className="border px-4 py-2 font-bold">Variable</th>
                                                         <th className="border px-4 py-2 font-semibold">Mínimo</th>
                                                         <th className="border px-4 py-2 font-semibold">Máximo</th>
@@ -454,12 +513,12 @@ const EditarLista = () => {
                                                             <td className="border px-4 py-2">{param.min_limit}</td>
                                                             <td className="border px-4 py-2">{param.max_limit}</td>
                                                             <td className="border px-4 py-2">
-                                                                <button
+                                                                <button onClick={() => handleEditClick(paramIndex)}
                                                                     className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
                                                                 >
                                                                     <Edit size={20} />
                                                                 </button>
-                                                                <button
+                                                                <button onClick={() => handleDeleteClick(param.id)}
                                                                     className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
                                                                 >
                                                                     <Trash size={20} />
@@ -475,6 +534,8 @@ const EditarLista = () => {
                             </div>
                         ))}
                     </div>
+
+
                     <div className="flex justify-end space-x-4 mt-8">
                         <button type="button"
                             onClick={handleCancel}
@@ -483,19 +544,72 @@ const EditarLista = () => {
                             Cancelar
                         </button>
                         <button type="submit" className="btn btn-primary">Guardar</button>
-
-
                     </div>
-
                 </div>
             </div>
             {isModalOpen && (
-                <ParameterModal
-                    isOpen={isModalOpen}
-                    onClose={handleCloseModal}
-                    onSave={handleSaveParameter}
-                />
+                <div className="modal">
+                    <div className="modal-content">
+                        <h2>Agregar Parámetro</h2>
+                        <form onSubmit={(e) => { e.preventDefault(); handleAddParameter(); }}>
+                            <div>
+                                <label>Min. Normal:</label>
+                                <input
+                                    type="number"
+                                    name="min_normal_value"
+                                    value={newParameter.min_normal_value}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                            <div>
+                                <label>Max. Normal:</label>
+                                <input
+                                    type="number"
+                                    name="max_normal_value"
+                                    value={newParameter.max_normal_value}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                            <div>
+                                <label>Límite Mín:</label>
+                                <input
+                                    type="number"
+                                    name="min_limit"
+                                    value={newParameter.min_limit}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                            <div>
+                                <label>Límite Máx:</label>
+                                <input
+                                    type="number"
+                                    name="max_limit"
+                                    value={newParameter.max_limit}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                            <button type="submit">Agregar</button>
+                            <button type="button" onClick={handleCloseModal}>Cancelar</button>
+                        </form>
+                    </div>
+                </div>
             )}
+
+            {/* {isEditModalOpen && (
+                <ParameterModal
+                    isOpen={isEditModalOpen}
+                    onClose={() => setEditModalOpen(false)}
+                    parameter={selectedParameter}
+                    onSave={(updatedParameter) => {
+                        setParameters((prev) =>
+                            prev.map((param) =>
+                                param.id === updatedParameter.id ? updatedParameter : param
+                            )
+                        );
+                        setEditModalOpen(false);
+                    }}
+                />
+            )} */}
         </form>
 
     );
