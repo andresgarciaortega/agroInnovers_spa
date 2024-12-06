@@ -79,7 +79,6 @@ const EditarLista = () => {
     };
 
 
-
     const fetchSpecie = async () => {
         try {
             const data = await SpeciesService.getSpecieById(id);

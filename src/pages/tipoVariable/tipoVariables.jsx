@@ -132,36 +132,36 @@ const TipoVariable = () => {
 
 
   //eliminar
- // Eliminar
-const handleDelete = (typevariable) => {
-  setSelectedTypeVariable(typevariable);
-  setIsDeleteModalOpen(true);
-};
+  // Eliminar
+  const handleDelete = (typevariable) => {
+    setSelectedTypeVariable(typevariable);
+    setIsDeleteModalOpen(true);
+  };
 
-const handleConfirmDelete = async () => {
-  try {
-    setIsDeleteModalOpen(false); 
-    setSelectedTypeVariable(null); 
+  const handleConfirmDelete = async () => {
+    try {
+      setIsDeleteModalOpen(false);
+      setSelectedTypeVariable(null);
 
-    await VariableType.deleteTypeVariable(selectedTypeVariable.id); 
+      await VariableType.deleteTypeVariable(selectedTypeVariable.id);
 
-    setMessageAlert("Tipo de variable eliminada exitosamente");
-    showErrorAlertSuccess("Eliminado");
-    updateTypeVariable(); 
-  } catch (error) {
-    
-    if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
-      setMessageAlert(error.message);
-      setShowErrorVariableAlert(true); 
-    } else {
-      
-      setMessageAlert("No se puede eliminar el Tipo de variable porque está asociada a uno o más variables");
-      setShowErrorAlert(true);
+      setMessageAlert("Tipo de variable eliminada exitosamente");
+      showErrorAlertSuccess("Eliminado");
+      updateTypeVariable();
+    } catch (error) {
+
+      if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
+        setMessageAlert(error.message);
+        setShowErrorVariableAlert(true);
+      } else {
+
+        setMessageAlert("No se puede eliminar el Tipo de variable porque está asociada a uno o más variables");
+        setShowErrorAlert(true);
+      }
+
+      console.error("Error al eliminar el tipo de variable:", error);
     }
-
-    console.error("Error al eliminar el tipo de variable:", error);
-  }
-};
+  };
 
 
 
@@ -200,7 +200,7 @@ const handleConfirmDelete = async () => {
   };
 
   const updateTypeVariable = async () => {
-    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
+    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
     if (!companyId) {
       setTypeVariablesList([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
@@ -380,7 +380,7 @@ const handleConfirmDelete = async () => {
           onCancel={handleCloseAlert}
         />
       )}
-      
+
 
       {showSuccessAlert && (
         <SuccessAlert
@@ -405,20 +405,20 @@ const handleConfirmDelete = async () => {
         </div>
       )}
 
-{showErrorVariableAlert && (
-  <div className="alert alert-error fixed top-5 right-5 w-96 shadow-lg">
-    <div>
-      <IoIosWarning className="text-red-500 w-6 h-6" />
-      <span>{messageAlert}</span>
-    </div>
-    <button
-      className="btn btn-sm btn-outline ml-auto"
-      onClick={() => setShowErrorVariableAlert(false)}
-    >
-      Cerrar
-    </button>
-  </div>
-)}
+      {showErrorVariableAlert && (
+        <div className="alert alert-error fixed top-5 right-5 w-96 shadow-lg">
+          <div>
+            <IoIosWarning className="text-red-500 w-6 h-6" />
+            <span>{messageAlert}</span>
+          </div>
+          <button
+            className="btn btn-sm btn-outline ml-auto"
+            onClick={() => setShowErrorVariableAlert(false)}
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
 
     </div>
   );

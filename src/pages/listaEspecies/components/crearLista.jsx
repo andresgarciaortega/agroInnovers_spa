@@ -21,17 +21,10 @@ const CrearListas = () => {
   const [parameters, setParameters] = useState([]);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
-<<<<<<< HEAD
     variable: [],
     subcategory: 0,
     scientificName: '',
-    subcategory: 0,
-=======
-    variable: 0,
-    subcategory: 0,
-    scientificName: '',
     subcategory:0,
->>>>>>> 1e4a8212c601a8d35da4846a150a8f70d67db44e
     commonName: '',
     category: 0,
     image: null,

@@ -65,8 +65,6 @@ const VisualizarLista = () => {
     const fetchSpecie = async () => {
         try {
             const data = await SpeciesService.getSpecieById(id);
-            console.log("Fetched data:", data); // Verifica que data.stages esté presente y sea lo esperado.
-
             setFormData({
                 category_id: data.category_id || 0,
                 company_id: data.company_id || 0,
@@ -80,6 +78,7 @@ const VisualizarLista = () => {
                 parameters: data.parameters || []
             });
 
+            console.log("formData : :: ",formData)
             setNewSpecie(data);
             setImagePreview(data.image);
             fetchSubcategories(data.category_id);
@@ -88,7 +87,6 @@ const VisualizarLista = () => {
         }
     };
     useEffect(() => {
-        console.log("Updated formData:", formData);
     }, [formData]);
 
 
@@ -231,7 +229,6 @@ const VisualizarLista = () => {
                 })) // Mapea las etapas
             };
 
-            console.log("Datos a enviar:", formDataToSubmit);
 
             // Llamada al servicio para actualizar la especie
             await SpeciesService.updateSpecie(id, formDataToSubmit); // Asegúrate de que el servicio esté preparado para manejar este formato
