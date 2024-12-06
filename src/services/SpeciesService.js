@@ -51,7 +51,7 @@ const SpeciesService = {
     async deleteSpecie(id) {
         try {
             const response = await api.delete(`/species/${id}`);
-            return response.data;
+            return response;
         } catch (error) {
             console.error('Error al eliminar la especies:', error);
             throw error;

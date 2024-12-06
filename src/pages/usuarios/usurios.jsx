@@ -377,8 +377,13 @@ const Usuario = () => {
 
       {/* Modal crea,editar,visualizar*/}
       {isModalOpen && (
-        <GenericModal title={modalMode === 'edit' ? 'Editar Usuario' : modalMode === 'view' ? 'Ver Usuario' : 'Añadir Usuario'} onClose={closeModal}>
-          <FormUser showErrorAlert={showErrorAlertSuccess} onUpdate={updateListUsers} user={newUser} mode={modalMode} closeModal={closeModal} />
+        <GenericModal 
+        title={modalMode === 'edit' ? 'Editar Usuario' : modalMode === 'view' ? 'Ver Usuario' : 'Añadir Usuario'} 
+        onClose={closeModal}>
+          <FormUser 
+          showErrorAlert={showErrorAlertSuccess} 
+          onUpdate={updateListUsers} 
+          user={newUser} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
       )}
 

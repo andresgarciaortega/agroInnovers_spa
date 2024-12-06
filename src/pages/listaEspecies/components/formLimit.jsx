@@ -1,29 +1,17 @@
-import React, { useState, useEffect } from 'react'
-import { ChevronDown, Upload, Plus, X } from 'lucide-react'
-import Box from '@mui/material/Box';
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
-import CategoryService from '../../../services/CategoryService';
-import SubcategoryService from '../../../services/SubcategoryService';
-import StagesService from '../../../services/StagesService';
-import VaiableService from '../../../services/variableService';
+import React, { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import VaiableService from "../../../services/variableService";
 
-
-
-const FormLimit = ({ isOpen, onClose, onSave }) => {
+const FormLimit = ({ isOpen, onClose, onSave, selectedParameter }) => {
   const [errors, setErrors] = useState({});
   const [variables, setVariables] = useState([]);
   const [parameter, setParameter] = useState({
-    variable: '',
-    minNormal: '',
-    maxNormal: '',
-    minLimit: '',
-    maxLimit: '',
-    minAlertMessage: '',
-    maxAlertMessage: ''
+    variable: "",
+    minNormal: "",
+    maxNormal: "",
+    minLimit: "",
+    maxLimit: "",
   });
-  const [savedParameters, setSavedParameters] = useState([]); // Estado para guardar los parámetros
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,36 +24,71 @@ const FormLimit = ({ isOpen, onClose, onSave }) => {
     };
 
     fetchData();
-  }, []);
+
+    if (selectedParameter) {
+      setParameter(selectedParameter);
+    } else {
+      resetForm();
+    }
+  }, [selectedParameter]);
+
+  const resetForm = () => {
+    setParameter({
+      variable: "",
+      minNormal: "",
+      maxNormal: "",
+      minLimit: "",
+      maxLimit: "",
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setParameter((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
-    // Guarda el parámetro en el estado de parámetros guardados
-    setSavedParameters((prev) => [...prev, parameter]);
-    onSave(parameter);
-    setParameter({ // Limpiar el formulario
-      variable: '',
-      minNormal: '',
-      maxNormal: '',
-      minLimit: '',
-      maxLimit: '',
-      minAlertMessage: '',
-      maxAlertMessage: ''
-    });
-    onClose();
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!parameter.variable) newErrors.variable = "La variable es obligatoria";
+    if (!parameter.minNormal) newErrors.minNormal = "El valor mínimo normal es obligatorio";
+    if (!parameter.maxNormal) newErrors.maxNormal = "El valor máximo normal es obligatorio";
+    if (!parameter.minLimit) newErrors.minLimit = "El límite mínimo es obligatorio";
+    if (!parameter.maxLimit) newErrors.maxLimit = "El límite máximo es obligatorio";
+
+    // Validar números negativos
+    if (parameter.minNormal < 0) newErrors.minNormal = "El valor mínimo no puede ser negativo";
+    if (parameter.maxNormal < 0) newErrors.maxNormal = "El valor máximo no puede ser negativo";
+    if (parameter.minLimit < 0) newErrors.minLimit = "El límite mínimo no puede ser negativo";
+    if (parameter.maxLimit < 0) newErrors.maxLimit = "El límite máximo no puede ser negativo";
+
+    // Validar que el valor mínimo sea menor que el valor máximo
+    if (parseFloat(parameter.minNormal) > parseFloat(parameter.maxNormal)) {
+      newErrors.minNormal = "El valor mínimo debe ser menor al valor máximo";
+    }
+    if (parseFloat(parameter.minLimit) > parseFloat(parameter.maxLimit)) {
+      newErrors.minLimit = "El límite mínimo debe ser menor al límite máximo";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   if (!isOpen) return null;
+
+  const handleSave = () => {
+    if (validateForm()) {
+      onSave(parameter);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
         <div className="bg-green-700 text-white px-6 py-4 rounded-t-lg flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Añadir parámetros</h2>
+          <h2 className="text-xl font-semibold">
+            {selectedParameter ? "Editar Parámetro" : "Añadir Parámetro"}
+          </h2>
           <button onClick={onClose} className="text-white hover:text-gray-200">
             <X size={24} />
           </button>
@@ -73,7 +96,9 @@ const FormLimit = ({ isOpen, onClose, onSave }) => {
         <div className="p-6">
           <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
             <p className="font-bold">Recomendación:</p>
-            <p>Para poder crear un parámetro es necesario haber creado una variable antes, ya que se debe seleccionar la variable que se va a parametrizar.</p>
+            <p>
+              Para poder crear un parámetro es necesario haber creado una variable antes, ya que se debe seleccionar la variable que se va a parametrizar.
+            </p>
           </div>
           <div className="space-y-4">
             <div>
@@ -85,7 +110,7 @@ const FormLimit = ({ isOpen, onClose, onSave }) => {
                 name="variable"
                 value={parameter.variable}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.variable ? 'border-red-500' : 'text-gray-500'}`}
+                className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 cursor-pointer ${errors.variable ? "border-red-500" : "text-gray-500"}`}
               >
                 <option value="" className="text-gray-500">Selecciona una opción</option>
                 {variables?.map((variable) => (
@@ -96,63 +121,41 @@ const FormLimit = ({ isOpen, onClose, onSave }) => {
               </select>
               {errors.variable && <p className="text-red-500 text-xs mt-1">{errors.variable}</p>}
             </div>
-           
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="minNormal" className="block text-sm font-medium text-gray-700 mb-1 mb-1">Valor mínimo normal</label>
-                <input
-                  type="text"
-                  id="minNormal"
-                  name="minNormal"
-                  value={parameter.minNormal}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
-                />
-              </div>
-              <div>
-                <label htmlFor="maxNormal" className="block text-sm font-medium text-gray-700 mb-1 mb-1">Valor máximo normal</label>
-                <input
-                  type="text"
-                  id="maxNormal"
-                  name="maxNormal"
-                  value={parameter.maxNormal}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#168C0DFF] focus:border-green-500"
-                />
-              </div>
-              <div>
-                <label htmlFor="minLimit" className="block text-sm font-medium text-gray-700 mb-1 mb-1">Limite minimo</label>
-                <input
-                  type="text"
-                  id="minLimit"
-                  name="minLimit"
-                  value={parameter.minLimit}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#168C0DFF] focus:border-green-500"
-                />
-              </div>
-              <div>
-                <label htmlFor="maxLimit" className="block text-sm font-medium text-gray-700 mb-1 mb-1">Limite máximo</label>
-                <input
-                  type="text"
-                  id="maxLimit"
-                  name="maxLimit"
-                  value={parameter.maxLimit}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#168C0DFF] focus:border-green-500"
-                />
-              </div>
-             
+              {/* Campos de entrada */}
+              {["minNormal", "maxNormal", "minLimit", "maxLimit"].map((field) => (
+                <div key={field}>
+                  <label htmlFor={field} className="block text-sm font-medium text-gray-700 mb-1">
+                    {field === "minNormal" && "Valor mínimo normal"}
+                    {field === "maxNormal" && "Valor máximo normal"}
+                    {field === "minLimit" && "Límite mínimo"}
+                    {field === "maxLimit" && "Límite máximo"}
+                  </label>
+                  <input
+                    type="number"
+                    id={field}
+                    name={field}
+                    value={parameter[field]}
+                    onChange={handleChange}
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 ${errors[field] ? "border-red-500" : ""}`}
+                  />
+                  {errors[field] && <p className="text-red-500 text-xs mt-1">{errors[field]}</p>}
+                </div>
+              ))}
             </div>
+            {Object.keys(errors).some((key) => errors[key]) && (
+              <p className="text-red-500 text-xs mt-1">Corrige los errores antes de guardar.</p>
+            )}
           </div>
         </div>
         <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
           <button
             type="button"
-            className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#168C0DFF] text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
+            className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-700 text-base font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
             onClick={handleSave}
+            disabled={!validateForm()} // Deshabilitar el botón si hay errores
           >
-            Guardar
+            {selectedParameter ? "Actualizar" : "Guardar"}
           </button>
           <button
             type="button"

@@ -7,9 +7,11 @@ import StagesService from '../../../services/StagesService';
 import UploadToS3 from '../../../config/UploadToS3';
 import CompanyService from '../../../services/CompanyService';
 import { IoCloudUploadOutline } from "react-icons/io5";
+import SuccessAlert from "../../../components/alerts/success";
 
 const CrearCategorias = ({ }) => {
     const navigate = useNavigate();
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [name, setName] = useState('');
     const [image, setImage] = useState(null);
     const [stage, setStage] = useState([]);
@@ -19,11 +21,16 @@ const CrearCategorias = ({ }) => {
     const [setShowErrorAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState("");
     const [formData, setFormData] = useState({
-        name: '',
+        category_id: 0,
+        company_id: 0,
+        subcategory_id: 0,
+        scientificName: '',
+        commonName: '',
+        variable_id: 0,
         image: null,
-        company_id: null,
+        descripcion: '',
         stage: [],
-        subcategory: [],
+        parameters: [],
     });
 
     useEffect(() => {
@@ -110,9 +117,15 @@ const CrearCategorias = ({ }) => {
                     }
                 })
             );
-    
+            setShowSuccessAlert(true); // Mostrar la alerta de éxito
+            setTimeout(() => {
+                setShowSuccessAlert(false); // Ocultar la alerta después de 3 segundos
+            }, 3000);
             console.log("Categoría, subcategorías y etapas creadas correctamente.");
-            navigate('../especies');
+            setTimeout(() => {
+                navigate('../especies');
+            }, 3000); 
+            
         } catch (error) {
             console.error("Error durante la creación:", error);
             handleErrorAlert(`Hubo un error al crear la categoría: ${error.message}`);
@@ -149,7 +162,6 @@ const CrearCategorias = ({ }) => {
     };
 
 
-
     const showErrorAlert = (message) => {
         console.error(message);
     };
@@ -182,6 +194,14 @@ const CrearCategorias = ({ }) => {
         }
         return true;
     };
+    // const SuccessAlert = ({ message }) => {
+    //     return (
+    //         <div className="fixed top-0 right-0 m-4 bg-green-500 text-white p-4 rounded shadow">
+    //             {message || '¡Operación exitosa!'}
+    //         </div>
+    //     );
+    // };
+    
 
     <CrearCategorias showErrorAlert={handleErrorAlert} />
     const handleCancel = () => {
@@ -361,6 +381,10 @@ const CrearCategorias = ({ }) => {
                     {messageAlert}
                 </div>
             )}
+           {showSuccessAlert && (
+    <SuccessAlert message="Categoría creada exitosamente" />
+)}
+
 
 
         </form>

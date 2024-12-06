@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-
+import ErrorAlert from "../../components/alerts/error";
 import { Edit, Trash, Eye, Plus } from 'lucide-react';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoIosWarning } from 'react-icons/io';
@@ -11,6 +11,7 @@ import SpeciesService from "../../services/SpeciesService";
 import CompanyService from "../../services/CompanyService";
 import CategoryService from "../../services/CategoryService";
 import SuccessAlert from "../../components/alerts/success";
+import Error from "../../components/alerts/error";
 import { IoSearch } from "react-icons/io5";
 
 
@@ -141,7 +142,7 @@ const ListaEspecies = () => {
   // Paginación
   const indexOfLastEspecie = currentPage * itemsPerPage;
   const indexOfFirstEspecie = indexOfLastEspecie - itemsPerPage;
-  const currentCompanies = filteredEspecie.slice(indexOfFirstEspecie, indexOfLastEspecie);
+  const currentSpecies = filteredEspecie.slice(indexOfFirstEspecie, indexOfLastEspecie);
 
   const handleNextPage = () => {
     if (currentPage < Math.ceil(filteredEspecie.length / itemsPerPage)) {
@@ -187,8 +188,8 @@ const ListaEspecies = () => {
   };
 
   //eliminar
-  const handleDelete = (especie) => {
-    setSelectedEspecie(especie);
+  const handleDelete = (species) => {
+    setSelectedEspecie(species);
     setIsDeleteModalOpen(true);
   };
 
@@ -201,14 +202,40 @@ const ListaEspecies = () => {
     }, 2500);
   }
 
+  const showErrorAlertFailure = (message) => {
+    setShowErrorAlert(true);
+    setMessageAlert(`La especie se ${message} exitosamente`);
+
+    setTimeout(() => {
+      setShowErrorAlert(false);
+    }, 2500);
+  };
+
+
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
     setSelectedEspecie(null);
-    const data = await SpeciesService.deleteSpecie(selectedEspecie.id);
-    setMessageAlert("Especie eliminada exitosamente");
-    showErrorAlertSuccess("eliminado");
-    updateService();
+
+    try {
+      console.log("Confirmando eliminación de especie con id:", selectedEspecie.id);
+
+      const data = await SpeciesService.deleteSpecie(selectedEspecie.id);
+
+      if (data.success) {
+        showErrorAlertSuccess("eliminado");
+        updateService();
+      } else {
+        console.error('La especie se elimino correctamente ', data);
+        showErrorAlertFailure("eliminó");
+      }
+    } catch (error) {
+      updateService();
+      console.error('La especie se elimino correctamente ', error);
+      showErrorAlertFailure("elimino");
+    }
   };
+
+
 
 
   const handleCancelDelete = () => {
@@ -220,8 +247,8 @@ const ListaEspecies = () => {
   };
 
   const updateService = async () => {
-    setShowErrorAlertTable(false);
-    setSpeciesList([]);
+    // setShowErrorAlertTable(false);
+    // setSpeciesList([]);
 
     try {
 
@@ -308,7 +335,7 @@ const ListaEspecies = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {speciesList.map((species, index) => (
+              {currentSpecies.map((species, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{species.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -336,7 +363,7 @@ const ListaEspecies = () => {
                   </td> */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {species.stages?.reduce((totalTime, stage, stageIndex) => {
-                    
+
                       return totalTime + stage.time_to_production;
                     }, 0) / 30} meses
                   </td>
@@ -348,7 +375,7 @@ const ListaEspecies = () => {
                     <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleEditSpecie(species)}>
                       <Edit size={18} />
                     </button>
-                    <button onClick={() => handleDelete(especie)} className=" text-[#168C0DFF] px-2 py-2 rounded">
+                    <button onClick={() => handleDelete(species)} className=" text-[#168C0DFF] px-2 py-2 rounded">
                       <Trash size={18} />
                     </button>
                   </td>
@@ -360,7 +387,7 @@ const ListaEspecies = () => {
           {/* Modaeliminación */}
           {isDeleteModalOpen && (
             <Delete
-              message={`¿Seguro que desea eliminar el usuario ${selectedEspecie?.name}?`}
+              message={`¿Seguro que desea eliminar la especie ${selectedEspecie?.name}?`}
               onCancel={handleCancelDelete}
               onConfirm={handleConfirmDelete}
             />
@@ -370,7 +397,9 @@ const ListaEspecies = () => {
       <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
         <div className="border border-gray-200 rounded py-2 text-sm m-2">
           <span>Cantidad de filas</span>
-          <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
+          <select className="text-xs"
+            value={itemsPerPage}
+            onChange={(e) => setItemsPerPage(Number(e.target.value))}>
             <option value={5}>5</option>
             <option value={10}>10</option>
             <option value={15}>15</option>
@@ -383,7 +412,8 @@ const ListaEspecies = () => {
             <IoIosArrowBack size={20} />
           </button>
           <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-            onClick={handleNextPage} disabled={currentPage === Math.ceil(speciesList.length / itemsPerPage)}>
+            onClick={handleNextPage}
+            disabled={currentPage === Math.ceil(speciesList.length / itemsPerPage)}>
             <IoIosArrowForward size={20} />
           </button>
         </div>
@@ -421,6 +451,19 @@ const ListaEspecies = () => {
           </div>
         </div>
       )}
+
+      {showErrorAlert && (
+        <div className="alert-container">
+          {messageAlert && <SuccessAlert message={messageAlert} onCancel={closeModal} />}
+        </div>
+      )}
+
+      {showErrorAlertTable && (
+        <div className="alert-container">
+          <ErrorAlert message={messageAlert} onCancel={closeModal} />
+        </div>
+      )}
+
 
 
 
