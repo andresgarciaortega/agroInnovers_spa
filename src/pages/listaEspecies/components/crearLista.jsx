@@ -30,11 +30,7 @@ const [isModalOpen, setIsModalOpen] = useState(false);
     variable: [],
     subcategory: 0,
     scientificName: '',
-<<<<<<< HEAD
-    subcategory:0,
-=======
     company_id: 0,
->>>>>>> 5cc22948cc31091a3b8d2e10983008b88145f0d6
     commonName: '',
     category: 0,
     image: null,

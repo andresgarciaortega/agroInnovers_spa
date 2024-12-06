@@ -94,11 +94,6 @@ const EditarLista = () => {
             console.error('Error fetching subcategories:', error);
         }
     };
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 5cc22948cc31091a3b8d2e10983008b88145f0d6
     const fetchSpecie = async () => {
         try {
             const data = await SpeciesService.getSpecieById(id);
