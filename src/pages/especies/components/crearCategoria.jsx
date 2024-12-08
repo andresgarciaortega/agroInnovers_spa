@@ -117,10 +117,10 @@ const CrearCategorias = ({ }) => {
                     }
                 })
             );
-            setShowSuccessAlert(true); // Mostrar la alerta de éxito
+            setShowSuccessAlert(true); 
             setTimeout(() => {
-                setShowSuccessAlert(false); // Ocultar la alerta después de 3 segundos
-            }, 3000);
+                setShowSuccessAlert(false); 
+            }, 2500);
             console.log("Categoría, subcategorías y etapas creadas correctamente.");
             setTimeout(() => {
                 navigate('../especies');
@@ -161,7 +161,12 @@ const CrearCategorias = ({ }) => {
         setSubcategory(updatedsubcategory);
     };
 
-
+    useEffect(() => {
+        if (showSuccessAlert) {
+            console.log("Show success alert:", showSuccessAlert);
+        }
+    }, [showSuccessAlert]);
+    
     const showErrorAlert = (message) => {
         console.error(message);
     };

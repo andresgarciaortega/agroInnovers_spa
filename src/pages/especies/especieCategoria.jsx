@@ -37,6 +37,8 @@ const Especie = () => {
   const [categoryList, setCategoryList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedSubategory, setSelectedSubategory] = useState(null);
+  const [selectedStages, setSelectedStages] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -147,54 +149,62 @@ const Especie = () => {
 
 
 
+
+
   const handleDeleteCategory = (category) => {
     setSelectedCategory(category);
+    setSelectedSubategory(category);
+    setSelectedStages(category);
     setIsDeleteModalOpen(true);
   };
-
+  
   const handleConfirmDelete = async () => {
     if (!selectedCategory) return;
-
+  
     try {
-      // Cierra el modal de confirmación
       setIsDeleteModalOpen(false);
-
-      // Llama al servicio para eliminar la categoría
+  
       await CategoryServices.deleteCategory(selectedCategory.id);
-
+  
       // Mensaje de éxito
-      setMessageAlert("Categoría eliminada exitosamente");
-      showErrorAlertSuccess("eliminada");
-
+      const successMessage = "Categoría eliminada exitosamente";
+      setMessageAlert(successMessage);
+      showErrorAlertSuccess(successMessage);
+  
       // Actualiza la lista de categorías
       updateService();
     } catch (error) {
-      // Manejo de errores
+      updateService();
+  
+      // Determina el mensaje según el tipo de error
+      let errorMessage;
       if (error.response && error.response.status === 409) {
-        setMessageAlert(
-          "La categoría tiene subcategorías o etapas asociadas y no puede ser eliminada."
-        );
+        errorMessage =
+          "Esta categoría no se puede eliminar porque tiene etapas y subcategorías asociadas.";
       } else {
-        setMessageAlert("Hubo un error al intentar eliminar la categoría.");
+        errorMessage = "Esta categoría no se puede eliminar porque tiene etapas y subcategorías asociadas.";
       }
-      showErrorAlertError(messageAlert);
+  
+      // Muestra la alerta de error con el mensaje adecuado
+      showErrorAlertError(errorMessage);
     }
   };
-
-
+  
   const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true);
-    setMessageAlert(`Categoría ${message} exitosamente`); // Agregamos "exitosamente" solo cuando es un éxito
+    setMessageAlert(message); // Mensaje de éxito
     setTimeout(() => setShowErrorAlert(false), 2500);
   };
-
+  
   const showErrorAlertError = (message) => {
     setShowErrorAlert(true);
-    setMessageAlert(`Esta categoría no se puede eliminar por que tiene etapas y subcategorías acosiadas`); // Agregamos "exitosamente" solo cuando es un éxito
+    setMessageAlert(message); // Mensaje personalizado según el error
     setTimeout(() => setShowErrorAlert(false), 3000);
   };
+  
+
   const handleCancel = () => {
-    setShowErrorAlert(false); // Esto cierra el modal cuando se hace clic en "Cancelar"
+    setShowErrorAlert(false); 
 };
 
 

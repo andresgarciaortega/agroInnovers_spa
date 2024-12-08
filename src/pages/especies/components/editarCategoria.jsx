@@ -191,7 +191,9 @@ const EditarCategorias = () => {
             setShowSuccessAlert(true);
             setTimeout(() => setShowSuccessAlert(false), 3000);
             console.log("Show success alert:", showSuccessAlert);
-            navigate('../especies');
+            setTimeout(() => {
+                navigate('../especies');
+            }, 3000); 
 
         } catch (error) {
             console.error("Error:", error);

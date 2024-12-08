@@ -53,7 +53,7 @@ const CategoryServices = {
     async deleteCategory(id) {
         try {
             const response = await api.delete(`/category-species/${id}`);
-            return response.data;
+            return response;
         } catch (error) {
             console.error('Error al eliminar la categoría:', error);
             throw error;
