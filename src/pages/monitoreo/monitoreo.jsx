@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import './monitoreo.css';
 import { Edit, Trash, Eye } from 'lucide-react';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import Delete from '../../components/delete';
@@ -7,6 +6,11 @@ import { useCompanyContext } from "../../context/CompanyContext";
 import SystemMonitory from "../../services/monitoreo";
 import SuccessAlert from "../../components/alerts/success";
 import CompanySelector from "../../components/shared/companySelect";
+import { useNavigate } from 'react-router-dom';
+import GenericModal from '../../components/genericModal';
+import FormMonitoreo from './components/formMoni';
+// import MonitoreoService from '../../../services/monitoreo';
+
 
 // Icons
 import { ImEqualizer2 } from "react-icons/im";
@@ -26,31 +30,43 @@ const Monitoreo = () => {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorVariableAlert, setShowErrorVariableAlert] = useState(false);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
-
+  const navigate = useNavigate();
   const { selectedCompanyUniversal } = useCompanyContext();
   const [selectedCompany, setSelectedCompany] = useState('');
+  const [selectedVariable, setSelectedVariable] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const indexOfLastDevice = currentPage * itemsPerPage;
-  const indexOfFirstDevice = indexOfLastDevice - itemsPerPage;
-  const currentDevices = data.slice(indexOfFirstDevice, indexOfLastDevice);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("create");
+ 
 
+  const [newSistem, setNewSistem] = useState({
+    nombreId: '',
+    // displayFisico: true,
+    ipFija: '',
+    usuarioAcceso: '',
+    claveAcceso: '',
+    unidadSincronizacion: '',
+    frecuenciaSincronizacion: '',
+
+  });
 
   useEffect(() => {
-    const fetchTypeVariables = async () => {
+    const fetchMonitoreo = async () => {
       try {
-        // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
-        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
+        
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
 
-        // Verifica si companyId no es vacío antes de hacer la llamada
+       
         if (!companyId) {
-          setData([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
+          setData([]); 
           return;
         } else {
           setNameCompany(selectedCompanyUniversal.label)
         }
         const data = await SystemMonitory.getAllMonitories(companyId);
 
-        // Verifica si la respuesta es válida y si contiene datos
+     
         if (data.statusCode === 404) {
           setData([]);
         } else {
@@ -58,23 +74,43 @@ const Monitoreo = () => {
           setData(Array.isArray(data) ? data : []);
         }
       } catch (error) {
-        console.error('Error fetching type variables:', error);
-        setData([]); // Vaciar la lista en caso de error
-        setMessageAlert('Esta empresa no tiene variables registradas, Intentalo con otra empresa');
+        console.error('Error fetching type Monitoreo:', error);
+        setData([]); 
+        setMessageAlert('Esta empresa no tiene Monitoreo registradas, Intentalo con otra empresa');
         setShowErrorAlertTable(true);
       }
     };
 
-    // Llamamos a la función para obtener las variables de tipo de la empresa seleccionada
-    fetchTypeVariables();
-  }, [selectedCompanyUniversal]); // Asegúrate de usar el valor correcto (selectedCompanyUniversal)
+    fetchMonitoreo();
+  }, [selectedCompanyUniversal]); 
 
-
+  const filteredMonitoreo = data.filter(monitoreo => {
+    const searchLower = searchTerm.toLowerCase();
+  
+    // Filtrar por nombreId, ipFija y displayFisico
+    return (
+      (monitoreo.nombreId && monitoreo.nombreId.toLowerCase().includes(searchLower)) ||
+      (monitoreo.ipFija && monitoreo.ipFija.toLowerCase().includes(searchLower)) ||
+      (monitoreo.displayFisico !== undefined && 
+        (searchLower === 'activo' ? monitoreo.displayFisico === true : 
+        searchLower === 'inactivo' ? monitoreo.displayFisico === false : 
+        (monitoreo.nombreId && monitoreo.nombreId.toLowerCase().includes(searchLower)) ||
+        (monitoreo.ipFija && monitoreo.ipFija.toLowerCase().includes(searchLower))
+      ))
+    );
+  });
+  
+  
+  
+  const indexOfLastDevice = currentPage * itemsPerPage;
+  const indexOfFirstDevice = indexOfLastDevice - itemsPerPage;
+  const currentDevices = filteredMonitoreo.slice(indexOfFirstDevice, indexOfLastDevice);
+  
 
 
 
   const handleNextPage = () => {
-    if (currentPage < Math.ceil(data.length / itemsPerPage)) {
+    if (currentPage < Math.ceil(filteredMonitoreo.length / itemsPerPage)) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -90,8 +126,8 @@ const Monitoreo = () => {
     setCurrentPage(1);
   };
 
-  const handleDelete = (device) => {
-    setSelectedDevice(device);
+  const handleDelete = (monitoreo) => {
+    setSelectedDevice(monitoreo);
     setIsDeleteModalOpen(true);
   };
 
@@ -101,7 +137,7 @@ const Monitoreo = () => {
       setSelectedDevice(null);
       await SystemMonitory.deleteMonitories(selectedDevice.id);
       console.log(SystemMonitory)
-      setMessageAlert("Tipo de variable eliminada exitosamente");
+      setMessageAlert("Tipo de monitoreo eliminada exitosamente");
       showErrorAlertSuccess("Eliminado");
       updateListMonitories();
     } catch (error) {
@@ -110,16 +146,16 @@ const Monitoreo = () => {
         setMessageAlert(error.message);
         setShowErrorVariableAlert(true);
       } else {
-        setMessageAlert("No se puede eliminar el Tipo de variable porque está asociada a uno o más variables");
+        setMessageAlert("No se puede eliminar el Tipo de monitoreo porque está asociada a uno o más Monitoreo");
         setShowErrorAlert(true);
       }
-      console.error("Error al eliminar el tipo de variable:", error);
+      console.error("Error al eliminar el tipo de monitoreo:", error);
     }
   };
 
   const showErrorAlertSuccess = (message) => {
     setShowSuccessAlert(true)
-    setMessageAlert(`Tipo de variable ${message} exitosamente`);
+    setMessageAlert(`Tipo de monitoreo ${message} exitosamente`);
 
     setTimeout(() => {
       setShowSuccessAlert(false)
@@ -127,23 +163,59 @@ const Monitoreo = () => {
   }
 
   const updateListMonitories = async () => {
-    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
     try {
+        
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
+
+     
       if (!companyId) {
-        setData([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
+        setData([]); 
         return;
       } else {
         setNameCompany(selectedCompanyUniversal.label)
       }
-
       const data = await SystemMonitory.getAllMonitories(companyId);
-      setData(data); // Actualiza typevariableList con los datos más recientes
-      setShowErrorAlertTable(false);
+
+   
+      if (data.statusCode === 404) {
+        setData([]);
+      } else {
+        setShowErrorAlertTable(false);
+        setData(Array.isArray(data) ? data : []);
+      }
     } catch (error) {
-      console.error('Error al actualizar los tipos de variable:', error);
+      console.error('Error fetching type Monitoreo:', error);
+      setData([]); 
+      setMessageAlert('Esta empresa no tiene Monitoreo registradas, Intentalo con otra empresa');
+      setShowErrorAlertTable(true);
     }
   };
 
+  const handleOpenModal = (monitoreo = null, mode = 'create') => {
+    setSelectedVariable(monitoreo);
+    setModalMode(mode);
+    if (mode === 'edit' || mode === 'view') {
+      setNewSistem(monitoreo);
+    } else {
+      setNewSistem({
+        name: '',
+        icon: '',
+        unit_of_measurement: '',
+        type_variable_id: '',
+        type_register_id: '',
+
+      });
+    }
+    setIsModalOpen(true);
+  };
+
+  // Cerrar el modal
+  const closeModal = async () => {
+    setIsModalOpen(false);
+    setSelectedVariable(null);
+    setModalMode('create');
+    // updateService();
+  };
 
 
   const handleCancelDelete = () => {
@@ -152,18 +224,41 @@ const Monitoreo = () => {
   };
 
   const toggleSwitch = (deviceId) => {
-    setData(data.map(device => (
-      device.id === deviceId ? { ...device, dispAsignados: !device.dispAsignados } : device
+    setData(data.map(monitoreo => (
+      monitoreo.id === deviceId ? { ...monitoreo, dispAsignados: !monitoreo.dispAsignados } : monitoreo
     )));
   };
 
   const handleCloseAlert = () => {
     setShowErrorAlert(false);
+    setIsDeleteModalOpen(false);
+
   };
 
-  
+
   const handleCloseErrorAlert = () => {
     setShowErrorAlertTable(false);
+  };
+
+  const updateService = async () => {
+    setShowErrorAlertTable(false);
+    setData([]);
+
+    try {
+
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
+      if (!companyId) {
+        setData([]);
+        return;
+      }
+
+      const data = await SystemMonitory.getAllMonitories(companyId);
+
+      setData(data);
+    } catch (error) {
+      console.error('Error al actualizar los sistemas de monitoreo:', error);
+    }
   };
 
 
@@ -178,10 +273,10 @@ const Monitoreo = () => {
 
         <br />
         <div className="flex items-center space-x-2 text-gray-700">
-          <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Variables */}
-          <span>Gestión de variables</span>
+          <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Monitoreo */}
+          <span>Gestión de Monitoreo</span>
           <span>/</span>
-          <span>Tipo de variables</span>
+          <span>Tipo de Monitoreo</span>
           <span>/</span>
           <span className="text-black font-bold"> {nameCompany ? nameCompany : ''} </span>
           <span className="text-black font-bold"> </span>
@@ -190,16 +285,25 @@ const Monitoreo = () => {
           )}
 
         </div>
-
       </div>
+      <div className="relative w-full mt-6 py-5 z-0">
+        {/* Input de búsqueda */}
+        <input
+          type="text"
+          placeholder="Buscar variable"
+          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
 
-
-
+        {/* Icono de búsqueda alineado a la izquierda */}
+        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+      </div>
 
       <div className="bg-white rounded-lg shadow">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">Monitoreo de Dispositivos</h2>
-          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center">
+          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
             Crear dispositivo
           </button>
         </div>
@@ -217,33 +321,35 @@ const Monitoreo = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {currentDevices.map((device, index) => (
-                <tr key={device.id}>
+              {currentDevices.map((monitoreo, index) => (
+                <tr key={monitoreo.id}>
                   <td className="px-6 py-4 text-sm font-semibold text-gray-900">{index + 1}</td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">{device.nombreId}</td>
+                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">{monitoreo.nombreId}</td>
                   <td className="px-6 py-4 text-sm text-gray-700">
                     <div
-                      className={`relative inline-flex items-center h-6 rounded-full w-11 cursor-pointer transition-colors ease-in-out duration-200 ${device.displayFisico ? 'bg-[#168C0DFF]' : 'bg-gray-300'
+                      className={`relative inline-flex items-center h-7 rounded-full w-11 cursor-pointer transition-colors ease-in-out duration-200 
+                        ${monitoreo.displayFisico ? 'bg-green-500' : 'bg-gray-300'
                         }`}
-                      onClick={() => toggleSwitch(device.displayFisico)}
+                      onClick={() => toggleSwitch(monitoreo.displayFisico)}
                     >
                       <span
-                        className={`inline-block w-7 h-7 transform bg-white rounded-full transition-transform ease-in-out duration-200 border-2 border-gray-300 shadow-lg ${device.dispAsignados ? 'translate-x-5' : 'translate-x-1'
+                        className={`inline-block w-6 h-6 transform bg-white rounded-full transition-transform ease-in-out duration-200 shadow shadow-gray-700
+                           ${monitoreo.displayFisico ? 'translate-x-5' : 'translate-x-0'
                           }`}
                       />
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{device.ipFija ? device.ipFija : 'No asignado'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{monitoreo.displayFisico ? monitoreo.ipFija : 'Sin asignar'}</td>
                   <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
                   <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
                   <td className="px-6 py-4 text-sm font-medium">
-                    <button className="view-button mr-5">
-                      <Eye size={18} />
+                    <button className=" text-[#168C0DFF] px-2 py-2 rounded">
+                      <Eye size={18} onClick={() => navigate('../visualizarMonitoreo')} />
                     </button>
-                    <button className="edit-button mr-5">
+                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(monitoreo, 'edit')}>
                       <Edit size={18} />
                     </button>
-                    <button onClick={() => handleDelete(device)} className="delete-button">
+                    <button onClick={() => handleDelete(monitoreo)} className=" text-[#168C0DFF] px-2 py-2 rounded">
                       <Trash size={18} />
                     </button>
                   </td>
@@ -253,12 +359,23 @@ const Monitoreo = () => {
 
           </table>
 
+          {isModalOpen && (
+            <GenericModal
+              title={modalMode === 'edit' ? 'Editar Sistema de monitoreo' : modalMode === 'view' ? 'Ver Monitoreo' : 'Añadir Sistema de monitoreo'}
+              onClose={closeModal}
 
+              companyId={selectedCompany} >
+
+              <FormMonitoreo showErrorAlert={showErrorAlertSuccess}
+                onUpdate={updateService}
+                monitoreo={newSistem} mode={modalMode} closeModal={closeModal} />
+            </GenericModal>
+          )}
 
 
           {isDeleteModalOpen && (
             <Delete
-              message={`¿Seguro que desea eliminar el dispositivo ${selectedDevice?.nombre}?`}
+              message={`¿Seguro que desea eliminar el dispositivo ${selectedDevice?.nombreId}?`}
               onCancel={handleCancelDelete}
               onConfirm={handleConfirmDelete}
             />
@@ -269,7 +386,8 @@ const Monitoreo = () => {
       {showSuccessAlert && (
         <SuccessAlert
           message={messageAlert}
-          onCancel={handleCloseAlert}
+          onCancel={handleCancelDelete}
+
         />
       )}
 
@@ -290,10 +408,8 @@ const Monitoreo = () => {
         </div>
       )}
 
-
-
-      <div className="pagination-container">
-        <div className="pagination-info text-xs">
+<div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+        <div className="border border-gray-200 rounded py-2 text-sm m-2">
           <span>Cantidad de filas</span>
           <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
             <option value={5}>5</option>
@@ -301,12 +417,14 @@ const Monitoreo = () => {
             <option value={15}>15</option>
           </select>
         </div>
-        <div className="pagination-controls text-xs">
+        <div className="pagination-controls text-xs flex items-center space-x-2">
           <span>{indexOfFirstDevice + 1}-{indexOfLastDevice} de {data.length}</span>
-          <button className="mr-2" onClick={handlePrevPage} disabled={currentPage === 1}>
+          <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+           onClick={handlePrevPage} disabled={currentPage === 1}>
             <IoIosArrowBack size={20} />
           </button>
-          <button onClick={handleNextPage} disabled={currentPage === Math.ceil(data.length / itemsPerPage)}>
+          <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+          onClick={handleNextPage} disabled={currentPage === Math.ceil(data.length / itemsPerPage)}>
             <IoIosArrowForward size={20} />
           </button>
         </div>

@@ -38,25 +38,17 @@ const CrearListas = () => {
     stage: [],
     // parameters: [],
   });
-  const [stages, setStages] = useState([
-    { id: 1, description: '', time_to_production: '', parameters: [] },
-  ]);
-  
 
-  const [stagesJson, setStagesJson] = useState(
-    {
-      stage_id: '',
-      description: '',
-      time_to_production: '',
-      parameter: [],
-    }
-  );
   const [newParameter, setNewParameter] = useState({
+    variable: [],
     min_normal_value: '',
     max_normal_value: '',
     min_limit: '',
-    max_limit: ''
-});
+    max_limit: '',
+  }); // Nuevo
+  const [stages, setStages] = useState([
+    { id: 1, description: '', time_to_production: '', parameters: [] },
+  ]);
 
 
   const [selected, setSelected] = useState([]);
@@ -159,7 +151,7 @@ const CrearListas = () => {
     setCurrentStageId(stageId);
     setIsModalOpen(true);
   };
-  
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
@@ -235,7 +227,8 @@ const CrearListas = () => {
         variables: selectedVariables
       };
 
-      console.log('datos', formDataToSubmit);
+      console.log('datos de formdaa}ta', formDataToSubmit);
+      console.log('Datos enviados:', JSON.stringify(formDataToSubmit, null, 2));
 
       const createdSpecie = await SpeciesService.createSpecie(formDataToSubmit);
       console.log('crear especie', createdSpecie);
@@ -254,12 +247,12 @@ const CrearListas = () => {
   }, [isModalOpen]);  // Dependencia del estado modalOpen
 
 
-  const handleStageChange = (index, field, value) => {
+  const handleStageChange = (stageIndex, field, value) => {
     const updatedStages = [...stages];
-    updatedStages[index][field] = value;
+    updatedStages[stageIndex][field] = value;
     setStages(updatedStages);
   };
-  
+
 
 
   const [formattedStages, setFormattedStages] = useState([]);
@@ -285,8 +278,8 @@ const CrearListas = () => {
     updatedStages[stageIndex].parameters.push(newParameter);
     setStages(updatedStages);
   };
-  
-  
+
+
 
 
 
@@ -516,12 +509,12 @@ const CrearListas = () => {
                       Etapas
                     </label>
                     <div className="space-y-4">
-                      {stages.map((stage, index) => (
-                        <div key={index} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
+                      {stages.map((stage, stageIndex) => (
+                        <div key={stageIndex} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
                           {/* Título de la etapa y botón para añadir parámetros */}
                           <div className="flex justify-between items-center mb-2">
                             <h3 className="text-sm font-semibold text-gray-800">
-                              {`Etapa ${index + 1}`}
+                              {`Etapa ${stageIndex + 1}`}
                             </h3>
                             <button
                               onClick={() => handleOpenModal(stage.id)}
@@ -539,7 +532,7 @@ const CrearListas = () => {
                                 type="text"
                                 placeholder="Descripción de la etapa"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                onChange={(e) => handleStageChange(index, 'description', e.target.value)}
+                                onChange={(e) => handleStageChange(stageIndex, 'description', e.target.value)}
                               />
                             </div>
                             <div className="w-1/2">
@@ -548,17 +541,60 @@ const CrearListas = () => {
                                 type="number"
                                 placeholder="Tiempo de producción"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                onChange={(e) => handleStageChange(index, 'time_to_production', e.target.value)}
+                                onChange={(e) => handleStageChange(stageIndex, 'time_to_production', e.target.value)}
                               />
                             </div>
                             <ul className="space-y-2 mt-4">
-                              {stage.parameters && stage.parameters.map((parameter, paramIndex) => (
-                                <li key={paramIndex} className="border border-gray-300 rounded-md p-4">
-                                  <strong>Variable:</strong> {parameter.variable},
-                                  <strong>Min Normal:</strong> {parameter.minNormal},
-                                  <strong>Max Normal:</strong> {parameter.maxNormal}
-                                </li>
-                              ))}
+                              {stage.parameters && stage.parameters.length > 0 && (
+                                <div className="mt-4">
+                                  <div className="flex justify-between space-x-">
+                                    <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
+                                      Condiciones operación normal
+                                    </h4>
+                                    <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 py- w-full">
+                                      Condiciones operación Críticas
+                                    </h4>
+                                  </div>
+                                  <table className="min-w-full table-auto border-collapse">
+                                    <thead>
+                                      <tr className="bg-gray-200">
+                                        <th className="border px-4 py-2 font-bold">Variable</th>
+                                        <th className="border px-4 py-2 font-semibold">Mínimo</th>
+                                        <th className="border px-4 py-2 font-semibold">Máximo</th>
+                                        <th className="border px-4 py-2 font-semibold">Límite Mín</th>
+                                        <th className="border px-4 py-2 font-semibold">Límite Máx</th>
+                                        <th className="border px-4 py-2 font-semibold">Acciones</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {stage.parameters.map((param, paramIndex) => (
+                                        <tr key={paramIndex}>
+                                          <td className="border px-4 py-2">{param.variable?.name}</td>
+                                          <td className="border px-4 py-2">{param.min_normal_value}</td>
+                                          <td className="border px-4 py-2">{param.max_normal_value}</td>
+                                          <td className="border px-4 py-2">{param.min_limit}</td>
+                                          <td className="border px-4 py-2">{param.max_limit}</td>
+                                          <td className="border px-4 py-2">
+                                            <button
+                                              onClick={() => handleEditClick(stageIndex, paramIndex)}
+                                              className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
+                                            >
+                                              <Edit size={20} />
+                                            </button>
+                                            <button
+                                              onClick={() => handleDeleteClick(stageIndex, param.variable)}
+                                              className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
+                                            >
+                                              <Trash size={20} />
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              )}
+
                             </ul>
 
 
@@ -622,7 +658,6 @@ const CrearListas = () => {
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-              {/* Encabezado */}
               <div className="bg-green-700 text-white px-6 py-4 rounded-t-lg flex justify-between items-center">
                 <h2 className="text-xl font-semibold">Añadir Parámetro</h2>
                 <button onClick={handleCloseModal} className="text-white hover:text-gray-200">
@@ -630,73 +665,52 @@ const CrearListas = () => {
                 </button>
               </div>
 
-              {/* Contenido */}
               <div className="p-6">
-                <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
-                  <p className="font-bold">Recomendación:</p>
-                  <p>
-                    Para poder crear un parámetro es necesario haber creado una variable antes, ya que se debe seleccionar la variable que se va a parametrizar.
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  {/* Campo de selección */}
-                  <div>
-                    <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">
-                      Variable
-                    </label>
-                    <select
-                      id="variable"
-                      name="variable"
-                      value={newParameter.variable}
-                      onChange={handleParameterChange}
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 cursor-pointer"
-                    >
-                      <option value="" className="text-gray-500">Selecciona una opción</option>
-                      {variables?.map((variable) => (
-                        <option key={variable.id} value={variable.id}>
-                          {variable.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">Variable</label>
+                <select
+                  id="variable"
+                  name="variable"
+                  value={newParameter.variable}
+                  onChange={(e) => handleParameterChange(e, 'variable')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                >
+                  <option value="">Selecciona una opción</option>
+                  {variables?.map((variable) => (
+                    <option key={variable.id} value={variable.id}>{variable.name}</option>
+                  ))}
+                </select>
 
-                  {/* Campos de entrada */}
-                  <div className="grid grid-cols-2 gap-4">
-                    {["minNormal", "maxNormal", "minLimit", "maxLimit"].map((field) => (
-                      <div key={field}>
-                        <label htmlFor={field} className="block text-sm font-medium text-gray-700 mb-1">
-                          {field === "minNormal" && "Valor mínimo normal"}
-                          {field === "maxNormal" && "Valor máximo normal"}
-                          {field === "minLimit" && "Límite mínimo"}
-                          {field === "maxLimit" && "Límite máximo"}
-                        </label>
-                        <input
-                          type="number"
-                          id={field}
-                          name={field}
-                          value={newParameter[field]}
-                          onChange={handleParameterChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                        />
-                      </div>
-                    ))}
-                  </div>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  {['min_normal_value', 'max_normal_value', 'min_limit', 'max_limit'].map((field) => (
+                    <div key={field}>
+                      <label htmlFor={field} className="block text-sm font-medium text-gray-700">
+                        {field === 'min_normal_value' && 'Valor mínimo normal'}
+                        {field === 'max_normal_value' && 'Valor máximo normal'}
+                        {field === 'min_limit' && 'Límite mínimo'}
+                        {field === 'max_limit' && 'Límite máximo'}
+                      </label>
+                      <input
+                        type="number"
+                        id={field}
+                        value={newParameter[field]}
+                        onChange={(e) => handleParameterChange(e, field)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Botones */}
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse">
                 <button
-                  type="button"
                   onClick={handleSaveParameter}
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-700 text-base font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-700 text-base font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                 >
                   Guardar
                 </button>
                 <button
-                  type="button"
                   onClick={handleCloseModal}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                 >
                   Cancelar
                 </button>

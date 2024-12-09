@@ -21,36 +21,23 @@ const EditarLista = () => {
     const { id } = useParams();
     const [imagePreview, setImagePreview] = useState(null);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-    const [isEditModalOpen, setEditModalOpen] = useState(false);
-    const [selectedStageIndex, setSelectedStageIndex] = useState(null);
 
     const [step, setStep] = useState(0);
-    const [stage, setStage] = useState([
-        { name: "", description: "" },
-    ]);
+    // const [stage, setStage] = useState([
+        // { name: "", description: "" },
+    // ]);
 
 
-    const [showModal, setShowModal] = useState(false); // Para controlar si el modal está visible
-    const [selectedStageId, setSelectedStageId] = useState(null); // Para guardar la etapa seleccionada
-    const [newParamValues, setNewParamValues] = useState({
-        minNormalValue: '',
-        maxNormalValue: '',
-        minLimit: '',
-        maxLimit: '',
-    }); // Para manejar los valores de los nuevos parámetros
-
-
+    const [selectedStageId, setSelectedStageId] = useState(null);
     const [categories, setCategories] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
     const [messageAlert, setMessageAlert] = useState("");
     const [variables, setVariables] = useState([]);
-
     const [showAlertError, setShowAlertError] = useState(false);
     const [newSpecie, setNewSpecie] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedVariables, setSelectedVariables] = useState([]);
     const [companies, setCompanies] = useState([]);
-    const [parameters, setParameters] = useState({});
     const [formData, setFormData] = useState({
         category_id: 0,
         company_id: 0,
@@ -66,14 +53,14 @@ const EditarLista = () => {
     });
 
     const [newParameter, setNewParameter] = useState({
-        variable: '',
-        minNormal: '',
-        maxNormal: '',
-        minLimit: '',
-        maxLimit: '',
+        variable: [],
+        min_normal_value: '',
+        max_normal_value: '',
+        min_limit: '',
+        max_limit: '',
     }); // Nuevo
-    const [stages, setStages] = useState([
-        { id: 1, description: '', time_to_production: '', parameters: [] },
+    const [stage, setStages] = useState([
+        { id: '', description: '', time_to_production: '', parameters: [] },
     ]);
 
     useEffect(() => {
@@ -131,25 +118,18 @@ const EditarLista = () => {
         }
     };
 
-    
-    // const handleParameterChange = (stageIndex, paramIndex, field, value) => {
-    //     const updatedStages = [...stages];
-    //     updatedStages[stageIndex].parameters[paramIndex][field] = value;
-    //     setStages(updatedStages);
-    //   };
 
-    // Maneja cambios en los campos del modal
     const handleParameterChange = (event, field) => {
         setNewParameter({ ...newParameter, [field]: event.target.value });
     };
 
-    // Guarda el parámetro en la etapa correspondiente
+    // Guardar parametros
     const handleSaveParameter = () => {
         if (!newParameter.variable) {
             alert("Debes seleccionar una variable");
             return;
         }
-    
+
         setFormData((prevFormData) => {
             const updatedStages = prevFormData.stage.map((stage) => {
                 if (stage.id === selectedStageId) {
@@ -160,20 +140,20 @@ const EditarLista = () => {
                 }
                 return stage;
             });
-    
+
             return { ...prevFormData, stage: updatedStages };
         });
-    
+
         setIsModalOpen(false);
         setNewParameter({
             variable: '',
-            minNormal: '',
-            maxNormal: '',
-            minLimit: '',
-            maxLimit: '',
+            min_normal_value: '',
+            max_normal_value: '',
+            min_limit: '',
+            max_limit: '',
         });
     };
-    
+
 
 
 
@@ -265,7 +245,7 @@ const EditarLista = () => {
     const handleOpenModal = (stageId) => {
         const stage = formData.stage.find(stage => stage.id === stageId);
         if (!stage.parameters) {
-            stage.parameters = []; // Inicializa si es necesario
+            stage.parameters = []; 
         }
         setSelectedStageId(stageId);
         setIsModalOpen(true);
@@ -275,7 +255,7 @@ const EditarLista = () => {
     // Cierra el modal
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setNewParameter({ variable: '', minNormal: '', maxNormal: '', minLimit: '', maxLimit: '' });
+        setNewParameter({ variable: '', min_normal_value: '', max_normal_value: '', min_limit: '', max_limit: '' });
     };
 
     const handleInputChange = (e) => {
@@ -285,60 +265,6 @@ const EditarLista = () => {
             [name]: value
         });
     };
-    // const handleSaveParameter = () => {
-    //     const updatedStages = formData.stage.map((stage) => {
-    //         if (stage.id === selectedStageId) {
-    //             return {
-    //                 ...stage,
-    //                 parameters: [
-    //                     ...stage.parameters,
-    //                     {
-
-    //                         variable: newParameter.variable,
-    //                         min_normal_value: newParameter.minNormal,
-    //                         max_normal_value: newParameter.maxNormal,
-    //                         min_limit: newParameter.minLimit,
-    //                         max_limit: newParameter.maxLimit,
-    //                     },
-    //                 ],
-    //             };
-    //         }
-    //         return stage;
-    //     });
-    //     setFormData({
-    //         ...formData,
-    //         stage: updatedStages,
-    //     });
-    //     handleCloseModal(false);
-    // };
-
-    // const handleSaveParameter = () => {
-    //     // Asegúrate de que el nuevo parámetro tenga todas las claves necesarias
-    //     const newParam = {
-    //         // id: Date.now(), // Generar un ID único
-    //         variable: newParameter.variable,
-    //         min_normal_value: newParameter.minNormal,
-    //         max_normal_value: newParameter.maxNormal,
-    //         min_limit: newParameter.minLimit,
-    //         max_limit: newParameter.maxLimit,
-    //     };
-
-    //     // Actualizar el estado del componente con el nuevo parámetro
-    //     setFormData((prevData) => {
-    //         const updatedStages = prevData.stage.map((stage) => {
-    //             if (stage.id === selectedStageId) {
-    //                 return {
-    //                     ...stage,
-    //                     parameters: [...stage.parameters, newParam],
-    //                 };
-    //             }
-    //             return stage;
-    //         });
-    //         return { ...prevData, stage: updatedStages };
-    //     });
-
-    //     setIsModalOpen(false); // Cerrar el modal
-    // };
 
 
     const handleGoBack = () => {
@@ -387,18 +313,20 @@ const EditarLista = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-    
+
         try {
             let imageUrl = '';
-    
-            if (formData.image.name) {
+
+            if (formData.image.common_name) {
                 imageUrl = await UploadToS3(formData.image);
             } else {
                 imageUrl = newSpecie.image;
             }
-    
+
             const parsedCompanyId = parseInt(formData.company_id, 10);
-    
+            console.log("Datos de especie formData:", formData);
+
+
             const formDataToSubmit = {
                 scientific_name: formData.scientificName,
                 common_name: formData.commonName,
@@ -408,30 +336,46 @@ const EditarLista = () => {
                 category: formData.category_id ? parseInt(formData.category_id, 10) : 0,
                 subcategory: formData.subcategory_id ? parseInt(formData.subcategory_id, 10) : 0,
                 stages: Array.isArray(formData.stage)
-                    ? formData.stage.map((stageItem) => ({
-                        stage_id: stageItem.id && !isNaN(parseInt(stageItem.id, 10)) ? parseInt(stageItem.id, 10) : 0,
-                        time_to_production: stageItem.time_to_production || 0,
-                        description: stageItem.description || '',
-                        parameters: Array.isArray(stageItem.parameters)
-                            ? stageItem.parameters.map((param) => ({
-                                variable_id: param?.variable?.id && !isNaN(parseInt(param.variable.id, 10)) 
-                                    ? parseInt(param.variable.id, 10) 
-                                    : 0, // Asegura que sea un ID válido de la variable
-                                min_normal_value: param.minNormal ? parseInt(param.minNormal, 10) : null,
-                                max_normal_value: param.maxNormal ? parseInt(param.maxNormal, 10) : null,
-                                min_limit: param.minLimit ? parseInt(param.minLimit, 10) : null,
-                                max_limit: param.maxLimit ? parseInt(param.maxLimit, 10) : null,
-                            }))
-                            : [], 
-                    }))
-                    : [], 
+                    ? formData.stage.map((stageItem) => {
+                        const stageId = stageItem.id && !isNaN(parseInt(stageItem.id, 10)) 
+                            ? parseInt(stageItem.id, 10) 
+                            : 0;
+            
+                        console.log("Etapa ID:", stageItem.id, "ID validado:", stageId);
+            
+                        // Validación de ID
+                        if (stageId === 0) {
+                            throw new Error(`Etapa con ID ${stageItem.id} no válida.`);
+                        }
+            
+                        return {
+                            stage_id: stageId,
+                            time_to_production: stageItem.time_to_production || 0,
+                            description: stageItem.description || '',
+                            parameters: Array.isArray(stageItem.parameters)
+                                ? stageItem.parameters.map((param) => ({
+                                    variable_id: param?.variable?.id && !isNaN(parseInt(param.variable.id, 10)) 
+                                        ? parseInt(param.variable.id, 10) 
+                                        : 0,
+                                    min_normal_value: param.min_normal_value ? parseInt(param.min_normal_value, 10) : null,
+                                    max_normal_value: param.max_normal_value ? parseInt(param.max_normal_value, 10) : null,
+                                    min_limit: param.min_limit ? parseInt(param.min_limit, 10) : null,
+                                    max_limit: param.max_limit ? parseInt(param.max_limit, 10) : null,
+                                }))
+                                : [],
+                        };
+                    })
+                    : [] ,
+                    
                 variables: Array.isArray(formData.variable_id)
                     ? formData.variable_id.map((variable) =>
                         variable && variable.id && !isNaN(parseInt(variable.id, 10)) ? parseInt(variable.id, 10) : null
                     )
                     : [],
             };
-    
+            
+
+            console.log('datos de la etapa:');
             await SpeciesService.updateSpecie(id, formDataToSubmit);
             setShowSuccessAlert(true);
             setTimeout(() => setShowSuccessAlert(false), 3000);
@@ -442,13 +386,13 @@ const EditarLista = () => {
             setMessageAlert("Hubo un error al editar la especie.");
         }
     };
-    
-    
-    
+
+
+
 
     const handleEditClick = (stageIndex, paramIndex) => {
         console.log(`Editando parámetro en etapa ${stageIndex + 1}, índice ${paramIndex}`);
-        // Lógica para editar el parámetro
+        
     };
 
     const handleDeleteClick = (paramId) => {
@@ -457,7 +401,7 @@ const EditarLista = () => {
                 ...prevData,
                 stage: prevData.stage.map((stage) => ({
                     ...stage,
-                    parameters: stage.parameters.filter((param) => param.id !== paramId), // Eliminar parámetro por id
+                    parameters: stage.parameters.filter((param) => param.id !== paramId),
                 })),
             };
         });
@@ -611,30 +555,30 @@ const EditarLista = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-    {stage.parameters.map((param, paramIndex) => (
-        <tr key={paramIndex}>
-            <td className="border px-4 py-2">{`Variable ${param.variable}`}</td>
-            <td className="border px-4 py-2">{param.minNormal}</td>
-            <td className="border px-4 py-2">{param.maxNormal}</td>
-            <td className="border px-4 py-2">{param.minLimit}</td>
-            <td className="border px-4 py-2">{param.maxLimit}</td>
-            <td className="border px-4 py-2">
-                <button
-                    onClick={() => handleEditClick(stageIndex, paramIndex)}
-                    className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
-                >
-                    <Edit size={20} />
-                </button>
-                <button
-                    onClick={() => handleDeleteClick(stageIndex, param.variable)}
-                    className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
-                >
-                    <Trash size={20} />
-                </button>
-            </td>
-        </tr>
-    ))}
-</tbody>
+                                                    {stage.parameters.map((param, paramIndex) => (
+                                                        <tr key={paramIndex}>
+                                                            <td className="border px-4 py-2">{` ${param.variable?.name}`}</td>
+                                                            <td className="border px-4 py-2">{param.min_normal_value}</td>
+                                                            <td className="border px-4 py-2">{param.max_normal_value}</td>
+                                                            <td className="border px-4 py-2">{param.min_limit}</td>
+                                                            <td className="border px-4 py-2">{param.max_limit}</td>
+                                                            <td className="border px-4 py-2">
+                                                                <button
+                                                                    onClick={() => handleEditClick(stageIndex, paramIndex)}
+                                                                    className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
+                                                                >
+                                                                    <Edit size={20} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteClick(stageIndex, param.variable)}
+                                                                    className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
+                                                                >
+                                                                    <Trash size={20} />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
 
                                             </table>
                                         </div>
@@ -683,13 +627,13 @@ const EditarLista = () => {
                             </select>
 
                             <div className="grid grid-cols-2 gap-4 mt-4">
-                                {['minNormal', 'maxNormal', 'minLimit', 'maxLimit'].map((field) => (
+                                {['min_normal_value', 'max_normal_value', 'min_limit', 'max_limit'].map((field) => (
                                     <div key={field}>
                                         <label htmlFor={field} className="block text-sm font-medium text-gray-700">
-                                            {field === 'minNormal' && 'Valor mínimo normal'}
-                                            {field === 'maxNormal' && 'Valor máximo normal'}
-                                            {field === 'minLimit' && 'Límite mínimo'}
-                                            {field === 'maxLimit' && 'Límite máximo'}
+                                            {field === 'min_normal_value' && 'Valor mínimo normal'}
+                                            {field === 'max_normal_value' && 'Valor máximo normal'}
+                                            {field === 'min_limit' && 'Límite mínimo'}
+                                            {field === 'max_limit' && 'Límite máximo'}
                                         </label>
                                         <input
                                             type="number"

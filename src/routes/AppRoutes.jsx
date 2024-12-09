@@ -20,6 +20,7 @@ import CrearListas from "../pages/listaEspecies/components/crearLista";
 import EditarLista from "../pages/listaEspecies/components/editarLista";
 import VisualizarLista from "../pages/listaEspecies/components/visualizarLista";
 import Monitoreo from "../pages/monitoreo/monitoreo";
+import VisualizarMonitoreo from "../pages/monitoreo/components/visualizarMonitoreo";
 import Tipos from "../pages/tiposDispositivos/tipos";
 import Sensores from "../pages/Sensores/sensor";
 import Actuadores from "../pages/Actuadores/actuador";
@@ -55,6 +56,7 @@ const AppRoutes = () => {
         <Route path="visualizarCategoria/:id" element={<VisualizarCategoria/>} />
         <Route path="especies" element={<Especies />} />
         <Route path="monitoreo" element={<Monitoreo />} />
+        <Route path="visualizarMonitoreo" element={<VisualizarMonitoreo />} />
         <Route path="tipos" element={<Tipos />} />
         <Route path="sensor" element={<Sensores />} />
         <Route path="actuador" element={<Actuadores />} />
