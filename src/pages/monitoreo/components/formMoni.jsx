@@ -106,10 +106,10 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
 
             if (mode === 'create') {
                 await MonitoreoService.createMonitories(formDataToSubmit);
-                showErrorAlert("Sistema de monitoreo creado exitosamente.");
+                showErrorAlert("creado");
             } else if (mode === 'edit') {
                 await MonitoreoService.updateMonitories(monitoreo.id, formDataToSubmit);
-                showErrorAlert("Sistema de monitoreo actualizado exitosamente.");
+                showErrorAlert("actualizado");
             }
 
             onUpdate();
@@ -235,7 +235,7 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
                             type="submit"
                             className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
                         >
-                            {mode === 'create' ? 'Crear Variable' : 'Guardar Cambios'}
+                            {mode === 'create' ? 'Crear Monitoreo' : 'Guardar Cambios'}
                         </button>
                     </>
                 )}

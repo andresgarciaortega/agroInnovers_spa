@@ -26,6 +26,7 @@ const Monitoreo = () => {
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [nameCompany, setNameCompany] = useState("");
   const [messageAlert, setMessageAlert] = useState("");
+  const [messageAlertDelete, setMessageAlertDelete] = useState("");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorVariableAlert, setShowErrorVariableAlert] = useState(false);
@@ -137,25 +138,26 @@ const Monitoreo = () => {
       setSelectedDevice(null);
       await SystemMonitory.deleteMonitories(selectedDevice.id);
       console.log(SystemMonitory)
-      setMessageAlert("Tipo de monitoreo eliminada exitosamente");
+      setMessageAlertDelete("Monitoreo de dispositivos eliminada exitosamente");
       showErrorAlertSuccess("Eliminado");
       updateListMonitories();
     } catch (error) {
 
       if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
-        setMessageAlert(error.message);
+        setMessageAlertDelete(error.message);
         setShowErrorVariableAlert(true);
       } else {
-        setMessageAlert("No se puede eliminar el Tipo de monitoreo porque está asociada a uno o más Monitoreo");
+        setMessageAlertDelete("No se puede eliminar el Monitoreo de dispositivos porque está asociada a uno o más Monitoreo");
         setShowErrorAlert(true);
       }
-      console.error("Error al eliminar el tipo de monitoreo:", error);
+      console.error("Error al eliminar el Monitoreo de dispositivos:", error);
     }
   };
 
   const showErrorAlertSuccess = (message) => {
     setShowSuccessAlert(true)
-    setMessageAlert(`Tipo de monitoreo ${message} exitosamente`);
+    setMessageAlert(`Sistema de Monitoreo ${message} Exitosamente`);
+    setMessageAlertDelete(`Sistema de Monitoreo  ${message} Exitosamente`);
 
     setTimeout(() => {
       setShowSuccessAlert(false)
@@ -386,14 +388,21 @@ const Monitoreo = () => {
       {showSuccessAlert && (
         <SuccessAlert
           message={messageAlert}
-          onCancel={handleCancelDelete}
+          onCancel={closeModal}
+
+        />
+      )}
+       {showSuccessAlert && (
+        <SuccessAlert
+          message={messageAlertDelete}
+          onCancel={closeModal}
 
         />
       )}
 
 
       {showErrorAlertTable && (
-        <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
+        <div className="alert alert-error flex flex-col items-start space-y-1 p-2 mt-4 bg-red-500 text-white rounded-md">
           <div className="flex items-center space-x-2">
             <IoIosWarning size={20} />
             <p>{messageAlert}</p>

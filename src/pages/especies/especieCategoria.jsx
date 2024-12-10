@@ -125,11 +125,18 @@ const Especie = () => {
 
 
   const filteredCategory = Array.isArray(categoryList)
-    ? categoryList.filter(category =>
+  ? categoryList.filter(category =>
+      // Filtro por nombre de la categoría
       (category.name && category.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (category.subcategories && category.subcategories.some(sub => sub.name.toLowerCase().includes(searchTerm.toLowerCase())))
-    )
-    : [];
+      // Filtro por subcategorías que coincidan con el término de búsqueda
+      (category.subcategories && category.subcategories.some(sub => sub.name.toLowerCase().includes(searchTerm.toLowerCase()))) ||
+      // Filtro por cantidad de subcategorías si el término es un número
+      (!isNaN(searchTerm) && 
+       category.subcategories && 
+       category.subcategories.length === parseInt(searchTerm))
+  )
+  : [];
+
 
   const indexOfLastCategory = currentPage * itemsPerPage;
   const indexOfFirstCategory = indexOfLastCategory - itemsPerPage;
