@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import MonitoreoService from '../../../services/monitoreo';
 import CompanyService from '../../../services/CompanyService';
 import { useCompanyContext } from '../../../context/CompanyContext';
+import { IoEye, IoEyeOff } from 'react-icons/io5';
 
 const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, closeModal, companyId }) => {
     const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
@@ -120,6 +121,14 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
         }
     };
 
+
+
+    const [showPassword, setShowPassword] = useState(false); // Estado para mostrar u ocultar la contraseña
+
+    const togglePasswordVisibility = () => {
+        setShowPassword((prev) => !prev);
+    };
+
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 py-4">
@@ -134,8 +143,8 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
                         placeholder="Ingrese el nombre"
                     />
                 </div>
-                <div className="flex items-center justify-between">
-                    <label htmlFor="display" className="text-sm font-medium text-gray-700">Display físico</label>
+                <div className="flex items-start justify-start">
+                    <label htmlFor="display" className="text-sm font-medium text-gray-700">Display físico</label>  &nbsp; &nbsp; &nbsp;
                     <div
                         className={`relative inline-flex items-center h-7 rounded-full w-11 cursor-pointer transition-colors ease-in-out duration-200 ${isDisplayActive ? 'bg-green-500' : 'bg-gray-300'}`}
                         onClick={() => setIsDisplayActive(!isDisplayActive)}
@@ -171,7 +180,7 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
                                     placeholder="Ingrese el usuario"
                                 />
                             </div>
-                            <div className="grid gap-2">
+                            {/* <div className="grid gap-2">
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">Clave de acceso</label>
                                 <input
                                     id="password"
@@ -182,6 +191,34 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
                                     className="border-gray-300 rounded-md shadow-sm p-2 w-full"
                                     placeholder="Ingrese la clave"
                                 />
+                            </div> */}
+
+                            <div className="">
+                                <div className="grid gap-2">
+                                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">Clave de acceso</label>
+                                    <div className="relative">
+                                        <input
+                                            id="password"
+                                            name="claveAcceso"
+                                            type={showPassword ? "text" : "password"}
+                                            value={formData.claveAcceso}
+                                            onChange={handleChange}
+                                            className="border-gray-300 rounded-md shadow-sm p-2 w-full"
+                                            placeholder="Ingrese la clave"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={togglePasswordVisibility}
+                                            className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 focus:outline-none"
+                                        >
+                                            {showPassword ? (
+                                                <IoEyeOff /> // Cambiar por un ícono SVG si se prefiere
+                                            ) : (
+                                                <IoEye />
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
