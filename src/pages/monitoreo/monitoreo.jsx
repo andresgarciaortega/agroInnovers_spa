@@ -278,7 +278,7 @@ const Monitoreo = () => {
           <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Monitoreo */}
           <span>Gestión de Monitoreo</span>
           <span>/</span>
-          <span>Tipo de Monitoreo</span>
+          <span>Sistema de Monitoreo</span>
           <span>/</span>
           <span className="text-black font-bold"> {nameCompany ? nameCompany : ''} </span>
           <span className="text-black font-bold"> </span>
@@ -292,7 +292,7 @@ const Monitoreo = () => {
         {/* Input de búsqueda */}
         <input
           type="text"
-          placeholder="Buscar variable"
+          placeholder="Buscar Sistema de monitoreo"
           className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
