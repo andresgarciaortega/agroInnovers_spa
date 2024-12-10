@@ -317,7 +317,7 @@ const EditarLista = () => {
         try {
             let imageUrl = '';
 
-            if (formData.image.common_name) {
+            if (formData.image) {
                 imageUrl = await UploadToS3(formData.image);
             } else {
                 imageUrl = newSpecie.image;

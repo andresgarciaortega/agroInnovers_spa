@@ -657,68 +657,68 @@ const CrearListas = () => {
         </div>
 
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-              <div className="bg-green-700 text-white px-6 py-4 rounded-t-lg flex justify-between items-center">
-                <h2 className="text-xl font-semibold">Añadir Parámetro</h2>
-                <button onClick={handleCloseModal} className="text-white hover:text-gray-200">
-                  <X size={24} />
-                </button>
-              </div>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+                        <div className="bg-green-700 text-white px-6 py-4 rounded-t-lg flex justify-between items-center">
+                            <h2 className="text-xl font-semibold">Añadir Parámetro</h2>
+                            <button onClick={handleCloseModal} className="text-white hover:text-gray-200">
+                                <X size={24} />
+                            </button>
+                        </div>
 
-              <div className="p-6">
-                <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">Variable</label>
-                <select
-                  id="variable"
-                  name="variable"
-                  value={newParameter.variable}
-                  onChange={(e) => handleParameterChange(e, 'variable')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                >
-                  <option value="">Selecciona una opción</option>
-                  {variables?.map((variable) => (
-                    <option key={variable.id} value={variable.id}>{variable.name}</option>
-                  ))}
-                </select>
+                        <div className="p-6">
+                            <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">Variable</label>
+                            <select
+                                id="variable"
+                                name="variable"
+                                value={newParameter.variable}
+                                onChange={(e) => handleParameterChange(e, 'variable')}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                            >
+                                <option value="">Selecciona una opción</option>
+                                {variables?.map((variable) => (
+                                    <option key={variable.id} value={variable.id}>{variable.name}</option>
+                                ))}
+                            </select>
 
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  {['min_normal_value', 'max_normal_value', 'min_limit', 'max_limit'].map((field) => (
-                    <div key={field}>
-                      <label htmlFor={field} className="block text-sm font-medium text-gray-700">
-                        {field === 'min_normal_value' && 'Valor mínimo normal'}
-                        {field === 'max_normal_value' && 'Valor máximo normal'}
-                        {field === 'min_limit' && 'Límite mínimo'}
-                        {field === 'max_limit' && 'Límite máximo'}
-                      </label>
-                      <input
-                        type="number"
-                        id={field}
-                        value={newParameter[field]}
-                        onChange={(e) => handleParameterChange(e, field)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                      />
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                {['min_normal_value', 'max_normal_value', 'min_limit', 'max_limit'].map((field) => (
+                                    <div key={field}>
+                                        <label htmlFor={field} className="block text-sm font-medium text-gray-700">
+                                            {field === 'min_normal_value' && 'Valor mínimo normal'}
+                                            {field === 'max_normal_value' && 'Valor máximo normal'}
+                                            {field === 'min_limit' && 'Límite mínimo'}
+                                            {field === 'max_limit' && 'Límite máximo'}
+                                        </label>
+                                        <input
+                                            type="number"
+                                            id={field}
+                                            value={newParameter[field]}
+                                            onChange={(e) => handleParameterChange(e, field)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse">
+                            <button
+                                onClick={handleSaveParameter}
+                                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-700 text-base font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                            >
+                                Guardar
+                            </button>
+                            <button
+                                onClick={handleCloseModal}
+                                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
                     </div>
-                  ))}
                 </div>
-              </div>
-
-              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse">
-                <button
-                  onClick={handleSaveParameter}
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-700 text-base font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                >
-                  Guardar
-                </button>
-                <button
-                  onClick={handleCloseModal}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+            )}
       </div>
     </form>
   );
