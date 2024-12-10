@@ -293,7 +293,7 @@ const Monitoreo = () => {
         <input
           type="text"
           placeholder="Buscar Sistema de monitoreo"
-          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
+          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

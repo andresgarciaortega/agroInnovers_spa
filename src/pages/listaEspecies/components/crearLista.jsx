@@ -517,6 +517,7 @@ const CrearListas = () => {
                               {`Etapa ${stageIndex + 1}`}
                             </h3>
                             <button
+                            type='button'
                               onClick={() => handleOpenModal(stage.id)}
                               className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                             >
