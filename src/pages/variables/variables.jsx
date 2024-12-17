@@ -321,7 +321,7 @@ const Variable = () => {
           {/* Modaeliminación */}
           {isDeleteModalOpen && (
             <Delete
-              message={`¿Seguro que desea eliminar el usuario ${selectedVariable?.name}?`}
+              message={`¿Seguro que desea eliminar la variable ${selectedVariable?.name}?`}
               onCancel={handleCancelDelete}
               onConfirm={handleConfirmDelete}
             />

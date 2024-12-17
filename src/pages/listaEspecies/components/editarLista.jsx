@@ -528,7 +528,8 @@ const EditarLista = () => {
 
                                 <div className="flex flex-col text-sm">
                                     <p className="text-gray-700">
-                                        <span className="">Descripción:</span> <strong>{stage.description}</strong>
+                                        <span className="">Descripción:</span> 
+                                        <strong>{stage.description}</strong>
                                     </p>
                                     <p className="text-gray-700 mt-2">
                                         <span className="">Tiempo de producción:</span> <strong>{stage.time_to_production}</strong>
