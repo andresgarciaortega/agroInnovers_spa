@@ -361,12 +361,14 @@ const ListaEspecies = () => {
                       </div>
                     ))}
                   </td> */}
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {species.stages?.reduce((totalTime, stage, stageIndex) => {
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+  {Math.round(
+    species.stages?.reduce((totalTime, stage, stageIndex) => {
+      return totalTime + stage.time_to_production;
+    }, 0) / 30
+  )} meses
+</td>
 
-                      return totalTime + stage.time_to_production;
-                    }, 0) / 30} meses
-                  </td>
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewSpecie(species, 'view')}>
@@ -387,7 +389,7 @@ const ListaEspecies = () => {
           {/* Modaeliminación */}
           {isDeleteModalOpen && (
             <Delete
-              message={`¿Seguro que desea eliminar la especie ${selectedEspecie?.name}?`}
+              message={`¿Seguro que desea eliminar la especie ${selectedEspecie?.common_name}?`}
               onCancel={handleCancelDelete}
               onConfirm={handleConfirmDelete}
             />
