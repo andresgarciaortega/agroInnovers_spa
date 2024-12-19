@@ -129,45 +129,40 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
     try {
       // Verificar si se ha seleccionado una nueva imagen
       let logoUrl = '';
-      // Si se ha seleccionado una nueva imagen
       if (formData.icon.name) {
-        // Subir la nueva imagen a S3 y obtener la URL
         logoUrl = await UploadToS3(formData.icon);
       } else if (mode === 'edit' && variable.icon) {
-        // Si no se seleccionó una nueva imagen y estamos en modo edición, mantener la URL de la imagen existente
         logoUrl = variable.icon;
       }
-
+  
       // Crear el objeto de datos a enviar
       const formDataToSubmit = {
         ...formData,
-        icon: logoUrl || '',  // Usar la URL de la imagen (nueva o existente)
+        icon: logoUrl || '',
         informational_calculation: formData.informational_calculation,
         type_variable_id: Number(formData.type_variable_id),
         type_register_id: Number(formData.type_register_id),
-        is_incremental: isIncrement,
+        is_incremental: isIncrement ? isIncrement : false, // Enviar nulo si no es incremental
         visible_in_dashboard: isDashboard,
-        company_id: Number(companyId) || Number(formData.company_id),  // Usar el ID de la empresa
+        company_id: Number(companyId) || Number(formData.company_id),
       };
-
-      // Enviar la solicitud según el modo
+  
       if (mode === 'create') {
-        const createdVariable = await VariablesService.createVariable(formDataToSubmit);
+        await VariablesService.createVariable(formDataToSubmit);
         showErrorAlert("creada");
       } else if (mode === 'edit') {
         await VariablesService.updateVariable(variable.id, formDataToSubmit);
         showErrorAlert("editada");
       }
-
-      // Actualizar y cerrar modal
+  
       onUpdate();
       closeModal();
-
     } catch (error) {
       console.error('Error al guardar la variable:', error);
       showErrorAlert("Hubo un error al guardar la variable.");
     }
   };
+  
 
 
 
@@ -353,7 +348,7 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
 
         {/* ACIVACIÓN DE ES INCREMENTAL */}
 
-        <div className="mt-5 flex items-center">
+        {/* <div className="mt-5 flex items-center">
           <span className="text-sm font-medium text-gray-700 mr-3">Es incremental</span>
           <div
             className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ease-in-out duration-200 ${isIncrement ? 'bg-[#168C0DFF]' : 'bg-gray-300'
@@ -369,7 +364,7 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
                 }`}
             />
           </div>
-        </div>
+        </div> */}
       </div>
 
 

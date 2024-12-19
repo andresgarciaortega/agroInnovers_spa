@@ -215,39 +215,29 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
             const fetchSensorDetails = async () => {
                 try {
                     const sensorDetails = await SensorService.getSensorById(sensorId);
-                    console.log('Detalles completos del sensor:', sensorDetails);
-    
-                    if (!sensorDetails?.calibrationPoints) {
-                        console.warn("La propiedad calibrationPoints no está definida en sensorDetails");
-                        return;
-                    }
-                    
-                    if (!Array.isArray(sensorDetails.calibrationPoints)) {
-                        console.error("calibrationPoints no es un arreglo válido");
-                        console.log("Valor de calibrationPoints recibido:", sensorDetails.calibrationPoints);
-                        return;
-                    }
-                    
-    
-                    const puntosFiltrados = sensorDetails.calibrationPoints.filter(
-                        (point) => point.serviceType === 'tipo_servicio_deseado' // Ajusta aquí el tipo
-                    );
-    
+                    console.log('Detalles del sensor:', sensorDetails);
+
+                    const sensorType = sensorDetails?.data?.[0]?.sensor?.sensorType;
+                    console.log('Tipo de sensor:', sensorType);
+
                     setFormData((prevData) => ({
                         ...prevData,
                         estimatedReplacementDate: sensorDetails.estimatedChangeDate || '',
-                        calibrationPoints: puntosFiltrados,
+                        calibrationPoints: sensorDetails.calibrationPoints || [] ,
                     }));
-                    setCalibrationPoints(puntosFiltrados);
+                    
+
+                    // Actualizar el estado de los puntos de calibración
+                    setCalibrationPoints(sensorDetails.calibrationPoints || []);
                 } catch (error) {
                     console.error('Error al obtener los detalles del sensor:', error);
                 }
             };
-    
+
             fetchSensorDetails();
         }
     }, [sensorId]);
-    
+
 
 
     const handleIconUpload = (e) => {
@@ -394,18 +384,6 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
                     disabled={mode === 'view'}
                 />
             </div>
-            <div>
-    <h3 className="text-lg font-semibold">Puntos de Calibración</h3>
-    <ul>
-        {calibrationPoints.map((point, index) => (
-            <li key={index} className="mt-2">
-                <strong>Punto {index + 1}:</strong> {point.value} ({point.serviceType})
-            </li>
-        ))}
-    </ul>
-</div>
-
-
              {/* Tabla de Puntos de Calibración */}
              <div className="mt-5">
                 <h3 className="text-lg font-semibold">Puntos de Calibración</h3>
