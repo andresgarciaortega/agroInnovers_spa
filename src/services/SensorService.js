@@ -15,6 +15,15 @@ const SensorService = {
             throw error;
         }
     },
+    async getSensorById(id) {
+        try {
+            const response = await api.get(`/sensors/${id}`);
+            return response;
+        } catch (error) {
+            console.error('Error al obtener los sensores:', error);
+            throw error;
+        }
+    },
 
     // CREAR UNA sensor
     async createSensor(data) {

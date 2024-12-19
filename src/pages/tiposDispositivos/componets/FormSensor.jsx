@@ -766,7 +766,8 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                             <button
                                 type="button"
                                 onClick={handleAddPoint}
-                                className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center"
+                                className="mb-2 inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+
                             >
                                 Agregar
                             </button>

@@ -1,26 +1,26 @@
-// services/maintenance.js
+// services/calibrations.js
 
 import api from './ApiService';
 
-const SensorMantenimientoService = {
+const SensorCalibradorService = {
 
 
     // LISTAR TODAS LAS varibles
     async getAllMantenimiento(idcompany = 0) {
         try {
-            const response = await api.get(`/maintenance?company=${idcompany}`);
+            const response = await api.get(`/calibrations?company=${idcompany}`);
             return response.data;
         } catch (error) {
-            console.error('Error al obtener las maintenance:', error);
+            console.error('Error al obtener las calibrations:', error);
             throw error;
         }
     },
-    async getMantenimientoBySensor(sensorId) {
+    async getMantenimientoBysensor(sensorId) {
         try {
-            const response = await api.get(`/maintenance?sensor.id=${sensorId}`);
+            const response = await api.get(`/calibrations?actuator.id=${sensorId}`);
             return response.data;
         } catch (error) {
-            console.error('Error al obtener los mantenimientos del sensor:', error);
+            console.error('Error al obtener los mantenimientos del actuator:', error);
             throw error;
         }
     },
@@ -28,7 +28,7 @@ const SensorMantenimientoService = {
     // CREAR UNA mantenimiento
     async createMantenimiento(data) {
         try {
-            const response = await api.post('/maintenance/', data);
+            const response = await api.post('/calibrations/', data);
             return response;
         } catch (error) {
             // Extraer el mensaje del error
@@ -47,7 +47,7 @@ const SensorMantenimientoService = {
     // ACTUALIZAR UNA mantenimiento
     async updateMantenimiento(id, data) {
         try {
-            const response = await api.put(`/maintenance/${id}`, data);
+            const response = await api.put(`/calibrations/${id}`, data);
             return response.data;
         } catch (error) {
             console.error('Error al actualizar la mantenimiento:', error);
@@ -59,7 +59,7 @@ const SensorMantenimientoService = {
 
     async deleteMantenimiento(id) {
         try {
-            const response = await api.delete(`/maintenance/${id}`);
+            const response = await api.delete(`/calibrations/${id}`);
             return response;
 
         } catch (error) {
@@ -70,4 +70,4 @@ const SensorMantenimientoService = {
 
 };
 
-export default SensorMantenimientoService;
+export default SensorCalibradorService;

@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { IoCloudUploadOutline } from "react-icons/io5";
 import UploadToS3 from '../../../config/UploadToS3';
-import SensorMantenimientoService from '../../../services/SensorMantenimiento';
+import ActuadorMantenimientoService from '../../../services/MantenimientoAct';
 import VariableTypeService from '../../../services/VariableType';
 import RegistrerTypeServices from '../../../services/RegistrerType';
 import CompanyService from '../../../services/CompanyService';
 import { useCompanyContext } from '../../../context/CompanyContext';
-import SensorService from "../../../services/SensorService";
+import ActuadorService from "../../../services/ActuadorService";
 import moment from 'moment';
 
-const FromMantenimiento = ({selectedCompany,sensorId, showErrorAlert, onUpdate, sensor, mode, closeModal, companyId }) => {
+const FromMantenimiento = ({selectedCompany,actuadorId, showErrorAlert, onUpdate, actuador, mode, closeModal, companyId }) => {
   const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
 
   const [variableTypes, setVariableTypes] = useState([]);
@@ -19,19 +19,20 @@ const FromMantenimiento = ({selectedCompany,sensorId, showErrorAlert, onUpdate, 
   const [isDashboard, setIsDashboard] = useState(false);
   const [isIncrement, setIsIncrement] = useState(false);
   const [formData, setFormData] = useState({
-   maintenanceDate: '' ,
-  startTime: '' ,
-  endTime: '' ,
-  maintenanceType: '' ,
-  replacedParts: '' ,
-  testReport: '' ,
-  media: '' ,
-  sensorStatus: '' ,
-  estimatedReplacementDate: '' ,
-  remarks: '' ,
-  sensor_id: '',
-    // company_id: companySeleector.value || ''
+    maintenanceDate: '',
+    actuator_id: '',
+    startTime: '',
+    endTime: '',
+    maintenanceType: '',
+    replacedParts: '',
+    testReport: '',
+    media: '',
+    actuatorStatus: '', // Valor inicial válido
+    energyConsumption: '',
+    estimatedReplacementDate: '',
+    remarks: '',
   });
+  
 
 
   const [maintenanceTypes] = useState([
@@ -39,7 +40,7 @@ const FromMantenimiento = ({selectedCompany,sensorId, showErrorAlert, onUpdate, 
     { id: 'Correctivo', name: 'Correctivo'},
     { id: 'Limpieza y revisión física', name: 'Limpieza y revisión física' },
   ]);
-  const [sensorsStatus] = useState([
+  const [actuadorsStatus] = useState([
     { id: 'Apagado', name: 'Apagado' },
     { id: 'Encendido', name: 'Encendido' },
     { id: 'En Mantenimiento', name: 'En Mantenimiento' },
@@ -51,19 +52,19 @@ const FromMantenimiento = ({selectedCompany,sensorId, showErrorAlert, onUpdate, 
     const fetchMantenimiento = async () => {
       try {
 
-        const mantenimientoSensor = await SensorMantenimientoService.getAllMantenimiento();
-        setVariableTypes(mantenimientoSensor);
+        const mantenimientoActuador = await ActuadorMantenimientoService.getAllMantenimiento();
+        setVariableTypes(mantenimientoActuador);
       } catch (error) {
-        console.error('Error al obtener los mantenimientos del sensor:', error);
+        console.error('Error al obtener los mantenimientos del actuador:', error);
       }
     };
-    const fetchSensor = async () => {
+    const fetchActuador = async () => {
         try {
   
-          const Sensor = await SensorService.getAllSensor();
-          setVariableTypes(Sensor);
+          const Actuador = await ActuadorService.getAllActuador();
+          setVariableTypes(Actuador);
         } catch (error) {
-          console.error('Error al obtener los mantenimientos del sensor:', error);
+          console.error('Error al obtener los mantenimientos del actuador:', error);
         }
       };
 
@@ -78,7 +79,7 @@ const FromMantenimiento = ({selectedCompany,sensorId, showErrorAlert, onUpdate, 
       }
     };
 
-    fetchSensor();
+    fetchActuador();
 
     fetchMantenimiento();
     fetchCompanies();
@@ -94,35 +95,36 @@ const FromMantenimiento = ({selectedCompany,sensorId, showErrorAlert, onUpdate, 
   }, [selectedCompany]);
 
   useEffect(() => {
-    if (sensorId) {  
-      console.log('ID del sensor recibido:', sensorId); 
+    if (actuadorId) {  
+      console.log('ID del actuador recibido:', actuadorId); 
       setFormData((prevData) => ({
         ...prevData,
-        sensor_id: sensorId  
+        actuator_id: actuadorId  
       }));
     } else {
-      console.error('sensorId no está definido o es null.');
+      console.error('actuadorId no está definido o es null.');
     }
-  }, [sensorId]);
+  }, [actuadorId]);
   
 
   
   useEffect(() => {
     if (mode === 'edit' || mode === 'view') {
       setFormData({
-        maintenanceDate: sensor.name || '',
-        startTime: sensor.startTime || '',
-        endTime: sensor.endTime || '',
-        sensor_id: sensor.sensor_id|| '', 
-        maintenanceType: sensor.maintenanceType || '', 
-        testReport: sensor.testReport || '',
-        media: sensor.media || '',
-        sensorStatus: sensor.sensorStatus || '',
-        estimatedReplacementDate: sensor.estimatedReplacementDate || '',
-        remarks: sensor.remarks || '',
-        // company_id: sensor.company_id
+        maintenanceDate: actuador.name || '',
+        startTime: actuador.startTime || '',
+        endTime: actuador.endTime || '',
+        actuator_id: actuador.actuator_id|| '',
+        energyConsumption: actuador.energyConsumption || '', 
+        maintenanceType: actuador.maintenanceType || '', 
+        testReport: actuador.testReport || '',
+        media: actuador.media || '',
+        actuatorStatus: actuador.actuatorStatus || '',
+        estimatedReplacementDate: actuador.estimatedReplacementDate || '',
+        remarks: actuador.remarks || '',
+        // company_id: actuador.company_id
       });
-      setImagePreview(sensor.media);
+      setImagePreview(actuador.media);
     } else {
       setFormData({
         maintenanceDate: '' ,
@@ -132,15 +134,16 @@ const FromMantenimiento = ({selectedCompany,sensorId, showErrorAlert, onUpdate, 
         replacedParts: '' ,
         testReport: '' ,
         media: '' ,
-        sensorStatus: '' ,
+        actuatorStatus: '' ,
         estimatedReplacementDate: '' ,
         remarks: '' ,
-        sensor_id: '',
-        informational_calculation: '',
+        actuator_id: '',
+        // informational_calculation: '',
+        energyConsumption: '',
         // company_id: companySeleector.value || ''
       });
     }
-  }, [sensor, mode]); // This effect runs when sensor or mode changes.
+  }, [actuador, mode]); // This effect runs when actuador or mode changes.
 
 
 
@@ -158,87 +161,97 @@ const FromMantenimiento = ({selectedCompany,sensorId, showErrorAlert, onUpdate, 
 const handleTimeChange = (e) => {
   const { name, value } = e.target;
 
-  // Obtener la hora seleccionada en formato HH:mm (ejemplo: "12:00")
   const [hours, minutes] = value.split(":");
 
-  // Usar Moment.js para obtener la fecha actual y combinarla con la hora seleccionada
   const updatedDate = moment().set({ hour: hours, minute: minutes, second: 0, millisecond: 0 });
 
-  // Convertir la fecha completa a formato ISO 8601 (con fecha y hora)
   const isoString = updatedDate.toISOString();
 
-  // Actualizar el estado con la nueva fecha y hora en formato ISO
   setFormData({
     ...formData,
-    [name]: isoString, // Guardar la fecha y hora en formato ISO
+    [name]: isoString, 
   });
 };
 
-// Formatear la hora para mostrarla en el campo de entrada (HH:mm)
 const formatTime = (time) => {
   return moment(time).format('HH:mm');
 };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const formDataToSubmit = {
-        ...formData,
-        media: formData.media || '', // Usar la URL de la imagen (nueva o existente)
-        maintenanceDate: formData.maintenanceDate,
-        startTime: new Date(formData.startTime), // Convertir a instancia de Date
-        endTime: new Date(formData.endTime),     // Convertir a instancia de Date
-        maintenanceType: formData.maintenanceType,
-        replacedParts: formData.replacedParts,
-        testReport: formData.testReport,
-        sensorStatus: formData.sensorStatus,
-        estimatedReplacementDate: formData.estimatedReplacementDate,
-        remarks: formData.remarks,
-        sensor_id: sensorId || formData.sensor_id,
-      };
-  
-      if (mode === 'create') {
-        const createdMantenimiento = await SensorMantenimientoService.createMantenimiento(formDataToSubmit);
-        console.log('Mantenimiento creado:', formDataToSubmit);
-        showErrorAlert("Mantenimiento creado correctamente.");
-      } else if (mode === 'edit') {
-        await SensorMantenimientoService.updateMantenimiento(sensorId, formDataToSubmit);
-        showErrorAlert("Mantenimiento actualizado correctamente.");
-      }
-      console.log('Datos enviados:', formDataToSubmit);
-  
-      // Actualizar y cerrar modal
-      onUpdate();
-      closeModal();
-  
-    } catch (error) {
-      console.error('Error al guardar el mantenimiento:', error);
-      showErrorAlert("Hubo un error al guardar el mantenimiento.");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    // Validar y transformar campos específicos
+    const energyConsumption = parseFloat(formData.energyConsumption);
+    if (isNaN(energyConsumption)) {
+      throw new Error("El valor de energyConsumption debe ser un número.");
     }
-  };
+
+    // const actuatorStatus = String(formData.actuatorStatus || '').trim();
+    // if (!actuatorStatus) {
+    //   throw new Error("El estado del actuador es obligatorio.");
+    // }
+
+    // Datos formateados correctamente
+    const formDataToSubmit = {
+      ...formData,
+      media: formData.media || '',
+      maintenanceDate: formData.maintenanceDate,
+      startTime: new Date(formData.startTime),
+      endTime: new Date(formData.endTime),
+      maintenanceType: formData.maintenanceType,
+      replacedParts: formData.replacedParts,
+      testReport: formData.testReport,
+      actuatorStatus: formData.actuatorStatus,
+      estimatedReplacementDate: formData.estimatedReplacementDate,
+      remarks: formData.remarks,
+      energyConsumption: energyConsumption,
+      actuator_id: actuadorId || formData.actuator_id,
+    };
+
+    console.log('Datos enviados al servicio:', formDataToSubmit);
+    console.log('mode',mode)
+
+    if (mode === 'mantenimiento') {
+      const createdMantenimiento = await ActuadorMantenimientoService.createMantenimiento(formDataToSubmit);
+      console.log('Respuesta del backend:', createdMantenimiento);
+      showErrorAlert("Mantenimiento creado correctamente.");
+    } else if (mode === 'edit') {
+      await ActuadorMantenimientoService.updateMantenimiento(actuadorId, formDataToSubmit);
+      showErrorAlert("Mantenimiento actualizado correctamente.");
+    }
+
+    onUpdate();
+    closeModal();
+  } catch (error) {
+    console.error('Error al guardar el mantenimiento:', error);
+    console.error('Detalles del error:', error.response?.data);
+    showErrorAlert("Hubo un error al guardar el mantenimiento.");
+  }
+};
+
 
  useEffect(() => {
-  if (sensorId) {
-    const fetchSensorDetails = async () => {
+  if (actuadorId) {
+    const fetchActuadorDetails = async () => {
       try {
-        const sensorDetails = await SensorService.getSensorById(sensorId);
-        console.log('Detalles del sensor:', sensorDetails);
+        const actuadorDetails = await ActuadorService.getActuadorById(actuadorId);
+        console.log('Detalles del actuador:', actuadorDetails);
 
         setFormData((prevData) => {
-          console.log('Formulario actualizado:', { ...prevData, estimatedReplacementDate: sensorDetails.estimatedChangeDate });
+          console.log('Formulario actualizado:', { ...prevData, estimatedReplacementDate: actuadorDetails.estimatedChangeDate });
           return {
             ...prevData,
-            estimatedReplacementDate: sensorDetails.estimatedChangeDate || '',
+            estimatedReplacementDate: actuadorDetails.estimatedChangeDate || '',
           };
         });
       } catch (error) {
-        console.error('Error al obtener los detalles del sensor:', error);
+        console.error('Error al obtener los detalles del actuador:', error);
       }
     };
 
-    fetchSensorDetails();
+    fetchActuadorDetails();
   }
-}, [sensorId]);
+}, [actuadorId]);
 
 
 
@@ -260,10 +273,10 @@ const formatTime = (time) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="sensor-maintenanceDate" className="block text-sm font-medium text-gray-700">Fecha del mantenimiento</label>
+        <label htmlFor="actuador-maintenanceDate" className="block text-sm font-medium text-gray-700">Fecha del mantenimiento</label>
         <input
           type="date"
-          id="sensor-maintenanceDate"
+          id="actuador-maintenanceDate"
           name="maintenanceDate"
           placeholder="Fecha del mantenimiento"
           value={formData.maintenanceDate}
@@ -323,13 +336,27 @@ const formatTime = (time) => {
           </select>
         </div>
         <div>
-        <label htmlFor="replacedParts" className="block text-sm font-medium text-gray-700">Piezas reemplazadas</label>
+        <label htmlFor="energyConsumption" className="block text-sm font-medium text-gray-700">Partes reemplazadas</label>
         <input
           type="text"
           id="replacedParts"
           name="replacedParts"
-          placeholder="Piezas reemplazadas"
+          placeholder="Consumo de energía"
           value={formData.replacedParts}
+          onChange={handleChange}
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          required
+          disabled={mode === 'view'}
+        />
+      </div>
+      <div>
+        <label htmlFor="energyConsumption" className="block text-sm font-medium text-gray-700">Consumo de energía</label>
+        <input
+          type="number"
+          id="energyConsumption"
+          name="energyConsumption"
+          placeholder="Consumo de energía"
+          value={formData.energyConsumption}
           onChange={handleChange}
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           required
@@ -355,6 +382,7 @@ const formatTime = (time) => {
         <label htmlFor="media" className="block text-sm font-medium text-gray-700">Imagen o video</label>
         <input
           type="text"
+
           id="media"
           name="media"
           placeholder="URL de Imagen o video"
@@ -365,27 +393,27 @@ const formatTime = (time) => {
           disabled={mode === 'view'}
         />
       </div>
-        <div>
-          <label htmlFor="sensorStatus" className="block text-sm font-medium text-gray-700">Estado del sensor</label>
-          <select
-            id="sensorStatus"
-            name="sensorStatus"
-            value={formData.sensorStatus}
-            onChange={handleChange}
-            disabled={mode === 'view'}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            required
-          >
-
-            <option value="">Seleccione una opción</option>
-            {sensorsStatus.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
+      
+      <div>
+  <label htmlFor="actuatorStatus" className="block text-sm font-medium text-gray-700">Estado del Actuador</label>
+  <select
+    id="actuatorStatus"
+    name="actuatorStatus"
+    value={formData.actuatorStatus}
+    onChange={handleChange}
+    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+    required
+    disabled={mode === 'view'}
+  >
+    {actuadorsStatus.map((status) => (
+      <option key={status.id} value={status.id}>
+        {status.name}
+      </option>
+    ))}
+  </select>
+</div>
+      </div>
+      <div>
         <label htmlFor="estimatedReplacementDate" className="block text-sm font-medium text-gray-700">Fecha estimada de cambio(editable)</label>
         <input
           type="date"
@@ -398,46 +426,6 @@ const formatTime = (time) => {
           required
           disabled={mode === 'view'}
         />
-      </div>
-       
-        {/* <div >
-          <label htmlFor="type_variable_id" className="block text-sm font-medium text-gray-700">Tipo de sensor</label>
-          <select
-            id="type_variable_id"
-            name="type_variable_id"
-            value={formData.type_variable_id}
-            onChange={handleChange}
-            disabled={mode === 'view'}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            required
-          >
-            <option value="">Seleccione una opción</option>
-            {variableTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div >
-          <label htmlFor="company_id" className="block text-sm font-medium text-gray-700">Empresa</label>
-          <select
-            id="company_id"
-            name="company_id"
-            value={formData.company_id}
-            onChange={handleChange}
-            disabled={mode === 'view'}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            required
-          >
-            <option value="">Seleccione una empresa</option>
-            {companies.map((company) => (
-              <option key={company.id} value={company.id}>
-                {company.name}
-              </option>
-            ))}
-          </select>
-        </div> */}
       </div>
 
     

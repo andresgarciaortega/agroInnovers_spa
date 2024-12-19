@@ -2,17 +2,21 @@ import React, { useEffect, useState } from 'react';
 import TypeService from "../../../services/TypeDispositivosService";
 import SensorMantenimientoService from "../../../services/SensorMantenimiento";
 import SensorService from "../../../services/SensorService";
+import CalibrarSensor from "../../../services/CalibrarSensor";
 import { useCompanyContext } from '../../../context/CompanyContext';
 import CompanySelector from "../../../components/shared/companySelect";
+import { X } from 'lucide-react';
+import { Eye } from 'lucide-react';
 
 const FormViewSensor = ({ sensor, closeModal }) => {
-      const { selectedCompanyUniversal } = useCompanyContext();
-    
-     const [companyList, setCompanyList] = useState([]);
-      const [sensorList, setSensorList] = useState([]);
-      const [selectedCompany, setSelectedCompany] = useState('');
-  const [nameCompany, setNameCompany] = useState("");
-
+    const { selectedCompanyUniversal } = useCompanyContext();
+const [selectedCalibracion, setSelectedCalibracion] = useState(null);
+    const [calibracion, setCalibracion] = useState([]);
+    const [companyList, setCompanyList] = useState([]);
+    const [sensorList, setSensorList] = useState([]);
+    const [selectedCompany, setSelectedCompany] = useState('');
+    const [nameCompany, setNameCompany] = useState("");
+    const [selectedMantenimiento, setSelectedMantenimiento] = useState(null);
     const [sensorType, setSensorType] = useState([]);
     const [mantenimiento, setMantenimiento] = useState([]);
     const [activeModal, setActiveModal] = useState(null);
@@ -46,36 +50,59 @@ const FormViewSensor = ({ sensor, closeModal }) => {
     useEffect(() => {
         const fetchSensor = async () => {
             try {
-              // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
-              const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
-      
-              // Verifica si companyId no es vacío antes de hacer la llamada
-              if (!companyId) {
-                setMantenimiento([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
-                return;
-              } else {
-                setNameCompany(selectedCompanyUniversal.label)
-              }
-      
-              const data = await SensorMantenimientoService.getAllMantenimiento();
-      
-console.log('manteminientos',data )       
-       if (data.statusCode === 404) {
-                setMantenimiento([]);
-              } else {
-                setShowErrorAlertTable(false);
-                setMantenimiento(Array.isArray(data) ? data : []);
-              }
+                const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; // Si no hay empresa seleccionada, se pasa un string vacío
+
+                if (!companyId) {
+                    setMantenimiento([]); // Asegúrate de vaciar la lista si no hay empresa seleccionada
+                    return;
+                } else {
+                    setNameCompany(selectedCompanyUniversal.label)
+                }
+
+                const data = await SensorMantenimientoService.getAllMantenimiento();
+
+                console.log('manteminientos', data)
+                if (data.statusCode === 404) {
+                    setMantenimiento([]);
+                } else {
+                    setShowErrorAlertTable(false);
+                    setMantenimiento(Array.isArray(data) ? data : []);
+                }
             } catch (error) {
-              console.error('Error fetching mantenimiento:', error);
-              setMantenimiento([]); // Vaciar la lista en caso de error
-              setMessageAlert('Esta empresa no tiene mantenimientos registradas, Intentalo con otra empresa');
-              setShowErrorAlertTable(true);
+                console.error('Error fetching mantenimiento:', error);
+                setMantenimiento([]); // Vaciar la lista en caso de error
+                // setMessageAlert('Esta empresa no tiene mantenimientos registradas, Intentalo con otra empresa');
+                setShowErrorAlertTable(true);
             }
-          };
-          fetchSensor();
-        }, []);
-        
+        };
+        fetchSensor();
+    }, []);
+
+    useEffect(() => {
+        const fetchMantenimiento = async () => {
+            try {
+                // Asegúrate de que el ID del sensor esté disponible
+                if (!sensor || !sensor.id) return;
+
+                // Llama al servicio para obtener los mantenimientos asociados al sensor
+                const data = await SensorMantenimientoService.getMantenimientoBySensor(sensor.id);
+                console.log("Datos de mantenimiento:", data);
+                // Maneja la respuesta y actualiza el estado
+                if (data.statusCode === 404) {
+                    setMantenimiento([]);  // Si no se encuentran mantenimientos
+                } else {
+                    setMantenimiento(data); // Asume que data es un array de mantenimientos
+                }
+            } catch (error) {
+                console.error('Error fetching mantenimiento:', error);
+                setMantenimiento([]); // Vaciar la lista en caso de error
+            }
+        };
+
+        fetchMantenimiento();
+    }, [sensor]); // Re-run cada vez que cambie el sensor
+
+
 
     useEffect(() => {
         if (sensor) {
@@ -94,12 +121,46 @@ console.log('manteminientos',data )
         }
     }, [sensor]);
 
+    useEffect(() => {
+        const fetchCalibrar = async () => {
+            try {
+                // Asegúrate de que el ID del sensor esté disponible
+                if (!sensor || !sensor.id) return;
+
+                // Llama al servicio para obtener los mantenimientos asociados al sensor
+                const data = await CalibrarSensor.getMantenimientoBysensor(sensor.id);
+                console.log("Datos de mantenimiento:", data);
+                // Maneja la respuesta y actualiza el estado
+                if (data.statusCode === 404) {
+                    setCalibracion([]);  // Si no se encuentran mantenimientos
+                } else {
+                    setCalibracion(data); // Asume que data es un array de mantenimientos
+                }
+            } catch (error) {
+                console.error('Error fetching mantenimiento:', error);
+                setCalibracion([]); // Vaciar la lista en caso de error
+            }
+        };
+
+        fetchCalibrar();
+    }, [sensor]);
+
     const openModal = (modalType) => {
         setActiveModal(modalType);
     };
 
     const closeModalHandler = () => {
         setActiveModal(null);
+    };
+
+    const openMantenimientoModal = (mantenimiento) => {
+        setSelectedMantenimiento(mantenimiento); // Establecer el mantenimiento seleccionado
+        setActiveModal("mantenimientoDetalle"); // Abrir el modal de detalles
+    };
+
+    const openCalibracionModal = (calibracion) => {
+        setSelectedCalibracion(calibracion);
+        setActiveModal("calibracionDetalle");
     };
 
     return (
@@ -127,7 +188,7 @@ console.log('manteminientos',data )
                         </button>
                         <button
                             type="button"
-                            onClick={() => openModal("calibracion")}
+                            onClick={() => openModal("calibrar")}
                             className="mb-2 inline-flex items-center px-16 py-3 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         >
                             Ver historial de calibración
@@ -136,33 +197,323 @@ console.log('manteminientos',data )
                 </div>
 
                 {activeModal === "mantenimiento" && (
-                    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                        <div className="bg-white p-6 rounded shadow-lg">
-                            <h2 className="text-xl font-bold mb-4">Historial de Mantenimiento</h2>
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                        <div className="bg-white w-full max-w-4xl  rounded-lg shadow-xl relative">
+                            {/* Cabecera del Modal */}
+                            <div className="flex justify-between items-center bg-[#345246] text-white p-4 rounded-t-lg">
+                                <h2 className="text-xl font-semibold">Historial de Mantenimiento</h2>
+                                <button onClick={closeModalHandler} className="text-white hover:text-gray-200 focus:outline-none">
+                                    <X size={30} />
+                                </button>
+                            </div>
 
-                            <table className="w-full">
-                                <thead className="bg-gray-300">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
-                                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Fecha Calibración</th>
-                                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Fecha proxima calibración</th>
-                                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">informe calibración</th>
-                                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Estado del sensor</th>
-                                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Ver calibración</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
+                            {/* Tabla de Mantenimiento */}
+                            <div className="m-3 space-y-4 overflow-y-auto max-h-[70vh]">
+                                <table className="min-w-full bg-white border border-gray-300 shadow-md rounded-lg">
+                                    <thead className="bg-gray-200">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">ID</th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Fecha Mantenimiento</th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Fecha próxima Mantenimiento</th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Informe</th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Estado del Sensor</th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Tipo de mantenimiento</th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900"> </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {mantenimiento.length > 0 ? (
+                                            mantenimiento.map((manto, index) => (
+                                                <tr key={manto.id} className="border-b border-gray-200 hover:bg-gray-100">
+                                                    <td className="px-6 py-3 text-sm text-gray-900">{index + 1}</td>
+                                                    <td className="px-6 py-3 text-sm text-gray-900">{manto.maintenanceDate.substr(0, 10)}</td>
+                                                    <td className="px-6 py-3 text-sm text-gray-900">{manto.estimatedReplacementDate.substr(0, 10)}</td>
+                                                    <td className="px-6 py-3 text-sm text-gray-900">{manto.testReport || 'No disponible'}</td>
+                                                    <td className="px-6 py-3 text-sm text-gray-900">{manto.sensorStatus || 'Desconocido'}</td>
+                                                    <td className="px-6 py-3 text-sm text-gray-900">{manto.maintenanceType || 'Desconocido'}
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => openMantenimientoModal(manto)} // Pasa el mantenimiento al modal
+                                                            className="text-[#168C0DFF] px- py-2 rounded"
+                                                        >
+                                                            <Eye size={20} /> {/* Ícono de ojito */}
+                                                        </button>
+                                                    </td>
 
-                            </table>
-                            <button
-                                onClick={closeModalHandler}
-                                className="mt-4 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                            >
-                                Cerrar
-                            </button>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="5" className="px-6 py-3 text-sm text-center text-gray-900">No se encontraron mantenimientos.</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+
+
+                                </table>
+
+
+                                {/* Botón para cerrar */}
+                                <div className="flex justify-end mt-4">
+                                    <button
+                                        onClick={closeModalHandler}
+                                        className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                                    >
+                                        Cerrar
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
+                {activeModal === "mantenimientoDetalle" && selectedMantenimiento && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                        <div className="bg-white w-full max-w-4xl rounded-lg shadow-xl relative">
+                            <div className="flex justify-between items-center bg-[#345246] text-white p-4 rounded-t-lg">
+                                <h2 className="text-xl font-semibold">Detalles del Mantenimiento</h2>
+                                <button onClick={closeModalHandler} className="text-white hover:text-gray-200 focus:outline-none">
+                                    <X size={30} />
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 m-5">
+                                <div className="flex flex-col items-center">
+                                    {sensor.sensorType && sensor.sensorType.icon ? (
+                                        <img
+                                            src={sensor.sensorType.icon}
+                                            alt={sensor.sensorType.sensorCode || "Sensor Icon"}
+                                            className="w-72 h-72 object-contain mb-4 border border-gray-400 p-2 rounded-lg "
+                                        />
+                                    ) : (
+                                        <span>{sensor.sensorType?.sensorCode || "No data"}</span>
+                                    )}
+
+
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Fecha de mantenimiento</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.maintenanceDate}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Hora de inicio</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.startTime}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Hora de finalización</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.endTime}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Tipo de mantenimiento</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.maintenanceType}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Piezas reemplazadas</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.replacedParts}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Informe de pruebas</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.testReport}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Fotos y videos</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.media}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Estado del sensor </label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.sensorStatus}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Fecha estimada de cambio</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.estimatedReplacementDate}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Observaciones</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.remarks}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end m-4">
+                                <button
+                                    onClick={closeModalHandler}
+                                    className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                                >
+                                    Cerrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeModal === "calibrar" && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                        <div className="bg-white w-full max-w-4xl  rounded-lg shadow-xl relative">
+                            {/* Cabecera del Modal */}
+                            <div className="flex justify-between items-center bg-[#345246] text-white p-4 rounded-t-lg">
+                                <h2 className="text-xl font-semibold">Historial de Calibración</h2>
+                                <button onClick={closeModalHandler} className="text-white hover:text-gray-200 focus:outline-none">
+                                    <X size={30} />
+                                </button>
+                            </div>
+
+                            {/* Tabla de Mantenimiento */}
+                            <div className="m-3 space-y-4 overflow-y-auto max-h-[70vh]">
+                                <table className="min-w-full bg-white border border-gray-300 shadow-md rounded-lg">
+                                    <thead className="bg-gray-200">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">ID</th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Fecha calibración</th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Fecha próxima Calibración</th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Informe de calibración</th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Estado del sensor</th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900"> </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {mantenimiento.length > 0 ? (
+                                            calibracion.map((cali, index) => (
+                                                <tr key={cali.id} className="border-b border-gray-200 hover:bg-gray-100">
+                                                    <td className="px-6 py-3 text-sm text-gray-900">{index + 1}</td>
+                                                    <td className="px-6 py-3 text-sm text-gray-900">{cali.calibrationDate.substr(0, 10)}</td>
+                                                    <td className="px-6 py-3 text-sm text-gray-900">{cali.estimatedReplacementDate.substr(0, 10)}</td>
+                                                    <td className="px-6 py-3 text-sm text-gray-900">{cali.calibrationReport || 'Desconocido'}</td>
+                                                    <td className="px-6 py-3 text-sm text-gray-900">{cali.actuatorStatus || 'Desconocido'}
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => openCalibracionModal(cali)} // Pasa el mantenimiento al modal
+                                                            className="text-[#168C0DFF] px- py-2 rounded"
+                                                        >
+                                                            <Eye size={20} /> {/* Ícono de ojito */}
+                                                        </button>
+                                                    </td>
+
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="5" className="px-6 py-3 text-sm text-center text-gray-900">No se encontraron calibradores.</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+
+
+                                </table>
+
+
+                                {/* Botón para cerrar */}
+                                <div className="flex justify-end mt-4">
+                                    <button
+                                        onClick={closeModalHandler}
+                                        className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                                    >
+                                        Cerrar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeModal === "calibracionDetalle" && selectedCalibracion && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                        <div className="bg-white w-full max-w-4xl rounded-lg shadow-xl relative">
+                            <div className="flex justify-between items-center bg-[#345246] text-white p-4 rounded-t-lg">
+                                <h2 className="text-xl font-semibold">Detalles de la Calibración</h2>
+                                <button onClick={closeModalHandler} className="text-white hover:text-gray-200 focus:outline-none">
+                                    <X size={30} />
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 m-5">
+                                <div className="flex flex-col items-center">
+                                {sensor.sensorType && sensor.sensorType.icon ? (
+                                        <img
+                                            src={sensor.sensorType.icon}
+                                            alt={sensor.sensorType.sensorCode || "Sensor Icon"}
+                                            className="w-72 h-72 object-contain mb-4 border border-gray-400 p-2 rounded-lg "
+                                        />
+                                    ) : (
+                                        <span>{sensor.sensorType?.sensorCode || "No data"}</span>
+                                    )}
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Fecha de Calibración</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.calibrationDate}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Hora de inicio</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.startTime}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Hora de finalización</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.endTime}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Informe de calibración</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.calibrationReport}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Fotos y videos</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.media}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Estado del sensor </label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.actuatorStatus}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Fecha estimada de cambio</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.estimatedReplacementDate}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Observaciones</label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.observations}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className='m-6'>
+                                <table className="min-w-full table-auto border-collapse mb-6 ">
+                                    <thead>
+                                        <tr className="bg-gray-200">
+                                            <th className="border px-4 py-2 font-semibold">Punto de Calibración</th>
+                                            <th className="border px-4 py-2 font-semibold">Valor</th>
+                                            <th className="border px-4 py-2 font-semibold">Respuesta</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {selectedCalibracion.calibrationPoints && selectedCalibracion.calibrationPoints.length > 0 ? (
+                                            selectedCalibracion.calibrationPoints.map((param, index) => (
+                                                <tr key={index}>
+                                                    <td className="border px-4 py-2">Punto {index + 1}</td>
+                                                    <td className="border px-4 py-2">{param.value}°C</td>
+                                                    <td className="border px-4 py-2">{param.measuredValue} V</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="3" className="text-center px-4 py-2">No se encontraron puntos de calibración</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className="flex justify-end m-4">
+                                <button
+                                    onClick={closeModalHandler}
+                                    className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                                >
+                                    Cerrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Información de Sensor - Columna Derecha */}
                 <div className="grid grid-cols-2 gap-4 mt-5">
                     <div className="flex flex-col">

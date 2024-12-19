@@ -15,6 +15,15 @@ const ActuadorService = {
             throw error;
         }
     },
+    async getActuadorById(id) {
+        try {
+            const response = await api.get(`/actuators/${id}`);
+            return response;
+        } catch (error) {
+            console.error('Error al obtener los actuadores:', error);
+            throw error;
+        }
+    },
 
     // CREAR UNA sensor
     async createActuador(data) {
