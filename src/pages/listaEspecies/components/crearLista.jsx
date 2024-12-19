@@ -247,11 +247,7 @@ const CrearListas = () => {
   }, [isModalOpen]);  // Dependencia del estado modalOpen
 
 
-  const handleStageChange = (stageIndex, field, value) => {
-    const updatedStages = [...stages];
-    updatedStages[stageIndex][field] = value;
-    setStages(updatedStages);
-  };
+
 
 
 
@@ -266,19 +262,51 @@ const CrearListas = () => {
     console.log(transformed)
     setFormattedStages(transformed);
   };
-  const handleParameterChange = (stageIndex, paramIndex, field, value) => {
-    const updatedStages = [...stages];
-    updatedStages[stageIndex].parameters[paramIndex][field] = value;
-    setStages(updatedStages);
+  // const handleParameterChange = (stageIndex, paramIndex, field, value) => {
+  //   const updatedStages = [...stages];
+  //   updatedStages[stageIndex].parameters[paramIndex][field] = value;
+  //   setStages(updatedStages);
+  // };
+
+  const handleParameterChange = (event, field) => {
+    setNewParameter({ ...newParameter, [field]: event.target.value });
   };
 
   const addParameterToStage = (stageIndex) => {
-    const newParameter = { variable: '', minNormal: '', maxNormal: '' };
-    const updatedStages = [...stages];
-    updatedStages[stageIndex].parameters.push(newParameter);
-    setStages(updatedStages);
+    const updatedStages = [...stages];  // Copiar el estado actual de stages
+    const newParameter = {
+      variable_id: '', // Iniciar con valores vacíos o predeterminados
+      min_normal_value: '',
+      max_normal_value: '',
+      min_limit: '',
+      max_limit: ''
+    };
+
+    updatedStages[stageIndex].parameters.push(newParameter);  // Agregar el nuevo parámetro
+    setStages(updatedStages);  // Actualizar el estado
   };
 
+
+  const handleAddStage = () => {
+
+    setFormData
+        ({
+            ...formData,
+            stage: [...formData.stage,
+            { id: null, name: '', description: '' }]
+        });
+};
+
+
+const handleRemoveStage = (index) => setFormData({
+  ...formData, stage: formData.stage.filter((_, i) => i !== index)
+});
+
+const handleStageChange = (index, field, value) => {
+  const updatedStages = [...formData.stage];
+  updatedStages[index][field] = value;
+  setFormData({ ...formData, stage: updatedStages });
+};
 
 
 
@@ -511,12 +539,12 @@ const CrearListas = () => {
                     <div className="space-y-4">
                       {stages.map((stage, stageIndex) => (
                         <div key={stageIndex} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
-                          {/* Título de la etapa y botón para añadir parámetros */}
                           <div className="flex justify-between items-center mb-2">
                             <h3 className="text-sm font-semibold text-gray-800">
                               {`Etapa ${stageIndex + 1}`}
                             </h3>
                             <button
+                              type='button'
                               onClick={() => handleOpenModal(stage.id)}
                               className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                             >
@@ -544,74 +572,68 @@ const CrearListas = () => {
                                 onChange={(e) => handleStageChange(stageIndex, 'time_to_production', e.target.value)}
                               />
                             </div>
-                            <ul className="space-y-2 mt-4">
-                              {stage.parameters && stage.parameters.length > 0 && (
-                                <div className="mt-4">
-                                  <div className="flex justify-between space-x-">
-                                    <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
-                                      Condiciones operación normal
-                                    </h4>
-                                    <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 py- w-full">
-                                      Condiciones operación Críticas
-                                    </h4>
-                                  </div>
-                                  <table className="min-w-full table-auto border-collapse">
-                                    <thead>
-                                      <tr className="bg-gray-200">
-                                        <th className="border px-4 py-2 font-bold">Variable</th>
-                                        <th className="border px-4 py-2 font-semibold">Mínimo</th>
-                                        <th className="border px-4 py-2 font-semibold">Máximo</th>
-                                        <th className="border px-4 py-2 font-semibold">Límite Mín</th>
-                                        <th className="border px-4 py-2 font-semibold">Límite Máx</th>
-                                        <th className="border px-4 py-2 font-semibold">Acciones</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {stage.parameters.map((param, paramIndex) => (
-                                        <tr key={paramIndex}>
-                                          <td className="border px-4 py-2">{param.variable?.name}</td>
-                                          <td className="border px-4 py-2">{param.min_normal_value}</td>
-                                          <td className="border px-4 py-2">{param.max_normal_value}</td>
-                                          <td className="border px-4 py-2">{param.min_limit}</td>
-                                          <td className="border px-4 py-2">{param.max_limit}</td>
-                                          <td className="border px-4 py-2">
-                                            <button
-                                              onClick={() => handleEditClick(stageIndex, paramIndex)}
-                                              className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
-                                            >
-                                              <Edit size={20} />
-                                            </button>
-                                            <button
-                                              onClick={() => handleDeleteClick(stageIndex, param.variable)}
-                                              className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
-                                            >
-                                              <Trash size={20} />
-                                            </button>
-                                          </td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              )}
-
-                            </ul>
-
-
                           </div>
+
+                          {/* Tabla de parámetros */}
+                          <ul className="space-y-2 mt-4">
+                            {stage.parameters && stage.parameters.length > 0 && (
+                              <div className="mt-4">
+                                <div className="flex justify-between space-x-">
+                                  <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
+                                    Condiciones operación normal
+                                  </h4>
+                                  <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 w-full">
+                                    Condiciones operación Críticas
+                                  </h4>
+                                </div>
+                                <table className="min-w-full table-auto border-collapse">
+                                  <thead>
+                                    <tr className="bg-gray-200">
+                                      <th className="border px-4 py-2 font-bold">Variable</th>
+                                      <th className="border px-4 py-2 font-semibold">Mínimo</th>
+                                      <th className="border px-4 py-2 font-semibold">Máximo</th>
+                                      <th className="border px-4 py-2 font-semibold">Límite Mín</th>
+                                      <th className="border px-4 py-2 font-semibold">Límite Máx</th>
+                                      <th className="border px-4 py-2 font-semibold">Acciones</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {stage.parameters.map((param, paramIndex) => (
+                                      <tr key={paramIndex}>
+                                        <td className="border px-4 py-2">{param.variable?.name || "No definida"}</td>
+                                        <td className="border px-4 py-2">{param.min_normal_value}</td>
+                                        <td className="border px-4 py-2">{param.max_normal_value}</td>
+                                        <td className="border px-4 py-2">{param.min_limit}</td>
+                                        <td className="border px-4 py-2">{param.max_limit}</td>
+                                        <td className="border px-4 py-2">
+                                          <button
+                                            onClick={() => handleEditClick(stageIndex, paramIndex)}
+                                            className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
+                                          >
+                                            <Edit size={20} />
+                                          </button>
+                                          <button
+                                            onClick={() => handleDeleteClick(stageIndex, param.variable)}
+                                            className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
+                                          >
+                                            <Trash size={20} />
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+                          </ul>
                         </div>
                       ))}
                     </div>
-
-
                   </div>
                 </div>
-
-
               </div>
-
-
             )}
+
           </div>
           <div className="mt-6 flex justify-end space-x-4">
             {step !== 1 && (
@@ -670,7 +692,7 @@ const CrearListas = () => {
                 <select
                   id="variable"
                   name="variable"
-                  value={newParameter.variable}
+                  value={newParameter.variable_id}
                   onChange={(e) => handleParameterChange(e, 'variable')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
                 >
@@ -718,6 +740,7 @@ const CrearListas = () => {
             </div>
           </div>
         )}
+
       </div>
     </form>
   );

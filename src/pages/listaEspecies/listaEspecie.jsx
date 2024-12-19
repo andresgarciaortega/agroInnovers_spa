@@ -458,11 +458,11 @@ const ListaEspecies = () => {
         </div>
       )}
 
-      {showErrorAlertTable && (
+      {/* {showErrorAlertTable && (
         <div className="alert-container">
           <ErrorAlert message={messageAlert} onCancel={closeModal} />
         </div>
-      )}
+      )} */}
 
 
 

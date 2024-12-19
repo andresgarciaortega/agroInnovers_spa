@@ -1,146 +1,520 @@
-import React, { useState } from "react";
-import { Bell, ChevronDown, Search } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Edit, Trash, Eye, Plus } from 'lucide-react';
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { IoIosWarning } from 'react-icons/io';
+import { FaFilter, FaLock } from 'react-icons/fa'; // Nuevos íconos añadidos
+import Delete from '../../components/delete';
+import GenericModal from '../../components/genericModal';
+import TypeService from "../../services/TypeDispositivosService";
+import { ImEqualizer } from "react-icons/im";
+import FormSensor from './components/formSensor';
+import FormMantenimientoSensor from './components/formMantenimiento';
+import FormCalibrarSensor from './components/formCalibracion';
+import FormViewSensor from './components/FormViewSensor';
+import SensorService from "../../services/SensorService";
+import CompanyService from "../../services/CompanyService";
+import SuccessAlert from "../../components/alerts/success";
+import { IoSearch } from "react-icons/io5";
+import { TbSettingsCog } from "react-icons/tb";
 
-const species = [
-  { id: 1, commonName: "Mejera", scientificName: "Mejera", category: "Agua dulce", productionTime: "2021-03-19" },
-  { id: 2, commonName: "Ciclidos", scientificName: "Ciclidos", category: "Agua dulce", productionTime: "2021-03-19" },
-  { id: 3, commonName: "Salmon", scientificName: "Salmon", category: "Agua fría", productionTime: "2021-03-19" },
-  { id: 4, commonName: "Bagre", scientificName: "Bagres", category: "Agua dulce", productionTime: "2021-03-19" },
-  { id: 5, commonName: "Pez dorado", scientificName: "Peces dorados", category: "Agua dulce", productionTime: "2021-03-19" },
-];
+import { ImEqualizer2 } from "react-icons/im";
 
-const companies = [
-  { value: "empresa123", label: "Empresa 123" },
-  { value: "empresa456", label: "Empresa 456" },
-  { value: "empresa789", label: "Empresa 789" },
-];
 
-export default function Sensores() {
-  const [selectedCompany, setSelectedCompany] = useState("");
-  const [open, setOpen] = useState(false);
+import Select from "react-select";
+import CompanySelector from "../../components/shared/companySelect";
+import { useCompanyContext } from "../../context/CompanyContext";
+
+const Sensor = () => {
+  const [companyList, setCompanyList] = useState([]);
+  const [sensorId, setSensorId] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
+  const { selectedCompanyUniversal } = useCompanyContext();
+
+  const [variableList, setVariableList] = useState([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedVariable, setSelectedVariable] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpenView, setIsModalOpenView] = useState(false);
+  const [isModalOpenMante, setIdModalOpenMante] = useState(false);
+  const [isModalOpenCali, setIsModalOpenCali] = useState(false);
+  const [modalMode, setModalMode] = useState("create");
+  const [messageAlert, setMessageAlert] = useState("");
+  const [nameCompany, setNameCompany] = useState("");
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
+  const [newVariable, setNewVariable] = useState({
+    sensorCode: '',
+    // icon: '',
+    gpsPosition: '',
+    inputPort: '',
+    readingPort: '',
+    description: '',
+    accessUsername: '',
+    accessPassword: '',
+    installationDate: '',
+    estimatedChangeDate: '',
+    sensorTypeId: 0,
+  });
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const data = await CompanyService.getAllCompany();
+        setCompanyList(data);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
+
+
+
+  useEffect(() => {
+    const fetchSensores = async () => {
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      if (!companyId) {
+        setVariableList([]);
+        return;
+      }
+
+      setNameCompany(selectedCompanyUniversal.label); // Establecer el nombre de la empresa seleccionada
+
+      try {
+        const data = await SensorService.getAllSensor(companyId); // Servicio que filtra por empresa
+        if (data?.length === 0) {
+          setVariableList([]);
+          setMessageAlert('Esta empresa no tiene sensores registrados.');
+          setShowErrorAlertTable(true);
+        } else {
+          setVariableList(Array.isArray(data) ? data : []);
+          setShowErrorAlertTable(false);
+        }
+      } catch (error) {
+        console.error('Error fetching sensores:', error);
+        setVariableList([]);
+        setMessageAlert('Error al cargar los sensores.');
+        setShowErrorAlertTable(true);
+      }
+    };
+
+    fetchSensores();
+  }, [selectedCompanyUniversal]);
+
+
+  const handleCompanyChange = (selectedOption) => {
+    setSelectedCompany(selectedOption ? selectedOption.value : null);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchCompanyTerm(e.target.value);
+  };
+
+  const handleVariableSelect = (sensor) => {
+    setSelectedCompany(sensor.company_id);
+  };
+
+  const handleCloseErrorAlert = () => {
+    setShowErrorAlertTable(false);
+  };
+
+
+
+  const filteredVariable = Array.isArray(variableList)
+    ? variableList.filter(sensor =>
+      (sensor.id && sensor.id.toString().toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (sensor.sensorCode && sensor.sensorCode.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (sensor.sensorType?.sensorCode && sensor.sensorType.sensorCode.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (sensor.sensorType?.brand && sensor.sensorType.brand.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (sensor.sensorType?.model && sensor.sensorType.model.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (sensor.space && sensor.space.toLowerCase().includes(searchTerm.toLowerCase())) || // Reemplaza "space" por el nombre real si es diferente
+      (sensor.subspace && sensor.subspace.toLowerCase().includes(searchTerm.toLowerCase())) || // Reemplaza "subspace" por el nombre real si es diferente
+      (sensor.monitoringSystem && sensor.monitoringSystem.toLowerCase().includes(searchTerm.toLowerCase())) // Reemplaza "monitoringSystem" por el nombre real si es diferente
+    )
+    : [];
+
+
+  // Paginación
+  const indexOfLastVariable = currentPage * itemsPerPage;
+  const indexOfFirstVariable = indexOfLastVariable - itemsPerPage;
+  const currentCompanies = filteredVariable.slice(indexOfFirstVariable, indexOfLastVariable);
+
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(filteredVariable.length / itemsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleItemsPerPageChange = (event) => {
+    setItemsPerPage(Number(event.target.value));
+    setCurrentPage(1);
+  };
+
+   const handleOpenModal = (sensor = null, mode = 'create') => {
+    setSelectedVariable(sensor);
+    setModalMode(mode);
+    setSensorId(sensor); 
+      
+    if (mode === 'edit' || mode === 'view') {
+      setNewVariable(sensor); // Cargar datos del sensor si estamos editando o visualizando
+    } else {
+      setNewVariable({
+        sensorCode: '',
+        icon: '',
+        gpsPosition: '',
+        inputPort: '',
+        readingPort: '',
+        description: '',
+        accessUsername: '',
+        accessPassword: '',
+        installationDate: '',
+        estimatedChangeDate: '',
+      });
+    }
+
+    // Lógica para abrir modales según el modo
+    if (mode === 'view') {
+      setIsModalOpenView(true);
+    } else if (mode === 'mantenimiento') {
+      setIdModalOpenMante(true); 
+    } else if (mode === 'calibrar') {
+      setIsModalOpenCali(true); // Abre el modal de calibración
+    } else {
+      setIsModalOpen(true); // Modal general
+    }
+  };
+
+
+
+  // Cerrar el modal
+  const closeModal = async () => {
+    setIsModalOpen(false);
+    setSelectedVariable(null);
+    setModalMode('create');
+    setIsModalOpenView(false);
+    setIdModalOpenMante(false); 
+    setIsModalOpenCali(false)
+
+    updateService();
+  };
+
+  //eliminar
+  const handleDelete = (sensor) => {
+    setSelectedVariable(sensor);
+    setIsDeleteModalOpen(true);
+  };
+
+  const showErrorAlertSuccess = (message) => {
+    setShowErrorAlert(true)
+    setMessageAlert(`Sensor ${message} exitosamente`);
+
+    setTimeout(() => {
+      setShowErrorAlert(false)
+    }, 2500);
+  }
+
+  const handleConfirmDelete = async () => {
+    setIsDeleteModalOpen(false);
+    setSelectedVariable(null);
+    const data = await SensorService.deleteSensor(selectedVariable.id);
+    setMessageAlert("Sensor eliminada exitosamente");
+    showErrorAlertSuccess("eliminado");
+    updateService();
+  };
+
+
+  const handleCancelDelete = () => {
+    setSelectedVariable(null);
+    setIsDeleteModalOpen(false);
+  };
+  const handleCloseAlert = () => {
+    setShowErrorAlert(false);
+  };
+
+  const updateService = async () => {
+    setShowErrorAlertTable(false);
+    setVariableList([]);
+
+    try {
+
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
+      if (!companyId) {
+        setVariableList([]);
+        return;
+      }
+
+      const data = await SensorService.getAllSensor(companyId);
+
+      setVariableList(data);
+    } catch (error) {
+      console.error('Error al actualizar los sensores:', error);
+    }
+  };
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4">
-      <header className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-          <span className="cursor-pointer hover:text-primary">Gestionar especies</span>
-          <span>{">"}</span>
-          <span className="cursor-pointer hover:text-primary">Especies</span>
-          {selectedCompany && (
-            <>
-              <span>{">"}</span>
-              <span>{companies.find(c => c.value === selectedCompany)?.label}</span>
-            </>
+    <div className="table-container ">
+      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
+        <div className="relative w-full">
+          <CompanySelector />
+
+        </div>
+        <br />
+        <div className="flex items-center space-x-2 text-gray-700">
+          <ImEqualizer2 size={20} />
+          <span>Gestión de dispositivos</span>
+          <span>/</span>
+          <span>Sensores</span>
+          <span>/</span>
+          <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
+          <span className="text-black font-bold">  </span>
+          {selectedCompanyUniversal && (
+            <span>{companyList.find(company => company.id === selectedCompanyUniversal)?.sensorCode}</span>
           )}
         </div>
-      </header>
+      </div>
+      <div className="relative w-full mt-6 py-5 z-0">
+        {/* Input de búsqueda */}
+        <input
+          type="text"
+          placeholder="Buscar Sensor"
+          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+      </div>
+      <div className="bg-white  rounded-lg shadow ">
+        <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-xl font-semibold">Sensores</h2>
+          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
 
-      <div>
-        <button
-          className="w-full flex justify-between items-center p-2 border border-gray-300 rounded"
-          onClick={() => setOpen(!open)}
-        >
-          <div className="flex items-center">
-            <Search className="mr-2 h-4 w-4" />
-            {selectedCompany ? companies.find(c => c.value === selectedCompany)?.label : "Buscar...empresa"}
-          </div>
-          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-        </button>
-        {open && (
-          <div className="border border-gray-300 rounded mt-2">
-            <input
-              type="text"
-              placeholder="Buscar empresa..."
-              className="p-2 w-full border-b border-gray-300"
-            />
-            <div className="p-2">
-              {companies.map(company => (
-                <div
-                  key={company.value}
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    setSelectedCompany(company.value);
-                    setOpen(false);
-                  }}
-                >
-                  {company.label}
-                </div>
+            Crear Sensor
+          </button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-300">
+              <tr>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Código ID Sensor</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo sensor</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Marca</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Modelo</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto entrada</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto Lectura</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Espacio</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Subespacio</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Sist. monitoreo y control</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentCompanies.map((sensor, index) => (
+                <tr key={sensor.id} className="bg-white border-b">
+                  <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
+                  {/* <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorCode}</td> */}
+                  <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorCode}</td>
+
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {sensor.sensorType && sensor.sensorType.icon ? (
+                        <img
+                          src={sensor.sensorType.icon}
+                          alt={sensor.sensorType.sensorCode || "Sensor Icon"}
+                          className="h-8 w-8 object-contain"
+                        />
+                      ) : (
+                        <span>{sensor.sensorType?.sensorCode || "No data"}</span>
+                      )}
+                    </td>
+
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorType.brand || "No disponible"}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorType?.model || "No disponible"}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{sensor.inputPort}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{sensor.readingPort}</td>
+
+                  <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+                  <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+                  <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+
+                  <td className="px-6 py-4 text-sm font-medium">
+    <button
+        className="text-[#168C0DFF] px-2 py-2 rounded"
+        onClick={() => handleOpenModal(sensor.id, 'calibrar')}
+        title="Calibrar Sensor"
+    >
+        <ImEqualizer size={18} />
+    </button>
+    <button
+        className="text-[#168C0DFF] px-2 py-2 rounded"
+        onClick={() => handleOpenModal(sensor.id, 'mantenimiento')}
+        title="Realizar Mantenimiento"
+    >
+        <TbSettingsCog size={18} />
+    </button>
+    <button
+        className="text-[#168C0DFF] px-2 py-2 rounded"
+        onClick={() => handleOpenModal(sensor, 'view')}
+        title="Ver Detalles del Sensor"
+    >
+        <Eye size={18} />
+    </button>
+    <button
+        className="text-[#168C0DFF] px-2 py-2 rounded"
+        onClick={() => handleOpenModal(sensor, 'edit')}
+        title="Editar Sensor"
+    >
+        <Edit size={18} />
+    </button>
+    <button
+        className="text-[#168C0DFF] px-2 py-2 rounded"
+        onClick={() => handleDelete(sensor)}
+        title="Eliminar Sensor"
+    >
+        <Trash size={18} />
+    </button>
+</td>
+
+
+                </tr>
               ))}
-            </div>
-          </div>
-        )}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+        <div className="border border-gray-200 rounded py-2 text-sm m-2">
+          <span>Cantidad de filas</span>
+          <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={15}>15</option>
+          </select>
+        </div>
+        <div className="pagination-controls text-xs flex items-center space-x-2">
+          <span>{indexOfFirstVariable + 1}-{indexOfLastVariable} de {variableList.length}</span>
+          <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+            onClick={handlePrevPage} disabled={currentPage === 1}>
+            <IoIosArrowBack size={20} />
+          </button>
+          <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+            onClick={handleNextPage} disabled={currentPage === Math.ceil(variableList.length / itemsPerPage)}>
+            <IoIosArrowForward size={20} />
+          </button>
+        </div>
       </div>
 
-      {selectedCompany && (
-        <>
-          <div className="flex items-center justify-between my-6">
-            <div className="relative w-[300px]">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Buscar lista de especie"
-                className="pl-8 p-2 border border-gray-300 rounded w-full"
-              />
-            </div>
-            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-              Crear especies
+      {/* Modaeliminación */}
+      {isDeleteModalOpen && (
+        <Delete
+          message={`¿Seguro que desea eliminar el sensor  ${selectedVariable?.sensorCode}?`}
+          onCancel={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
+
+      {/* Modalcrear-editar-*/}
+      {isModalOpen && (
+        <GenericModal
+          title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver Sensor' : 'Añadir Sensor'}
+          onClose={closeModal}
+
+          companyId={selectedCompany} >
+
+          <FormSensor
+            showErrorAlert={showErrorAlertSuccess}
+            onUpdate={updateService}
+            sensor={newVariable}
+            mode={modalMode}
+            closeModal={closeModal} />
+        </GenericModal>
+      )}
+      {/* modal visualizar */}
+      {isModalOpenView && (
+        <GenericModal
+        // openModal={handleOpenModal}
+          title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Añadir Sensor'}
+          onClose={closeModal}
+
+          companyId={selectedCompany} >
+
+          <FormViewSensor showErrorAlert={showErrorAlertSuccess} onUpdate={updateService} sensor={newVariable} mode={modalMode} closeModal={closeModal} />
+        </GenericModal>
+      )}
+      {/* mantenimiento */}
+      {isModalOpenMante && (
+        <GenericModal
+          title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Añadir Mantenimiento'}
+          onClose={closeModal}
+
+          companyId={selectedCompany} >
+
+          <FormMantenimientoSensor showErrorAlert={showErrorAlertSuccess}
+           onUpdate={updateService}
+            sensor={newVariable} 
+            mode={modalMode} 
+            closeModal={closeModal}
+            sensorId={sensorId || ''} />
+        </GenericModal>
+      )}
+
+      {/* calibrar */}
+      {/* mantenimiento */}
+      {isModalOpenCali && (
+        <GenericModal
+          title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Añadir Calibrar'}
+          onClose={closeModal}
+
+          companyId={selectedCompany} >
+
+          <FormCalibrarSensor showErrorAlert={showErrorAlertSuccess}
+           onUpdate={updateService}
+            sensor={newVariable} 
+            mode={modalMode} 
+            closeModal={closeModal}
+            sensorId={sensorId || ''} />
+        </GenericModal>
+      )}
+
+      {showErrorAlert && (
+        <SuccessAlert
+          message={messageAlert}
+          onCancel={handleCloseAlert}
+        />
+      )}
+      {showErrorAlertTable && (
+        <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
+          <div className="flex items-center space-x-2">
+            <IoIosWarning size={20} />
+            <p>{messageAlert}</p>
+          </div>
+          <div className="flex justify-end w-full">
+            <button
+              onClick={handleCloseErrorAlert}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
+              Cancelar
             </button>
           </div>
-
-          <div className="bg-white rounded-lg shadow">
-            <table className="w-full">
-              <thead>
-                <tr>
-                  <th className="w-[30px]"></th>
-                  <th>Nombre común</th>
-                  <th>Nombre científico</th>
-                  <th>Categoría</th>
-                  <th>Tiempo producción</th>
-                  <th className="text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {species.map(species => (
-                  <tr key={species.id} className="border-t">
-                    <td>
-                      <div className="w-4 h-4 rounded-full border-2 border-gray-300 animate-spin" />
-                    </td>
-                    <td>{species.commonName}</td>
-                    <td>{species.scientificName}</td>
-                    <td>{species.category}</td>
-                    <td>{species.productionTime}</td>
-                    <td className="text-right">
-                      <div className="flex justify-end space-x-2">
-                        <button className="h-8 w-8 rounded-full bg-green-500" title="Ver"></button>
-                        <button className="h-8 w-8 rounded-full bg-blue-500" title="Editar"></button>
-                        <button className="h-8 w-8 rounded-full bg-red-500" title="Eliminar"></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="flex items-center justify-between px-4 py-4 border-t">
-              <select defaultValue="6" className="p-2 border border-gray-300 rounded">
-                <option value="6">6 filas por página</option>
-                <option value="12">12 filas por página</option>
-                <option value="24">24 filas por página</option>
-              </select>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-muted-foreground">6-6 de 50</span>
-                <div className="flex space-x-1">
-                  <button className="h-8 w-8 border border-gray-300 rounded">
-                    <ChevronDown className="h-4 w-4 rotate-90" />
-                  </button>
-                  <button className="h-8 w-8 border border-gray-300 rounded">
-                    <ChevronDown className="h-4 w-4 -rotate-90" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
+        </div>
       )}
     </div>
   );
-}
+};
+
+export default Sensor;

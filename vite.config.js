@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  base: './', // Ajusta esto si necesitas servir la app en un subdirectorio específico
+  base: './', 
   plugins: [react()],
   resolve: {
     alias: {

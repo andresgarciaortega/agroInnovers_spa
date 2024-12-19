@@ -317,7 +317,7 @@ const EditarLista = () => {
         try {
             let imageUrl = '';
 
-            if (formData.image.common_name) {
+            if (formData.image) {
                 imageUrl = await UploadToS3(formData.image);
             } else {
                 imageUrl = newSpecie.image;
@@ -518,6 +518,7 @@ const EditarLista = () => {
                                         {`Etapa ${stageIndex + 1}`}
                                     </h3>
                                     <button
+                                    type='button'
                                         onClick={() => handleOpenModal(stage.id)}
                                         className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                                     >
@@ -527,7 +528,8 @@ const EditarLista = () => {
 
                                 <div className="flex flex-col text-sm">
                                     <p className="text-gray-700">
-                                        <span className="">Descripción:</span> <strong>{stage.description}</strong>
+                                        <span className="">Descripción:</span> 
+                                        <strong>{stage.description}</strong>
                                     </p>
                                     <p className="text-gray-700 mt-2">
                                         <span className="">Tiempo de producción:</span> <strong>{stage.time_to_production}</strong>
