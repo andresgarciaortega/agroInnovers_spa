@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { IoCloudUploadOutline } from "react-icons/io5";
 import UploadToS3 from '../../../config/UploadToS3';
-import SensorMantenimientoService from '../../../services/SensorMantenimiento';
+import SensorCalibradorService from '../../../services/CalibrarSensor';
 import VariableTypeService from '../../../services/VariableType';
 import RegistrerTypeServices from '../../../services/RegistrerType';
 import CompanyService from '../../../services/CompanyService';
@@ -11,7 +11,12 @@ import moment from 'moment';
 
 const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, sensor, mode, closeModal, companyId }) => {
     const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
-
+    const currentDate = moment().format('YYYY-MM-DD');
+    const currentTime = moment().format('HH:mm');
+    const [errors, setErrors] = useState({
+        startTime: '',
+        endTime: '',
+    });
     const [variableTypes, setVariableTypes] = useState([]);
     const [registerTypes, setRegisterTypes] = useState([]);
     const [companies, setCompanies] = useState([]);
@@ -42,13 +47,13 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
     const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
-        const fetchMantenimiento = async () => {
+        const SensorCalibrador = async () => {
             try {
 
-                const mantenimientoSensor = await SensorMantenimientoService.getAllMantenimiento();
-                setVariableTypes(mantenimientoSensor);
+                const CalibrarSensor = await SensorCalibradorService.getAllMantenimiento();
+                setVariableTypes(CalibrarSensor);
             } catch (error) {
-                console.error('Error al obtener los mantenimientos del sensor:', error);
+                console.error('Error al obtener los calibraciones del sensor:', error);
             }
         };
         const fetchSensor = async () => {
@@ -74,7 +79,7 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
 
         fetchSensor();
 
-        fetchMantenimiento();
+        SensorCalibrador();
         fetchCompanies();
     }, []);
 
@@ -136,38 +141,56 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
     }, [sensor, mode]); // This effect runs when sensor or mode changes.
 
 
-
     const handleChange = (e) => {
         const { name, value } = e.target;
+
+        if (name === 'maintenanceDate' && value > currentDate) {
+            showErrorAlert('La fecha no puede ser posterior a la fecha actual.');
+            return;
+        }
+
         setFormData({
             ...formData,
-            [name]: value
+            [name]: value,
         });
     };
 
 
 
-    // Esta función convierte la hora seleccionada a una fecha completa con la hora elegida.
     const handleTimeChange = (e) => {
         const { name, value } = e.target;
 
-        // Obtener la hora seleccionada en formato HH:mm (ejemplo: "12:00")
-        const [hours, minutes] = value.split(":");
+        // Validaciones de hora
+        if (name === 'startTime' || name === 'endTime') {
+            if (moment(value, 'HH:mm').isAfter(moment(currentTime, 'HH:mm'))) {
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    [name]: 'La hora no puede ser posterior a la hora actual.',
+                }));
+                return;
+            }
 
-        // Usar Moment.js para obtener la fecha actual y combinarla con la hora seleccionada
-        const updatedDate = moment().set({ hour: hours, minute: minutes, second: 0, millisecond: 0 });
+            if (name === 'endTime' && moment(value, 'HH:mm').isBefore(moment(formData.startTime, 'HH:mm'))) {
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    endTime: 'La hora de finalización debe ser después de la hora de inicio.',
+                }));
+                return;
+            }
+        }
 
-        // Convertir la fecha completa a formato ISO 8601 (con fecha y hora)
-        const isoString = updatedDate.toISOString();
+        // Limpiar errores si la validación pasa
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            [name]: '',
+        }));
 
-        // Actualizar el estado con la nueva fecha y hora en formato ISO
         setFormData({
             ...formData,
-            [name]: isoString, // Guardar la fecha y hora en formato ISO
+            [name]: value,
         });
     };
 
-    // Formatear la hora para mostrarla en el campo de entrada (HH:mm)
     const formatTime = (time) => {
         return moment(time).format('HH:mm');
     };
@@ -175,12 +198,37 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+
+            if (
+                moment(formData.startTime, 'HH:mm').isAfter(moment(currentTime, 'HH:mm')) ||
+                moment(formData.endTime, 'HH:mm').isAfter(moment(currentTime, 'HH:mm'))
+            ) {
+                showErrorAlert('La hora del mantenimiento no puede ser en el futuro.');
+                return;
+            }
+
+            const [startHour, startMinute] = formData.startTime.split(':');
+            const [endHour, endMinute] = formData.endTime.split(':');
+
+            const calibrationDate = moment(formData.calibrationDate).toDate();
+
+            const startDate = new Date(calibrationDate);
+            startDate.setHours(startHour, startMinute, 0, 0);
+
+            const endDate = new Date(calibrationDate);
+            endDate.setHours(endHour, endMinute, 0, 0);
+
+            if (startDate >= endDate) {
+                showErrorAlert('La hora de inicio debe ser anterior a la hora de finalización.');
+                return;
+            }
+
             const formDataToSubmit = {
                 ...formData,
-                media: formData.media || '', // Usar la URL de la imagen (nueva o existente)
-                calibrationDate: formData.calibrationDate,
-                startTime: new Date(formData.startTime), // Convertir a instancia de Date
-                endTime: new Date(formData.endTime),     // Convertir a instancia de Date
+                media: formData.media || '',
+                calibrationDate: calibrationDate,
+                startTime: startDate,
+                endTime: endDate,
                 maintenanceType: formData.maintenanceType,
                 replacedParts: formData.replacedParts,
                 calibrationReport: formData.calibrationReport,
@@ -188,15 +236,16 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
                 estimatedReplacementDate: formData.estimatedReplacementDate,
                 observations: formData.observations,
                 sensor_id: sensorId || formData.sensor_id,
+                calibrationPoints: formData.calibrationPoints || [],
             };
 
-            if (mode === 'create') {
-                const createdMantenimiento = await SensorMantenimientoService.createMantenimiento(formDataToSubmit);
-                console.log('Mantenimiento creado:', formDataToSubmit);
-                showErrorAlert("Mantenimiento creado correctamente.");
+            if (mode === 'calibrar') {
+                const createdMantenimiento = await SensorCalibradorService.createMantenimiento(formDataToSubmit);
+                console.log('calibración creado:', formDataToSubmit);
+                showErrorAlert("calibración creado");
             } else if (mode === 'edit') {
-                await SensorMantenimientoService.updateMantenimiento(sensorId, formDataToSubmit);
-                showErrorAlert("Mantenimiento actualizado correctamente.");
+                await SensorCalibradorService.updateMantenimiento(sensorId, formDataToSubmit);
+                showErrorAlert("calibración actualizado correctamente.");
             }
             console.log('Datos enviados:', formDataToSubmit);
 
@@ -217,18 +266,16 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
                     const sensorDetails = await SensorService.getSensorById(sensorId);
                     console.log('Detalles del sensor:', sensorDetails);
 
-                    const sensorType = sensorDetails?.data?.[0]?.sensor?.sensorType;
-                    console.log('Tipo de sensor:', sensorType);
+                    const sensorTypePoints = sensorDetails.sensorType?.calibrationPoints || [];
+                    console.log('Puntos de calibración:', sensorTypePoints);
 
                     setFormData((prevData) => ({
                         ...prevData,
                         estimatedReplacementDate: sensorDetails.estimatedChangeDate || '',
-                        calibrationPoints: sensorDetails.calibrationPoints || [] ,
+                        calibrationPoints: sensorTypePoints,
                     }));
-                    
 
-                    // Actualizar el estado de los puntos de calibración
-                    setCalibrationPoints(sensorDetails.calibrationPoints || []);
+                    setCalibrationPoints(sensorTypePoints);
                 } catch (error) {
                     console.error('Error al obtener los detalles del sensor:', error);
                 }
@@ -237,6 +284,11 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
             fetchSensorDetails();
         }
     }, [sensorId]);
+
+    // Usar un efecto para ver los cambios de formData
+    useEffect(() => {
+        console.log('Estado actualizado de formData:', formData);
+    }, [formData]);
 
 
 
@@ -258,14 +310,15 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <label htmlFor="sensor-calibrationDate" className="block text-sm font-medium text-gray-700">Fecha del mantenimiento</label>
+                <label htmlFor="sensor-calibrationDate" className="block text-sm font-medium text-gray-700">Fecha de calibración</label>
                 <input
                     type="date"
                     id="sensor-calibrationDate"
                     name="calibrationDate"
-                    placeholder="Fecha del mantenimiento"
+                    placeholder="Fecha delcalibración"
                     value={formData.calibrationDate}
                     onChange={handleChange}
+                    max={currentDate}
                     className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                     required
                     disabled={mode === 'view'}
@@ -281,12 +334,15 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
                         id="startTime"
                         name="startTime"
                         placeholder="Hora Inicio"
-                        value={formatTime(formData.startTime)}
+                        value={formData.startTime}
                         onChange={handleTimeChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                        className={`mt-1 block w-full border ${errors.startTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
                         required
                         disabled={mode === 'view'}
                     />
+                    {errors.startTime && (
+                        <p className="mt-1 text-sm text-red-500">{errors.startTime}</p>
+                    )}
                 </div>
                 <div>
                     <label htmlFor="endTimee" className="block text-sm font-medium text-gray-700">Hora Finalización</label>
@@ -295,13 +351,17 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
                         id="endTimee"
                         name="endTime"
                         placeholder="Hora Finalización"
-                        value={formatTime(formData.endTime)}
+                        value={formData.endTime}
                         onChange={handleTimeChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                        className={`mt-1 block w-full border ${errors.endTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
                         required
                         disabled={mode === 'view'}
                     />
+                    {errors.endTime && (
+                        <p className="mt-1 text-sm text-red-500">{errors.endTime}</p>
+                    )}
                 </div>
+
 
                 <div>
                     <label htmlFor="calibrationReport" className="block text-sm font-medium text-gray-700">Informe de calibración</label>
@@ -384,15 +444,15 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
                     disabled={mode === 'view'}
                 />
             </div>
-             {/* Tabla de Puntos de Calibración */}
-             <div className="mt-5">
+            {/* Tabla de Puntos de Calibración */}
+            <div className="mt-5">
                 <h3 className="text-lg font-semibold">Puntos de Calibración</h3>
                 <table className="min-w-full mt-3 border-collapse">
                     <thead>
                         <tr>
-                            <th className="border px-4 py-2">Calibrador</th>
-                            <th className="border px-4 py-2">Fecha de Calibración</th>
-                            <th className="border px-4 py-2">Observaciones</th>
+                        <th className="border px-4 py-2">Punto de calibración</th>
+                            <th className="border px-4 py-2">Valor</th>
+                            <th className="border px-4 py-2">Valor medido</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -437,7 +497,7 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
                             type="submit"
                             className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
                         >
-                            {mode === 'create' ? 'Crear Mantenimiento' : 'Crear Mantenimiento'}
+                            {mode === 'create' ? 'Crear Calibración' : 'Crear Calibración'}
 
                         </button>
                     </>

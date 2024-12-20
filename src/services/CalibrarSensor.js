@@ -17,10 +17,10 @@ const SensorCalibradorService = {
     },
     async getMantenimientoBysensor(sensorId) {
         try {
-            const response = await api.get(`/calibrations?actuator.id=${sensorId}`);
+            const response = await api.get(`/calibrations?search=${encodeURIComponent(JSON.stringify({sensor:{id:sensorId}}))}`);
             return response.data;
         } catch (error) {
-            console.error('Error al obtener los mantenimientos del actuator:', error);
+            console.error('Error al obtener los calibradores de sensor:', error);
             throw error;
         }
     },

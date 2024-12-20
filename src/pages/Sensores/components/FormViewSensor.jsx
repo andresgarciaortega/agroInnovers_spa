@@ -70,7 +70,7 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                 }
             } catch (error) {
                 console.error('Error fetching mantenimiento:', error);
-                setMantenimiento([]); // Vaciar la lista en caso de error
+                setMantenimiento([]); 
                 // setMessageAlert('Esta empresa no tiene mantenimientos registradas, Intentalo con otra empresa');
                 setShowErrorAlertTable(true);
             }
@@ -81,26 +81,23 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
     useEffect(() => {
         const fetchMantenimiento = async () => {
             try {
-                // Asegúrate de que el ID del sensor esté disponible
                 if (!sensor || !sensor.id) return;
 
-                // Llama al servicio para obtener los mantenimientos asociados al sensor
                 const data = await SensorMantenimientoService.getMantenimientoBySensor(sensor.id);
                 console.log("Datos de mantenimiento:", data);
-                // Maneja la respuesta y actualiza el estado
                 if (data.statusCode === 404) {
-                    setMantenimiento([]);  // Si no se encuentran mantenimientos
+                    setMantenimiento([]);  
                 } else {
-                    setMantenimiento(data); // Asume que data es un array de mantenimientos
+                    setMantenimiento(data); 
                 }
             } catch (error) {
                 console.error('Error fetching mantenimiento:', error);
-                setMantenimiento([]); // Vaciar la lista en caso de error
+                setMantenimiento([]); 
             }
         };
 
         fetchMantenimiento();
-    }, [sensor]); // Re-run cada vez que cambie el sensor
+    }, [sensor]);
 
 
 
@@ -124,28 +121,62 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
     useEffect(() => {
         const fetchCalibrar = async () => {
             try {
-                // Asegúrate de que el ID del sensor esté disponible
                 if (!sensor || !sensor.id) return;
 
-                // Llama al servicio para obtener los mantenimientos asociados al sensor
                 const data = await CalibrarSensor.getMantenimientoBysensor(sensor.id);
                 console.log("Datos de mantenimiento:", data);
-                // Maneja la respuesta y actualiza el estado
                 if (data.statusCode === 404) {
-                    setCalibracion([]);  // Si no se encuentran mantenimientos
+                    setCalibracion([]);  
                 } else {
-                    setCalibracion(data); // Asume que data es un array de mantenimientos
+                    setCalibracion(data); 
                 }
             } catch (error) {
                 console.error('Error fetching mantenimiento:', error);
-                setCalibracion([]); // Vaciar la lista en caso de error
+                setCalibracion([]); 
             }
         };
 
         fetchCalibrar();
     }, [sensor]);
 
-    const openModal = (modalType) => {
+    const openModal = async (modalType, id= 0) => {
+     
+       
+        console.log('mantenimientos', mantenimiento)
+        if (modalType === "mantenimiento"){
+            try {
+                if (!sensor || !sensor.id) return;
+
+                const data = await SensorMantenimientoService.getMantenimientoBySensor(id);
+
+                console.log("Datos de mantenimiento:", data);
+                if (data.statusCode === 404) {
+                    setMantenimiento([]);  
+                } else {
+                    setMantenimiento(data);
+                }
+            } catch (error) {
+                console.error('Error fetching mantenimiento:', error);
+                setMantenimiento([]); 
+            }
+        }
+        console.log('mantenimientos', mantenimiento)
+        if (modalType === "calibrar"){
+            try {
+                if (!sensor || !sensor.id) return;
+
+                const data = await CalibrarSensor.getMantenimientoBysensor(sensor.id);
+                console.log("Datos de mantenimiento:", data);
+                if (data.statusCode === 404) {
+                    setCalibracion([]);  
+                } else {
+                    setCalibracion(data); 
+                }
+            } catch (error) {
+                console.error('Error fetching mantenimiento:', error);
+                setCalibracion([]); 
+            }
+        }
         setActiveModal(modalType);
     };
 
@@ -154,8 +185,8 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
     };
 
     const openMantenimientoModal = (mantenimiento) => {
-        setSelectedMantenimiento(mantenimiento); // Establecer el mantenimiento seleccionado
-        setActiveModal("mantenimientoDetalle"); // Abrir el modal de detalles
+        setSelectedMantenimiento(mantenimiento); 
+        setActiveModal("mantenimientoDetalle"); 
     };
 
     const openCalibracionModal = (calibracion) => {
@@ -181,14 +212,14 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                     <div className="space-y-2 mt-5">
                         <button
                             type="button"
-                            onClick={() => openModal("mantenimiento")}
+                            onClick={() => openModal("mantenimiento", sensor?.id)}
                             className="mb-2 inline-flex items-center px-12 py-3 border border-[#168C0DFF] text-sm font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         >
                             Ver historial de mantenimiento
                         </button>
                         <button
                             type="button"
-                            onClick={() => openModal("calibrar")}
+                            onClick={() => openModal("calibrar", sensor?.id)}
                             className="mb-2 inline-flex items-center px-16 py-3 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         >
                             Ver historial de calibración
@@ -199,7 +230,6 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                 {activeModal === "mantenimiento" && (
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                         <div className="bg-white w-full max-w-4xl  rounded-lg shadow-xl relative">
-                            {/* Cabecera del Modal */}
                             <div className="flex justify-between items-center bg-[#345246] text-white p-4 rounded-t-lg">
                                 <h2 className="text-xl font-semibold">Historial de Mantenimiento</h2>
                                 <button onClick={closeModalHandler} className="text-white hover:text-gray-200 focus:outline-none">
@@ -207,7 +237,6 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                                 </button>
                             </div>
 
-                            {/* Tabla de Mantenimiento */}
                             <div className="m-3 space-y-4 overflow-y-auto max-h-[70vh]">
                                 <table className="min-w-full bg-white border border-gray-300 shadow-md rounded-lg">
                                     <thead className="bg-gray-200">
@@ -313,6 +342,10 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                                         <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.replacedParts}</p>
                                     </div>
                                     <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Estado del sensor </label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.sensorStatus}</p>
+                                    </div>
+                                    <div className="flex flex-col">
                                         <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Informe de pruebas</label>
                                         <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.testReport}</p>
                                     </div>
@@ -320,10 +353,7 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                                         <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Fotos y videos</label>
                                         <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.media}</p>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Estado del sensor </label>
-                                        <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.sensorStatus}</p>
-                                    </div>
+                                   
                                     <div className="flex flex-col">
                                         <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Fecha estimada de cambio</label>
                                         <p className="mt-1 text-sm text-gray-600">{selectedMantenimiento.estimatedReplacementDate}</p>
@@ -379,7 +409,7 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                                                     <td className="px-6 py-3 text-sm text-gray-900">{cali.calibrationDate.substr(0, 10)}</td>
                                                     <td className="px-6 py-3 text-sm text-gray-900">{cali.estimatedReplacementDate.substr(0, 10)}</td>
                                                     <td className="px-6 py-3 text-sm text-gray-900">{cali.calibrationReport || 'Desconocido'}</td>
-                                                    <td className="px-6 py-3 text-sm text-gray-900">{cali.actuatorStatus || 'Desconocido'}
+                                                    <td className="px-6 py-3 text-sm text-gray-900">{cali.sensorStatus || 'Desconocido'}
                                                     </td>
                                                     <td>
                                                         <button
@@ -453,6 +483,10 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                                         <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.endTime}</p>
                                     </div>
                                     <div className="flex flex-col">
+                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Estado del sensor </label>
+                                        <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.sensorStatus}</p>
+                                    </div>
+                                    <div className="flex flex-col">
                                         <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Informe de calibración</label>
                                         <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.calibrationReport}</p>
                                     </div>
@@ -460,10 +494,7 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                                         <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Fotos y videos</label>
                                         <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.media}</p>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Estado del sensor </label>
-                                        <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.actuatorStatus}</p>
-                                    </div>
+                                   
                                     <div className="flex flex-col">
                                         <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Fecha estimada de cambio</label>
                                         <p className="mt-1 text-sm text-gray-600">{selectedCalibracion.estimatedReplacementDate}</p>
@@ -481,7 +512,7 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                                         <tr className="bg-gray-200">
                                             <th className="border px-4 py-2 font-semibold">Punto de Calibración</th>
                                             <th className="border px-4 py-2 font-semibold">Valor</th>
-                                            <th className="border px-4 py-2 font-semibold">Respuesta</th>
+                                            <th className="border px-4 py-2 font-semibold">Valor medido</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -490,7 +521,7 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                                                 <tr key={index}>
                                                     <td className="border px-4 py-2">Punto {index + 1}</td>
                                                     <td className="border px-4 py-2">{param.value}°C</td>
-                                                    <td className="border px-4 py-2">{param.measuredValue} V</td>
+                                                    <td className="border px-4 py-2">{param.normalResponse} V</td>
                                                 </tr>
                                             ))
                                         ) : (

@@ -17,7 +17,7 @@ const ActuadorMantenimientoService = {
     },
     async getMantenimientoByActuador(actuadorId) {
         try {
-            const response = await api.get(`/actuator-maintenance?actuator.id=${actuadorId}`);
+            const response = await api.get(`/actuator-maintenance?search=${encodeURIComponent(JSON.stringify({actuator:{id:actuadorId}}))}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener los mantenimientos del actuator:', error);

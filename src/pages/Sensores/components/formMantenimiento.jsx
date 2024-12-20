@@ -15,6 +15,12 @@ const FromMantenimiento = ({selectedCompany,sensorId, showErrorAlert, onUpdate, 
   const [variableTypes, setVariableTypes] = useState([]);
   const [registerTypes, setRegisterTypes] = useState([]);
   const [companies, setCompanies] = useState([]);
+  const currentDate = moment().format('YYYY-MM-DD');
+  const currentTime = moment().format('HH:mm');
+  const [errors, setErrors] = useState({
+    startTime: '',
+    endTime: '',
+  });
 
   const [isDashboard, setIsDashboard] = useState(false);
   const [isIncrement, setIsIncrement] = useState(false);
@@ -140,82 +146,132 @@ const FromMantenimiento = ({selectedCompany,sensorId, showErrorAlert, onUpdate, 
         // company_id: companySeleector.value || ''
       });
     }
-  }, [sensor, mode]); // This effect runs when sensor or mode changes.
+  }, [sensor, mode]); 
 
 
 
-  const handleChange = (e) => {
+   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'maintenanceDate' && value > currentDate) {
+      showErrorAlert('La fecha no puede ser posterior a la fecha actual.');
+      return;
+    }
+
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
   };
 
   
 
-// Esta función convierte la hora seleccionada a una fecha completa con la hora elegida.
-const handleTimeChange = (e) => {
-  const { name, value } = e.target;
+  const handleTimeChange = (e) => {
+    const { name, value } = e.target;
 
-  // Obtener la hora seleccionada en formato HH:mm (ejemplo: "12:00")
-  const [hours, minutes] = value.split(":");
+    // Validaciones de hora
+    if (name === 'startTime' || name === 'endTime') {
+      if (moment(value, 'HH:mm').isAfter(moment(currentTime, 'HH:mm'))) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [name]: 'La hora no puede ser posterior a la hora actual.',
+        }));
+        return;
+      }
 
-  // Usar Moment.js para obtener la fecha actual y combinarla con la hora seleccionada
-  const updatedDate = moment().set({ hour: hours, minute: minutes, second: 0, millisecond: 0 });
+      if (name === 'endTime' && moment(value, 'HH:mm').isBefore(moment(formData.startTime, 'HH:mm'))) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          endTime: 'La hora de finalización debe ser después de la hora de inicio.',
+        }));
+        return;
+      }
+    }
 
-  // Convertir la fecha completa a formato ISO 8601 (con fecha y hora)
-  const isoString = updatedDate.toISOString();
+    // Limpiar errores si la validación pasa
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: '',
+    }));
 
-  // Actualizar el estado con la nueva fecha y hora en formato ISO
-  setFormData({
-    ...formData,
-    [name]: isoString, // Guardar la fecha y hora en formato ISO
-  });
-};
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+  
 
-// Formatear la hora para mostrarla en el campo de entrada (HH:mm)
 const formatTime = (time) => {
   return moment(time).format('HH:mm');
 };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const formDataToSubmit = {
-        ...formData,
-        media: formData.media || '', // Usar la URL de la imagen (nueva o existente)
-        maintenanceDate: formData.maintenanceDate,
-        startTime: new Date(formData.startTime), // Convertir a instancia de Date
-        endTime: new Date(formData.endTime),     // Convertir a instancia de Date
-        maintenanceType: formData.maintenanceType,
-        replacedParts: formData.replacedParts,
-        testReport: formData.testReport,
-        sensorStatus: formData.sensorStatus,
-        estimatedReplacementDate: formData.estimatedReplacementDate,
-        remarks: formData.remarks,
-        sensor_id: sensorId || formData.sensor_id,
-      };
-  
-      if (mode === 'create') {
-        const createdMantenimiento = await SensorMantenimientoService.createMantenimiento(formDataToSubmit);
-        console.log('Mantenimiento creado:', formDataToSubmit);
-        showErrorAlert("Mantenimiento creado correctamente.");
-      } else if (mode === 'edit') {
-        await SensorMantenimientoService.updateMantenimiento(sensorId, formDataToSubmit);
-        showErrorAlert("Mantenimiento actualizado correctamente.");
-      }
-      console.log('Datos enviados:', formDataToSubmit);
-  
-      // Actualizar y cerrar modal
-      onUpdate();
-      closeModal();
-  
-    } catch (error) {
-      console.error('Error al guardar el mantenimiento:', error);
-      showErrorAlert("Hubo un error al guardar el mantenimiento.");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    if (moment(formData.maintenanceDate).isAfter(currentDate)) {
+      showErrorAlert('La fecha del mantenimiento no puede ser en el futuro.');
+      return;
     }
-  };
+
+    if (
+      moment(formData.startTime, 'HH:mm').isAfter(moment(currentTime, 'HH:mm')) ||
+      moment(formData.endTime, 'HH:mm').isAfter(moment(currentTime, 'HH:mm'))
+    ) {
+      showErrorAlert('La hora del mantenimiento no puede ser en el futuro.');
+      return;
+    }
+
+    // Combinar la fecha de mantenimiento con las horas para crear instancias válidas de Date
+    const [startHour, startMinute] = formData.startTime.split(':');
+    const [endHour, endMinute] = formData.endTime.split(':');
+    
+    const maintenanceDate = moment(formData.maintenanceDate).toDate();
+
+    const startDate = new Date(maintenanceDate);
+    startDate.setHours(startHour, startMinute, 0, 0);
+
+    const endDate = new Date(maintenanceDate);
+    endDate.setHours(endHour, endMinute, 0, 0);
+
+    if (startDate >= endDate) {
+      showErrorAlert('La hora de inicio debe ser anterior a la hora de finalización.');
+      return;
+    }
+
+    const formDataToSubmit = {
+      ...formData,
+      media: formData.media || '', // Usar la URL de la imagen (nueva o existente)
+      maintenanceDate: maintenanceDate,
+      startTime: startDate, // Instancia completa de Date
+      endTime: endDate,     // Instancia completa de Date
+      maintenanceType: formData.maintenanceType,
+      replacedParts: formData.replacedParts,
+      testReport: formData.testReport,
+      sensorStatus: formData.sensorStatus,
+      estimatedReplacementDate: formData.estimatedReplacementDate,
+      remarks: formData.remarks,
+      sensor_id: sensorId || formData.sensor_id,
+    };
+
+    if (mode === 'mantenimiento') {
+      const createdMantenimiento = await SensorMantenimientoService.createMantenimiento(formDataToSubmit);
+      console.log('Mantenimiento creado:', formDataToSubmit);
+      showErrorAlert("Mantenimiento creado correctamente.");
+    } else if (mode === 'edit') {
+      await SensorMantenimientoService.updateMantenimiento(sensorId, formDataToSubmit);
+      showErrorAlert("Mantenimiento actualizado correctamente.");
+    }
+    console.log('Datos enviados:', formDataToSubmit);
+
+    // Actualizar y cerrar modal
+    onUpdate();
+    closeModal();
+
+  } catch (error) {
+    console.error('Error al guardar el mantenimiento:', error);
+    showErrorAlert("Hubo un error al guardar el mantenimiento.");
+  }
+};
 
  useEffect(() => {
   if (sensorId) {
@@ -268,6 +324,7 @@ const formatTime = (time) => {
           placeholder="Fecha del mantenimiento"
           value={formData.maintenanceDate}
           onChange={handleChange}
+          max={currentDate}
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           required
           disabled={mode === 'view'}
@@ -277,32 +334,40 @@ const formatTime = (time) => {
       
       <div className="grid grid-cols-2 gap-4 mt-5">
       <div>
-        <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">Hora Inicio</label>
+        <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">
+          Hora Inicio
+        </label>
         <input
           type="time"
           id="startTime"
           name="startTime"
-          placeholder="Hora Inicio"
-          value={formatTime(formData.startTime)}
+          value={formData.startTime}
           onChange={handleTimeChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          className={`mt-1 block w-full border ${errors.startTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
           required
           disabled={mode === 'view'}
         />
+        {errors.startTime && (
+          <p className="mt-1 text-sm text-red-500">{errors.startTime}</p>
+        )}
       </div>
       <div>
-        <label htmlFor="endTimee" className="block text-sm font-medium text-gray-700">Hora Finalización</label>
+        <label htmlFor="endTime" className="block text-sm font-medium text-gray-700">
+          Hora Finalización
+        </label>
         <input
           type="time"
-          id="endTimee"
+          id="endTime"
           name="endTime"
-          placeholder="Hora Finalización"
-          value={formatTime(formData.endTime)}
+          value={formData.endTime}
           onChange={handleTimeChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          className={`mt-1 block w-full border ${errors.endTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
           required
           disabled={mode === 'view'}
         />
+        {errors.endTime && (
+          <p className="mt-1 text-sm text-red-500">{errors.endTime}</p>
+        )}
       </div>
         <div>
           <label htmlFor="maintenanceType" className="block text-sm font-medium text-gray-700">Tipo de mantenimiento</label>
