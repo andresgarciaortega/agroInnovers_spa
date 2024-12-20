@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { IoCloudUploadOutline } from "react-icons/io5";
 import UploadToS3 from '../../../config/UploadToS3';
-import SensorMantenimientoService from '../../../services/SensorMantenimiento';
+import ActuadorCaliService from '../../../services/CalibradorAct';
 import VariableTypeService from '../../../services/VariableType';
 import RegistrerTypeServices from '../../../services/RegistrerType';
 import CompanyService from '../../../services/CompanyService';
 import { useCompanyContext } from '../../../context/CompanyContext';
-import SensorService from "../../../services/SensorService";
+import ActuadorService from "../../../services/ActuadorService";
 import moment from 'moment';
 
 const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate, actuador, mode, closeModal, companyId }) => {
     const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
-
+  const currentDate = moment().format('YYYY-MM-DD');
+  const currentTime = moment().format('HH:mm');
+  const [errors, setErrors] = useState({
+    startTime: '',
+    endTime: '',
+  });
     const [variableTypes, setVariableTypes] = useState([]);
     const [registerTypes, setRegisterTypes] = useState([]);
     const [companies, setCompanies] = useState([]);
@@ -42,22 +47,22 @@ const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate
     const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
-        const fetchMantenimiento = async () => {
+        const fetchCalibrar = async () => {
             try {
 
-                const mantenimientoSensor = await SensorMantenimientoService.getAllMantenimiento();
-                setVariableTypes(mantenimientoSensor);
+                const calibraraActuador = await ActuadorCaliService.getAllMantenimiento();
+                setVariableTypes(calibraraActuador);
             } catch (error) {
-                console.error('Error al obtener los mantenimientos del actuador:', error);
+                console.error('Error al obtener los calibrar del actuador:', error);
             }
         };
         const fetchSensor = async () => {
             try {
 
-                const Sensor = await SensorService.getAllSensor();
+                const Sensor = await ActuadorService.getAllActuador();
                 setVariableTypes(Sensor);
             } catch (error) {
-                console.error('Error al obtener los mantenimientos del actuador:', error);
+                console.error('Error al obtener los calibrar del actuador:', error);
             }
         };
 
@@ -74,7 +79,7 @@ const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate
 
         fetchSensor();
 
-        fetchMantenimiento();
+        fetchCalibrar();
         fetchCompanies();
     }, []);
 
@@ -139,99 +144,154 @@ const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+    
+        if (name === 'maintenanceDate' && value > currentDate) {
+          showErrorAlert('La fecha no puede ser posterior a la fecha actual.');
+          return;
+        }
+    
         setFormData({
-            ...formData,
-            [name]: value
+          ...formData,
+          [name]: value,
         });
-    };
+      };
 
 
-
-    // Esta función convierte la hora seleccionada a una fecha completa con la hora elegida.
     const handleTimeChange = (e) => {
-        const { name, value } = e.target;
-
-        // Obtener la hora seleccionada en formato HH:mm (ejemplo: "12:00")
-        const [hours, minutes] = value.split(":");
-
-        // Usar Moment.js para obtener la fecha actual y combinarla con la hora seleccionada
-        const updatedDate = moment().set({ hour: hours, minute: minutes, second: 0, millisecond: 0 });
-
-        // Convertir la fecha completa a formato ISO 8601 (con fecha y hora)
-        const isoString = updatedDate.toISOString();
-
-        // Actualizar el estado con la nueva fecha y hora en formato ISO
-        setFormData({
+          const { name, value } = e.target;
+      
+          // Validaciones de hora
+          if (name === 'startTime' || name === 'endTime') {
+            if (moment(value, 'HH:mm').isAfter(moment(currentTime, 'HH:mm'))) {
+              setErrors((prevErrors) => ({
+                ...prevErrors,
+                [name]: 'La hora no puede ser posterior a la hora actual.',
+              }));
+              return;
+            }
+      
+            if (name === 'endTime' && moment(value, 'HH:mm').isBefore(moment(formData.startTime, 'HH:mm'))) {
+              setErrors((prevErrors) => ({
+                ...prevErrors,
+                endTime: 'La hora de finalización debe ser después de la hora de inicio.',
+              }));
+              return;
+            }
+          }
+      
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            [name]: '',
+          }));
+      
+          setFormData({
             ...formData,
-            [name]: isoString, // Guardar la fecha y hora en formato ISO
-        });
-    };
+            [name]: value,
+          });
+        };
 
-    // Formatear la hora para mostrarla en el campo de entrada (HH:mm)
     const formatTime = (time) => {
         return moment(time).format('HH:mm');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
+         try {
+               
+                   if (
+                     moment(formData.startTime, 'HH:mm').isAfter(moment(currentTime, 'HH:mm')) ||
+                     moment(formData.endTime, 'HH:mm').isAfter(moment(currentTime, 'HH:mm'))
+                   ) {
+                     showErrorAlert('La hora del mantenimiento no puede ser en el futuro.');
+                     return;
+                   }
+               
+                   const [startHour, startMinute] = formData.startTime.split(':');
+                   const [endHour, endMinute] = formData.endTime.split(':');
+                   
+                   const calibrationDate = moment(formData.calibrationDate).toDate();
+               
+                   const startDate = new Date(calibrationDate);
+                   startDate.setHours(startHour, startMinute, 0, 0);
+               
+                   const endDate = new Date(calibrationDate);
+                   endDate.setHours(endHour, endMinute, 0, 0);
+               
+                   if (startDate >= endDate) {
+                     showErrorAlert('La hora de inicio debe ser anterior a la hora de finalización.');
+                     return;
+                   }
+               
             const formDataToSubmit = {
                 ...formData,
-                media: formData.media || '', // Usar la URL de la imagen (nueva o existente)
-                calibrationDate: formData.calibrationDate,
-                startTime: new Date(formData.startTime), // Convertir a instancia de Date
-                endTime: new Date(formData.endTime),     // Convertir a instancia de Date
+                media: formData.media || '', 
+                calibrationDate: calibrationDate,
+                startTime: startDate,
+                endTime: endDate,
                 maintenanceType: formData.maintenanceType,
                 replacedParts: formData.replacedParts,
                 calibrationReport: formData.calibrationReport,
-                actuadorStatus: formData.actuadorStatus,
+                actuatorStatus: formData.actuadorStatus, // Cambiado a 'actuatorStatus' si la API lo requiere
                 estimatedReplacementDate: formData.estimatedReplacementDate,
+                calibrationPoints: formData.calibrationPoints || [],
                 observations: formData.observations,
-                actuador_id: actuadorId || formData.actuador_id,
+                actuator_id: parseInt(actuadorId || formData.actuador_id, 10) || null,
             };
-
-            if (mode === 'create') {
-                const createdMantenimiento = await SensorMantenimientoService.createMantenimiento(formDataToSubmit);
-                console.log('Mantenimiento creado:', formDataToSubmit);
-                showErrorAlert("Mantenimiento creado correctamente.");
-            } else if (mode === 'edit') {
-                await SensorMantenimientoService.updateMantenimiento(actuadorId, formDataToSubmit);
-                showErrorAlert("Mantenimiento actualizado correctamente.");
+    
+            // Validar campos requeridos
+            if (!formDataToSubmit.actuatorStatus || typeof formDataToSubmit.actuatorStatus !== 'string') {
+                showErrorAlert("El estado del actuador es obligatorio y debe ser un texto.");
+                return;
             }
+            if (!formDataToSubmit.actuator_id) {
+                showErrorAlert("El ID del actuador es obligatorio.");
+                return;
+            }
+    
+            if (mode === 'calibrar') {
+                const createdMantenimiento = await ActuadorCaliService.createMantenimiento(formDataToSubmit);
+                console.log('calibración creado:', formDataToSubmit);
+                showErrorAlert("calibración creado .");
+            } else if (mode === 'edit') {
+                await ActuadorCaliService.updateMantenimiento(actuadorId, formDataToSubmit);
+                showErrorAlert("calibración actualizado correctamente.");
+            }
+    
             console.log('Datos enviados:', formDataToSubmit);
-
+    
             // Actualizar y cerrar modal
             onUpdate();
             closeModal();
-
+    
         } catch (error) {
-            console.error('Error al guardar el mantenimiento:', error);
-            showErrorAlert("Hubo un error al guardar el mantenimiento.");
+            console.error('Error al guardar la calibración:', error);
+            showErrorAlert("Hubo un error al guardar la calibración.");
         }
     };
+    
 
     useEffect(() => {
         if (actuadorId) {
-            const fetchSensorDetails = async () => {
+            const fetchActuadorDetails = async () => {
                 try {
-                    const actuadorDetails = await SensorService.getSensorById(actuadorId);
+                    const actuadorDetails = await ActuadorService.getActuadorById(actuadorId);
                     console.log('Detalles del actuador:', actuadorDetails);
 
-                    // Actualizar el formulario con la fecha estimada de reemplazo
+                    const sensorTypePoints = actuadorDetails.actuatorType?.calibrationPoints || [];
+                    console.log('Puntos de calibración:', sensorTypePoints);
+    
                     setFormData((prevData) => ({
                         ...prevData,
                         estimatedReplacementDate: actuadorDetails.estimatedChangeDate || '',
-                        calibrationPoints: actuadorDetails.calibrationPoints || [] ,
+                        calibrationPoints: sensorTypePoints,
                     }));
-
-                    // Actualizar el estado de los puntos de calibración
-                    setCalibrationPoints(actuadorDetails.calibrationPoints || []);
+    
+                    setCalibrationPoints(sensorTypePoints);
                 } catch (error) {
-                    console.error('Error al obtener los detalles del actuador:', error);
+                    console.error('Error al obtener los detalles del sensor:', error);
                 }
             };
-
-            fetchSensorDetails();
+            fetchActuadorDetails();
         }
     }, [actuadorId]);
 
@@ -263,6 +323,8 @@ const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate
                     placeholder="Fecha del mantenimiento"
                     value={formData.calibrationDate}
                     onChange={handleChange}
+                    max={currentDate}
+
                     className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                     required
                     disabled={mode === 'view'}
@@ -278,12 +340,15 @@ const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate
                         id="startTime"
                         name="startTime"
                         placeholder="Hora Inicio"
-                        value={formatTime(formData.startTime)}
+                        value={formData.startTime}
                         onChange={handleTimeChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                        className={`mt-1 block w-full border ${errors.startTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
                         required
                         disabled={mode === 'view'}
-                    />
+                      />
+                      {errors.startTime && (
+                        <p className="mt-1 text-sm text-red-500">{errors.startTime}</p>
+                      )}
                 </div>
                 <div>
                     <label htmlFor="endTimee" className="block text-sm font-medium text-gray-700">Hora Finalización</label>
@@ -292,12 +357,15 @@ const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate
                         id="endTimee"
                         name="endTime"
                         placeholder="Hora Finalización"
-                        value={formatTime(formData.endTime)}
+                        value={formData.endTime}
                         onChange={handleTimeChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                        className={`mt-1 block w-full border ${errors.endTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
                         required
                         disabled={mode === 'view'}
-                    />
+                      />
+                      {errors.endTime && (
+                        <p className="mt-1 text-sm text-red-500">{errors.endTime}</p>
+                      )}
                 </div>
 
                 <div>
@@ -387,9 +455,9 @@ const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate
                 <table className="min-w-full mt-3 border-collapse">
                     <thead>
                         <tr>
-                            <th className="border px-4 py-2">Calibrador</th>
-                            <th className="border px-4 py-2">Fecha de Calibración</th>
-                            <th className="border px-4 py-2">Observaciones</th>
+                            <th className="border px-4 py-2">Punto de calibración</th>
+                            <th className="border px-4 py-2">Valor</th>
+                            <th className="border px-4 py-2">Valor medido</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -434,7 +502,7 @@ const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate
                             type="submit"
                             className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
                         >
-                            {mode === 'create' ? 'Crear Mantenimiento' : 'Crear Mantenimiento'}
+                            {mode === 'create' ? 'Crear Calibración' : 'Crear Calibración'}
 
                         </button>
                     </>

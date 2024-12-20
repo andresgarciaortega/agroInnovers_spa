@@ -163,11 +163,11 @@ const Sensor = () => {
     setCurrentPage(1);
   };
 
-   const handleOpenModal = (sensor = null, mode = 'create') => {
+  const handleOpenModal = (sensor = null, mode = 'create') => {
     setSelectedVariable(sensor);
     setModalMode(mode);
-    setSensorId(sensor); 
-      
+    setSensorId(sensor);
+
     if (mode === 'edit' || mode === 'view') {
       setNewVariable(sensor); // Cargar datos del sensor si estamos editando o visualizando
     } else {
@@ -189,7 +189,7 @@ const Sensor = () => {
     if (mode === 'view') {
       setIsModalOpenView(true);
     } else if (mode === 'mantenimiento') {
-      setIdModalOpenMante(true); 
+      setIdModalOpenMante(true);
     } else if (mode === 'calibrar') {
       setIsModalOpenCali(true); // Abre el modal de calibración
     } else {
@@ -205,7 +205,7 @@ const Sensor = () => {
     setSelectedVariable(null);
     setModalMode('create');
     setIsModalOpenView(false);
-    setIdModalOpenMante(false); 
+    setIdModalOpenMante(false);
     setIsModalOpenCali(false)
 
     updateService();
@@ -353,42 +353,42 @@ const Sensor = () => {
                   <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
 
                   <td className="px-6 py-4 text-sm font-medium">
-    <button
-        className="text-[#168C0DFF] px-2 py-2 rounded"
-        onClick={() => handleOpenModal(sensor.id, 'calibrar')}
-        title="Calibrar Sensor"
-    >
-        <ImEqualizer size={18} />
-    </button>
-    <button
-        className="text-[#168C0DFF] px-2 py-2 rounded"
-        onClick={() => handleOpenModal(sensor.id, 'mantenimiento')}
-        title="Realizar Mantenimiento"
-    >
-        <TbSettingsCog size={18} />
-    </button>
-    <button
-        className="text-[#168C0DFF] px-2 py-2 rounded"
-        onClick={() => handleOpenModal(sensor, 'view')}
-        title="Ver Detalles del Sensor"
-    >
-        <Eye size={18} />
-    </button>
-    <button
-        className="text-[#168C0DFF] px-2 py-2 rounded"
-        onClick={() => handleOpenModal(sensor, 'edit')}
-        title="Editar Sensor"
-    >
-        <Edit size={18} />
-    </button>
-    <button
-        className="text-[#168C0DFF] px-2 py-2 rounded"
-        onClick={() => handleDelete(sensor)}
-        title="Eliminar Sensor"
-    >
-        <Trash size={18} />
-    </button>
-</td>
+                    <button
+                      className="text-[#168C0DFF] px-2 py-2 rounded"
+                      onClick={() => handleOpenModal(sensor.id, 'calibrar')}
+                      title="Calibrar Sensor"
+                    >
+                      <ImEqualizer size={18} />
+                    </button>
+                    <button
+                      className="text-[#168C0DFF] px-2 py-2 rounded"
+                      onClick={() => handleOpenModal(sensor.id, 'mantenimiento')}
+                      title="Realizar Mantenimiento"
+                    >
+                      <TbSettingsCog size={18} />
+                    </button>
+                    <button
+                      className="text-[#168C0DFF] px-2 py-2 rounded"
+                      onClick={() => handleOpenModal(sensor, 'view')}
+                      title="Ver Detalles del Sensor"
+                    >
+                      <Eye size={18} />
+                    </button>
+                    <button
+                      className="text-[#168C0DFF] px-2 py-2 rounded"
+                      onClick={() => handleOpenModal(sensor, 'edit')}
+                      title="Editar Sensor"
+                    >
+                      <Edit size={18} />
+                    </button>
+                    <button
+                      className="text-[#168C0DFF] px-2 py-2 rounded"
+                      onClick={() => handleDelete(sensor)}
+                      title="Eliminar Sensor"
+                    >
+                      <Trash size={18} />
+                    </button>
+                  </td>
 
 
                 </tr>
@@ -445,16 +445,23 @@ const Sensor = () => {
             closeModal={closeModal} />
         </GenericModal>
       )}
+
       {/* modal visualizar */}
       {isModalOpenView && (
         <GenericModal
-        // openModal={handleOpenModal}
-          title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Añadir Sensor'}
+          // openModal={handleOpenModal}
+          title={modalMode === 'edit' ? 'Editar Sensor' : 
+            modalMode === 'view' ? 'Ver sensor' : 'Añadir Sensor'}
           onClose={closeModal}
 
           companyId={selectedCompany} >
 
-          <FormViewSensor showErrorAlert={showErrorAlertSuccess} onUpdate={updateService} sensor={newVariable} mode={modalMode} closeModal={closeModal} />
+          <FormViewSensor 
+          showErrorAlert={showErrorAlertSuccess}
+           onUpdate={updateService} 
+           sensor={newVariable} 
+           mode={modalMode} 
+           closeModal={closeModal} />
         </GenericModal>
       )}
       {/* mantenimiento */}
@@ -466,16 +473,15 @@ const Sensor = () => {
           companyId={selectedCompany} >
 
           <FormMantenimientoSensor showErrorAlert={showErrorAlertSuccess}
-           onUpdate={updateService}
-            sensor={newVariable} 
-            mode={modalMode} 
+            onUpdate={updateService}
+            sensor={newVariable}
+            mode={modalMode}
             closeModal={closeModal}
             sensorId={sensorId || ''} />
         </GenericModal>
       )}
 
       {/* calibrar */}
-      {/* mantenimiento */}
       {isModalOpenCali && (
         <GenericModal
           title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Añadir Calibrar'}
@@ -484,9 +490,9 @@ const Sensor = () => {
           companyId={selectedCompany} >
 
           <FormCalibrarSensor showErrorAlert={showErrorAlertSuccess}
-           onUpdate={updateService}
-            sensor={newVariable} 
-            mode={modalMode} 
+            onUpdate={updateService}
+            sensor={newVariable}
+            mode={modalMode}
             closeModal={closeModal}
             sensorId={sensorId || ''} />
         </GenericModal>

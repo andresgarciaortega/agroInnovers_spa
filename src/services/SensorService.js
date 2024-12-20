@@ -18,7 +18,7 @@ const SensorService = {
     async getSensorById(id) {
         try {
             const response = await api.get(`/sensors/${id}`);
-            return response.data;
+            return response;
         } catch (error) {
             console.error('Error al obtener los sensores:', error);
             throw error;

@@ -17,7 +17,7 @@ const SensorMantenimientoService = {
     },
     async getMantenimientoBySensor(sensorId) {
         try {
-            const response = await api.get(`/maintenance?sensor.id=${sensorId}`);
+            const response = await api.get(`/maintenance?search=${encodeURIComponent(JSON.stringify({sensor:{id:sensorId}}))}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener los mantenimientos del sensor:', error);

@@ -361,13 +361,21 @@ const ListaEspecies = () => {
                       </div>
                     ))}
                   </td> */}
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-  {Math.round(
-    species.stages?.reduce((totalTime, stage, stageIndex) => {
-      return totalTime + stage.time_to_production;
-    }, 0) / 30
-  )} meses
-</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {(() => {
+                      const totalTimeInDays = species.stages?.reduce((totalTime, stage) => {
+                        return totalTime + stage.time_to_production;
+                      }, 0);
+                      const totalTimeInMonths = totalTimeInDays / 30;
+
+                      if (totalTimeInMonths < 1) {
+                        return `${Math.round(totalTimeInDays)} días`;
+                      } else {
+                        return `${Math.round(totalTimeInMonths)} meses`;
+                      }
+                    })()}
+                  </td>
+
 
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

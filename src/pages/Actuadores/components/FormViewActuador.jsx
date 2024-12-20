@@ -146,7 +146,44 @@ const FormViewActuador = ({ actuador, closeModal }) => {
         }
     }, [actuador]);
 
-    const openModal = (modalType) => {
+    const openModal = async (modalType,id= 0) => {
+        console.log('mantenimientos', mantenimiento)
+        if (modalType === "mantenimiento"){
+            try {
+                if (!actuador || !actuador.id) return;
+
+                const data = await MantenimientoActuador.getMantenimientoByActuador(actuador.id);
+                console.log("Datos de mantenimiento:", data);
+                if (data.statusCode === 404) {
+                    setMantenimiento([]);  
+                } else {
+                    setMantenimiento(data); 
+                }
+            } catch (error) {
+                console.error('Error fetching mantenimiento:', error);
+                setMantenimiento([]); 
+            }
+        }
+        console.log('mantenimientos', mantenimiento)
+        if (modalType === "calibrar"){
+            try {
+                // Asegúrate de que el ID del actuador esté disponible
+                if (!actuador || !actuador.id) return;
+
+                // Llama al servicio para obtener los mantenimientos asociados al actuador
+                const data = await CalibrarActuador.getMantenimientoByactuador(actuador.id);
+                console.log("Datos de mantenimiento:", data);
+                // Maneja la respuesta y actualiza el estado
+                if (data.statusCode === 404) {
+                    setCalibracion([]);  // Si no se encuentran mantenimientos
+                } else {
+                    setCalibracion(data); // Asume que data es un array de mantenimientos
+                }
+            } catch (error) {
+                console.error('Error fetching mantenimiento:', error);
+                setCalibracion([]); 
+            }
+        }
         setActiveModal(modalType);
     };
 
@@ -155,7 +192,7 @@ const FormViewActuador = ({ actuador, closeModal }) => {
     };
 
     const openMantenimientoModal = (mantenimiento) => {
-        setSelectedMantenimiento(mantenimiento); // Establecer el mantenimiento seleccionado
+        setSelectedMantenimiento(mantenimiento); 
         setActiveModal("mantenimientoDetalle");
     };
 
@@ -181,7 +218,7 @@ const FormViewActuador = ({ actuador, closeModal }) => {
                     {/* Botones */}
                     <div className="space-y-2 mt-5">
                         <button
-                            onClick={() => openModal("mantenimiento")}
+                            onClick={() => openModal("mantenimiento", actuador?.id)}
 
                             type="button"
                             className="mb-2 inline-flex items-center px-10 py-3 border border-[#168C0DFF] text-sm  font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -189,7 +226,7 @@ const FormViewActuador = ({ actuador, closeModal }) => {
                             Ver historial de mantenimiento
                         </button>
                         <button
-                            onClick={() => openModal("calibrar")}
+                            onClick={() => openModal("calibrar", actuador?.id)}
                             type="button"
                             className="mb-2 inline-flex items-center px-14 py-3 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         >
@@ -484,7 +521,7 @@ const FormViewActuador = ({ actuador, closeModal }) => {
                                         <tr className="bg-gray-200">
                                             <th className="border px-4 py-2 font-semibold">Punto de Calibración</th>
                                             <th className="border px-4 py-2 font-semibold">Valor</th>
-                                            <th className="border px-4 py-2 font-semibold">Respuesta</th>
+                                            <th className="border px-4 py-2 font-semibold">Valor Medido</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -493,7 +530,7 @@ const FormViewActuador = ({ actuador, closeModal }) => {
                                                 <tr key={index}>
                                                     <td className="border px-4 py-2">Punto {index + 1}</td>
                                                     <td className="border px-4 py-2">{param.value}°C</td>
-                                                    <td className="border px-4 py-2">{param.measuredValue} V</td>
+                                                    <td className="border px-4 py-2">{param.normalResponse} V</td>
                                                 </tr>
                                             ))
                                         ) : (
