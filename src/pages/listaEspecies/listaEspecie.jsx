@@ -337,7 +337,7 @@ const ListaEspecies = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {currentSpecies.map((species, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{species.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {species.photo && (
                       <img
@@ -361,20 +361,25 @@ const ListaEspecies = () => {
                       </div>
                     ))}
                   </td> */}
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {(() => {
-                      const totalTimeInDays = species.stages?.reduce((totalTime, stage) => {
-                        return totalTime + stage.time_to_production;
-                      }, 0);
-                      const totalTimeInMonths = totalTimeInDays / 30;
+                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+  {(() => {
+    const totalTimeInDays = species.stages?.reduce((totalTime, stage) => {
+      return totalTime + stage.time_to_production;
+    }, 0);
 
-                      if (totalTimeInMonths < 1) {
-                        return `${Math.round(totalTimeInDays)} días`;
-                      } else {
-                        return `${Math.round(totalTimeInMonths)} meses`;
-                      }
-                    })()}
-                  </td>
+    const months = Math.floor(totalTimeInDays / 30); // Meses completos
+    const days = totalTimeInDays % 30; // Días restantes
+
+    if (months === 0) {
+      return `${days} día${days !== 1 ? "s" : ""}`;
+    } else if (days === 0) {
+      return `${months} mes${months !== 1 ? "es" : ""}`;
+    } else {
+      return `${months} mes${months !== 1 ? "es" : ""} y ${days} día${days !== 1 ? "s" : ""}`;
+    }
+  })()}
+</td>
+
 
 
 

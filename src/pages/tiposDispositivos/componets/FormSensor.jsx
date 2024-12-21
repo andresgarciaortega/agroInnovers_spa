@@ -763,18 +763,11 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                         <div className="flex justify-between items-center p-6 border-b">
 
                             <h2 className="text-xl font-semibold">Punto de calibración</h2>
-                            <button
-                                type="button"
-                                onClick={handleAddPoint}
-                                className="mb-2 inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-
-                            >
-                                Agregar
-                            </button>
+                           
 
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className='px-2'>
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className='px-3 py-3'>
                                 <label className="block text-sm font-medium text-gray-700">Valor</label>
                                 <input
                                     type="number"
@@ -789,7 +782,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                                     <p className="text-sm text-red-500">{errorMessages.phone}</p>
                                 )}
                             </div>
-                            <div className='px-2'>
+                            <div className='px-3 py-3'>
                                 <label className="block text-sm font-medium text-gray-700">Respuesta normal</label>
                                 <input
                                     type="number"
@@ -804,6 +797,18 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                                     <p className="text-sm text-red-500">{errorMessages.phone}</p>
                                 )}
                             </div>
+                            <div className='px-3 py-3'>
+                                <label className="block text-sm font-medium text-white"> .</label>
+                                <button
+                                type="button"
+                                onClick={handleAddPoint}
+                                className="mb-2 inline-flex items-center px-5 py-3 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+
+                            >
+                                Agregar
+                            </button>
+                            </div>
+                           
                         </div>
                         <table className="min-w-full table-auto border-collapse mb-4 mt-4">
                             <thead>

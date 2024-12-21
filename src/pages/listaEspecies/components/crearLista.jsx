@@ -45,9 +45,9 @@ const CrearListas = () => {
     max_normal_value: '',
     min_limit: '',
     max_limit: '',
-  }); // Nuevo
+  });
   const [stages, setStages] = useState([
-    { id: 1, description: '', time_to_production: '', parameters: [] },
+    { id: 1, description: '', time_to_production: 0, parameters: [] },
   ]);
 
 
@@ -58,7 +58,7 @@ const CrearListas = () => {
 
     setFormData((prevState) => ({
       ...prevState,
-      variable: value, // Actualiza `formData.variable` con los IDs seleccionados
+      variable: value,
     }));
   };
 
@@ -138,7 +138,6 @@ const CrearListas = () => {
       return;
     }
 
-    // Si no hay errores, continuar al siguiente paso
     setStep((prev) => prev + 1);
   };
 
@@ -161,7 +160,7 @@ const CrearListas = () => {
       if (!prev.includes(newParameter)) {
         return [...prev, newParameter];
       }
-      return prev; // No actualices el estado si el parámetro ya está presente
+      return prev;
     });
     setIsModalOpen(false);
   };
@@ -196,12 +195,10 @@ const CrearListas = () => {
       const parsedCompanyId = parseInt(formData.company_id, 10);
 
       const selectedVariables = formData.variable || [];
-
-      // Asegurarse de que category_id y subcategory_id sean enteros
       const categoryId = isNaN(formData.category) ? 0 : parseInt(formData.category, 10);
       const subcategoryId = isNaN(formData.subcategory) ? 0 : parseInt(formData.subcategory, 10);
 
-      // Asegurarse de que time_to_production sea un número entero
+
       const updatedStages = stages.map(stage => ({
         stage_id: stage.id,
         description: stage.description,
@@ -242,9 +239,8 @@ const CrearListas = () => {
 
   useEffect(() => {
     if (isModalOpen) {
-      // Realiza acciones cuando el modal se abre
     }
-  }, [isModalOpen]);  // Dependencia del estado modalOpen
+  }, [isModalOpen]);
 
 
 
@@ -273,42 +269,40 @@ const CrearListas = () => {
   };
 
   const addParameterToStage = (stageIndex) => {
-    const updatedStages = [...stages];  // Copiar el estado actual de stages
+    const updatedStages = [...stages];
     const newParameter = {
-      variable_id: '', // Iniciar con valores vacíos o predeterminados
+      variable_id: '',
       min_normal_value: '',
       max_normal_value: '',
       min_limit: '',
       max_limit: ''
     };
 
-    updatedStages[stageIndex].parameters.push(newParameter);  // Agregar el nuevo parámetro
-    setStages(updatedStages);  // Actualizar el estado
+    updatedStages[stageIndex].parameters.push(newParameter);
+    setStages(updatedStages);
   };
 
 
   const handleAddStage = () => {
 
     setFormData
-        ({
-            ...formData,
-            stage: [...formData.stage,
-            { id: null, name: '', description: '' }]
-        });
-};
+      ({
+        ...formData,
+        stage: [...formData.stage,
+        { id: null, name: '', description: '' }]
+      });
+  };
 
 
-const handleRemoveStage = (index) => setFormData({
-  ...formData, stage: formData.stage.filter((_, i) => i !== index)
-});
+  const handleRemoveStage = (index) => setFormData({
+    ...formData, stage: formData.stage.filter((_, i) => i !== index)
+  });
 
-const handleStageChange = (index, field, value) => {
-  const updatedStages = [...formData.stage];
-  updatedStages[index][field] = value;
-  setFormData({ ...formData, stage: updatedStages });
-};
-
-
+  const handleStageChange = (index, field, value) => {
+    const updatedStages = [...stages];
+    updatedStages[index][field] = value;
+    setStages(updatedStages);
+  };
 
 
   const verData = () => {
@@ -344,7 +338,6 @@ const handleStageChange = (index, field, value) => {
                   className={`flex-grow h-1 ${step === 0 ? 'bg-[#168C0DFF]' : step > 0 ? 'bg-[#168C0DFF]' : 'bg-gray-300'}`}
                 ></div>
 
-                {/* Separador en el centro */}
                 <div className="w-8 flex justify-center">
                   <div className="h-1 bg-transparent" />
                 </div>
@@ -445,7 +438,7 @@ const handleStageChange = (index, field, value) => {
                   >
                     <Select
                       multiple
-                      value={formData.variable || []} // Usa `formData.variable` como valor
+                      value={formData.variable || []}
                       onChange={handleChangeCategory}
                       renderValue={(selectedIds) =>
                         variables
@@ -552,7 +545,6 @@ const handleStageChange = (index, field, value) => {
                             </button>
                           </div>
 
-                          {/* Campos de descripción y tiempo de producción */}
                           <div className="flex justify-between mb-2">
                             <div className="w-1/2">
                               <label className="text-sm font-medium text-gray-700">Descripción</label>
@@ -569,12 +561,13 @@ const handleStageChange = (index, field, value) => {
                                 type="number"
                                 placeholder="Tiempo de producción"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                value={stages[stageIndex]?.time_to_production || ''}
                                 onChange={(e) => handleStageChange(stageIndex, 'time_to_production', e.target.value)}
                               />
+
                             </div>
                           </div>
 
-                          {/* Tabla de parámetros */}
                           <ul className="space-y-2 mt-4">
                             {stage.parameters && stage.parameters.length > 0 && (
                               <div className="mt-4">
