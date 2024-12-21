@@ -24,7 +24,7 @@ const EditarLista = () => {
 
     const [step, setStep] = useState(0);
     // const [stage, setStage] = useState([
-        // { name: "", description: "" },
+    // { name: "", description: "" },
     // ]);
 
 
@@ -53,7 +53,7 @@ const EditarLista = () => {
     });
 
     const [newParameter, setNewParameter] = useState({
-        variable: [],
+        variable: '',
         min_normal_value: '',
         max_normal_value: '',
         min_limit: '',
@@ -119,15 +119,13 @@ const EditarLista = () => {
         }
     };
 
-
     const handleParameterChange = (e, field) => {
         const value = e.target.value;
-    
+
         if (field === 'variable') {
-            const selectedVariable = variables.find((v) => v.id === value); // Encuentra el objeto completo
             setNewParameter((prev) => ({
                 ...prev,
-                [field]: selectedVariable, // Guarda el objeto completo
+                [field]: value, // Guarda solo el ID
             }));
         } else {
             setNewParameter((prev) => ({
@@ -136,30 +134,82 @@ const EditarLista = () => {
             }));
         }
     };
-    
 
-    // Guardar parametros
+
+
+    // // Guardar parametros
+    // const handleSaveParameter = () => {
+    //     if (!newParameter.variable || !newParameter.variable.name) {
+    //         alert("Debes seleccionar una variable válida");
+    //         return;
+    //     }
+
+    //     setFormData((prevFormData) => {
+    //         const updatedStages = prevFormData.stage.map((stage) => {
+    //             if (stage.id === selectedStageId) {
+    //                 return {
+    //                     ...stage,
+    //                     parameters: [...(stage.parameters || []), { ...newParameter }],
+    //                 };
+    //             }
+    //             return stage;
+    //         });
+
+    //         console.log('Datos actualizados:', updatedStages);
+    //         return { ...prevFormData, stage: updatedStages };
+    //     });
+
+    //     setIsModalOpen(false);
+    //     setNewParameter({
+    //         variable: '',
+    //         min_normal_value: '',
+    //         max_normal_value: '',
+    //         min_limit: '',
+    //         max_limit: '',
+    //     });
+    // };
+
+    // Guardar parámetros
     const handleSaveParameter = () => {
-        if (!newParameter.variable || !newParameter.variable.name) {
+        // Validar que se haya seleccionado una variable
+        if (!newParameter.variable) {
             alert("Debes seleccionar una variable válida");
             return;
         }
-    
+
+        console.log(variables)
+        console.log(newParameter.variable)
+        // Buscar el objeto completo de la variable usando su ID
+        const selectedVariable = variables.find((v) => v.id === Number(newParameter.variable));
+
+        if (!selectedVariable) {
+            alert("Variable seleccionada no encontrada");
+            return;
+        }
+
+        // Actualizar los datos del formulario
         setFormData((prevFormData) => {
             const updatedStages = prevFormData.stage.map((stage) => {
                 if (stage.id === selectedStageId) {
                     return {
                         ...stage,
-                        parameters: [...(stage.parameters || []), { ...newParameter }],
+                        parameters: [
+                            ...(stage.parameters || []),
+                            {
+                                ...newParameter,
+                                variable: selectedVariable, // Agregar el objeto completo
+                            },
+                        ],
                     };
                 }
                 return stage;
             });
-    
-            console.log('Datos actualizados:', updatedStages);
+
+            console.log("Datos actualizados:", updatedStages);
             return { ...prevFormData, stage: updatedStages };
         });
-    
+
+        // Cerrar el modal y reiniciar el formulario
         setIsModalOpen(false);
         setNewParameter({
             variable: '',
@@ -169,7 +219,7 @@ const EditarLista = () => {
             max_limit: '',
         });
     };
-    
+
 
 
 
@@ -240,7 +290,7 @@ const EditarLista = () => {
         setStages((prevStages) =>
             prevStages.map((stage, i) =>
                 i === index
-                    ? { ...stage, [field]: value } 
+                    ? { ...stage, [field]: value }
                     : stage
             )
         );
@@ -262,7 +312,7 @@ const EditarLista = () => {
     const handleOpenModal = (stageId) => {
         const stage = formData.stage.find(stage => stage.id === stageId);
         if (!stage.parameters) {
-            stage.parameters = []; 
+            stage.parameters = [];
         }
         setSelectedStageId(stageId);
         setIsModalOpen(true);
@@ -352,25 +402,25 @@ const EditarLista = () => {
                 subcategory: formData.subcategory_id ? parseInt(formData.subcategory_id, 10) : 0,
                 stages: Array.isArray(formData.stage)
                     ? formData.stage.map((stageItem) => {
-                        const stageId = stageItem.id && !isNaN(parseInt(stageItem.id, 10)) 
-                            ? parseInt(stageItem.id, 10) 
+                        const stageId = stageItem.id && !isNaN(parseInt(stageItem.id, 10))
+                            ? parseInt(stageItem.id, 10)
                             : 0;
-            const IdStage =stageItem?.stage.id 
+                        const IdStage = stageItem?.stage.id
                         console.log("Etapa ID:", stageItem.id, "ID validado:", stageId);
-            
+
                         if (stageId === 0) {
                             throw new Error(`Etapa con ID ${stageItem.id} no válida.`);
                         }
-            console.log('id stage',IdStage )
+                        console.log('id stage', IdStage)
                         return {
                             id: stageId,
                             time_to_production: stageItem.time_to_production || 0,
                             description: stageItem.description || '',
                             parameters: Array.isArray(stageItem.parameters)
                                 ? stageItem.parameters.map((param) => ({
-                                    variable_id: param?.variable?.id && !isNaN(parseInt(param.variable.id, 10)) 
-                                    ? parseInt(param.variable.id, 10) 
-                                    : 0,
+                                    variable_id: param?.variable?.id && !isNaN(parseInt(param.variable.id, 10))
+                                        ? parseInt(param.variable.id, 10)
+                                        : 0,
                                     min_normal_value: param.min_normal_value ? parseInt(param.min_normal_value, 10) : null,
                                     max_normal_value: param.max_normal_value ? parseInt(param.max_normal_value, 10) : null,
                                     min_limit: param.min_limit ? parseInt(param.min_limit, 10) : null,
@@ -379,17 +429,17 @@ const EditarLista = () => {
                                 : [],
                         };
                     })
-                    : [] ,
-                    
+                    : [],
+
                 variables: Array.isArray(formData.variable_id)
-                 ? formData.variable_id.map((variable) =>
+                    ? formData.variable_id.map((variable) =>
                         variable && variable.id && !isNaN(parseInt(variable.id, 10)) ? parseInt(variable.id, 10) : null
                     )
                     : [],
             };
-            
 
-            console.log('datos de la etapa:',formDataToSubmit);
+
+            console.log('datos de la etapa:', formDataToSubmit);
             await SpeciesService.updateSpecie(id, formDataToSubmit);
             setShowSuccessAlert(true);
             setTimeout(() => setShowSuccessAlert(false), 3000);
@@ -406,7 +456,7 @@ const EditarLista = () => {
 
     const handleEditClick = (stageIndex, paramIndex) => {
         console.log(`Editando parámetro en etapa ${stageIndex + 1}, índice ${paramIndex}`);
-        
+
     };
 
     const handleDeleteClick = (paramId) => {
@@ -532,7 +582,7 @@ const EditarLista = () => {
                                         {`Etapa ${stageIndex + 1}`}
                                     </h3>
                                     <button
-                                    type='button'
+                                        type='button'
                                         onClick={() => handleOpenModal(stage.id)}
                                         className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                                     >
@@ -542,7 +592,7 @@ const EditarLista = () => {
 
                                 <div className="flex flex-col text-sm">
                                     <p className="text-gray-700">
-                                        <span className="">Descripción:</span> 
+                                        <span className="">Descripción:</span>
                                         <strong>{stage.description}</strong>
                                     </p>
                                     <p className="text-gray-700 mt-2">
@@ -633,7 +683,7 @@ const EditarLista = () => {
                             <select
                                 id="variable"
                                 name="variable"
-                                value={newParameter.variable}
+                                value={newParameter.variable} // Debe ser el ID
                                 onChange={(e) => handleParameterChange(e, 'variable')}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
                             >
