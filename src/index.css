@@ -50,3 +50,8 @@ select{
    }
  
 }
+
+textarea {
+  resize: none;
+  height: 10em;
+}

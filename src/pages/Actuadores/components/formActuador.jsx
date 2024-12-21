@@ -256,7 +256,7 @@ const FormActuador = ({ selectedCompany, showErrorAlert, onUpdate, actuador, mod
           disabled={mode === 'view'}
         />
       </div>
-        <div>
+        <div className=' col col-span-2'>
         <label htmlFor="gpsPosition" className="block text-sm font-medium text-gray-700">Posición GPS</label>
         <input
           type="text"
@@ -284,11 +284,6 @@ const FormActuador = ({ selectedCompany, showErrorAlert, onUpdate, actuador, mod
           disabled={mode === 'view'}
         />
       </div>
-      
-      </div>
-
-      
-      <div>
       <div>
         <label htmlFor="activationPort" className="block text-sm font-medium text-gray-700">Puerto de activación</label>
         <input
@@ -303,6 +298,12 @@ const FormActuador = ({ selectedCompany, showErrorAlert, onUpdate, actuador, mod
           disabled={mode === 'view'}
         />
       </div>
+      
+      </div>
+
+      
+      <div>
+      
       <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
         <textarea
           id="description"
