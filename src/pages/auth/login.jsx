@@ -6,6 +6,7 @@ import AccesUser from '../../services/authService';
 import './auth.css'
 import { IoIosEye } from "react-icons/io";
 import ErrorAlert from '../../components/alerts/error';
+import { getDecodedToken } from '../../utils/auseAuth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -17,18 +18,28 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
-
+  const [data, setData] = useState({})
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const accesUser = await AccesUser.accesUsersLoguin({ email, password })
-
+    console.log(accesUser)
     if (accesUser.error) {
       // exito
       localStorage.setItem('authToken', accesUser?.response)
+
+      const decodedToken = await getDecodedToken();
+     
+      localStorage.setItem("selectedCompany", JSON.stringify(
+        {
+          "value": decodedToken?.company.id,
+          "label": decodedToken?.company.name,
+        }
+      ))
       navigate('/home/dashboard', { replace: true });
+
     } else {
       setEmailError(true);
       setPasswordError(true);
