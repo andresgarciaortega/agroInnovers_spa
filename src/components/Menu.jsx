@@ -52,8 +52,8 @@ const menuItems = [
     icon: <BsBox />,
     label: "Gestionar espacios ",
     submenu: [
-      { label: "Tipos de espacios", route: "/home" },
-      { label: "Espacios", route: "/home" }
+      { label: "Tipos de espacios", route: "/home/tipoEspacio" },
+      { label: "Espacios", route: "/home/espacio" }
     ]
   },
   { icon: <PiArrowsCounterClockwiseBold />, label: "Lotes de producción", route: "/home" },

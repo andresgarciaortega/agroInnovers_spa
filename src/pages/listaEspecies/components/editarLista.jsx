@@ -21,7 +21,7 @@ const EditarLista = () => {
     const { id } = useParams();
     const [imagePreview, setImagePreview] = useState(null);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-
+    const [errorMessage, setErrorMessage] = useState('');
     const [step, setStep] = useState(0);
     // const [stage, setStage] = useState([
     // { name: "", description: "" },
@@ -45,12 +45,20 @@ const EditarLista = () => {
         scientificName: '',
         commonName: '',
         variable_id: 0,
-        image: null,
+        image: '',
         descripcion: '',
         stage: [],
         parameters: [],
 
     });
+    const [fieldErrors, setFieldErrors] = useState({
+        min_normal_value: '',
+        max_normal_value: '',
+        min_limit: '',
+        max_limit: '',
+        variable: '',
+    });
+
 
     const [newParameter, setNewParameter] = useState({
         variable: '',
@@ -125,7 +133,7 @@ const EditarLista = () => {
         if (field === 'variable') {
             setNewParameter((prev) => ({
                 ...prev,
-                [field]: value, // Guarda solo el ID
+                [field]: value,
             }));
         } else {
             setNewParameter((prev) => ({
@@ -170,46 +178,192 @@ const EditarLista = () => {
     // };
 
     // Guardar parámetros
+
+    const [selectedParameterIndex, setSelectedParameterIndex] = useState(null);
+
+
+    const handleEditClick = (stageIndex, paramIndex) => {
+        const stage = formData.stage[stageIndex];
+        const parameter = stage.parameters[paramIndex];
+
+        setNewParameter({
+            variable: parameter.variable.id, // Asumiendo que 'variable' tiene un ID
+            min_normal_value: parameter.min_normal_value,
+            max_normal_value: parameter.max_normal_value,
+            min_limit: parameter.min_limit,
+            max_limit: parameter.max_limit,
+        });
+        setSelectedStageId(stage.id); // Guardar el ID de la etapa para luego actualizar
+        setSelectedParameterIndex(paramIndex); // Guardar el índice del parámetro
+        setIsModalOpen(true); // Abrir el modal
+    };
+
+    const handleDeleteClick = (paramId) => {
+        setFormData((prevData) => {
+            return {
+                ...prevData,
+                stage: prevData.stage.map((stage) => ({
+                    ...stage,
+                    parameters: stage.parameters.filter((param) => param.id !== paramId),  // Compara con paramId
+                })),
+            };
+        });
+    };
+
+
+
     const handleSaveParameter = () => {
-        // Validar que se haya seleccionado una variable
+        setFieldErrors({
+            min_normal_value: '',
+            max_normal_value: '',
+            min_limit: '',
+            max_limit: '',
+            variable: '',
+        });
+        let hasError = false;
+
+        // Validar si los campos están vacíos
         if (!newParameter.variable) {
-            alert("Debes seleccionar una variable válida");
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                variable: 'El campo Variable no puede estar vacío.',
+            }));
+            hasError = true;
+        }
+
+        if (!newParameter.min_normal_value) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                min_normal_value: 'El campo Valor mínimo normal no puede estar vacío.',
+            }));
+            hasError = true;
+        }
+
+        if (!newParameter.max_normal_value) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                max_normal_value: 'El campo Valor máximo normal no puede estar vacío.',
+            }));
+            hasError = true;
+        }
+
+        if (!newParameter.min_limit) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                min_limit: 'El campo Límite mínimo no puede estar vacío.',
+            }));
+            hasError = true;
+        }
+
+        if (!newParameter.max_limit) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                max_limit: 'El campo Límite máximo no puede estar vacío.',
+            }));
+            hasError = true;
+        }
+
+        // Validar que el valor mínimo no sea mayor que el valor máximo
+        if (newParameter.min_normal_value > newParameter.max_normal_value) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                min_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
+                max_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
+            }));
+            hasError = true;
+        }
+
+        // Validar que el límite mínimo no sea mayor que el límite máximo
+        if (newParameter.min_limit > newParameter.max_limit) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                min_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
+                max_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
+            }));
+            hasError = true;
+        }
+
+        // Si hay un error, evitar continuar
+        if (hasError) {
             return;
         }
 
-        console.log(variables)
-        console.log(newParameter.variable)
-        // Buscar el objeto completo de la variable usando su ID
+        // Buscar la variable seleccionada
         const selectedVariable = variables.find((v) => v.id === Number(newParameter.variable));
-
         if (!selectedVariable) {
-            alert("Variable seleccionada no encontrada");
+            setErrorMessage("Variable seleccionada no encontrada.");
             return;
         }
 
-        // Actualizar los datos del formulario
+        let isDuplicate = false;
+
         setFormData((prevFormData) => {
             const updatedStages = prevFormData.stage.map((stage) => {
                 if (stage.id === selectedStageId) {
-                    return {
-                        ...stage,
-                        parameters: [
-                            ...(stage.parameters || []),
-                            {
-                                ...newParameter,
-                                variable: selectedVariable, // Agregar el objeto completo
-                            },
-                        ],
-                    };
+                    if (selectedParameterIndex !== null) {
+                        const updatedParameters = stage.parameters.map((param, paramIndex) => {
+                            if (paramIndex === selectedParameterIndex) {
+                                return {
+                                    ...param,
+                                    variable: selectedVariable,
+                                    min_normal_value: newParameter.min_normal_value,
+                                    max_normal_value: newParameter.max_normal_value,
+                                    min_limit: newParameter.min_limit,
+                                    max_limit: newParameter.max_limit,
+                                };
+                            }
+                            return param;
+                        });
+
+                        return { ...stage, parameters: updatedParameters };
+                    } else {
+                        const variableAlreadyAssigned = stage.parameters.some(
+                            (param) => param.variable.id === selectedVariable.id
+                        );
+
+                        if (variableAlreadyAssigned) {
+                            setErrorMessage("Esta variable ya tiene parámetros asignados a esta etapa.");
+                            isDuplicate = true;
+                            return stage;
+                        }
+
+                        return {
+                            ...stage,
+                            parameters: [
+                                ...(stage.parameters || []),
+                                {
+                                    ...newParameter,
+                                    variable: selectedVariable,
+                                },
+                            ],
+                        };
+                    }
                 }
                 return stage;
             });
 
-            console.log("Datos actualizados:", updatedStages);
+            if (isDuplicate) {
+                setIsModalOpen(true);
+                return prevFormData;
+            }
+
+            const updatedVariables = variables.map((variable) => {
+                if (variable.id === selectedVariable.id) {
+                    return { ...variable, parameters: [...(variable.parameters || []), newParameter] };
+                }
+                return variable;
+            });
+
+            setVariables(updatedVariables);
+
             return { ...prevFormData, stage: updatedStages };
         });
 
-        // Cerrar el modal y reiniciar el formulario
+        if (isDuplicate) {
+            setIsModalOpen(true);
+            return;
+        }
+
         setIsModalOpen(false);
         setNewParameter({
             variable: '',
@@ -218,11 +372,8 @@ const EditarLista = () => {
             min_limit: '',
             max_limit: '',
         });
+        setErrorMessage('');
     };
-
-
-
-
 
 
 
@@ -381,16 +532,16 @@ const EditarLista = () => {
 
         try {
             let imageUrl = '';
+            console.log('imagen  1: ', formData.image)
 
-            if (formData.image) {
+            if (formData.image?.name) {
                 imageUrl = await UploadToS3(formData.image);
             } else {
-                imageUrl = newSpecie.image;
+                imageUrl = formData.image;
             }
 
             const parsedCompanyId = parseInt(formData.company_id, 10);
             console.log("Datos de especie formData:", formData);
-
 
             const formDataToSubmit = {
                 scientific_name: formData.scientificName,
@@ -438,6 +589,7 @@ const EditarLista = () => {
                     : [],
             };
 
+            console.log('imagen', imageUrl)
 
             console.log('datos de la etapa:', formDataToSubmit);
             await SpeciesService.updateSpecie(id, formDataToSubmit);
@@ -454,23 +606,6 @@ const EditarLista = () => {
 
 
 
-    const handleEditClick = (stageIndex, paramIndex) => {
-        console.log(`Editando parámetro en etapa ${stageIndex + 1}, índice ${paramIndex}`);
-
-    };
-
-    const handleDeleteClick = (paramId) => {
-        setFormData((prevData) => {
-            return {
-                ...prevData,
-                stage: prevData.stage.map((stage) => ({
-                    ...stage,
-                    parameters: stage.parameters.filter((param) => param.id !== paramId),
-                })),
-            };
-        });
-    };
-
     const handleCancel = () => navigate('../Listaespecie');
 
     return (
@@ -482,7 +617,7 @@ const EditarLista = () => {
                             <label>Adjuntar Logo</label>
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
                                 {imagePreview ? (
-                                    <img src={imagePreview} alt="Company Logo" className="mx-auto h-20 object-contain" />
+                                    <img src={imagePreview} alt="Logo" className="mx-auto h-20 object-contain" />
                                 ) : (
                                     <>
                                         <IoCloudUploadOutline className="mx-auto h-12 w-12 text-gray-400" />
@@ -631,13 +766,15 @@ const EditarLista = () => {
                                                             <td className="border px-4 py-2">{param.max_limit}</td>
                                                             <td className="border px-4 py-2">
                                                                 <button
+                                                                    type='button'
                                                                     onClick={() => handleEditClick(stageIndex, paramIndex)}
                                                                     className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
                                                                 >
                                                                     <Edit size={20} />
                                                                 </button>
                                                                 <button
-                                                                    onClick={() => handleDeleteClick(stageIndex, param.variable)}
+                                                                    type='button'
+                                                                    onClick={() => handleDeleteClick(param.id)}
                                                                     className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
                                                                 >
                                                                     <Trash size={20} />
@@ -671,7 +808,7 @@ const EditarLista = () => {
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-                        <div className="bg-green-700 text-white px-6 py-4 rounded-t-lg flex justify-between items-center">
+                        <div className="bg-[#345246] text-white px-6 py-4 rounded-t-lg flex justify-between items-center">
                             <h2 className="text-xl font-semibold">Añadir Parámetro</h2>
                             <button onClick={handleCloseModal} className="text-white hover:text-gray-200">
                                 <X size={24} />
@@ -679,11 +816,18 @@ const EditarLista = () => {
                         </div>
 
                         <div className="p-6">
+                            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+                                <p className="font-bold">Recomendación:</p>
+                                <p>
+                                    Para poder crear un parámetro es necesario haber creado una variable antes, ya que se debe seleccionar la variable que se va a parametrizar.
+                                </p>
+                            </div>
+
                             <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">Variable</label>
                             <select
                                 id="variable"
                                 name="variable"
-                                value={newParameter.variable} // Debe ser el ID
+                                value={newParameter.variable}
                                 onChange={(e) => handleParameterChange(e, 'variable')}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
                             >
@@ -692,6 +836,9 @@ const EditarLista = () => {
                                     <option key={variable.id} value={variable.id}>{variable.name}</option>
                                 ))}
                             </select>
+                            {fieldErrors.variable && (
+                                <p className="text-red-500 text-sm mt-1">{fieldErrors.variable}</p>
+                            )}
 
                             <div className="grid grid-cols-2 gap-4 mt-4">
                                 {['min_normal_value', 'max_normal_value', 'min_limit', 'max_limit'].map((field) => (
@@ -709,21 +856,26 @@ const EditarLista = () => {
                                             onChange={(e) => handleParameterChange(e, field)}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
                                         />
+                                        {fieldErrors[field] && (
+                                            <p className="text-red-500 text-sm mt-1">{fieldErrors[field]}</p>
+                                        )}
                                     </div>
                                 ))}
                             </div>
+
                         </div>
 
-                        <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse">
+                        <div className="bg-gray-50 px-2 py-2 sm:flex sm:flex-row-reverse">
                             <button
+                                type='button'
                                 onClick={handleSaveParameter}
-                                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-700 text-base font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                className="m-1 inline-flex justify-end rounded-md border border-transparent shadow-sm px-4 py-1 bg-[#168C0DFF] text-base font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                             >
                                 Guardar
                             </button>
                             <button
                                 onClick={handleCloseModal}
-                                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                className="m-1 inline-flex justify-end rounded-md border border-gray-300 shadow-sm px-4 py-1 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:ml-3 sm:w-auto sm:text-sm"
                             >
                                 Cancelar
                             </button>
@@ -731,6 +883,8 @@ const EditarLista = () => {
                     </div>
                 </div>
             )}
+
+
 
         </form>
 

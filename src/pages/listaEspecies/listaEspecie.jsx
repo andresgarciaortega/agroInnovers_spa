@@ -361,24 +361,24 @@ const ListaEspecies = () => {
                       </div>
                     ))}
                   </td> */}
-                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-  {(() => {
-    const totalTimeInDays = species.stages?.reduce((totalTime, stage) => {
-      return totalTime + stage.time_to_production;
-    }, 0);
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {(() => {
+                      const totalTimeInDays = species.stages?.reduce((totalTime, stage) => {
+                        return totalTime + stage.time_to_production;
+                      }, 0);
 
-    const months = Math.floor(totalTimeInDays / 30); // Meses completos
-    const days = totalTimeInDays % 30; // Días restantes
+                      const months = Math.floor(totalTimeInDays / 30); // Meses completos
+                      const days = totalTimeInDays % 30; // Días restantes
 
-    if (months === 0) {
-      return `${days} día${days !== 1 ? "s" : ""}`;
-    } else if (days === 0) {
-      return `${months} mes${months !== 1 ? "es" : ""}`;
-    } else {
-      return `${months} mes${months !== 1 ? "es" : ""} y ${days} día${days !== 1 ? "s" : ""}`;
-    }
-  })()}
-</td>
+                      if (months === 0) {
+                        return `${days} día${days !== 1 ? "s" : ""}`;
+                      } else if (days === 0) {
+                        return `${months} mes${months !== 1 ? "es" : ""}`;
+                      } else {
+                        return `${months} mes${months !== 1 ? "es" : ""} y ${days} día${days !== 1 ? "s" : ""}`;
+                      }
+                    })()}
+                  </td>
 
 
 
