@@ -125,10 +125,10 @@ const FormTipo = ({ selectedCompany, showErrorAlert, onUpdate, variable, mode, c
   
       if (mode === 'create') {
         await TipoEspacioService.createtipoEspacio(formDataToSubmit);
-        showErrorAlert("creada");
+        showErrorAlert("creadao");
       } else if (mode === 'edit') {
         await TipoEspacioService.updatetipoEspacio(variable.id, formDataToSubmit);
-        showErrorAlert("editada");
+        showErrorAlert("editado");
       }
   
       onUpdate();
@@ -179,7 +179,12 @@ const FormTipo = ({ selectedCompany, showErrorAlert, onUpdate, variable, mode, c
             </>
           )}
         </div>
-        <input id="logo-upload" type="file" className="hidden" onChange={handleIconUpload} accept="image/*" />
+        <input
+         id="logo-upload"
+          type="file" 
+          className="hidden"
+          disabled={mode === 'view'}
+           onChange={handleIconUpload} accept="image/*" />
       </div>
       <div >
           <label htmlFor="company_id" className="block text-sm font-medium text-gray-700">Empresa</label>

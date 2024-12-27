@@ -673,7 +673,7 @@ const EditarLista = () => {
                                     value={formData.category_id}
                                     onChange={handleCategoryChange}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                    required
+                                    disabled
                                 >
                                     <option value="">Selecciona una categoría</option>
                                     {categories.map((category) => (
@@ -696,7 +696,7 @@ const EditarLista = () => {
                                         setFormData({ ...formData, subcategory_id: e.target.value })
                                     }
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                    required
+                                    disabled
                                 >
                                     <option value="">Selecciona una subcategoría</option>
                                     {subcategories.map((subcategory) => (

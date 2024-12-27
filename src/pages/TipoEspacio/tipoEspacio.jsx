@@ -165,7 +165,7 @@ const TipoEspacio = () => {
 
   const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true)
-    setMessageAlert(`tipo de espacio ${message} exitosamente`);
+    setMessageAlert(`Tipo de espacio ${message} exitosamente`);
 
     setTimeout(() => {
       setShowErrorAlert(false)

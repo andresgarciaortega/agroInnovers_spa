@@ -457,7 +457,7 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
                             <input
                                 type="text"
                                 name="datasheet"
-                                placeholder="Hoja de datos"
+                                placeholder="Link de Datasheet "
                                 value={formData.datasheet}
                                 onChange={handleChange}
                                 disabled={mode === 'view'}

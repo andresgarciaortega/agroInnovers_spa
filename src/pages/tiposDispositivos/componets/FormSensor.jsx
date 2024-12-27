@@ -490,7 +490,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                             <input
                                 type="text"
                                 name="datasheet"
-                                placeholder="Hoja de datos"
+                                placeholder="Link de Datasheet"
                                 value={formData.datasheet}
                                 onChange={handleChange}
                                 disabled={mode === 'view'}
@@ -560,7 +560,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Presición</label>
                             <input
-                                type="text"
+                                type="numb"
                                 name="precision"
                                 placeholder="Posición"
                                 value={formData.precision}
