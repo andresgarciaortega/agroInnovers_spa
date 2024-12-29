@@ -190,7 +190,7 @@ const FormViewActuador = ({ actuador, closeModal }) => {
 
                 </div>
 
-                <div className="flex flex-col grid grid-cols-2 gap-4 mt-5">
+                <div className="flex flex-col mx-5 grid-cols-2 gap-4 mt-5">
                     <img
                         src={actuador.icon}
                         alt={actuador.actuadorCode || "Sensor Icon"}

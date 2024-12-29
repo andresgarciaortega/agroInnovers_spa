@@ -191,7 +191,7 @@ const FormViewSensor = ({ sensor, closeModal }) => {
 
                 </div>
 
-                <div className="flex flex-col grid grid-cols-2 gap-4 mt-5">
+                <div className="flex flex-col mx-5 grid-cols-2 gap-4 mt-5">
                     <img
                         src={sensor.icon}
                         alt={sensor.sensorCode || "Sensor Icon"}

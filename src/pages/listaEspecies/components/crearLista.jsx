@@ -741,7 +741,8 @@ const CrearListas = () => {
                         <div key={stageIndex} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
                           <div className="flex justify-between items-center mb-2">
                             <h3 className="text-sm font-semibold text-gray-800">
-                              {`Etapa ${stageIndex + 1}`}
+                            {`Etapa ${stage?.name || 'Sin nombre'}`}
+
                             </h3>
                             <button
                               type='button'

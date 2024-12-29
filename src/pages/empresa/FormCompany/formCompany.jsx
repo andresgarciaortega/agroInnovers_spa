@@ -183,7 +183,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     try {
       let logoUrl = '';
       
-      if (formData.logo.name) {
+      if (formData.logo && formData.logo.name) {
         
         logoUrl = await UploadToS3(formData.logo);
       } else {

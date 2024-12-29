@@ -56,7 +56,7 @@ const menuItems = [
       { label: "Espacios", route: "/home/espacio" }
     ]
   },
-  { icon: <PiArrowsCounterClockwiseBold />, label: "Lotes de producción", route: "/home" },
+  { icon: <PiArrowsCounterClockwiseBold />, label: "Lotes de producción", route: "/home/lotes" },
 ];
 
 const Sidebar = ({ selectedItem, setSelectedItem }) => {

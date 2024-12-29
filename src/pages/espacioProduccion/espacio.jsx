@@ -88,9 +88,13 @@ const Espacio = () => {
         const data = await EspacioService.getAllEspacio(companyId);
         if (data.statusCode === 404) {
           setVariableList([]);
+          console.log('datos1',data)
+
         } else {
           setShowErrorAlertTable(false)
           setVariableList(Array.isArray(data) ? data : []);
+          console.log('datos',data)
+
         }
       } catch (error) {
         setVariableList([])
@@ -183,7 +187,7 @@ const Espacio = () => {
 
   const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true)
-    setMessageAlert(`Tipo de espacio ${message} exitosamente`);
+    setMessageAlert(`Espacio ${message} exitosamente`);
 
     setTimeout(() => {
       setShowErrorAlert(false)
@@ -229,7 +233,12 @@ const Espacio = () => {
     }
   };
 
-
+  const handleViewSpace = (espacioId) => {
+    navigate(`../viewEspacio/${espacioId}`);
+  };
+  const handleEditSpace = (espacioId) => {
+    navigate(`../editarEspacio/${espacioId}`);
+  };
   return (
     <div className="table-container ">
       <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
@@ -314,10 +323,10 @@ const Espacio = () => {
 
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(tipoEspacio, 'view')}>
+                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewSpace(tipoEspacio.id)}>
                       <Eye size={18} />
                     </button>
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(tipoEspacio, 'edit')}>
+                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleEditSpace(tipoEspacio.id)}>
                       <Edit size={18} />
                     </button>
                     <button onClick={() => handleDelete(tipoEspacio)} className=" text-[#168C0DFF] px-2 py-2 rounded">

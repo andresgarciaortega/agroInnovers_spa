@@ -24,6 +24,8 @@ import VisualizarMonitoreo from "../pages/monitoreo/components/visualizarMonitor
 import Tipos from "../pages/tiposDispositivos/tipos";
 import Sensores from "../pages/Sensores/sensor";
 import Actuadores from "../pages/Actuadores/actuador";
+import ViewEspacio from "../pages/espacioProduccion/components/viewEspacio";
+import EditarEspacio from "../pages/espacioProduccion/components/editarEspacio";
 import CrearEspacio from "../pages/espacioProduccion/components/crearEspacio";
 import Espacio from "../pages/espacioProduccion/espacio";
 import TipoEspacio from "../pages/TipoEspacio/tipoEspacio";
@@ -61,6 +63,8 @@ const AppRoutes = () => {
         <Route path="tipos" element={<Tipos />} />
         <Route path="sensor" element={<Sensores />} />
         <Route path="actuador" element={<Actuadores />} />
+        <Route path="viewEspacio/:id" element={<ViewEspacio />} />
+        <Route path="editarEspacio/:id" element={<EditarEspacio />} />
         <Route path="crearEspacio" element={<CrearEspacio />} />
         <Route path="espacio" element={<Espacio />} />
         <Route path="tipoEspacio" element={<TipoEspacio />} />
