@@ -206,30 +206,31 @@ const [expandedControls, setExpandedControls] = useState({});
         climateConditions: formData.climateConditions,
         dimensionUnit: formData.dimensionUnit,
         shape: formData.shape,
-        length: formData.length,
-        width: formData.width >= 0 ? formData.width : 0,
-        depth: formData.depth >= 0 ? formData.depth : 0,
-        area: formData.area,
-        volume: formData.volume,
+        length: Math.max(formData.length || 0, 0),
+        width: Math.max(formData.width || 0, 0),
+        depth: Math.max(formData.depth || 0, 0),
+        area: Math.max(formData.area || 0, 0),
+        volume: Math.max(formData.volume || 0, 0),
         specificFeatures: formData.specificFeatures,
         subProductionSpaces: formData.subProductionSpaces.map(subSpace => ({
             ...subSpace,
-            width: subSpace.width >= 0 ? subSpace.width : 0,
-            depth: subSpace.depth >= 0 ? subSpace.depth : 0,
+            width: Math.max(subSpace.width || 0, 0),
+            depth: Math.max(subSpace.depth || 0, 0),
             monitoringSystemId: subSpace.monitoringSystemId ? parseInt(subSpace.monitoringSystemId.id, 10) : null,
             species: Array.isArray(subSpace.species) ? subSpace.species : [],
             assignDevices: Array.isArray(subSpace.assignDevices) ? subSpace.assignDevices : [],
             configureMeasurementControls: Array.isArray(subSpace.configureMeasurementControls)
                 ? subSpace.configureMeasurementControls.map(control => ({
                     ...control,
-                    sensorId: parseInt(control.sensorId, 10), // Asegúrate de que sea un entero
-                    actuatorId: parseInt(control.actuatorId, 10), // Asegúrate de que sea un entero
-                    productionParameterId: parseInt(control.productionParameterId, 10), // Asegúrate de que sea un entero
+                    sensorId: parseInt(control.sensorId, 10),
+                    actuatorId: parseInt(control.actuatorId, 10),
+                    productionParameterId: parseInt(control.productionParameterId, 10),
                 }))
                 : [],
         })),
         monitoringSystemId: formData.monitoringSystemId ? parseInt(formData.monitoringSystemId.id, 10) : null,
     };
+    
 
     try {
         const response = await EspacioService.updateEspacio(formData.id, data);

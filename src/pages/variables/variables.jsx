@@ -307,7 +307,8 @@ const Variable = () => {
                     <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(variable, 'view')}>
                       <Eye size={18} />
                     </button>
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(variable, 'edit')}>
+                    <button className=" text-[#168C0DFF] px-2 py-2 rounded"
+                     onClick={() => handleOpenModal(variable, 'edit')}>
                       <Edit size={18} />
                     </button>
                     <button onClick={() => handleDelete(variable)} className=" text-[#168C0DFF] px-2 py-2 rounded">
