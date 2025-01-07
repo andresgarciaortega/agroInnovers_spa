@@ -25,6 +25,7 @@ import { ImEqualizer2 } from "react-icons/im";
 import Select from "react-select";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
+import { getDecodedToken } from "../../utils/auseAuth";
 
 const Actuador = () => {
   const [companyList, setCompanyList] = useState([]);
@@ -41,8 +42,8 @@ const Actuador = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenView, setIsModalOpenView] = useState(false);
-    const [isModalOpenMante, setIdModalOpenMante] = useState(false);
-    const [isModalOpenCali, setIsModalOpenCali] = useState(false);
+  const [isModalOpenMante, setIdModalOpenMante] = useState(false);
+  const [isModalOpenCali, setIsModalOpenCali] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
   const [nameCompany, setNameCompany] = useState("");
@@ -65,6 +66,7 @@ const Actuador = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [userRoles, setUserRoles] = useState([]);
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -108,6 +110,11 @@ const Actuador = () => {
 
   useEffect(() => {
     const fetchActuador = async () => {
+
+      const decodedToken = await getDecodedToken();
+      setUserRoles(decodedToken.roles?.map(role => role.name) || []);
+
+
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
       if (!companyId) {
         setVariableList([]);
@@ -197,7 +204,7 @@ const Actuador = () => {
   const handleOpenModal = (actuador = null, mode = 'create') => {
     setSelectedVariable(actuador);
     setModalMode(mode);
-    setActuadorId(actuador); 
+    setActuadorId(actuador);
     if (mode === 'edit' || mode === 'view') {
       setNewVariable(actuador);  // Cargar datos del actuador si estamos editando o visualizando
     } else {
@@ -217,7 +224,7 @@ const Actuador = () => {
     if (mode === 'view') {
       setIsModalOpenView(true);
     } else if (mode === 'mantenimiento') {
-      setIdModalOpenMante(true); 
+      setIdModalOpenMante(true);
     } else if (mode === 'calibrar') {
       setIsModalOpenCali(true); // Abre el modal de calibración
     } else {
@@ -231,7 +238,7 @@ const Actuador = () => {
     setSelectedVariable(null);
     setModalMode('create');
     setIsModalOpenView(false);
-    setIdModalOpenMante(false); 
+    setIdModalOpenMante(false);
     setIsModalOpenCali(false)
     updateService();
   };
@@ -295,8 +302,7 @@ const Actuador = () => {
     <div className="table-container ">
       <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
         <div className="relative w-full">
-          <CompanySelector />
-
+          {userRoles?.[0] === 'SUPER-ADMINISTRADOR' && <CompanySelector />}
         </div>
         <br />
         <div className="flex items-center space-x-2 text-gray-700">
@@ -380,33 +386,33 @@ const Actuador = () => {
 
                   <td className="px-6 py-4 text-sm font-medium">
                     <button className="text-[#168C0DFF] px-2 py-2 rounded"
-                     onClick={() => handleOpenModal(actuador.id, 'calibrar')}
-                     title="Calibrar Sensor"
+                      onClick={() => handleOpenModal(actuador.id, 'calibrar')}
+                      title="Calibrar Sensor"
 
-                     >
+                    >
                       <ImEqualizer size={18} />
                     </button>
-                    <button className="text-[#168C0DFF] px-2 py-2 rounded" 
-                    onClick={() => handleOpenModal(actuador.id, 'mantenimiento')}
-                    title="Realizar Mantenimiento"
+                    <button className="text-[#168C0DFF] px-2 py-2 rounded"
+                      onClick={() => handleOpenModal(actuador.id, 'mantenimiento')}
+                      title="Realizar Mantenimiento"
                     >
                       <TbSettingsCog size={18} />
                     </button>
                     <button className="text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(actuador, 'view')}>
                       <Eye size={18}
-                      title="Ver Detalles del Sensor"
+                        title="Ver Detalles del Sensor"
                       />
                     </button>
                     <button className="text-[#168C0DFF] px-2 py-2 rounded"
-                     onClick={() => handleOpenModal(actuador, 'edit')}
-                     title="Editar Sensor"
+                      onClick={() => handleOpenModal(actuador, 'edit')}
+                      title="Editar Sensor"
 
-                     >
+                    >
                       <Edit size={18} />
                     </button>
-                    <button className="text-[#168C0DFF] px-2 py-2 rounded" 
-                    onClick={() => handleDelete(actuador)}
-                    title="Eliminar Sensor"
+                    <button className="text-[#168C0DFF] px-2 py-2 rounded"
+                      onClick={() => handleDelete(actuador)}
+                      title="Eliminar Sensor"
                     >
                       <Trash size={18} />
                     </button>
@@ -455,7 +461,7 @@ const Actuador = () => {
         </GenericModal>
       )}
 
-{isModalOpenMante && (
+      {isModalOpenMante && (
         <GenericModal
           title={modalMode === 'edit' ? 'Editar Actuador' : modalMode === 'view' ? 'Ver actuador' : 'Añadir Mantenimiento'}
           onClose={closeModal}
@@ -463,9 +469,9 @@ const Actuador = () => {
           companyId={selectedCompany} >
 
           <FromMantenimiento showErrorAlert={showErrorAlertSuccess}
-           onUpdate={updateService}
-            actuador={newVariable} 
-            mode={modalMode} 
+            onUpdate={updateService}
+            actuador={newVariable}
+            mode={modalMode}
             closeModal={closeModal}
             actuadorId={actuadorId || ''} />
         </GenericModal>
@@ -481,9 +487,9 @@ const Actuador = () => {
           companyId={selectedCompany} >
 
           <FormCalibrarActuador showErrorAlert={showErrorAlertSuccess}
-           onUpdate={updateService}
-            actuador={newVariable} 
-            mode={modalMode} 
+            onUpdate={updateService}
+            actuador={newVariable}
+            mode={modalMode}
             closeModal={closeModal}
             actuadorId={actuadorId || ''} />
         </GenericModal>

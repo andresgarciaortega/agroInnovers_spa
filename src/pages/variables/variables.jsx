@@ -17,6 +17,7 @@ import { ImEqualizer2 } from "react-icons/im";
 import Select from "react-select";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
+import { getDecodedToken } from "../../utils/auseAuth";
 
 const Variable = () => {
   const [companyList, setCompanyList] = useState([]);
@@ -35,6 +36,7 @@ const Variable = () => {
   const [nameCompany, setNameCompany] = useState("");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
+  const [userRoles, setUserRoles] = useState([]);
   const [newVariable, setNewVariable] = useState({
     name: '',
     icon: '',
@@ -61,6 +63,13 @@ const Variable = () => {
 
   useEffect(() => {
     const fetchVariables = async () => {
+      const decodedToken = await getDecodedToken();
+      setUserRoles(decodedToken.roles?.map(role => role.name) || []);
+
+      console.log("Roles del usuario:", decodedToken);
+      console.log("Lista de UserRoles:", decodedToken.roles?.map(role => role.name) || []);
+
+
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
       if (!companyId) {
         setVariableList([]);
@@ -221,8 +230,7 @@ const Variable = () => {
     <div className="table-container ">
       <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
         <div className="relative w-full">
-          <CompanySelector />
-
+          {userRoles?.[0] === 'SUPER-ADMINISTRADOR' && <CompanySelector />}
         </div>
         <br />
         <div className="flex items-center space-x-2 text-gray-700">

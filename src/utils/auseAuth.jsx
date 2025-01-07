@@ -11,7 +11,7 @@ export const getDecodedToken = async () => {
   if (!token) return null;
 
   try {
-    const decoded = jwt_decode(token);  // Ahora debería funcionar
+    const decoded = jwt_decode(token);  // Ahora debería funcionar 
     return decoded;
   } catch (error) {
     console.error('Error decoding token', error);
