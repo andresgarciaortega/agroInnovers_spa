@@ -18,7 +18,7 @@ export const CompanyProvider = ({ children }) => {
         }
     }, [selectedCompanyUniversal]);
 
-    return (
+    return ( 
         <CompanyContext.Provider value={{ selectedCompanyUniversal, setSelectedCompanyUniversal }}>
             {children}
         </CompanyContext.Provider>

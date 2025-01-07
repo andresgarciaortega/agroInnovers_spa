@@ -17,8 +17,7 @@ const CompanySelector = () => {
                 console.error("Error fetching companies:", error);
             }
         }; 
-
-        fetchCompanies();
+        fetchCompanies(); 
     }, []);
 
     // Leer empresa del localStorage y establecerla como valor predeterminado en el contexto si no hay selección
@@ -27,6 +26,7 @@ const CompanySelector = () => {
         if (savedCompany && !selectedCompanyUniversal) {
             // Si hay una empresa guardada en localStorage y no se ha seleccionado ninguna
             const company = JSON.parse(savedCompany); 
+            console.log("company ---> ", company)
             setSelectedCompanyUniversal(company); // Establecemos la empresa del localStorage como seleccionada
         }
     }, [selectedCompanyUniversal, setSelectedCompanyUniversal]);
