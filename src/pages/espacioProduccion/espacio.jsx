@@ -281,13 +281,7 @@ const Espacio = () => {
 
 
       <div className="bg-white  rounded-lg shadow ">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Espacios</h2>
-          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => navigate('../crearEspacio')}>
-
-            Crear tipo de espacio
-          </button>
-        </div>
+        
         <div className="overflow-x-auto">
           <table className="w-full ">
             <thead className="bg-gray-300  ">

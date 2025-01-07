@@ -103,7 +103,6 @@ const ViewEspacio = ({ }) => {
         }, 2500);
     }
 
-    // Función para actualizar la lista de empresas
     const updateCompanies = async () => {
         try {
             const data = await CompanyService.getCompanyById(id);
@@ -138,7 +137,6 @@ const ViewEspacio = ({ }) => {
 
         console.log('Datos de configureMeasurementControls:', formData.subProductionSpaces.map(subSpace => subSpace.configureMeasurementControls));
     
-        // Construir datos para enviar solo campos válidos
         const data = {
             id: formData.id,
             name: formData.name,
@@ -184,7 +182,7 @@ const ViewEspacio = ({ }) => {
         try {
             const response = await EspacioService.updateEspacio(formData.id, data);
             console.log('Espacio actualizado con éxito', response);
-            navigate('../espacio'); // Cambia '/espacios' por la ruta real de tu vista de espacios
+            navigate('../espacio'); 
         } catch (error) {
             console.error('Error al actualizar el espacio:', error);
             if (error.response) {
@@ -223,9 +221,9 @@ const ViewEspacio = ({ }) => {
           className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg"
           onClick={() => {
             if (isEditable) {
-                handleSubmit(); // Si estamos en modo editable, guardamos los cambios
+                handleSubmit(); 
             } else {
-              setIsEditable(true); // Cambiar a modo edición
+              setIsEditable(true); 
             }
           }}
         >
@@ -343,12 +341,12 @@ const ViewEspacio = ({ }) => {
                             <label className="text-sm text-muted-foreground">Sistema de monitoreo y control</label>
                             <select
                                 className="w-full p-2 border rounded"
-                                value={formData.monitoringSystemId?.id || ''} // Usamos el ID del sistema de monitoreo
+                                value={formData.monitoringSystemId?.id || ''} 
                                 onChange={(e) => setFormData({
                                     ...formData,
                                     monitoringSystemId: {
                                         ...formData.monitoringSystemId,
-                                        id: e.target.value // Actualizamos solo el ID del sistema de monitoreo 
+                                        id: e.target.value 
                                     }
                                 })}
                                 disabled={!isEditable}
@@ -356,7 +354,7 @@ const ViewEspacio = ({ }) => {
                                 <option value="" disabled>Selecciona un sistema de monitoreo</option>
                                 {monitoringSystems.map(system => (
                                     <option key={system.id} value={system.id}>
-                                        {system.nombreId} {/* Asegúrate de que 'nombreId' sea el nombre del sistema que quieres mostrar */}
+                                        {system.nombreId} 
                                     </option>
                                 ))}
                             </select>
@@ -386,7 +384,7 @@ const ViewEspacio = ({ }) => {
                                             <div
                                                 key={index}
                                                 className="bg-white shadow-md rounded-lg flex items-center gap-4"
-                                                style={{ height: "169px" }} // Mantiene las tarjetas más anchas que largas
+                                                style={{ height: "169px" }} 
                                             >
 
                                                 <div className="w-60">
@@ -456,6 +454,7 @@ const ViewEspacio = ({ }) => {
                                                     <p>
 
                                                         <button
+                                                        type='button'
                                                             onClick={() => openMap(subSpace.gpsPosition)}
                                                             className="text-blue-600 underline"
                                                         >
