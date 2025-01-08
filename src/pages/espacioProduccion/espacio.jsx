@@ -251,7 +251,7 @@ const Espacio = () => {
           <ImEqualizer2 size={20} />
           <span>Gestión de espacios</span>
           <span>/</span>
-          <span>Tipos de espacios</span>
+          <span>Espacio de producción</span>
           <span>/</span>
           <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
           <span className="text-black font-bold">  </span>
@@ -270,14 +270,19 @@ const Espacio = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        {/* Icono de búsqueda alineado a la izquierda */}
         <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
 
 
 
       <div className="bg-white  rounded-lg shadow ">
-        
+      <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-xl font-semibold">Espacios de producción</h2>
+          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => navigate('../crearEspacio')}>
+
+            Crear Espacio
+          </button>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full ">
             <thead className="bg-gray-300  ">

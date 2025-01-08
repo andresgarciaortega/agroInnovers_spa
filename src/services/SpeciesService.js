@@ -13,6 +13,17 @@ const SpeciesService = {
             throw error;
         }
     },
+    async getVariableBySpecie(specieId) {
+        try {
+            const response = await api.get(`/variables?search=${encodeURIComponent(JSON.stringify({species:{id:specieId}}))}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener loas variables de esta especie :', error);
+            throw error;
+        }
+    },
+
+  
 
     // OBTENER UNA CATEGORÍA POR ID
     async getSpecieById(id) {

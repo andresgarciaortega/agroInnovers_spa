@@ -16,6 +16,15 @@ const EspacioService = {
             throw error;
         }
     },
+    async getAllStage() {
+        try {
+            const response = await api.get('/stages/');
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener las etapas:', error);
+            throw error;
+        }
+    },
     async getEspacioById(id) {
         try {
             const response = await api.get(`/production-space/${id}`);

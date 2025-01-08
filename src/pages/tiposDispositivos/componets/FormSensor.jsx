@@ -438,11 +438,11 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Vida útil</label>
+                            <label className="block text-sm font-medium text-gray-700">Vida útil (en meses)</label>
                             <input
                                 type="number"
                                 name="lifespan"
-                                placeholder="Vida útil"
+                                placeholder="Vida útil en meses"
                                 value={formData.lifespan}
                                 onChange={handleChange}
                                 disabled={mode === 'view'}
@@ -540,7 +540,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                             <input
                                 type="number"
                                 name="minMeasurementValue"
-                                placeholder="Valor mínimo de medición<"
+                                placeholder="Valor mínimo de medición"
                                 value={formData.minMeasurementValue}
                                 onChange={handleChange}
                                 disabled={mode === 'view'}
