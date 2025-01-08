@@ -461,9 +461,16 @@ const CrearEspacio = () => {
     setSelectedVariable("");
   };
 
-  const handleVariableChange = (e) => {
-    const selected = variables.find((v) => v.id === e.target.value);
-    setSelectedVariable(selected);
+  // const handleVariableChange = (e) => {
+  //   const selected = variables.find((v) => v.id === e.target.value);
+  //   setSelectedVariable(selected);
+  // };
+
+  const handleVariableChange = (index, value) => {
+    setSelectedVariables((prev) => ({
+      ...prev,
+      [index]: value, // Actualiza solo el índice correspondiente
+    }));
   };
 
   const handleChange = async (e) => {
@@ -483,11 +490,11 @@ const CrearEspacio = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const parseNumber = (value) => {
       return value !== undefined && value !== null && !isNaN(value) ? parseInt(value, 10) : null;
     };
-  
+
     const data = {
       name: formData.name,
       gpsPosition: formData.gpsPosition,
@@ -518,24 +525,6 @@ const CrearEspacio = () => {
         assignDevices: Array.isArray(subSpace.assignDevices) ? subSpace.assignDevices : [],
         configureMeasurementControls: Array.isArray(subSpace.configureMeasurementControls)
           ? subSpace.configureMeasurementControls.map(control => ({
-              measurementType: control.measurementType,
-              sensorId: parseNumber(control.sensorId),
-              actuatorId: parseNumber(control.actuatorId),
-              samplingTimeUnit: control.samplingTimeUnit,
-              samplingFrequency: parseNumber(control.samplingFrequency),
-              numberOfSamples: parseNumber(control.numberOfSamples),
-              controlType: control.controlType,
-              actuationTimeUnit: control.actuationTimeUnit,
-              activationParameterRange: control.activationParameterRange,
-              activationFrequency: parseNumber(control.activationFrequency),
-              alertMessage: control.alertMessage,
-              productionParameterId: parseNumber(control.productionParameterId)
-            }))
-          : [],
-      })),
-      assignDevices: Array.isArray(formData.assignDevices) ? formData.assignDevices : [],
-      configureMeasurementControls: Array.isArray(formData.configureMeasurementControls)
-        ? formData.configureMeasurementControls.map(control => ({
             measurementType: control.measurementType,
             sensorId: parseNumber(control.sensorId),
             actuatorId: parseNumber(control.actuatorId),
@@ -549,9 +538,27 @@ const CrearEspacio = () => {
             alertMessage: control.alertMessage,
             productionParameterId: parseNumber(control.productionParameterId)
           }))
+          : [],
+      })),
+      assignDevices: Array.isArray(formData.assignDevices) ? formData.assignDevices : [],
+      configureMeasurementControls: Array.isArray(formData.configureMeasurementControls)
+        ? formData.configureMeasurementControls.map(control => ({
+          measurementType: control.measurementType,
+          sensorId: parseNumber(control.sensorId),
+          actuatorId: parseNumber(control.actuatorId),
+          samplingTimeUnit: control.samplingTimeUnit,
+          samplingFrequency: parseNumber(control.samplingFrequency),
+          numberOfSamples: parseNumber(control.numberOfSamples),
+          controlType: control.controlType,
+          actuationTimeUnit: control.actuationTimeUnit,
+          activationParameterRange: control.activationParameterRange,
+          activationFrequency: parseNumber(control.activationFrequency),
+          alertMessage: control.alertMessage,
+          productionParameterId: parseNumber(control.productionParameterId)
+        }))
         : []
     };
-  
+
     try {
       const response = await EspacioService.createEspacio(data);
       console.log('Espacio creado con éxito', response);
@@ -560,7 +567,7 @@ const CrearEspacio = () => {
       console.error('Error al crear el espacio:', error);
     }
   };
-  
+
 
   const handleMedicionControl = (variable) => {
     setSelectedVariableId(variable.id);
@@ -1167,14 +1174,15 @@ const CrearEspacio = () => {
 
             {step === 2 && (
               <div>
-                <div className='border border-gray-400 p-3 rounded-lg'>
+                <div className="border border-gray-400 p-3 rounded-lg">
                   <div>
-                    <h2 className='font-bold p-1'>
-                      Espacio
-                    </h2>
+                    <h2 className="font-bold p-1">Espacio</h2>
                   </div>
-                  <div className='py-3 px-3'>
-                    <label htmlFor="species" className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="py-3 px-3">
+                    <label
+                      htmlFor="species"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Especies
                     </label>
                     <select
@@ -1183,7 +1191,9 @@ const CrearEspacio = () => {
                       onChange={handleSpeciesChange}
                       className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
                     >
-                      <option value="" className="text-gray-500">Selecciona una opción</option>
+                      <option value="" className="text-gray-500">
+                        Selecciona una opción
+                      </option>
                       {species?.length > 0 &&
                         species.map((sub) => (
                           <option key={sub.id} value={sub.id}>
@@ -1194,17 +1204,22 @@ const CrearEspacio = () => {
 
                     {/* Selector de variables */}
                     <div className="mt-4">
-                      <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="variable"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Variables Asociadas
                       </label>
                       <select
                         id="variable"
                         name="variable"
-                        onChange={(e) => setSelectedVariable(e.target.value)}
-                        value={selectedVariable}
+                        onChange={(e) => handleVariableChange('main', e.target.value)} // Selector principal
+                        value={selectedVariables['main'] || ''}
                         className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
                       >
-                        <option value="" className="text-gray-500">Selecciona una variable</option>
+                        <option value="" className="text-gray-500">
+                          Selecciona una variable
+                        </option>
                         {variables.length > 0 &&
                           variables.map((variable, index) => (
                             <option key={index} value={variable.id}>
@@ -1215,10 +1230,8 @@ const CrearEspacio = () => {
                     </div>
                   </div>
 
-
-                  {selectedVariable && (
-
-                    <div className=''>
+                  {selectedVariables['main'] && (
+                    <div>
                       <button
                         type="button"
                         onClick={handleAddVariable}
@@ -1230,98 +1243,91 @@ const CrearEspacio = () => {
                     </div>
                   )}
 
-                  {selectedVariables.length > 0 && (
-                    <div className="mt-6">
-                      <h3 className="text-lg font-medium">Variables Seleccionadas:</h3>
-                      <div className="mt-2 grid grid-cols-1 gap-2">
-                        {selectedVariables.map((variable, index) => (
-                          <div key={index} className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md">
-                            <div className="flex justify-between items-center">
-                              <span>{variable.name || variable}</span>
+                  {isModalOpen && (
+                    <GenericModal
+                      title={
+                        modalMode === 'edit'
+                          ? 'Editar Medición y Control'
+                          : modalMode === 'view'
+                            ? 'Ver Medición y Control'
+                            : 'Añadir Medición y Control'
+                      }
+                      onClose={closeModal}
+                    >
+                      <FormMedicion
+                        selectedVariableId={selectedVariableId}
+                        onClose={() => setIsModalOpen(false)}
+                      />
+                    </GenericModal>
+                  )}
 
-                              <button
-                                type="button"
-                                onClick={() => handleMedicionControl(variable)} // Pasa la variable seleccionada
-                                className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
+                  {subspaces.length > 0 && (
+                    <div className="py-5">
+                      <div className="grid grid-cols-2 gap-4">
+                        {subspaces.map((subspace, index) => (
+                          <div
+                            key={index}
+                            className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4"
+                          >
+                            <h3>Subespacio {index + 1}</h3>
+                            <div className="py-3 px-3">
+                              <label
+                                htmlFor={`species-${index}`}
+                                className="block text-sm font-medium text-gray-700 mb-1"
                               >
-                                Medición y Control
-                              </button>
+                                Especies
+                              </label>
+                              <select
+                                id={`species-${index}`}
+                                name={`species-${index}`}
+                                onChange={handleSpeciesChange}
+                                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
+                              >
+                                <option value="" className="text-gray-500">
+                                  Selecciona una opción
+                                </option>
+                                {species?.length > 0 &&
+                                  species.map((sub) => (
+                                    <option key={sub.id} value={sub.id}>
+                                      {sub.common_name}
+                                    </option>
+                                  ))}
+                              </select>
+
+                              <div className="mt-4">
+                                <label
+                                  htmlFor={`variable-${index}`}
+                                  className="block text-sm font-medium text-gray-700 mb-1"
+                                >
+                                  Variables Asociadas
+                                </label>
+                                <select
+                                  id={`variable-${index}`}
+                                  name={`variable-${index}`}
+                                  onChange={(e) =>
+                                    handleVariableChange(index, e.target.value)
+                                  }
+                                  value={selectedVariables[index] || ''}
+                                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
+                                >
+                                  <option value="" className="text-gray-500">
+                                    Selecciona una variable
+                                  </option>
+                                  {variables.length > 0 &&
+                                    variables.map((variable, varIndex) => (
+                                      <option key={varIndex} value={variable.id}>
+                                        {variable.name}
+                                      </option>
+                                    ))}
+                                </select>
+                              </div>
                             </div>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
-
-
-                  {isModalOpen && (
-
-                    <GenericModal
-                      title={modalMode === 'edit' ? 'Editar Medición y control' :
-                        modalMode === 'view' ? 'Ver Medición y control' : 'Añadir Medición y cntrol'}
-                      onClose={closeModal}>
-                      <FormMedicion
-                        selectedVariableId={selectedVariableId}
-                        onClose={() => setIsModalOpen(false)} />
-                    </GenericModal>
-                  )}
-
-
                 </div>
-
-                {subspaces.length > 0 && (
-                  <div className='py-5'>
-                    <div className="grid grid-cols-2 gap-4">
-                      {subspaces.map((subspace, index) => (
-                        <div key={index} className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4">
-                          <h3>Subespacio {index + 1}</h3>
-
-                          <div className='py-3 px-3'>
-                            <label htmlFor="species" className="block text-sm font-medium text-gray-700 mb-1">
-                              Especies
-                            </label>
-                            <select
-                              id="species"
-                              name="species"
-                              onChange={handleSpeciesChange}
-                              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
-                            >
-                              <option value="" className="text-gray-500">Selecciona una opción</option>
-                              {species?.length > 0 &&
-                                species.map((sub) => (
-                                  <option key={sub.id} value={sub.id}>
-                                    {sub.common_name}
-                                  </option>
-                                ))}
-                            </select>
-
-                            <div className="mt-4">
-                              <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">
-                                Variables Asociadas
-                              </label>
-                              <select
-                                id="variable"
-                                name="variable"
-                                onChange={(e) => setSelectedVariable(index, e.target.value)}
-                                value={selectedVariable}
-                                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
-                              >
-                                <option value="" className="text-gray-500">Selecciona una variable</option>
-                                {variables.length > 0 &&
-                                  variables.map((variable, index) => (
-                                    <option key={index} value={variable.id}>
-                                      {variable.name}
-                                    </option>
-                                  ))}
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 
