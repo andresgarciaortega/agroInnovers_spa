@@ -37,7 +37,7 @@ const Login = () => {
           "value": decodedToken?.company.id,
           "label": decodedToken?.company.name,
         }
-      ))
+      )) 
       navigate('/home/dashboard', { replace: true });
 
     } else {

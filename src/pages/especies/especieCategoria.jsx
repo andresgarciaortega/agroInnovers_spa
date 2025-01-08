@@ -20,6 +20,7 @@ import { IoIosWarning } from 'react-icons/io';
 import { BiWorld } from "react-icons/bi";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
+import { getDecodedToken } from "../../utils/auseAuth";
 
 
 const Especie = () => {
@@ -47,6 +48,7 @@ const Especie = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [messageAlert, setMessageAlert] = useState("");
+  const [userRoles, setUserRoles] = useState([]);
   const [newCategory, setNewCategory] = useState({
     name: '',
     image: '',
@@ -75,6 +77,10 @@ const Especie = () => {
 
   useEffect(() => {
     const fetchCategory = async () => {
+
+      const decodedToken = await getDecodedToken();
+      setUserRoles(decodedToken.roles?.map(role => role.name) || []);
+
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
       if (!companyId) {
@@ -125,17 +131,17 @@ const Especie = () => {
 
 
   const filteredCategory = Array.isArray(categoryList)
-  ? categoryList.filter(category =>
+    ? categoryList.filter(category =>
       // Filtro por nombre de la categoría
       (category.name && category.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
       // Filtro por subcategorías que coincidan con el término de búsqueda
       (category.subcategories && category.subcategories.some(sub => sub.name.toLowerCase().includes(searchTerm.toLowerCase()))) ||
       // Filtro por cantidad de subcategorías si el término es un número
-      (!isNaN(searchTerm) && 
-       category.subcategories && 
-       category.subcategories.length === parseInt(searchTerm))
-  )
-  : [];
+      (!isNaN(searchTerm) &&
+        category.subcategories &&
+        category.subcategories.length === parseInt(searchTerm))
+    )
+    : [];
 
 
   const indexOfLastCategory = currentPage * itemsPerPage;
@@ -164,25 +170,25 @@ const Especie = () => {
     setSelectedStages(category);
     setIsDeleteModalOpen(true);
   };
-  
+
   const handleConfirmDelete = async () => {
     if (!selectedCategory) return;
-  
+
     try {
       setIsDeleteModalOpen(false);
-  
+
       await CategoryServices.deleteCategory(selectedCategory.id);
-  
+
       // Mensaje de éxito
       const successMessage = "Categoría eliminada exitosamente";
       setMessageAlert(successMessage);
       showErrorAlertSuccess(successMessage);
-  
+
       // Actualiza la lista de categorías
       updateService();
     } catch (error) {
       updateService();
-  
+
       // Determina el mensaje según el tipo de error
       let errorMessage;
       if (error.response && error.response.status === 409) {
@@ -191,28 +197,28 @@ const Especie = () => {
       } else {
         errorMessage = "Esta categoría no se puede eliminar porque tiene etapas y subcategorías asociadas.";
       }
-  
+
       // Muestra la alerta de error con el mensaje adecuado
       showErrorAlertError(errorMessage);
     }
   };
-  
+
   const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true);
     setMessageAlert(message); // Mensaje de éxito
     setTimeout(() => setShowErrorAlert(false), 2500);
   };
-  
+
   const showErrorAlertError = (message) => {
     setShowErrorAlert(true);
     setMessageAlert(message); // Mensaje personalizado según el error
     setTimeout(() => setShowErrorAlert(false), 3000);
   };
-  
+
 
   const handleCancel = () => {
-    setShowErrorAlert(false); 
-};
+    setShowErrorAlert(false);
+  };
 
 
   const handleOpenModal = (category = null, mode = 'create') => {
@@ -262,7 +268,7 @@ const Especie = () => {
     <div className="table-container">
       <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
         <div className="relative w-full">
-          <CompanySelector />
+          {userRoles?.[0] === 'SUPER-ADMINISTRADOR' && <CompanySelector />}
 
         </div>
         <br />
@@ -395,15 +401,15 @@ const Especie = () => {
         />
       )}
       {showErrorAlert && (
-  <div className="alert-container">
-    {messageAlert.includes("exitosamente") ? (
-      <SuccessAlert message={messageAlert} />
-    ) : (
-      <ErrorAlert message={messageAlert} 
-      onCancel={handleCancel}/>
-    )}
-  </div>
-)}
+        <div className="alert-container">
+          {messageAlert.includes("exitosamente") ? (
+            <SuccessAlert message={messageAlert} />
+          ) : (
+            <ErrorAlert message={messageAlert}
+              onCancel={handleCancel} />
+          )}
+        </div>
+      )}
 
       {showErrorAlertTable && (
         <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">

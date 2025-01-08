@@ -41,6 +41,8 @@ const Navbar = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire("Sesión finalizada.", "", "success");
+        localStorage.removeItem('authToken')
+        localStorage.removeItem('selectedCompany')
         navigate('/');
       }
     });

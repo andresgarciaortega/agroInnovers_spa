@@ -35,13 +35,14 @@ import Dashboard from "../pages/dahsboard/dahsboard";
 import LayoutHome from "../pages/Layouts/layout";
 import AuthLogin from "../pages/auth/login";
 import PasswordRecovery from "../pages/auth/passwordRecovery";
+import PrivateRoute from "../utils/privateRoute";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/passwordRecovery" element={<PasswordRecovery />} />
       <Route path="/" element={<AuthLogin />} />
-      <Route path="/home" element={<LayoutHome />}>
+      <Route path="/home" element={<PrivateRoute ><LayoutHome /></PrivateRoute>}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="perfil" element={<Perfil />} />
         <Route path="empresa" element={<Empresa />} />

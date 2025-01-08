@@ -16,6 +16,7 @@ import FormMonitoreo from './components/formMoni';
 import { ImEqualizer2 } from "react-icons/im";
 import { IoSearch } from "react-icons/io5";
 import { IoIosWarning } from 'react-icons/io';
+import { getDecodedToken } from "../../utils/auseAuth";
 
 
 const Monitoreo = () => {
@@ -36,10 +37,10 @@ const Monitoreo = () => {
   const [selectedCompany, setSelectedCompany] = useState('');
   const [selectedVariable, setSelectedVariable] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [userRoles, setUserRoles] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
- 
+
 
   const [newSistem, setNewSistem] = useState({
     nombreId: '',
@@ -55,19 +56,21 @@ const Monitoreo = () => {
   useEffect(() => {
     const fetchMonitoreo = async () => {
       try {
-        
-        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
+        const decodedToken = await getDecodedToken();
+        setUserRoles(decodedToken.roles?.map(role => role.name) || []);
 
-       
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
+
         if (!companyId) {
-          setData([]); 
+          setData([]);
           return;
         } else {
           setNameCompany(selectedCompanyUniversal.label)
         }
         const data = await SystemMonitory.getAllMonitories(companyId);
 
-     
+
         if (data.statusCode === 404) {
           setData([]);
         } else {
@@ -76,37 +79,37 @@ const Monitoreo = () => {
         }
       } catch (error) {
         console.error('Error fetching type Monitoreo:', error);
-        setData([]); 
+        setData([]);
         setMessageAlert('Esta empresa no tiene Monitoreo registradas, Intentalo con otra empresa');
         setShowErrorAlertTable(true);
       }
     };
 
     fetchMonitoreo();
-  }, [selectedCompanyUniversal]); 
+  }, [selectedCompanyUniversal]);
 
   const filteredMonitoreo = data.filter(monitoreo => {
     const searchLower = searchTerm.toLowerCase();
-  
+
     // Filtrar por nombreId, ipFija y displayFisico
     return (
       (monitoreo.nombreId && monitoreo.nombreId.toLowerCase().includes(searchLower)) ||
       (monitoreo.ipFija && monitoreo.ipFija.toLowerCase().includes(searchLower)) ||
-      (monitoreo.displayFisico !== undefined && 
-        (searchLower === 'activo' ? monitoreo.displayFisico === true : 
-        searchLower === 'inactivo' ? monitoreo.displayFisico === false : 
-        (monitoreo.nombreId && monitoreo.nombreId.toLowerCase().includes(searchLower)) ||
-        (monitoreo.ipFija && monitoreo.ipFija.toLowerCase().includes(searchLower))
-      ))
+      (monitoreo.displayFisico !== undefined &&
+        (searchLower === 'activo' ? monitoreo.displayFisico === true :
+          searchLower === 'inactivo' ? monitoreo.displayFisico === false :
+            (monitoreo.nombreId && monitoreo.nombreId.toLowerCase().includes(searchLower)) ||
+            (monitoreo.ipFija && monitoreo.ipFija.toLowerCase().includes(searchLower))
+        ))
     );
   });
-  
-  
-  
+
+
+
   const indexOfLastDevice = currentPage * itemsPerPage;
   const indexOfFirstDevice = indexOfLastDevice - itemsPerPage;
   const currentDevices = filteredMonitoreo.slice(indexOfFirstDevice, indexOfLastDevice);
-  
+
 
 
 
@@ -166,19 +169,19 @@ const Monitoreo = () => {
 
   const updateListMonitories = async () => {
     try {
-        
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : ''; 
 
-     
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
+
       if (!companyId) {
-        setData([]); 
+        setData([]);
         return;
       } else {
         setNameCompany(selectedCompanyUniversal.label)
       }
       const data = await SystemMonitory.getAllMonitories(companyId);
 
-   
+
       if (data.statusCode === 404) {
         setData([]);
       } else {
@@ -187,7 +190,7 @@ const Monitoreo = () => {
       }
     } catch (error) {
       console.error('Error fetching type Monitoreo:', error);
-      setData([]); 
+      setData([]);
       setMessageAlert('Esta empresa no tiene Monitoreo registradas, Intentalo con otra empresa');
       setShowErrorAlertTable(true);
     }
@@ -270,7 +273,7 @@ const Monitoreo = () => {
 
       <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
         <div className="relative w-full">
-          <CompanySelector />
+          {userRoles?.[0] === 'SUPER-ADMINISTRADOR' && <CompanySelector />}
         </div>
 
         <br />
@@ -293,7 +296,7 @@ const Monitoreo = () => {
         <input
           type="text"
           placeholder="Buscar Sistema de monitoreo"
-          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" 
+          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -392,7 +395,7 @@ const Monitoreo = () => {
 
         />
       )}
-       {showSuccessAlert && (
+      {showSuccessAlert && (
         <SuccessAlert
           message={messageAlertDelete}
           onCancel={closeModal}
@@ -417,7 +420,7 @@ const Monitoreo = () => {
         </div>
       )}
 
-<div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+      <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
         <div className="border border-gray-200 rounded py-2 text-sm m-2">
           <span>Cantidad de filas</span>
           <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
@@ -429,11 +432,11 @@ const Monitoreo = () => {
         <div className="pagination-controls text-xs flex items-center space-x-2">
           <span>{indexOfFirstDevice + 1}-{indexOfLastDevice} de {data.length}</span>
           <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-           onClick={handlePrevPage} disabled={currentPage === 1}>
+            onClick={handlePrevPage} disabled={currentPage === 1}>
             <IoIosArrowBack size={20} />
           </button>
           <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-          onClick={handleNextPage} disabled={currentPage === Math.ceil(data.length / itemsPerPage)}>
+            onClick={handleNextPage} disabled={currentPage === Math.ceil(data.length / itemsPerPage)}>
             <IoIosArrowForward size={20} />
           </button>
         </div>
