@@ -613,13 +613,13 @@ const CrearEspacio = () => {
             {step === 0 && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="scientificName" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                     Nombre espacio
                   </label>
                   <input
                     type="text"
-                    id="scientificName"
-                    name="scientificName"
+                    id="name"
+                    name="name"
                     value={formData.name || ''}
                     onChange={handleChange}
                     placeholder="Nombre espacio"
@@ -641,12 +641,12 @@ const CrearEspacio = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="monitoringSystem" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="monitoringSystemId" className="block text-sm font-medium text-gray-700 mb-1">
                     Sistema de monitoreo y control
                   </label>
                   <select
-                    id="monitoringSystem"
-                    name="monitoringSystem"
+                    id="monitoringSystemId"
+                    name="monitoringSystemId"
                     value={formData.monitoringSystemId || ''}
                     onChange={handleChange}
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer"
@@ -660,12 +660,12 @@ const CrearEspacio = () => {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="spaceType" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="spaceTypeId" className="block text-sm font-medium text-gray-700 mb-1">
                     Tipo de espacio
                   </label>
                   <select
-                    id="spaceType"
-                    name="spaceType"
+                    id="spaceTypeId"
+                    name="spaceTypeId"
                     value={formData.spaceTypeId || ''}
                     onChange={handleChange}
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer"
