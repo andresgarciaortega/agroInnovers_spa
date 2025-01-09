@@ -47,12 +47,14 @@ const CrearEspacio = () => {
   };
 
   const [inheritSensors, setInheritSensors] = useState(false);
+  const [variablesBySubspace, setVariablesBySubspace] = useState({});
 
   const [deviceType, setDeviceType] = useState("");
   const [selectedDevice, setSelectedDevice] = useState("");
   const [heredar, setHeredar] = useState(false);
   const [selectedSpeciesId, setSelectedSpeciesId] = useState("");
   const [variables, setVariables] = useState([]);
+  const [mainVariables, setMainVariables] = useState([]);
 
   const [monitoreo, setMonitoreo] = useState([]);
   const [tipoEspacio, setTipoEspacio] = useState([]);
@@ -191,6 +193,8 @@ const CrearEspacio = () => {
     };
     fetchEspecies();
   }, []);
+
+
   useEffect(() => {
     const fetchVariable = async () => {
       if (!selectedSpeciesId) return;
@@ -455,11 +459,57 @@ const CrearEspacio = () => {
   //   setSelectedSpecies(speciesFound);
   //   setSelectedVariable('');
   // };
-  const handleSpeciesChange = (e) => {
-    const specieId = e.target.value;
-    setSelectedSpeciesId(specieId);
-    setSelectedVariable("");
+  // const handleSpeciesChange = (e) => {
+  //   const specieId = e.target.value;
+  //   setSelectedSpeciesId(specieId);
+  //   setSelectedVariable("");
+  // };
+
+
+
+  const handleSpeciesChange = (index, specieId) => {
+    // Actualizar el estado de la especie seleccionada para ese subespacio
+    const newSelectedSpecies = { ...selectedSpecies, [index]: specieId };
+    setSelectedSpecies(newSelectedSpecies);  // Esto actualizará el estado seleccionado
+    if (index === 'main') {
+      setSelectedSpeciesId(specieId);
+    }
+    // Resetear la variable seleccionada para ese subespacio
+    setSelectedVariables((prev) => ({ ...prev, [index]: "" }));
+
+    // Verificar el valor de specieId para saber si se está enviando correctamente
+    console.log('specieId:', specieId);
+
+    // Realizar la consulta para obtener las variables asociadas a la especie seleccionada
+    const fetchVariablesForSubspace = async () => {
+      try {
+        const data = await SpeciesService.getVariableBySpecie(specieId);
+        console.log(data)
+        if (index !== 0) {
+          setMainVariables(data);
+        }
+
+        setVariablesBySubspace((prev) => ({
+          ...prev,
+          [index]: data.statusCode === 404 ? [] : data,  // Si no hay datos, usar arreglo vacío
+        }));
+      } catch (error) {
+        console.error(`Error fetching variables for subspace ${index}:`, error);
+        setVariablesBySubspace((prev) => ({
+          ...prev,
+          [index]: [],  // Manejar el error y poner un arreglo vacío en ese subespacio
+        }));
+      }
+    };
+
+    // Si hay un ID de especie, realizar la consulta
+    if (specieId) fetchVariablesForSubspace();
   };
+
+
+
+
+
 
   // const handleVariableChange = (e) => {
   //   const selected = variables.find((v) => v.id === e.target.value);
@@ -1188,7 +1238,8 @@ const CrearEspacio = () => {
                     <select
                       id="species"
                       name="species"
-                      onChange={handleSpeciesChange}
+                      onChange={(e) => handleSpeciesChange('main', e.target.value)}  // Aquí se pasa el ID de la especie
+                      value={selectedSpeciesId || ""}  // Asegúrate de que el valor se vincule correctamente al estado
                       className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
                     >
                       <option value="" className="text-gray-500">
@@ -1202,7 +1253,7 @@ const CrearEspacio = () => {
                         ))}
                     </select>
 
-                    {/* Selector de variables */}
+                    {/* Selector de variables para especie principal */}
                     <div className="mt-4">
                       <label
                         htmlFor="variable"
@@ -1213,15 +1264,15 @@ const CrearEspacio = () => {
                       <select
                         id="variable"
                         name="variable"
-                        onChange={(e) => handleVariableChange('main', e.target.value)} // Selector principal
-                        value={selectedVariables['main'] || ''}
+                        onChange={(e) => handleVariableChange("main", e.target.value)}
+                        value={selectedVariables["main"] || ""}
                         className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
                       >
                         <option value="" className="text-gray-500">
-                          Selecciona una variable
+                          Selecciona una variable 
                         </option>
-                        {variables.length > 0 &&
-                          variables.map((variable, index) => (
+                        {mainVariables.length > 0 &&
+                          mainVariables.map((variable, index) => (
                             <option key={index} value={variable.id}>
                               {variable.name}
                             </option>
@@ -1229,6 +1280,7 @@ const CrearEspacio = () => {
                       </select>
                     </div>
                   </div>
+
 
                   {selectedVariables['main'] && (
                     <div>
@@ -1261,72 +1313,63 @@ const CrearEspacio = () => {
                     </GenericModal>
                   )}
 
-                  {subspaces.length > 0 && (
-                    <div className="py-5">
-                      <div className="grid grid-cols-2 gap-4">
-                        {subspaces.map((subspace, index) => (
-                          <div
-                            key={index}
-                            className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4"
-                          >
-                            <h3>Subespacio {index + 1}</h3>
-                            <div className="py-3 px-3">
-                              <label
-                                htmlFor={`species-${index}`}
-                                className="block text-sm font-medium text-gray-700 mb-1"
-                              >
-                                Especies
-                              </label>
-                              <select
-                                id={`species-${index}`}
-                                name={`species-${index}`}
-                                onChange={handleSpeciesChange}
-                                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
-                              >
-                                <option value="" className="text-gray-500">
-                                  Selecciona una opción
-                                </option>
-                                {species?.length > 0 &&
-                                  species.map((sub) => (
-                                    <option key={sub.id} value={sub.id}>
-                                      {sub.common_name}
-                                    </option>
-                                  ))}
-                              </select>
+                  {subspaces.map((subspace, index) => (
+                    <div key={index} className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4">
+                      <h3>Subespacio {index + 1}</h3>
+                      <div className="py-3 px-3">
+                        <label
+                          htmlFor={`species-${index}`}
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Especies
+                        </label>
+                        <select
+                          id={`species-${index}`}
+                          name={`species-${index}`}
+                          onChange={(e) => handleSpeciesChange(index, e.target.value)}
+                          value={selectedSpecies[index] || ""}
+                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
+                        >
+                          <option value="" className="text-gray-500">
+                            Selecciona una opción
+                          </option>
+                          {species?.length > 0 &&
+                            species.map((sub) => (
+                              <option key={sub.id} value={sub.id}>
+                                {sub.common_name}
+                              </option>
+                            ))}
+                        </select>
 
-                              <div className="mt-4">
-                                <label
-                                  htmlFor={`variable-${index}`}
-                                  className="block text-sm font-medium text-gray-700 mb-1"
-                                >
-                                  Variables Asociadas
-                                </label>
-                                <select
-                                  id={`variable-${index}`}
-                                  name={`variable-${index}`}
-                                  onChange={(e) =>
-                                    handleVariableChange(index, e.target.value)
-                                  }
-                                  value={selectedVariables[index] || ''}
-                                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
-                                >
-                                  <option value="" className="text-gray-500">
-                                    Selecciona una variable
-                                  </option>
-                                  {variables.length > 0 &&
-                                    variables.map((variable, varIndex) => (
-                                      <option key={varIndex} value={variable.id}>
-                                        {variable.name}
-                                      </option>
-                                    ))}
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                        <div className="mt-4">
+                          <label
+                            htmlFor={`variable-${index}`}
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            Variables Asociadas
+                          </label>
+                          <select
+                            id={`variable-${index}`}
+                            name={`variable-${index}`}
+                            onChange={(e) =>
+                              handleVariableChange(index, e.target.value)
+                            }
+                            value={selectedVariables[index] || ""}
+                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
+                          >
+                            <option value="" className="text-gray-500">
+                              Selecciona una variable
+                            </option>
+                            {(variablesBySubspace[index] || []).map((variable, varIndex) => (
+                              <option key={varIndex} value={variable.id}>
+                                {variable.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
             )}
