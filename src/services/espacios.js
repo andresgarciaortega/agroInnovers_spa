@@ -66,6 +66,17 @@ const EspacioService = {
         }
     },
 
+    async updateControl(id, data) {
+        try {
+            const response = await api.put(`/production-space/update_measure//${id}`, data);
+            console.log('datos de actualiacion control y medicion de la variable', response)
+            return response.data;
+        } catch (error) {
+            console.error('Error al actualizar e control y medicion de la variable:', error);
+            throw error;
+        }
+    },
+
 
 
     async deleteEspacio(id) {

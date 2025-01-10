@@ -9,10 +9,11 @@ import SystemMonitory from "../../../services/monitoreo";
 import { useParams, useNavigate } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
 import { FaChevronDown, FaChevronUp, FaTrash, FaEdit } from 'react-icons/fa';
-import { Package2, Factory, Variable, Activity, Cpu, Users } from 'lucide-react';
-
+import { Trash, Edit, Factory, Variable, Activity, Cpu, Users } from 'lucide-react';
+import FormMedicion from './meidicionControl';
 
 const EditarEspacio = ({ }) => {
+    const [selectedEspacio, setSelectedEspacio] = useState(null);
 
     const { id } = useParams();
     const navigate = useNavigate();
@@ -46,8 +47,24 @@ const EditarEspacio = ({ }) => {
         variables: [],
         configureMeasurementControls: [],
     });
+
+    const [newControl, setNewControl] = useState({
+        measurementType: '',
+        sensorId: '',
+        actuatorId: '',
+        samplingTimeUnit: '',
+        samplingFrequency: '',
+        numberOfSamples: '',
+        controlType: '',
+        actuationTimeUnit: '',
+        activationParameterRange: '',
+        activationFrequency: '',
+        alertMessage: '',
+    });
+
+
     const [isEditable, setIsEditable] = useState(false);
-const [expandedControls, setExpandedControls] = useState({});
+    const [expandedControls, setExpandedControls] = useState({});
     useEffect(() => {
         fetchSpace();
         feychMonitoring();
@@ -113,7 +130,7 @@ const [expandedControls, setExpandedControls] = useState({});
     useEffect(() => {
         if (formData.configureMeasurementControls.length > 0) {
             const variables = formData.configureMeasurementControls.map(
-                (control) => control.parameter_production?.variable || null
+                (control) => control.variable_production || null
             );
 
             setFormData((prevState) => ({
@@ -170,88 +187,138 @@ const [expandedControls, setExpandedControls] = useState({});
     const handleInputChangeVariable = (index, field, value) => {
         // Clonamos el estado para no mutar directamente
         const updatedControls = [...formData.configureMeasurementControls];
-      
+
         // Actualizamos el campo específico en el índice adecuado
         updatedControls[index] = {
-          ...updatedControls[index],
-          [field]: value,
+            ...updatedControls[index],
+            [field]: value,
         };
-      
+
         // Si el campo es un 'sensorCode' o 'actuatorCode', se actualiza el sensor o actuador completo en el objeto
         if (field === 'sensorCode') {
-          const selectedSensor = sensors.find((sensor) => sensor.sensorCode === value);
-          updatedControls[index].sensor = selectedSensor || null; // Asigna el objeto completo del sensor
+            const selectedSensor = sensors.find((sensor) => sensor.sensorCode === value);
+            updatedControls[index].sensor = selectedSensor || null; // Asigna el objeto completo del sensor
         }
-      
+
         if (field === 'actuatorCode') {
-          const selectedActuator = actuators.find((actuator) => actuator.actuatorCode === value);
-          updatedControls[index].actuator = selectedActuator || null; // Asigna el objeto completo del actuador
+            const selectedActuator = actuators.find((actuator) => actuator.actuatorCode === value);
+            updatedControls[index].actuator = selectedActuator || null; // Asigna el objeto completo del actuador
         }
-      
+
         // Actualizamos el estado de los controles
         setFormData({
-          ...formData,
-          configureMeasurementControls: updatedControls,
+            ...formData,
+            configureMeasurementControls: updatedControls,
         });
-      };
-      
-    
-   const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const data = {
-        id: formData.id,
-        name: formData.name,
-        gpsPosition: formData.gpsPosition,
-        climateConditions: formData.climateConditions,
-        dimensionUnit: formData.dimensionUnit,
-        shape: formData.shape,
-        length: Math.max(formData.length || 0, 0),
-        width: Math.max(formData.width || 0, 0),
-        depth: Math.max(formData.depth || 0, 0),
-        area: Math.max(formData.area || 0, 0),
-        volume: Math.max(formData.volume || 0, 0),
-        specificFeatures: formData.specificFeatures,
-        subProductionSpaces: formData.subProductionSpaces.map(subSpace => ({
-            ...subSpace,
-            width: Math.max(subSpace.width || 0, 0),
-            depth: Math.max(subSpace.depth || 0, 0),
-            monitoringSystemId: subSpace.monitoringSystemId ? parseInt(subSpace.monitoringSystemId.id, 10) : null,
-            species: Array.isArray(subSpace.species) ? subSpace.species : [],
-            assignDevices: Array.isArray(subSpace.assignDevices) ? subSpace.assignDevices : [],
-            configureMeasurementControls: Array.isArray(subSpace.configureMeasurementControls)
-                ? subSpace.configureMeasurementControls.map(control => ({
-                    ...control,
-                    sensorId: parseInt(control.sensorId, 10),
-                    actuatorId: parseInt(control.actuatorId, 10),
-                    productionParameterId: parseInt(control.productionParameterId, 10),
-                }))
-                : [],
-        })),
-        monitoringSystemId: formData.monitoringSystemId ? parseInt(formData.monitoringSystemId.id, 10) : null,
     };
-    
+    const [visibleSubSpaces, setVisibleSubSpaces] = useState(formData.subProductionSpaces);
 
-    try {
-        const response = await EspacioService.updateEspacio(formData.id, data);
-        console.log('Espacio actualizado con éxito', response);
 
-        navigate('../espacio'); // Cambia '/espacios' por la ruta real de tu vista de espacios
-    } catch (error) {
-        console.error('Error al actualizar el espacio:', error);
-    }
-};
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-    
-    
-    
-    
+        const data = {
+            id: formData.id,
+            name: formData.name,
+            gpsPosition: formData.gpsPosition,
+            climateConditions: formData.climateConditions,
+            dimensionUnit: formData.dimensionUnit,
+            shape: formData.shape,
+            length: Math.max(formData.length || 0, 0),
+            width: Math.max(formData.width || 0, 0),
+            depth: Math.max(formData.depth || 0, 0),
+            area: Math.max(formData.area || 0, 0),
+            volume: Math.max(formData.volume || 0, 0),
+            specificFeatures: formData.specificFeatures,
 
+            // Solo incluir los subespacios que no hayan sido eliminados
+            subProductionSpaces: formData.subProductionSpaces.map(subSpace => ({
+                ...subSpace,
+                length: Math.max(subSpace.length || 0, 0),
+                area: Math.max(subSpace.area || 0, 0),
+                width: Math.max(subSpace.width || 0, 0),
+                depth: Math.max(subSpace.depth || 0, 0),
+                volume: Math.max(subSpace.volume || 0, 0),
+                monitoringSystemId: subSpace.monitoringSystemId ? parseInt(subSpace.monitoringSystemId.id, 10) : null,
+                species: Array.isArray(subSpace.species) ? subSpace.species : [],
+                assignDevices: Array.isArray(subSpace.assignDevices) ? subSpace.assignDevices : [],
+                configureMeasurementControls: Array.isArray(subSpace.configureMeasurementControls)
+                    ? subSpace.configureMeasurementControls.map(control => ({
+                        ...control,
+                        sensorId: parseInt(control.sensorId, 10),
+                        actuatorId: parseInt(control.actuatorId, 10),
+                        productionParameterId: parseInt(control.productionParameterId, 10),
+                    }))
+                    : [],
+            })),
+
+            monitoringSystemId: formData.monitoringSystemId ? parseInt(formData.monitoringSystemId.id, 10) : null,
+        };
+
+        try {
+            // Enviar los datos actualizados al backend
+            const response = await EspacioService.updateEspacio(formData.id, data);
+            console.log('Espacio actualizado con éxito', response);
+
+            // Redirigir a la vista de espacios (ajusta la ruta según sea necesario)
+            navigate('../espacio');
+        } catch (error) {
+            console.error('Error al actualizar el espacio:', error);
+        }
+    };
+
+
+
+    const handleOpenModal = (control, mode) => {
+        setNewControl({
+            measurementType: control.measurementType,
+            sensorId: control.sensor?.id || '',
+            actuatorId: control.actuator?.id || '',
+            samplingTimeUnit: control.samplingTimeUnit,
+            samplingFrequency: control.samplingFrequency,
+            numberOfSamples: control.numberOfSamples,
+            controlType: control.controlType,
+            actuationTimeUnit: control.actuationTimeUnit,
+            activationParameterRange: control.activationParameterRange,
+            alertMessage: control.alertMessage,
+            // Puedes agregar más campos si es necesario
+        });
+        setModalMode(mode);
+        setIsModalOpen(true);
+    };
+
+
+
+    const closeModal = async () => {
+        setIsModalOpen(false);
+        setSelectedLote(null);
+        setModalMode('create');
+        updateService();
+    };
+    // Esta es la función que se llama cuando se elimina un subespacio
     const handleDeleteSubSpace = (index) => {
-        const updatedSubSpaces = formData.subProductionSpaces.filter((_, i) => i !== index);
-        setFormData({ ...formData, subProductionSpaces: updatedSubSpaces });
+        // Eliminar subespacio del estado visual (supongo que tienes un estado `visibleSubSpaces` para la vista)
+        const updatedVisibleSubSpaces = visibleSubSpaces.filter((_, i) => i !== index);
+        setVisibleSubSpaces(updatedVisibleSubSpaces); // Actualiza la vista
+
+        // Eliminar subespacio del estado persistente (formData)
+        const updatedSubProductionSpaces = formData.subProductionSpaces.filter((_, i) => i !== index);
+        setFormData(prevFormData => ({
+            ...prevFormData,
+            subProductionSpaces: updatedSubProductionSpaces, // Actualiza el estado persistente
+        }));
     };
 
+
+    const handleDeleteClick = (index) => {
+        const updatedControls = formData.configureMeasurementControls.filter(
+            (_, i) => i !== index
+        );
+        setFormData((prevData) => ({
+            ...prevData,
+            configureMeasurementControls: updatedControls,
+        }));
+    };
 
     return (
         <form onSubmit={handleSubmit}>
@@ -270,7 +337,7 @@ const [expandedControls, setExpandedControls] = useState({});
 
                             <h1 className="text-2xl font-bold">{formData.name} </h1>
                             <button
-                            type='submit'
+                                type='submit'
                                 className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg"
 
                             >
@@ -388,12 +455,12 @@ const [expandedControls, setExpandedControls] = useState({});
                             <label className="text-sm text-muted-foreground">Sistema de monitoreo y control</label>
                             <select
                                 className="w-full p-2 border rounded"
-                                value={formData.monitoringSystemId?.id || ''} 
+                                value={formData.monitoringSystemId?.id || ''}
                                 onChange={(e) => setFormData({
                                     ...formData,
                                     monitoringSystemId: {
                                         ...formData.monitoringSystemId,
-                                        id: e.target.value 
+                                        id: e.target.value
                                     }
                                 })}
                                 disabled={false}
@@ -422,111 +489,69 @@ const [expandedControls, setExpandedControls] = useState({});
                         <div >
 
 
-<div className="space-y-4 mb-9">
-    <div className="grid grid-cols-2 gap-4 border border-gray-200">
-        {Array.isArray(formData.configureMeasurementControls) && formData.configureMeasurementControls.length > 0 ? (
-            formData.configureMeasurementControls.map((control, index) => {
-                const isExpanded = expandedControls[control.id];
+                            <div className="space-y-4 mb-9">
+                                <div className="grid grid-cols-2 gap-4 border border-gray-200">
+                                    {Array.isArray(formData.configureMeasurementControls) && formData.configureMeasurementControls.length > 0 ? (
+                                        formData.configureMeasurementControls.map((control, index) => (
+                                            <div
+                                                key={index}
+                                                className="bg-white shadow-md rounded-lg flex items-center gap-4 relative"
+                                                style={{ height: "169px" }}
+                                            >
+                                                <div className="w-60">
+                                                    <img
+                                                        src={control.variable_production.icon}
+                                                        alt={control.variable_production.name}
+                                                        className="rounded-lg object-contain h-full"
+                                                    />
+                                                </div>
 
-                return (
-                    <div
-    key={index}
-    className={`bg-white shadow-md rounded-lg flex items-center gap-4 transition-all duration-700 ${isExpanded ? 'max-h-[1000px]' : 'max-h-40'}`}
->
+                                                <div>
+                                                    <p className="text-lg font-semibold">{control.variable_production.name}</p>
+                                                    <p className="text-sm text-gray-600">Medición: {control.measurementType}</p>
+                                                    <p className="text-sm text-gray-600">Sensor: {control.sensor?.sensorCode}</p>
+                                                    <p className="text-sm text-gray-600">Control: {control.controlType}</p>
+                                                    <p className="text-sm text-gray-600">Actuador: {control.actuator?.actuatorCode}</p>
+                                                </div>
 
-                        <div className="w-60">
-                            <img
-                                src={control.parameter_production.variable.icon}
-                                alt={control.parameter_production.variable.name}
-                                className="rounded-lg object-contain h-full"
-                            />
-                        </div>
-
-                        <div className="flex flex-col flex-grow relative">
-                            {/* Botón de Expandir/Colapsar en la esquina superior derecha */}
-                            <div
-                                className="absolute top-0 right-0 p-2 cursor-pointer text-blue-600"
-                                onClick={() => toggleExpandVariable(control.id)}
-                            >
-                                <span className="text-xl text-gray-500"></span>
-                                {isExpanded ? (
-                                  <FaChevronDown className="text-xl text-gray-500" />
-                                ) : (
-                                    <FaChevronUp className="text-xl text-gray-500"/>
-                                )}
+                                                {/* Contenedor de los íconos con posición absoluta */}
+                                                <div className="absolute top-2 right-2 flex gap-2">
+                                                    <Edit size={18}
+                                                        className=" text-[#168C0DFF] cursor-pointer "
+                                                        onClick={() => handleOpenModal(control, 'edit')}
+                                                    />
+                                                    <Trash size={18}
+                                                        className="text-[#168C0DFF] cursor-pointer"
+                                                        onClick={() => handleDeleteClick(index)}
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-center text-gray-500 col-span-2">No hay controles de medición configurados.</p>
+                                    )}
+                                </div>
                             </div>
 
-                            <p className=" font-semibold m-3">
-                                {isExpanded ? control.parameter_production.variable.name : ''}
-                            </p>
-
-                            {!isExpanded && (
-                                <>
-                                    
-                                    <p className="text-sm text-gray-900 font-semibold"> {control.parameter_production.variable.name }</p>
-                                    <p className="text-sm text-gray-600">Medición: {control.measurementType}</p>
-                                    <p className="text-sm text-gray-600">Sensor: {control.sensor?.sensorCode}</p>
-                                    <p className="text-sm text-gray-600">Control: {control.controlType}</p>
-                                    <p className="text-sm text-gray-600">Actuador: {control.actuator?.actuatorCode}</p>
-                                </>
+                            {isModalOpen && (
+                                <GenericModal
+                                    title={
+                                        modalMode === 'edit'
+                                            ? 'Editar Medición y Control'
+                                            : modalMode === 'view'
+                                                ? 'Ver Medición y Control'
+                                                : 'Añadir Medición y Control'
+                                    }
+                                    onClose={closeModal}
+                                >
+                                    <FormMedicion
+                                        // selectedVariableId={selectedVariableId}
+                                        onClose={() => setIsModalOpen(false)}
+                                        control={newControl}
+                                        mode={modalMode}
+                                    />
+                                </GenericModal>
                             )}
-
-{isExpanded && (
-  <div className="space-y-2 m-4">
-     <div>
-      <label className="block text-sm font-medium">Medición</label>
-      <p className="border rounded-md w-full p-2 bg-gray-100">{control.measurementType || 'N/A'}</p>
-    </div>
-
-    <div>
-      <label className="block text-sm font-medium">Sensor</label>
-      <select
-  value={control.sensor?.sensorCode || ''}
-  onChange={(e) => handleInputChangeVariable(index, 'sensorCode', e.target.value)}
-  className="border rounded-md w-full p-2"
->
-  <option value="">Seleccione un Sensor</option>
-  {sensors.map((sensor) => (
-    <option key={sensor.id} value={sensor.sensorCode}>
-      {sensor.sensorCode}
-    </option>
-  ))}
-</select>
-    </div>
-
-    <div>
-      <label className="block text-sm font-medium">Control</label>
-      <p className="border rounded-md w-full p-2 bg-gray-100">{control.controlType || 'N/A'}</p>
-    </div>
-
-    <div>
-      <label className="block text-sm font-medium">Actuador</label>
-      <select
-  value={control.actuator?.actuatorCode || ''}
-  onChange={(e) => handleInputChangeVariable(index, 'actuatorCode', e.target.value)}
-  className="border rounded-md w-full p-2"
->
-  <option value="">Seleccione un Actuador</option>
-  {actuators.map((actuator) => (
-    <option key={actuator.id} value={actuator.actuatorCode}>
-      {actuator.actuatorCode}
-    </option>
-  ))}
-</select>
-    </div>
-  </div>
-)}
-
-
-                        </div>
-                    </div>
-                );
-            })
-        ) : (
-            <p className="text-center text-gray-500 col-span-2">No hay controles de medición configurados.</p>
-        )}
-    </div>
-</div>
 
 
                         </div>
@@ -676,14 +701,14 @@ const [expandedControls, setExpandedControls] = useState({});
                                                                     >
                                                                         <div className="w-60 ">
                                                                             <img
-                                                                                src={control.parameter_production.variable.icon}
-                                                                                alt={control.parameter_production.variable.name}
+                                                                                src={control.variable_production.icon}
+                                                                                alt={control.variable_production.name}
                                                                                 className="rounded-lg object-contain h-full"
                                                                             />
                                                                         </div>
 
                                                                         <div>
-                                                                            <p className="text-lg font-semibold">{control.parameter_production.variable.name}</p>
+                                                                            <p className="text-lg font-semibold">{control.variable_production.name}</p>
                                                                             <p className="text-sm text-gray-600">Medición: {control.measurementType}</p>
                                                                             <p className="text-sm text-gray-600">Sensor: {control.sensorId?.sensorCode}</p>
                                                                             <p className="text-sm text-gray-600">Control: {control.controlType}</p>
@@ -716,19 +741,19 @@ const [expandedControls, setExpandedControls] = useState({});
                                                 </>
                                             )}
                                             <div className="col-span-1 mt-2  flex justify- items-start">
-                                        <button
-                                        type='button'
-                                            onClick={() => handleDeleteSubSpace(index)}
-                                            className="text-red-500"
-                                        >
-                                            <FaTrash /> {/* Icono de eliminar */}
-                                        </button>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => handleDeleteSubSpace(index)}
+                                                    className="text-red-500"
+                                                >
+                                                    <FaTrash /> {/* Icono de eliminar */}
+                                                </button>
 
-                                    </div>
+                                            </div>
                                         </div>
-                                        
+
                                     ))}
-                                     
+
 
                                     {selectedPosition && (
                                         <div className="justify-start col-span-1">
@@ -750,14 +775,14 @@ const [expandedControls, setExpandedControls] = useState({});
                                                 title="Mapa"
                                             ></iframe>
                                         </div>
-                                        
+
                                     )}
                                 </div>
 
                                 {/* Botones de editar y eliminar */}
-                                
-                                   
-                                
+
+
+
                             </div>
                         </div>
 

@@ -16,7 +16,8 @@ import { FaRegEye, FaRegTrashAlt, FaRegEdit } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { AiOutlineStop } from "react-icons/ai";
 import { BsBan } from "react-icons/bs";
-
+import { PiArrowsCounterClockwiseBold } from "react-icons/pi";
+import { GoArrowSwitch } from "react-icons/go";
 const Lotes = () => {
   const { companyId } = useParams();
   const [selectedLote, setSelectedLote] = useState(null);
@@ -247,11 +248,19 @@ const Lotes = () => {
                   <div className="flex items-center gap-2 text-[#168C0DFF]">
                     {/* Ver Lote */}
                     <div className="relative group">
+                      <GoArrowSwitch size={19} className="cursor-pointer" />
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                        Cambiar etapa
+                      </span>
+                    </div>
+                    <div className="relative group">
                       <Eye size={19} className="cursor-pointer" />
                       <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                         Ver Lote
                       </span>
                     </div>
+                    
+                   
 
                     {/* Editar Lote */}
                     <div className="relative group">
