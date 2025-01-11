@@ -104,30 +104,30 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("preventDefault ejecutado");
-        console.log(control)
+        console.log(control);
+    
         let formDataToSubmit;
         try {
-
             formDataToSubmit = {
                 ...formData,
+                actuatorId: parseInt(formData.actuatorId, 10),  // Convertir a entero
+                activationFrequency: parseInt(formData.activationFrequency, 10) // Convertir a entero
             };
-
+    
             if (mode === 'create') {
-                console.log('capturar la informacion')
+                console.log('Capturar la información');
             } else if (mode === 'edit') {
-                setShowSuccessAlert("Editada")
+                setShowSuccessAlert("Editada");
                 await EspacioService.updateControl(control.id, formDataToSubmit);
-
             }
-
-            //   onUpdate();
+    
             onClose();
         } catch (error) {
             console.error('Error al guardar la control:', error);
         }
-        console.log('datos enviaos', formDataToSubmit)
+        console.log('Datos enviados', formDataToSubmit);
     };
-
+    
 
     return (
         <form onSubmit={handleSubmit}>
