@@ -271,6 +271,7 @@ const EditarEspacio = ({ }) => {
 
 
     const handleOpenModal = (control, mode) => {
+        console.log("control antes de editar : ", control)
         setNewControl({
             measurementType: control.measurementType,
             sensorId: control.sensor?.id || '',
@@ -283,7 +284,8 @@ const EditarEspacio = ({ }) => {
             activationParameterRange: control.activationParameterRange,
             alertMessage: control.alertMessage,
             // Puedes agregar más campos si es necesario
-            id:control.id
+            id:control.id,
+            activationFrequency: control.activationFrequency
         });
         setModalMode(mode);
         setIsModalOpen(true);
