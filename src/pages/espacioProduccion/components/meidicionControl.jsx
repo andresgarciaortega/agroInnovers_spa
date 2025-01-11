@@ -7,14 +7,14 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
     const [sensors, setSensors] = useState([]);
     const [actuators, setActuators] = useState([]);
     const [formData, setFormData] = useState({
-        measurementMode: 'automatico',
-        controlMode: 'automatico',
-        measurementType: '',
+        measurementType: 'automatico',
+        controlType: 'automatico',
+        // measurementType: '',
         sensorId: '',
         samplingTimeUnit: '',
         samplingFrequency: '',
         numberOfSamples: '',
-        controlType: '',
+        // controlType: '',
         actuatorId: '',
         actuationTimeUnit: '',
         activationParameterRange: '',
@@ -52,17 +52,17 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
     useEffect(() => {
         if (control) {
             console.log("control : ", control)
-            handleModeChange('measurementMode', control.measurementType)
-            handleModeChange('controlMode', control.controlType,)
+            handleModeChange('measurementType', control.measurementType)
+            handleModeChange('controlType', control.controlType,)
             setFormData({
                 ...formData,
-                measurementMode: control.measurementType || 'automatico',
-                controlMode: control.controlType || 'automatico',
+                measurementType: control.measurementType || 'automatico',
+                controlType: control.controlType || 'automatico',
                 sensorId: control.sensorId || '',
                 samplingTimeUnit: control.samplingTimeUnit,
                 samplingFrequency: control.samplingFrequency || '',
                 numberOfSamples: control.numberOfSamples || '',
-                controlType: control.controlType || '',
+                // controlType: control.controlType || '',
                 actuatorId: control.actuatorId || '',
                 actuationTimeUnit: control.actuationTimeUnit || '',
                 activationParameterRange: control.activationParameterRange || '',
@@ -81,20 +81,20 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
         setFormData({ ...formData, [modeType]: value });
         console.log("modeType : ", value)
         if (value === 'automatico') {
-            if (modeType === 'measurementMode') {
+            if (modeType === 'measurementType') {
                 setFormData({
                     ...formData,
-                    measurementMode: value,
+                    measurementType: value,
                     measurementType: '',
                     sensorId: '',
                     samplingTimeUnit: '',
                     samplingFrequency: '',
                     numberOfSamples: '',
                 });
-            } else if (modeType === 'controlMode') {
+            } else if (modeType === 'controlType') {
                 setFormData({
                     ...formData,
-                    controlMode: value,
+                    controlType: value,
                     controlType: '',
                     actuatorId: '',
                     actuationTimeUnit: '',
@@ -114,8 +114,10 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
         try {
             formDataToSubmit = {
                 ...formData,
-                actuatorId: parseInt(formData.actuatorId, 10),  // Convertir a entero
-                activationFrequency: parseInt(formData.activationFrequency, 10) // Convertir a entero
+                sensorId: parseInt(formData.actuatorId, 10),  
+                activationFrequency: parseInt(formData.activationFrequency, 10) ,
+                numberOfSamples: parseInt(formData.numberOfSamples,10),
+                samplingFrequency: parseInt(formData.samplingFrequency,10)
             };
     
             if (mode === 'create') {
@@ -144,9 +146,9 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
                                 Tipo de medición<span className="text-red-500">*</span>
                             </label>
                             <select
-                                name="measurementMode"
-                                value={formData.measurementMode}
-                                onChange={(e) => handleModeChange('measurementMode', e.target.value)}
+                                name="measurementType"
+                                value={formData.measurementType}
+                                onChange={(e) => handleModeChange('measurementType', e.target.value)}
                                 className="w-full p-2 border rounded"
                             >
                                 <option value="automatico">Automático</option>
@@ -154,7 +156,7 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
                             </select>
                         </div>
 
-                        {formData.measurementMode !== 'Manual' && (
+                        {formData.measurementType !== 'Manual' && (
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Selector de sensor */}
                                 <div>
@@ -245,9 +247,9 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
                                 Tipo de Control<span className="text-red-500">*</span>
                             </label>
                             <select
-                                name="controlMode"
-                                value={formData.controlMode}
-                                onChange={(e) => handleModeChange('controlMode', e.target.value)}
+                                name="controlType"
+                                value={formData.controlType}
+                                onChange={(e) => handleModeChange('controlType', e.target.value)}
                                 className="w-full p-2 border rounded"
                             >
                                 <option value="automatico">Automático</option>
@@ -255,7 +257,7 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
                             </select>
                         </div>
 
-                        {formData.controlMode == 'Manual' && (
+                        {formData.controlType !== 'Manual' && (
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium">
