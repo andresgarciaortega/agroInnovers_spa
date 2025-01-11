@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import SensorService from '../../../services/SensorService';
 import ActuadorService from '../../../services/ActuadorService';
+import EspacioService from '../../../services/espacios';
 
-const FormMedicion = ({ selectedVariableId, onClose }) => {
+const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
     const [sensors, setSensors] = useState([]);
     const [actuators, setActuators] = useState([]);
     const [formData, setFormData] = useState({
@@ -16,10 +17,13 @@ const FormMedicion = ({ selectedVariableId, onClose }) => {
         controlType: '',
         actuatorId: '',
         actuationTimeUnit: '',
-        activationRange: '',
+        activationParameterRange: '',
         activationFrequency: '',
         alertMessage: '',
     });
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+ 
+
 
     useEffect(() => {
         const fetchSensors = async () => {
@@ -44,6 +48,26 @@ const FormMedicion = ({ selectedVariableId, onClose }) => {
         };
         fetchActuators();
     }, []);
+
+    useEffect(() => {
+        if (control) {
+            setFormData({
+                ...formData,
+                measurementMode: control.measurementMode || 'automatico',
+                controlMode: control.controlMode || 'automatico',
+                sensorId: control.sensorId || '',
+                samplingTimeUnit: control.samplingTimeUnit || '',
+                samplingFrequency: control.samplingFrequency || '',
+                numberOfSamples: control.numberOfSamples || '',
+                controlType: control.controlType || '',
+                actuatorId: control.actuatorId || '',
+                actuationTimeUnit: control.actuationTimeUnit || '',
+                activationParameterRange: control.activationParameterRange || '',
+                activationFrequency: control.activationFrequency || '',
+                alertMessage: control.alertMessage || '',
+            });
+        }
+    }, [control]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -70,18 +94,40 @@ const FormMedicion = ({ selectedVariableId, onClose }) => {
                     controlType: '',
                     actuatorId: '',
                     actuationTimeUnit: '',
-                    activationRange: '',
+                    activationParameterRange: '',
                     activationFrequency: '',
                 });
             }
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Formulario enviado:', formData);
-        onClose();
+        console.log("preventDefault ejecutado");
+        console.log(control)
+        let formDataToSubmit;
+        try {
+
+            formDataToSubmit = {
+                ...formData,
+            };
+
+            if (mode === 'create') {
+                console.log('capturar la informacion')
+            } else if (mode === 'edit') {
+                setShowSuccessAlert("Editada")
+                await EspacioService.updateControl(control.id, formDataToSubmit);
+
+            }
+
+            //   onUpdate();
+            onClose();
+        } catch (error) {
+            console.error('Error al guardar la control:', error);
+        }
+        console.log('datos enviaos', formDataToSubmit)
     };
+
 
     return (
         <form onSubmit={handleSubmit}>
@@ -100,7 +146,7 @@ const FormMedicion = ({ selectedVariableId, onClose }) => {
                                 className="w-full p-2 border rounded"
                             >
                                 <option value="automatico">Automático</option>
-                                <option value="manual">Manual</option>
+                                <option value="Manual">Manual</option>
                             </select>
                         </div>
 
@@ -140,11 +186,11 @@ const FormMedicion = ({ selectedVariableId, onClose }) => {
                                         required
                                     >
                                         <option value="">Seleccione una unidad</option>
-                                        <option value="ms">Mensual</option>
-                                        <option value="ms">Semanal</option>
-                                        <option value="ms">Diaria</option>
-                                        <option value="s">Horas</option>
-                                        <option value="min">Minutos</option>
+                                        <option value="Mensual">Mensual</option>
+                                        <option value="Semanal">Semanal</option>
+                                        <option value="Diaria">Diaria</option>
+                                        <option value="Horas">Horas</option>
+                                        <option value="Minutos">Minutos</option>
                                     </select>
                                 </div>
 
@@ -201,7 +247,7 @@ const FormMedicion = ({ selectedVariableId, onClose }) => {
                                 className="w-full p-2 border rounded"
                             >
                                 <option value="automatico">Automático</option>
-                                <option value="manual">Manual</option>
+                                <option value="Manual">Manual</option>
                             </select>
                         </div>
 
@@ -239,11 +285,11 @@ const FormMedicion = ({ selectedVariableId, onClose }) => {
                                         required
                                     >
                                         <option value="">Seleccione una unidad</option>
-                                        <option value="ms">Mensual</option>
-                                        <option value="ms">Semanal</option>
-                                        <option value="ms">Diaria</option>
-                                        <option value="s">Horas</option>
-                                        <option value="min">Minutos</option>
+                                        <option value="Mensual">Mensual</option>
+                                        <option value="mSemanals">Semanal</option>
+                                        <option value="Diaria">Diaria</option>
+                                        <option value="Horas">Horas</option>
+                                        <option value="Minutos">Minutos</option>
                                     </select>
                                 </div>
                                 <div>
@@ -251,8 +297,8 @@ const FormMedicion = ({ selectedVariableId, onClose }) => {
                                         Activación por rango de páramentros<span className="text-red-500">*</span>
                                     </label>
                                     <select
-                                        value={formData.activationRange}
-                                        name="actuationTimeUnit"
+                                        value={formData.activationParameterRange}
+                                        name="activationParameterRange"
                                         placeholder="Activación por rango de párametros"
 
                                         onChange={handleInputChange}
@@ -260,8 +306,8 @@ const FormMedicion = ({ selectedVariableId, onClose }) => {
                                         required
                                     >
                                         <option value="">Seleccione si o no </option>
-                                        <option value="ms">Si</option>
-                                        <option value="ms">No</option>
+                                        <option value="Si">Si</option>
+                                        <option value="No">No</option>
                                     </select>
                                 </div>
 
@@ -271,7 +317,7 @@ const FormMedicion = ({ selectedVariableId, onClose }) => {
                                         Frecuencia de activación<span className="text-red-500">*</span>
                                     </label>
                                     <input
-                                        type="text"
+                                        type="number"
                                         name="activationFrequency"
                                         placeholder="Frecuencia de activación"
 
@@ -302,10 +348,32 @@ const FormMedicion = ({ selectedVariableId, onClose }) => {
                     </div>
                 </div>
 
-                <div className="mt-6 flex justify-end">
-                    <button type="submit" className="px-4 py-2 bg-[#168C0DFF] text-white rounded">
-                        Guardar
-                    </button>
+                <div className="flex justify-end space-x-2">
+                    {mode === 'view' ? (
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                        >
+                            Volver
+                        </button>
+                    ) : (
+                        <>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                            >
+                                Cerrar
+                            </button>
+                            <button
+                                type="submit"
+                                className="bg-[#168C0DFF] text-white px-4 py-2 rounded "
+                            >
+                                {mode === 'create' ? "Crear Medición y control" : "Guardar Cambios"}
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
         </form>

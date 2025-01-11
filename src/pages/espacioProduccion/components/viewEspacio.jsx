@@ -85,7 +85,7 @@ const ViewEspacio = ({ }) => {
     useEffect(() => {
         if (formData.configureMeasurementControls.length > 0) {
             const variables = formData.configureMeasurementControls.map(
-                (control) => control.parameter_production?.variable || null
+                (control) => control.variable_production || null
             );
 
             setFormData((prevState) => ({
@@ -172,7 +172,7 @@ const ViewEspacio = ({ }) => {
                         activationParameterRange: control.activationParameterRange || '',
                         activationFrequency: control.activationFrequency || null,
                         alertMessage: control.alertMessage || '',
-                        productionParameterId: control.parameter_production ? control.parameter_production.id : control.parameter_production || null,
+                        productionParameterId: control.parameter_production ? control.id : control.parameter_production || null,
                     }))
                     : [],
             })),
@@ -389,15 +389,15 @@ const ViewEspacio = ({ }) => {
 
                                                 <div className="w-60">
                                                     <img
-                                                        src={control.parameter_production?.variable.icon}
-                                                        alt={control.parameter_production?.variable.name}
+                                                        src={control.variable_production.icon}
+                                                        alt={control.variable_production.name}
                                                         className="rounded-lg object-contain h-full"
                                                     />
                                                 </div>
 
 
                                                 <div>
-                                                    <p className="text-lg font-semibold">{control.parameter_production?.variable.name}</p>
+                                                    <p className="text-lg font-semibold">{control.variable_production.name}</p>
                                                     <p className="text-sm text-gray-600">
                                                         Medición: {control.measurementType}
                                                     </p>
@@ -567,14 +567,14 @@ const ViewEspacio = ({ }) => {
                                             >
                                                 <div className="w-60">
                                                     <img
-                                                        src={control.parameter_production?.variable.icon}
-                                                        alt={control.parameter_production?.variable.name}
+                                                        src={control.variable_production.icon}
+                                                        alt={control.variable_production.name}
                                                         className="rounded-lg object-contain h-full"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <p className="text-lg font-semibold">{control.parameter_production?.variable.name}</p>
+                                                    <p className="text-lg font-semibold">{control.variable_production.name}</p>
                                                     <p className="text-sm text-gray-600">Medición: {control.measurementType}</p>
                                                     <p className="text-sm text-gray-600">Sensor: {control.sensorId?.sensorCode}</p>
                                                     <p className="text-sm text-gray-600">Control: {control.controlType}</p>
