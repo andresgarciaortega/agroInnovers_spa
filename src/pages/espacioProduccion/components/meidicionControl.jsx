@@ -51,12 +51,15 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
 
     useEffect(() => {
         if (control) {
+            console.log("control : ", control)
+            handleModeChange('measurementMode', control.measurementType)
+            handleModeChange('controlMode', control.controlType,)
             setFormData({
                 ...formData,
-                measurementMode: control.measurementMode || 'automatico',
-                controlMode: control.controlMode || 'automatico',
+                measurementMode: control.measurementType || 'automatico',
+                controlMode: control.controlType || 'automatico',
                 sensorId: control.sensorId || '',
-                samplingTimeUnit: control.samplingTimeUnit || '',
+                samplingTimeUnit: control.samplingTimeUnit,
                 samplingFrequency: control.samplingFrequency || '',
                 numberOfSamples: control.numberOfSamples || '',
                 controlType: control.controlType || '',
@@ -76,6 +79,7 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
 
     const handleModeChange = (modeType, value) => {
         setFormData({ ...formData, [modeType]: value });
+        console.log("modeType : ", value)
         if (value === 'automatico') {
             if (modeType === 'measurementMode') {
                 setFormData({
@@ -150,7 +154,7 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
                             </select>
                         </div>
 
-                        {formData.measurementMode === 'automatico' && (
+                        {formData.measurementMode !== 'Manual' && (
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Selector de sensor */}
                                 <div>
@@ -251,7 +255,7 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
                             </select>
                         </div>
 
-                        {formData.controlMode === 'automatico' && (
+                        {formData.controlMode == 'Manual' && (
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium">
