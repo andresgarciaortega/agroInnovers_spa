@@ -389,15 +389,15 @@ const ViewEspacio = ({ }) => {
 
                                                 <div className="w-60">
                                                     <img
-                                                        src={control.parameter_production.variable.icon}
-                                                        alt={control.parameter_production.variable.name}
+                                                        src={control.parameter_production?.variable.icon}
+                                                        alt={control.parameter_production?.variable.name}
                                                         className="rounded-lg object-contain h-full"
                                                     />
                                                 </div>
 
 
                                                 <div>
-                                                    <p className="text-lg font-semibold">{control.parameter_production.variable.name}</p>
+                                                    <p className="text-lg font-semibold">{control.parameter_production?.variable.name}</p>
                                                     <p className="text-sm text-gray-600">
                                                         Medición: {control.measurementType}
                                                     </p>
@@ -567,14 +567,14 @@ const ViewEspacio = ({ }) => {
                                             >
                                                 <div className="w-60">
                                                     <img
-                                                        src={control.parameter_production.variable.icon}
-                                                        alt={control.parameter_production.variable.name}
+                                                        src={control.parameter_production?.variable.icon}
+                                                        alt={control.parameter_production?.variable.name}
                                                         className="rounded-lg object-contain h-full"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <p className="text-lg font-semibold">{control.parameter_production.variable.name}</p>
+                                                    <p className="text-lg font-semibold">{control.parameter_production?.variable.name}</p>
                                                     <p className="text-sm text-gray-600">Medición: {control.measurementType}</p>
                                                     <p className="text-sm text-gray-600">Sensor: {control.sensorId?.sensorCode}</p>
                                                     <p className="text-sm text-gray-600">Control: {control.controlType}</p>
