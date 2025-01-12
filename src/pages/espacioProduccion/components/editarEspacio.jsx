@@ -27,8 +27,8 @@ const EditarEspacio = ({ }) => {
     const [sensors, setSensor] = useState([]);
     const [actuators, setActuador] = useState([]);
     const [monitoringSystems, setmonitoringSystems] = useState([]);
-    const [typeDocuments, setTypeDocuments] = useState([]); 
-    const [selectedLote, setSelectedLote] = useState([]); 
+    const [typeDocuments, setTypeDocuments] = useState([]);
+    const [selectedLote, setSelectedLote] = useState([]);
     const [selectedPosition, setSelectedPosition] = useState(null);
 
     const [formData, setFormData] = useState({
@@ -284,7 +284,7 @@ const EditarEspacio = ({ }) => {
             activationParameterRange: control.activationParameterRange,
             alertMessage: control.alertMessage,
             // Puedes agregar más campos si es necesario
-            id:control.id,
+            id: control.id,
             activationFrequency: control.activationFrequency
         });
         setModalMode(mode);
@@ -496,12 +496,12 @@ const EditarEspacio = ({ }) => {
 
 
                                 <div className="space-y-4 mb-9">
-                                    <div className="grid grid-cols-2 gap-4 border border-gray-200">
+                                    <div className="grid grid-cols-2 gap-4 ">
                                         {Array.isArray(formData.configureMeasurementControls) && formData.configureMeasurementControls.length > 0 ? (
                                             formData.configureMeasurementControls.map((control, index) => (
                                                 <div
                                                     key={index}
-                                                    className="bg-white shadow-md rounded-lg flex items-center gap-4 relative"
+                                                    className="bg-white shadow-md rounded-lg flex items-center gap-4 relative border border-gray-300"
                                                     style={{ height: "169px" }}
                                                 >
                                                     <div className="w-60">
@@ -546,11 +546,11 @@ const EditarEspacio = ({ }) => {
 
                             <div className="md:grid-cols-3 gap-6 ">
                                 <div className="grid grid-cols-1 md:grid-cols-7 gap-8 mb-8 ">
-                                    <div className={`col-span-7 flex items-start bg-white border border-gray-300 rounded-lg`} >
+                                    <div className={`col-span-7 flex items-start gap-[14px]   rounded-lg`} >
                                         {formData.subProductionSpaces.map((subSpace, index) => (
                                             <div
                                                 key={subSpace.id}
-                                                className="border p-4 rounded-md shadow-lg w-full transition-all duration-100 "
+                                                className="border p-4 rounded-md shadow-lg w-full transition-all duration-100 bg-white  border-gray-300"
                                             >
                                                 <div
                                                     className="flex items-center justify-between cursor-pointer"
@@ -678,11 +678,11 @@ const EditarEspacio = ({ }) => {
                                                         </div>
                                                         {Array.isArray(subSpace.configureMeasurementControls) && subSpace.configureMeasurementControls.length > 0 ? (
                                                             <div className="space-y-4 mb-9 mt-5 ">
-                                                                <div className="grid grid-cols-2 gap-4 border  rounded-lg">
+                                                                <div className="grid grid-cols-2gap-4 border  rounded-lg">
                                                                     {subSpace.configureMeasurementControls.map((control, controlIndex) => (
                                                                         <div
                                                                             key={controlIndex}
-                                                                            className="bg-slate-50 shadow-md flex items-center gap-4 border-gray-200 rounded-lg"
+                                                                            className="bg-slate-50 shadow-md flex items-center gap-4 border-gray-200  relative"
                                                                             style={{ height: "169px" }}
                                                                         >
                                                                             <div className="w-60 ">
@@ -696,9 +696,19 @@ const EditarEspacio = ({ }) => {
                                                                             <div>
                                                                                 <p className="text-lg font-semibold">{control.variable_production.name}</p>
                                                                                 <p className="text-sm text-gray-600">Medición: {control.measurementType}</p>
-                                                                                <p className="text-sm text-gray-600">Sensor: {control.sensorId?.sensorCode}</p>
+                                                                                <p className="text-sm text-gray-600">Sensor: {control.sensor?.sensorCode}</p>
                                                                                 <p className="text-sm text-gray-600">Control: {control.controlType}</p>
-                                                                                <p className="text-sm text-gray-600">Actuador: {control.actuatorId}</p>
+                                                                                <p className="text-sm text-gray-600">Actuador: {control.actuator.actuatorCode}</p>
+                                                                            </div>
+                                                                            <div className="absolute top-2 right-2 flex gap-2">
+                                                                                <Edit size={18}
+                                                                                    className=" text-[#168C0DFF] cursor-pointer "
+                                                                                    onClick={() => handleOpenModal(control, 'edit')}
+                                                                                />
+                                                                                <Trash size={18}
+                                                                                    className="text-[#168C0DFF] cursor-pointer"
+                                                                                    onClick={() => handleDeleteClick(index)}
+                                                                                />
                                                                             </div>
                                                                         </div>
                                                                     ))}
@@ -726,13 +736,13 @@ const EditarEspacio = ({ }) => {
                                                         </p>
                                                     </>
                                                 )}
-                                                <div className="col-span-1 mt-2  flex justify- items-start">
+                                                <div className="col-span-1 mt-2  flex justify-end items-start">
                                                     <button
                                                         type='button'
                                                         onClick={() => handleDeleteSubSpace(index)}
-                                                        className="text-red-500"
+                                                        className="text-[#168C0DFF] cursor-pointer"
                                                     >
-                                                        <FaTrash /> {/* Icono de eliminar */}
+                                                        <Trash size={18} /> 
                                                     </button>
 
                                                 </div>

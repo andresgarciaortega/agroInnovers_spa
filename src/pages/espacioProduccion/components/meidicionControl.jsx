@@ -52,7 +52,7 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
     useEffect(() => {
         if (control) {
             console.log("control : ", control)
-            handleModeChange('measurementType', control.measurementType)
+            // handleModeChange('measurementType', control.measurementType)
             handleModeChange('controlType', control.controlType,)
             setFormData({
                 ...formData,
@@ -114,10 +114,11 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
         try {
             formDataToSubmit = {
                 ...formData,
-                sensorId: parseInt(formData.actuatorId, 10),  
+                actuatorId: parseInt(formData.actuatorId, 10),  
                 activationFrequency: parseInt(formData.activationFrequency, 10) ,
                 numberOfSamples: parseInt(formData.numberOfSamples,10),
-                samplingFrequency: parseInt(formData.samplingFrequency,10)
+                samplingFrequency: parseInt(formData.samplingFrequency,10),
+                sensorId: parseInt(formData.sensorId,10)
             };
     
             if (mode === 'create') {
