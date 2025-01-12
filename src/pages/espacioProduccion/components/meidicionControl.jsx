@@ -255,7 +255,7 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
                             </select>
                         </div>
 
-                        {formData.controlMode == 'Manual' && (
+                        {formData.controlMode !== 'Manual' && (
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium">
