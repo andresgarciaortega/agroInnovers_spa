@@ -256,7 +256,7 @@ const EditarEspacio = ({ }) => {
                         activationParameterRange: control.activationParameterRange || '',
                         activationFrequency: control.activationFrequency || null,
                         alertMessage: control.alertMessage || '',
-                        variable_production: control.parameter_production ? control.id : control.parameter_production || null,
+                        productionParameterId: control.parameter_production ? control.id : control.parameter_production || null,
                     }))
                     : [],
             
