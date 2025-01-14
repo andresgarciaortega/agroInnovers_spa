@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import LoteService from "../../../services/lotesService";
 import EspacioService from "../../../services/espacios";
 import { FaTrash } from 'react-icons/fa';
+import { Edit, Trash, Eye, Ban } from 'lucide-react';
 
 const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
     const [step, setStep] = useState(1);
     const [espacios, setEspacios] = useState([]); // Lista de espacios disponibles
     const [espacioDetalles, setEspacioDetalles] = useState(null);
     const [etapas, setEtapas] = useState([]); // Estado para almacenar las etapas
+    const [espaciosSeleccionados, setEspaciosSeleccionados] = useState([]); // Espacios seleccionados para agregar
 
     const [formData, setFormData] = useState({
         lotCode: '',
@@ -22,12 +24,10 @@ const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
             productionCycleStage: ''
         }
     });
-    
+
     const [loteConEspecies, setLoteConEspecies] = useState({
         productionLotSpecies: []  // Array vacío al inicio
     });
-    
-    // const [loteConEspecies, setLoteConEspecies] = useState(lote);
 
     useEffect(() => {
         if (lote) {
@@ -54,19 +54,6 @@ const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
         fetchEspacios();
         fetchEtapas();  // Llamada a la API de etapas
     }, [lote]);
-    
-    // Función para obtener las etapas desde la API
-    const fetchEtapas = async () => {
-        try {
-            const response = await EspacioService.getAllStage();  // Reemplaza con la URL de tu API
-            const data = await response.json();
-            console.log("Etapas recibidas:", data);  // Verifica los datos
-            setEtapas(data); 
-        } catch (error) {
-            console.error("Error al obtener las etapas:", error);
-        }
-    };
-    
 
     const fetchEspacios = async () => {
         try {
@@ -87,12 +74,83 @@ const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
         }
     };
 
+    const handleSelectEspacio = (espacioId) => {
+        // Si ya está seleccionado, no hacer nada
+        if (espaciosSeleccionados.includes(espacioId)) return;
+    
+        // Seleccionar el espacio y agregar sus subespacios si tiene
+        const espacioSeleccionado = espacios.find(espacio => espacio.id === espacioId);
+        if (espacioSeleccionado) {
+            setEspaciosSeleccionados(prev => [...prev, espacioId]);
+            if (espacioSeleccionado.subespacios && espacioSeleccionado.subespacios.length > 0) {
+                espacioSeleccionado.subespacios.forEach(subespacio => {
+                    setEspaciosSeleccionados(prev => [...prev, subespacio.id]);
+                });
+            }
+        }
+    };
+    
+
+    const handleAgregarEspacios = (espacioId) => {
+        // Encuentra el espacio y sus subespacios
+        const espacio = espacios.find(esp => esp.id === espacioId);
+        if (espacio) {
+            setEspaciosSeleccionados(prev => [...prev, espacioId]);
+            if (espacio.subespacios && espacio.subespacios.length > 0) {
+                // Si tiene subespacios, agregarlos también
+                espacio.subespacios.forEach(subespacio => {
+                    setEspaciosSeleccionados(prev => [...prev, subespacio.id]);
+                });
+            }
+        }
+    };
+    useEffect(() => {
+        if (lote) {
+            console.log('Lote recibido:', lote);  // Verifica la estructura de 'lote'
+            const trackingConfigData = lote.trackingConfig?.length > 0 ? lote.trackingConfig[0] : {};
+            setFormData({
+                lotCode: lote.lotCode || '',
+                startDate: lote.startDate || '',
+                estimatedEndDate: lote.estimatedEndDate || '',
+                productionSpaceId: lote.productionSpace?.id || '',
+                reportFrequency: lote.reportFrequency || '',
+                cycleStage: lote.cycleStage || '',  // Puedes mantener esta línea si aún es necesario, pero este campo no se usará para mostrar el selector
+                trackingConfig: {
+                    trackingStartDate: trackingConfigData.trackingStartDate || '',
+                    trackingFrequency: trackingConfigData.trackingFrequency || '',
+                    productionCycleStage: trackingConfigData.productionCycleStage || '' // Este es el campo que necesitamos actualizar
+                }
+            });
+            if (lote.productionSpace?.id) {
+                fetchEspacioDetalles(lote.productionSpace.id);
+            }
+            setLoteConEspecies(lote);  // Aquí aseguramos que el lote se actualice con las especies correctas
+        }
+        fetchEspacios();
+        fetchEtapas();  // Llamada a la API de etapas
+    }, [lote]);
+
+    // Función para obtener las etapas desde la API
+    const fetchEtapas = async () => {
+        try {
+            const response = await EspacioService.getAllStage();  // Reemplaza con la URL de tu API
+            const data = await response.json();
+            console.log("Etapas recibidas:", data);  // Verifica los datos
+            setEtapas(data);
+        } catch (error) {
+            console.error("Error al obtener las etapas:", error);
+        }
+    };
+
+
+   
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-      
+
         if (name.startsWith('trackingConfig.')) {
             const trackingField = name.split('.')[1];
-            
+
             if (trackingField === "productionCycleStage") {
                 const selectedStage = etapas.find((etapa) => etapa.id === parseInt(value));
                 setFormData(prevFormData => ({
@@ -118,34 +176,35 @@ const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
             }));
         }
     };
-    
-    
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         if (loteConEspecies.productionLotSpecies.length === 0) {
             console.error("El lote debe tener al menos una especie.");
             return;
         }
-    
+
         const updatedSpecies = loteConEspecies.productionLotSpecies.map(specie => {
             const specieId = specie.specie ? specie.specie.id : null;
             if (!specieId) {
                 console.error("Cada especie debe tener un specieId válido.");
                 return null;
             }
-    
+
             return {
                 ...specie,
                 specieId: Number(specieId)
+
             };
         }).filter(specie => specie !== null);
-    
+
         if (updatedSpecies.length === 0) {
             console.error("No se puede enviar el lote con especies inválidas.");
             return;
         }
-    
+
         const data = {
             lotCode: formData.lotCode,
             startDate: formData.startDate,
@@ -155,12 +214,12 @@ const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
             cycleStage: formData.cycleStage,
             productionTracking: {
                 startDate: formData.trackingConfig.trackingStartDate,   // Corregido
-            trackingReportFrequency: Number(formData.trackingConfig.trackingFrequency),
+                trackingReportFrequency: Number(formData.trackingConfig.trackingFrequency),
                 productionCycleStage: formData.trackingConfig.productionCycleStage
             },
             productionLotSpecies: updatedSpecies,
         };
-    
+
         try {
             await LoteService.updateLots(lote.id, data);
             onUpdate();
@@ -169,23 +228,23 @@ const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
             console.error("Error al actualizar el lote:", error);
         }
     };
-    
-    
+
+
 
     const handleEliminarEspecie = (specieId) => {
         const updatedSpecies = loteConEspecies.productionLotSpecies.filter(
             (especie) => especie.specieId !== specieId
         );
-    
+
         setLoteConEspecies((prevState) => ({
             ...prevState,
             productionLotSpecies: updatedSpecies
         }));
     };
-    
-    
-    
-    
+
+
+
+
 
 
     // const handleEliminarEspecie = (especieId) => {
@@ -251,6 +310,7 @@ const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
                             name="productionSpaceId"
                             value={formData.productionSpaceId}
                             onChange={handleChange}
+                            disabled
                             className="mt-1 block w-full border rounded-md p-2"
                             required
                         >
@@ -281,10 +341,17 @@ const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
                                                         <p>Individuos: {especie.initialIndividuals}</p>
                                                     </div>
                                                     <button
+                                                    type='button'
                                                         onClick={() => handleEliminarEspecie(especie.id)}
-                                                        className="text-red-600"
+                                                        className="text-[#168C0DFF]"
                                                     >
-                                                        <FaTrash />
+                                                        <Trash size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleEliminarEspecie(especie.id)}
+                                                        className="text-[#168C0DFF]"
+                                                    >
+                                                        <Edit size={18} />
                                                     </button>
                                                 </div>
                                             </div>
@@ -296,90 +363,23 @@ const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
                     )}
 
 
-                    <div className="flex justify-end space-x-2 mt-4">
+                    <div className="flex justify-end space-x-4 mt-6">
                         <button
                             type="button"
-                            onClick={() => setStep(2)}
+                            onClick={() => setStep(1)}
+                            className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
+                        >
+                            Volver
+                        </button>
+                        <button
+                            type="submit"
                             className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
                         >
-                            Siguiente
+                            Editar
                         </button>
                     </div>
                 </>
             )}
-
-{step === 2 && (
-    <>
-        <h3 className="text-lg font-semibold">Paso 2: Configuración de reportes</h3>
-
-        <div className="grid grid-cols-2 gap-4 mt-4">
-    <div className="col-span-1">
-        <label className="block text-sm font-medium">Fecha de inicio</label>
-        <input
-            type="date"
-            name="trackingConfig.trackingStartDate"
-            value={formData.trackingConfig.trackingStartDate}
-            onChange={handleChange}
-            className="mt-1 block w-full border rounded-md p-2"
-            required
-        />
-    </div>
-
-    <div className="col-span-1">
-        <label className="block text-sm font-medium">Frecuencia de reporte</label>
-        <input
-            type="number"
-            name="trackingConfig.trackingFrequency"
-            value={formData.trackingConfig.trackingFrequency}
-            onChange={handleChange}
-            className="mt-1 block w-full border rounded-md p-2"
-            required
-        />
-    </div>
-</div>
-
-<div className="mt-4">
-    <label className="block text-sm font-medium">Etapa del ciclo</label>
-    <select
-        name="trackingConfig.productionCycleStage"
-        value={formData.trackingConfig.productionCycleStage}
-        onChange={handleChange}
-        className="mt-1 block w-full border rounded-md p-2"
-        required
-    >
-        <option value="">Seleccione una etapa</option>
-        {etapas.length > 0 ? (
-            etapas.map((etapa) => (
-                <option key={etapa.id} value={etapa.id}>  {/* Usa el ID de la etapa */}
-                    {etapa.name}
-                </option>
-            ))
-        ) : (
-            <option value="">No hay etapas disponibles</option>
-        )}
-    </select>
-</div>
-
-
-
-        <div className="flex justify-end space-x-4 mt-6">
-            <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
-            >
-                Volver
-            </button>
-            <button
-                type="submit"
-                className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-            >
-                Editar
-            </button>
-        </div>
-    </>
-)}
-
 
 
         </form>
