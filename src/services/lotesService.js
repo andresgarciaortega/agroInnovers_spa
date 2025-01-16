@@ -49,6 +49,26 @@ const LotsService = {
             throw error;
         }
     },
+     async getSpecieByEtapa(searchParameter) {
+        try {
+            const response = await api.get(`/production-lots?search=${encodeURIComponent(JSON.stringify(searchParameter))}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener loas variables de esta especie :', error);
+            throw error;
+        }
+    },
+    
+
+    async updateRechazo(id, data) {
+        try {
+            const response = await api.put(`/production-lots/reject/${id}`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error al actualizar el rechazo:', error);
+            throw error;
+        }
+    },
 
 
 
