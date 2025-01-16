@@ -13,9 +13,9 @@ const SpeciesService = {
             throw error;
         }
     },
-    async getVariableBySpecie(specieId) {
+    async getVariableBySpecie(searchParameter) {
         try {
-            const response = await api.get(`/variables?search=${encodeURIComponent(JSON.stringify({species:{id:specieId}}))}`);
+            const response = await api.get(`/variables?search=${encodeURIComponent(JSON.stringify(searchParameter))}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener loas variables de esta especie :', error);

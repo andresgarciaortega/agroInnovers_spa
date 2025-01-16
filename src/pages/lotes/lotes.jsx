@@ -13,11 +13,9 @@ import SuccessAlert from "../../components/alerts/success";
 import GenericModal from '../../components/genericModal';
 import FormLotes from './components/editarLote';
 import FormCosecha from './components/FormCosecha';
+import FormSeguimiento from './components/FormSeguimiento';
 import { FaRegEye, FaRegTrashAlt, FaRegEdit } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { AiOutlineStop } from "react-icons/ai";
-import { BsBan } from "react-icons/bs";
-import { PiArrowsCounterClockwiseBold } from "react-icons/pi";
 import { GoArrowSwitch } from "react-icons/go";
 const Lotes = () => {
   const { companyId } = useParams();
@@ -107,39 +105,39 @@ const Lotes = () => {
     setSelectedLote(lote);
     setModalMode(mode);
 
-  
-    setIdModalOpenCosecha(false); 
-    setIsModalOpen(false); 
-    setIsModalOpenRechazar(false); 
-    setIsModalOpenEtapa(false); 
-    setIdModalOpenSeguimiento(false); 
+
+    setIdModalOpenCosecha(false);
+    setIsModalOpen(false);
+    setIsModalOpenRechazar(false);
+    setIsModalOpenEtapa(false);
+    setIdModalOpenSeguimiento(false);
 
     if (mode === 'edit') {
-        setNewLote(lote);
-        setIsModalOpen(true);  
+      setNewLote(lote);
+      setIsModalOpen(true);
     } else if (mode === 'cosechar') {
-        setNewLote(lote);
-        setIdModalOpenCosecha(true); 
+      setNewLote(lote);
+      setIdModalOpenCosecha(true);
     } else if (mode === 'rechazar') {
-        setIsModalOpenRechazar(true);
+      setIsModalOpenRechazar(true);
     } else if (mode === 'etapa') {
-        setIsModalOpenEtapa(true);
+      setIsModalOpenEtapa(true);
     } else if (mode === 'seguimiento') {
-        setIdModalOpenSeguimiento(true);
+      setIdModalOpenSeguimiento(true);
     } else {
-        setIsModalOpen(true); // Modal general
+      setIsModalOpen(true); // Modal general
     }
-};
+  };
 
 
   // Cerrar el modal
   const closeModal = async () => {
     setIsModalOpen(false);
-    setIdModalOpenCosecha(false); 
-    setIsModalOpen(false); 
-    setIsModalOpenRechazar(false); 
-    setIsModalOpenEtapa(false); 
-    setIdModalOpenSeguimiento(false); 
+    setIdModalOpenCosecha(false);
+    setIsModalOpen(false);
+    setIsModalOpenRechazar(false);
+    setIsModalOpenEtapa(false);
+    setIdModalOpenSeguimiento(false);
     setSelectedLote(null);
     setModalMode('create');
     updateService();
@@ -269,10 +267,10 @@ const Lotes = () => {
                   <div className="flex items-center gap-2 text-[#168C0DFF]">
 
                     <div className="relative group">
-                      <GoArrowSwitch size={19} 
-                      className="cursor-pointer"
-                      onClick={() => handleOpenModal(lote.id, 'etapa')}
-                       />
+                      <GoArrowSwitch size={19}
+                        className="cursor-pointer"
+                        onClick={() => handleOpenModal(lote.id, 'etapa')}
+                      />
 
                       <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                         Cambiar etapa
@@ -309,7 +307,7 @@ const Lotes = () => {
                     {/* Rechazar */}
                     <div className="relative group">
                       <Ban size={19} className="cursor-pointer"
-                      onClick={() => handleOpenModal(lote.id, 'rechazar')}
+                        onClick={() => handleOpenModal(lote.id, 'rechazar')}
                       />
                       <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                         Rechazar
@@ -384,14 +382,16 @@ const Lotes = () => {
                     ))}
                   </div>
                   <div>
-                    <button className="bg-[#168C0DFF] text-white w-full px-6 py-2 rounded-lg  items-center">
+                    <button className="bg-[#168C0DFF] text-white w-full px-6 py-2 rounded-lg  items-center"
+                      onClick={() => handleOpenModal(lote, 'seguimiento')}
+                    >
                       Crear reporte de seguimiento
                     </button>
                   </div>
                   <div>
-                    <button 
-                    className="bg-white text-[#168C0DFF] border border-[#168C0DFF] w-full px-6 py-2 rounded-lg  items-center"
-                    onClick={() => handleOpenModal(lote, 'cosechar')}
+                    <button
+                      className="bg-white text-[#168C0DFF] border border-[#168C0DFF] w-full px-6 py-2 rounded-lg  items-center"
+                      onClick={() => handleOpenModal(lote, 'cosechar')}
                     >
                       Cierre y cosecha
                     </button>
@@ -447,22 +447,40 @@ const Lotes = () => {
 
         )}
 
-{isModalOpenCosecha && (
-        <GenericModal
-          title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Cierre y cosecha'}
-          onClose={closeModal}
-          companyId={selectedCompany} >
+        {isModalOpenCosecha && (
+          <GenericModal
+            title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Cierre y cosecha'}
+            onClose={closeModal}
+            companyId={selectedCompany} >
 
-          <FormCosecha
-          showErrorAlert={showErrorAlertSuccess}
-           onUpdate={updateService}
-           lote={newLote}
-           mode={modalMode}
-           closeModal={closeModal}
+            <FormCosecha
+              showErrorAlert={showErrorAlertSuccess}
+              onUpdate={updateService}
+              lote={newLote}
+              mode={modalMode}
+              closeModal={closeModal}
             />
-          
-        </GenericModal>
-      )}
+
+          </GenericModal>
+        )}
+
+{isModalOpenSeguimiento && (
+          <GenericModal
+            title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Reporte de seguimiento'}
+            onClose={closeModal}
+            companyId={selectedCompany} >
+
+            <FormSeguimiento
+              showErrorAlert={showErrorAlertSuccess}
+              onUpdate={updateService}
+              lote={newLote}
+              mode={modalMode}
+              closeModal={closeModal}
+            />
+
+          </GenericModal>
+        )}
+
 
         {showErrorAlertTable && (
           <div className="alert alert-error flex flex-col items-start space-y-1 p-2 mt-4 bg-red-500 text-white rounded-md">

@@ -13,12 +13,14 @@ const FormCosechar = ({ lote, onUpdate, closeModal }) => {
     const [formData, setFormData] = useState({
         finalWeight: '',
         finalIndividuals: '',
+        selectedSpecieId: '',  // Agregar estado para el id de la especie seleccionada
     });
 
-    const [loteConEspecies, setLoteConEspecies] = useState(lote); // Estado para manejar el lote con las especies
-    const [modalEspecie, setModalEspecie] = useState(null); // Estado para controlar el modal de cada especie
-    const [harvestData, setHarvestData] = useState([]); // Array para almacenar las especies cosechadas
-    const [isEditing, setIsEditing] = useState(false); // Estado para controlar si estamos en modo edición
+    const [loteConEspecies, setLoteConEspecies] = useState(lote);
+    const [modalEspecie, setModalEspecie] = useState(null);
+    const [harvestData, setHarvestData] = useState([]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [especieNotFound, setEspecieNotFound] = useState(false); // Estado para manejar el mensaje de especie no encontrada
 
     useEffect(() => {
         if (lote) {
@@ -39,6 +41,7 @@ const FormCosechar = ({ lote, onUpdate, closeModal }) => {
             if (lote.productionSpace?.id) {
                 fetchEspacioDetalles(lote.productionSpace.id);
             }
+            console.log('lote traido', lote)
 
             setLoteConEspecies(lote);
         }
@@ -77,6 +80,18 @@ const FormCosechar = ({ lote, onUpdate, closeModal }) => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+
+        if (name === 'selectedSpecieId') {
+            // Verificar si la especie seleccionada está en el lote
+            const especieSeleccionada = Especies.find(specie => specie.id === value);
+            const especieEnLote = loteConEspecies.productionLotSpecies.some(specie => specie.specie.id === value);
+
+            if (!especieEnLote) {
+                setEspecieNotFound(true); // Si no está en el lote, mostrar el mensaje
+            } else {
+                setEspecieNotFound(false); // Si está en el lote, ocultar el mensaje
+            }
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -95,15 +110,12 @@ const FormCosechar = ({ lote, onUpdate, closeModal }) => {
     
         try {
             if (isEditing) {
-                // Editar la cosecha existente
                 await LoteService.updateCosecha(lote.id, { harvest: [newHarvestData] });
             } else {
-                // Crear nueva cosecha
                 setHarvestData(prevHarvestData => [...prevHarvestData, newHarvestData]);
                 await LoteService.updateCosecha(lote.id, { harvest: [newHarvestData] });
             }
     
-            // Cambiar estado de isHarvested a true
             setLoteConEspecies(prevState => ({
                 ...prevState,
                 productionLotSpecies: prevState.productionLotSpecies.map(specie =>
@@ -117,22 +129,18 @@ const FormCosechar = ({ lote, onUpdate, closeModal }) => {
             console.error("Error al actualizar la cosecha:", error);
         }
     };
+
     const openModal = (especie) => {
-        console.log("Abriendo modal con especie:", especie);
         setModalEspecie(especie);
-    
-        // Revisar si la especie tiene valores de cosecha para poner en modo edición
         const editingMode = especie.finalWeight !== undefined && especie.finalIndividuals !== undefined;
         setIsEditing(editingMode);
     
         if (!editingMode) {
-            // Si es un nuevo registro, vaciar los valores de formData
             setFormData({
                 finalWeight: '',
                 finalIndividuals: ''
             });
         } else {
-            // Si es edición, cargar los valores existentes
             setFormData({
                 finalWeight: especie.finalWeight || '',
                 finalIndividuals: especie.finalIndividuals || ''
@@ -140,131 +148,126 @@ const FormCosechar = ({ lote, onUpdate, closeModal }) => {
         }
     };
 
-
-
-
-    const openCreateModal = () => {
-        setModalEspecie(null);
-        setFormData({ finalWeight: '', finalIndividuals: '' });
-        setIsEditing(false);  // Modo creación
-    };
-
     const closeModalHandler = () => {
-        setModalEspecie(null); // Solo se cierra el modal de cosecha
-        setIsEditing(false); // Reinicia el modo
+        setModalEspecie(null);
+        setIsEditing(false);
     };
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-            <label className="block text-sm font-medium">Especie</label>
-            <select
-                name="productionSpaceId"
-                value={formData.productionSpaceId}
-                onChange={handleChange}
-                className="mt-1 block w-full border rounded-md p-2"
-                
-            >
-                <option value="">Seleccione una opción</option>
-                {Especies.map(species => (
-                    <option key={species.id} value={species.id}>
-                        {species.common_name}
-                    </option>
-                ))}
-            </select>
-        </div>
-
-        {loteConEspecies.productionLotSpecies.length > 0 && (
             <div>
-                <div className="grid grid-cols-2 gap-4 py-2">
-                    {loteConEspecies.productionLotSpecies.map((especie) => (
-                        <div key={especie.id} className="border p-4 rounded-md bg-gray-100 shadow-lg">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p><strong>{especie.specie.common_name}</strong></p>
-                                    <p>Peso inicial: {especie.initialWeight} kg</p>
-                                    <p>Individuos: {especie.initialIndividuals}</p>
+                <label className="block text-sm font-medium">Especie</label>
+                <select
+                    name="selectedSpecieId"
+                    value={formData.selectedSpecieId}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border rounded-md p-2"
+                >
+                    <option value="">Seleccione una opción</option>
+                    {Especies.map(species => (
+                        <option key={species.id} value={species.id}>
+                            {species.common_name}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            {especieNotFound && (
+                <div className="text-red-500 mt-2">
+                    Esta especie no está en este lote.
+                </div>
+            )}
+
+            {loteConEspecies.productionLotSpecies.length > 0 && (
+                <div>
+                    <div className="grid grid-cols-2 gap-4 py-2">
+                        {loteConEspecies.productionLotSpecies.map((especie) => (
+                            <div key={especie.id} className="border p-4 rounded-md bg-gray-100 shadow-lg">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p><strong>{especie.specie.common_name}</strong></p>
+                                        <p>Peso inicial: {especie.initialWeight} kg</p>
+                                        <p>Individuos: {especie.initialIndividuals}</p>
+                                    </div>
+                                    {especie.finalWeight && especie.finalIndividuals ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => openModal(especie)}
+                                            className="text-[#168C0DFF]"
+                                        >
+                                            <FaEdit />
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => openModal(especie)}
+                                            className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                                        >
+                                            Cosechar
+                                        </button>
+                                    )}
                                 </div>
-                                {especie.finalWeight && especie.finalIndividuals ? (
-                                    <button
-                                        type="button"
-                                        onClick={() => openModal(especie)}
-                                        className="text-[#168C0DFF]"
-                                    >
-                                        <FaEdit />
-                                    </button>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        onClick={() => openModal(especie)}
-                                        className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-                                    >
-                                        Cosechar
-                                    </button>
-                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {modalEspecie && (
+                <GenericModal
+                    title={isEditing ? `Cosechar` : `Cosechar a ${modalEspecie.specie.common_name}`}
+                    onClose={closeModalHandler}
+                >
+                    <div>
+                        <h3 className="font-semibold mb-4">
+                            {isEditing ? `Especie` : `Cosechar a`} {modalEspecie.specie.common_name}
+                        </h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium">Peso Total</label>
+                                <input
+                                    type="number"
+                                    name="finalWeight"
+                                    value={formData.finalWeight}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full border rounded-md p-2"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium">Cantidad de Individuos Finales</label>
+                                <input
+                                    type="number"
+                                    name="finalIndividuals"
+                                    value={formData.finalIndividuals}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full border rounded-md p-2"
+                                />
                             </div>
                         </div>
-                    ))}
-                </div>
-            </div>
-        )}
-
-        {modalEspecie && (
-            <GenericModal
-                title={isEditing ? `Cierre y cosecha` : `Cosechar a ${modalEspecie.specie.common_name}`}
-                onClose={closeModalHandler}
-            >
-                <div>
-                    <h3 className="font-semibold mb-4">
-                        {isEditing ? `Especie` : `Cosechar a`} {modalEspecie.specie.common_name}
-                    </h3>
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium">Peso Total</label>
-                            <input
-                                type="number"
-                                name="finalWeight"
-                                value={formData.finalWeight}
-                                onChange={handleChange}
-                                className="mt-1 block w-full border rounded-md p-2"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium">Cantidad de Individuos Finales</label>
-                            <input
-                                type="number"
-                                name="finalIndividuals"
-                                value={formData.finalIndividuals}
-                                onChange={handleChange}
-                                className="mt-1 block w-full border rounded-md p-2"
-                            />
+                        <div className="mt-6 flex justify-end space-x-4">
+                            <button
+                                type="button"
+                                onClick={closeModalHandler}
+                                className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="submit"
+                                className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                            >
+                                {isEditing ? `Guardar` : `Cosechar`}
+                            </button>
                         </div>
                     </div>
-                    <div className="mt-6 flex justify-end space-x-4">
-                        <button
-                            type="button"
-                            onClick={closeModalHandler}
-                            className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-                        >
-                            {isEditing ? `Guardar` : `Cosechar`}
-                        </button>
-                    </div>
-                </div>
-            </GenericModal>
-        )}
+                </GenericModal>
+            )}
 
             <div className="flex justify-end space-x-4 mt-6">
                 <button
                     type="button"
                     onClick={() => closeModal()}
-                    
                     className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
                 >
                     Volver
@@ -272,10 +275,9 @@ const FormCosechar = ({ lote, onUpdate, closeModal }) => {
                 <button
                     type="button"
                     onClick={() => closeModal()}
-
                     className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
                 >
-                    Editar
+                    Crear
                 </button>
             </div>
 
