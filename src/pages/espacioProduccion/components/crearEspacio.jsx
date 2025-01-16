@@ -200,7 +200,7 @@ const CrearEspacio = () => {
       if (!selectedSpeciesId) return;
 
       try {
-        const data = await SpeciesService.getVariableBySpecie(selectedSpeciesId);
+        const data = await SpeciesService.getVariableBySpecie({species:{id:selectedSpeciesId}});
         console.log("Datos de variables de la especie:", data);
 
         if (data.statusCode === 404) {
@@ -215,8 +215,7 @@ const CrearEspacio = () => {
     };
 
     fetchVariable();
-  }, [selectedSpeciesId]); // Ejecutar cuando cambie la especie seleccionada
-
+  }, [selectedSpeciesId]); 
 
   useEffect(() => {
     const fetchTipoEspacio = async () => {
@@ -527,7 +526,7 @@ const handleAddVariable = (type, index) => {
     // Realizar la consulta para obtener las variables asociadas a la especie seleccionada
     const fetchVariablesForSubspace = async () => {
       try {
-        const data = await SpeciesService.getVariableBySpecie(specieId);
+        const data = await SpeciesService.getVariableBySpecie({species:{id:specieId}});
         console.log(data)
         if (index !== 0) {
           setMainVariables(data);
