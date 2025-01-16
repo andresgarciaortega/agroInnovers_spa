@@ -7,11 +7,14 @@ import { useCompanyContext } from "../../context/CompanyContext";
 import { IoIosWarning, IoMdAlert, IoMdCheckmarkCircle } from "react-icons/io";
 import { IoSearch } from "react-icons/io5";
 import { FaFilter } from "react-icons/fa6";
+
 import { Edit, Trash, Eye, Ban } from 'lucide-react';
 import Delete from '../../components/delete';
 import SuccessAlert from "../../components/alerts/success";
 import GenericModal from '../../components/genericModal';
 import FormLotes from './components/editarLote';
+import FormCambiarEtapa from './components/FromCambiarEtapa';
+import FormRechazar from './components/rechazar';
 import FormCosecha from './components/FormCosecha';
 import FormSeguimiento from './components/FormSeguimiento';
 import { FaRegEye, FaRegTrashAlt, FaRegEdit } from "react-icons/fa";
@@ -229,14 +232,14 @@ const Lotes = () => {
           <input
             type="text"
             placeholder="Buscar Lote de producción"
-            className="w-full border border-gray-300 p-2 pl-11 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
+            className="w-full p-2 pl-11 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
           // value={searchTerm}
           // onChange={(e) => setSearchTerm(e.target.value)}
           />
           <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
         </div>
-        <div className="">
-          <div className="flex justify-between items-center py-6 border-b">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-center py-6 border-b ">
             <h2 className="text-xl font-semibold">Lotes de producción</h2>
 
             <div className="flex gap-4 ml-auto">
@@ -260,7 +263,7 @@ const Lotes = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {lotesList.map((lote) => (
-              <div key={lote.id} className="border p-4 rounded-md shadow-lg">
+              <div key={lote.id} className="border p-4 rounded-md shadow-lg  border-gray-300 ">
                 <div className="text-lg flex items-center justify-between font-bold">
                   <span>{lote.lotCode}</span>
                   <div className="flex items-center gap-2 text-[#168C0DFF]">
@@ -306,7 +309,7 @@ const Lotes = () => {
                     {/* Rechazar */}
                     <div className="relative group">
                       <Ban size={19} className="cursor-pointer"
-                        onClick={() => handleOpenModal(lote.id, 'rechazar')}
+                        onClick={() => handleOpenModal(lote, 'rechazar')}
                       />
                       <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                         Rechazar
@@ -446,6 +449,13 @@ const Lotes = () => {
 
         )}
 
+        {showErrorAlert && (
+          <SuccessAlert
+            message={messageAlert}
+            onCancel={handleCloseAlert}
+          />
+        )}
+
         {isModalOpenCosecha && (
           <GenericModal
             title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Cierre y cosecha'}
@@ -462,8 +472,41 @@ const Lotes = () => {
 
           </GenericModal>
         )}
+        {isModalOpenRechazar && (
+          <GenericModal
+            title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Rechazar'}
+            onClose={closeModal}
+            companyId={selectedCompany} >
 
-{isModalOpenSeguimiento && (
+            <FormRechazar
+              showErrorAlert={showErrorAlertSuccess}
+              onUpdate={updateService}
+              lote={newLote}
+              mode={modalMode}
+              closeModal={closeModal}
+            />
+
+          </GenericModal>
+        )}
+
+        {isModalOpenEtapa && (
+          <GenericModal
+            title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Cambiar etapa'}
+            onClose={closeModal}
+            companyId={selectedCompany} >
+
+            <FormCambiarEtapa
+              showErrorAlert={showErrorAlertSuccess}
+              onUpdate={updateService}
+              lote={newLote}
+              mode={modalMode}
+              closeModal={closeModal}
+            />
+
+          </GenericModal>
+        )}
+
+        {isModalOpenSeguimiento && (
           <GenericModal
             title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Reporte de seguimiento'}
             onClose={closeModal}

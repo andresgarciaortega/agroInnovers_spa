@@ -238,6 +238,39 @@ const Espacio = () => {
     }
   };
 
+  
+  const filteredVariable = Array.isArray(variableList)
+  ? variableList.filter(espacio =>
+    (espacio.id && espacio.id.toString().toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (espacio.name && espacio.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (espacio.gpsPosition && espacio.gpsPosition.toLowerCase().includes(searchTerm.toLowerCase()))// Reemplaza "monitoringSystem" por el nombre real si es diferente
+  )
+  : [];
+
+
+  // Paginación
+  const indexOfLastVariable = currentPage * itemsPerPage;
+  const indexOfFirstVariable = indexOfLastVariable - itemsPerPage;
+  const currentCompanies = filteredVariable.slice(indexOfFirstVariable, indexOfLastVariable);
+
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(filteredVariable.length / itemsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleItemsPerPageChange = (event) => {
+    setItemsPerPage(Number(event.target.value));
+    setCurrentPage(1);
+  };
+
+
   const handleViewSpace = (espacioId) => {
     navigate(`../viewEspacio/${espacioId}`);
   };
@@ -297,7 +330,7 @@ const Espacio = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {variableList.map((tipoEspacio, index) => (
+              {currentCompanies.map((tipoEspacio, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
 
@@ -346,27 +379,27 @@ const Espacio = () => {
           )}
         </div>
       </div>
-      {/* <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
-        <div className="border border-gray-200 rounded py-2 text-sm m-2">
-          <span>Cantidad de filas</span>
-          <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={15}>15</option>
-          </select>
-        </div>
-        <div className="pagination-controls text-xs flex items-center space-x-2">
-          <span>{indexOfFirstVariable + 1}-{indexOfLastVariable} de {variableList.length}</span>
-          <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-            onClick={handlePrevPage} disabled={currentPage === 1}>
-            <IoIosArrowBack size={20} />
-          </button>
-          <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-            onClick={handleNextPage} disabled={currentPage === Math.ceil(variableList.length / itemsPerPage)}>
-            <IoIosArrowForward size={20} />
-          </button>
-        </div>
-      </div> */}
+    <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+            <div className="border border-gray-200 rounded py-2 text-sm m-2">
+              <span>Cantidad de filas</span>
+              <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={15}>15</option>
+              </select>
+            </div>
+            <div className="pagination-controls text-xs flex items-center space-x-2">
+              <span>{indexOfFirstVariable + 1}-{indexOfLastVariable} de {variableList.length}</span>
+              <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                onClick={handlePrevPage} disabled={currentPage === 1}>
+                <IoIosArrowBack size={20} />
+              </button>
+              <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                onClick={handleNextPage} disabled={currentPage === Math.ceil(variableList.length / itemsPerPage)}>
+                <IoIosArrowForward size={20} />
+              </button>
+            </div>
+          </div>
 
       {showErrorAlert && (
         <SuccessAlert

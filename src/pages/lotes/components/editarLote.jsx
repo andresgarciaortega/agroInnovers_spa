@@ -366,7 +366,8 @@ const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
                     <div className="flex justify-end space-x-4 mt-6">
                         <button
                             type="button"
-                            onClick={() => setStep(1)}
+                            onClick={() => closeModal()}
+
                             className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
                         >
                             Volver

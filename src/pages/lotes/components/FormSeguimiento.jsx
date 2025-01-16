@@ -29,27 +29,30 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
     const [mainVariables, setMainVariables] = useState([]);
     const [espacioDetalles, setEspacioDetalles] = useState(null);
     const [formData, setFormData] = useState({
-        speciesData: '',
-        typeVariableId: '',
-        specieId: '',
+        productionLotId: '',
         typeVariableId: '',
         variableTrackingReports: [
-           { variableId:'',
-            updateDate:'',
-            updateTime:'',
-            weightAmount:''}
+            {
+                variableId: '',
+                updateDate: '',
+                updateTime: '',
+                weightAmount: ''
+            }
         ],
+        company_id: ''
     });
+    
     const [viewMode, setViewMode] = useState('general'); 
 
     useEffect(() => {
         if (lote) {
             setFormData({
-                lotCode: lote.lotCode || '',
+                productionLotId: lote.lotCode || '',
                 startDate: lote.startDate || '',
                 estimatedEndDate: lote.estimatedEndDate || '',
                 productionSpaceId: lote.productionSpace?.id || '',
                 reportFrequency: lote.reportFrequency || '',
+                company_id: lote.company_id || '',
                 status: lote.status || '',
                 trackingConfig: lote.trackingConfig || {
                     trackingStartDate: '',
@@ -61,6 +64,8 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
             if (lote.productionSpace?.id) {
                 fetchEspacioDetalles(lote.productionSpace.id);
             }
+            console.log('lote traido', lote)
+
 
             setLoteConEspecies(lote);
         }
@@ -165,25 +170,45 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // if (!formData.finalWeight || !formData.finalIndividuals) {
-        //     console.error("Ambos campos son necesarios.");
-        //     return;
-        // }
-
-        const newHarvestData = {
-            finalWeight: parseFloat(formData.finalWeight),
-            finalIndividuals: parseInt(formData.finalIndividuals, 10)
-        };
-
+        if (!validateForm()) return;
+    
         try {
-            await ReporteService.updateReporte(lote.id, { harvest: [newHarvestData] });
+            const preparedData = {
+                ...formData,
+                productionLotId: parseInt(formData.productionLotId, 10),
+                company_id: parseInt(formData.company_id, 10),
+            };
+    
+            const response = await ReporteService.createReporte(preparedData);
+            console.log("Reporte creado:", response);
             onUpdate();
             closeModal();
         } catch (error) {
-            console.error("Error al actualizar la cosecha:", error);
+            console.error("Error al crear el reporte:", error);
         }
     };
+    
+    
+    
+    
+    const validateForm = (data) => {
+        const errors = [];
+        if (!data.productionLotId) errors.push("productionLotId es requerido");
+        if (!data.typeVariableId) errors.push("typeVariableId es requerido");
+        // if (!data.company_id) errors.push("company_id es requerido");
+        data.variableTrackingReports.forEach((report, index) => {
+            if (!report.variableId) errors.push(`variableId en el índice ${index} es requerido`);
+            if (!report.updateDate) errors.push(`updateDate en el índice ${index} es requerido`);
+            if (!report.updateTime) errors.push(`updateTime en el índice ${index} es requerido`);
+            if (!report.weightAmount) errors.push(`weightAmount en el índice ${index} es requerido`);
+        });
+        if (errors.length > 0) {
+            console.error("Errores en el formulario:", errors);
+            return false;
+        }
+        return true;
+    };
+    
 
     const addVariable = () => {
         console.log("ID de variable seleccionada:", selectedVariableId);
@@ -250,7 +275,8 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
                         <input
                             type="radio"
                             name="viewMode"
-                            value="general"
+                            value={formData.speciesData}
+
                             checked={viewMode === 'general'}
                             onChange={handleModeChange}
                             className=""
@@ -261,7 +287,8 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
                         <input
                             type="radio"
                             name="viewMode"
-                            value="species"
+                            value={formData.speciesData}
+                            
                             checked={viewMode === 'species'}
                             onChange={handleModeChange}
                             className="accent-green-500"
@@ -356,7 +383,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
                                 <input
                                     type="date"
                                     name="finalIndividuals"
-                                    value={container.date}
+                                    value={container.updateDate}
                                     onChange={(e) => handleContainerChange(container.id, 'date', e.target.value)}
 
                                     className="mt-1 block w-full border rounded-md p-2"
@@ -367,7 +394,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
                                 <input
                                     type="time"
                                     name="finalIndividuals"
-                                    value={container.time}
+                                    value={container.updateTime}
                                     onChange={(e) => handleContainerChange(container.id, 'time', e.target.value)}
 
                                     className="mt-1 block w-full border rounded-md p-2"
@@ -378,7 +405,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
                                 <input
                                     type="number"
                                     name="finalIndividuals"
-                                    value={container.quantity}
+                                    value={container.weightAmount}
                                     onChange={(e) => handleContainerChange(container.id, 'quantity', e.target.value)}
 
                                     className="mt-1 block w-full border rounded-md p-2"
@@ -388,16 +415,21 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
                     ))
                 )}
             </div>
-
-
-
-            <div>
-                <button
-                 type="submit" 
-                 className="px-4 py-2 bg-blue-500 text-white rounded">
-                    Guardar
-                </button>
-            </div>
+            <div className="flex justify-end space-x-4 mt-6">
+            <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
+            >
+                Volver
+            </button>
+            <button
+                type="submit"
+                className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+            >
+                Editar
+            </button>
+        </div>
         </form>
     );
 };

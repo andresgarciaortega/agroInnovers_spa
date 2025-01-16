@@ -9,6 +9,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
 import { FaChevronDown, FaChevronUp, FaTrash, FaEdit } from 'react-icons/fa';
 import { Package2, Factory, Variable, Activity, Cpu, Users } from 'lucide-react';
+import { Trash, Edit } from 'lucide-react';
+import FormMedicion from './meidicionControl';
 
 
 const ViewEspacio = ({ }) => {
@@ -43,6 +45,19 @@ const ViewEspacio = ({ }) => {
         variables: [],
         configureMeasurementControls: [],
     });
+      const [newControl, setNewControl] = useState({
+            measurementType: '',
+            sensorId: '',
+            actuatorId: '',
+            samplingTimeUnit: '',
+            samplingFrequency: '',
+            numberOfSamples: '',
+            controlType: '',
+            actuationTimeUnit: '',
+            activationParameterRange: '',
+            activationFrequency: '',
+            alertMessage: '',
+        });
     const [isEditable, setIsEditable] = useState(false);
 
     useEffect(() => {
@@ -132,8 +147,8 @@ const ViewEspacio = ({ }) => {
         newSubSpaces[index][field] = value;
         setFormData({ ...formData, subProductionSpaces: newSubSpaces });
     };
-    const handleSubmit = async () => {
-    // e.preventDefault();
+    const handleSubmit = async (e) => {
+    e.preventDefault();
 
         console.log('Datos de configureMeasurementControls:', formData.subProductionSpaces.map(subSpace => subSpace.configureMeasurementControls));
     
@@ -198,7 +213,36 @@ const ViewEspacio = ({ }) => {
         const updatedSubSpaces = formData.subProductionSpaces.filter((_, i) => i !== index);
         setFormData({ ...formData, subProductionSpaces: updatedSubSpaces });
     };
+    const handleOpenModal = (control, mode) => {
+        console.log("control antes de editar : ", control)
+        setNewControl({
+            measurementType: control.measurementType,
+            sensorId: control.sensor?.id || '',
+            actuatorId: control.actuator?.id || '',
+            samplingTimeUnit: control.samplingTimeUnit,
+            samplingFrequency: control.samplingFrequency,
+            numberOfSamples: control.numberOfSamples,
+            controlType: control.controlType,
+            actuationTimeUnit: control.actuationTimeUnit,
+            activationParameterRange: control.activationParameterRange,
+            alertMessage: control.alertMessage,
+            // Puedes agregar más campos si es necesario
+            id: control.id,
+            activationFrequency: control.activationFrequency
+        });
+        setModalMode(mode);
+        setIsModalOpen(true);
+    };
 
+
+
+    const closeModal = async (e) => {
+        e?.preventDefault()
+        setIsModalOpen(false);
+        setSelectedLote(null);
+        setModalMode('create');
+        updateService();
+    };
 
     return (
         <form onSubmit={handleSubmit}>
@@ -424,12 +468,12 @@ const ViewEspacio = ({ }) => {
 
 
                         <div className="md:grid-cols-3 gap-6 ">
-                            <div className="grid grid-cols-1 md:grid-cols-7 gap-8 mb-8 ">
-                                <div className={`col-span-${isEditable ? '6' : '7'} flex items-start bg-white border border-gray-300 rounded-lg`} >
+                            <div className="grid grid-cols-1 md:grid-cols-7 gap-[14px]  mb-8 ">
+                                <div className={`col-span-${isEditable ? '7' : '7'} flex items-start gap-[14px]   rounded-lg`} >
                                     {formData.subProductionSpaces.map((subSpace, index) => (
                                         <div
                                             key={subSpace.id}
-                                            className="border p-4 rounded-md shadow-lg w-full"
+                                            className="p-4 rounded-md shadow-lg w-full bg-white border border-gray-300"
                                         >
                                             <div
                                                 className="flex items-center justify-between cursor-pointer"
@@ -557,12 +601,13 @@ const ViewEspacio = ({ }) => {
                                                         </div>
                                                     </div>
                                                     {Array.isArray(subSpace.configureMeasurementControls) && subSpace.configureMeasurementControls.length > 0 ? (
-                                <div className="space-y-4 mb-9">
-                                    <div className="grid grid-cols-2 gap-4 border border-gray-200">
+                                <div className="space-y-4 mb-9 mt-5 ">
+                                    <div className="grid grid-cols- gap-4 border border-gray-200">
                                         {subSpace.configureMeasurementControls.map((control, controlIndex) => (
                                             <div
                                                 key={controlIndex}
-                                                className="bg-white shadow-md rounded-lg flex items-center gap-4"
+                                                className="bg-slate-50 shadow-md flex items-center gap-4 border-gray-200  relative"
+
                                                 style={{ height: "169px" }}
                                             >
                                                 <div className="w-60">
@@ -576,10 +621,20 @@ const ViewEspacio = ({ }) => {
                                                 <div>
                                                     <p className="text-lg font-semibold">{control.variable_production.name}</p>
                                                     <p className="text-sm text-gray-600">Medición: {control.measurementType}</p>
-                                                    <p className="text-sm text-gray-600">Sensor: {control.sensorId?.sensorCode}</p>
+                                                    <p className="text-sm text-gray-600">Sensor: {control.sensor?.sensorCode}</p>
                                                     <p className="text-sm text-gray-600">Control: {control.controlType}</p>
-                                                    <p className="text-sm text-gray-600">Actuador: {control.actuatorId}</p>
+                                                    <p className="text-sm text-gray-600">Actuador: {control.actuator.actuatorCode}</p>
                                                 </div>
+                                                {/* <div className="absolute top-2 right-2 flex gap-2">
+                                                                                <Edit size={18}
+                                                                                    className=" text-[#168C0DFF] cursor-pointer "
+                                                                                    onClick={() => handleOpenModal(control, 'edit')}
+                                                                                />
+                                                                                <Trash size={18}
+                                                                                    className="text-[#168C0DFF] cursor-pointer"
+                                                                                    onClick={() => handleDeleteClick(index)}
+                                                                                />
+                                                                            </div> */}
                                             </div>
                                         ))}
                                     </div>
@@ -651,7 +706,27 @@ const ViewEspacio = ({ }) => {
                 </div>
 
             </div>
+            {isModalOpen && (
+                <GenericModal
+                    title={
+                        modalMode === 'edit'
+                            ? 'Editar Medición y Control'
+                            : modalMode === 'view'
+                                ? 'Ver Medición y Control'
+                                : 'Añadir Medición y Control'
+                    }
+                    onClose={closeModal}
+                >
+                    <FormMedicion
+                        // selectedVariableId={selectedVariableId}
+                        onClose={() => setIsModalOpen(false)}
+                        control={newControl}
+                        mode={modalMode}
+                    />
+                </GenericModal>
+            )}
         </form>
+        
     );
 
 };
