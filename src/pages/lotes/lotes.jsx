@@ -12,6 +12,7 @@ import Delete from '../../components/delete';
 import SuccessAlert from "../../components/alerts/success";
 import GenericModal from '../../components/genericModal';
 import FormLotes from './components/editarLote';
+import FormCosecha from './components/FormCosecha';
 import { FaRegEye, FaRegTrashAlt, FaRegEdit } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { AiOutlineStop } from "react-icons/ai";
@@ -39,6 +40,10 @@ const Lotes = () => {
   const [messageAlert, setMessageAlert] = useState("");
   const [expandedLote, setExpandedLote] = useState(null);
   const [expanded, setExpanded] = useState(null);
+  const [isModalOpenRechazar, setIsModalOpenRechazar] = useState(false);
+  const [isModalOpenCosecha, setIdModalOpenCosecha] = useState(false);
+  const [isModalOpenSeguimiento, setIdModalOpenSeguimiento] = useState(false);
+  const [isModalOpenEtapa, setIsModalOpenEtapa] = useState(false);
   const [newLote, setNewLote] = useState({
     lotCode: '',
     startDate: '',
@@ -101,28 +106,44 @@ const Lotes = () => {
       </div>
     );
   };
+
   const handleOpenModal = (lote = null, mode = 'create') => {
     setSelectedLote(lote);
     setModalMode(mode);
-    if (mode === 'edit' || mode === 'view') {
-      setNewLote(lote);
-    } else {
-      setNewLote({
-        lotCode: '',
-        startDate: '',
-        estimatedEndDate: '',
-        productionSpaceId: '',
-        reportFrequency: '',
-        cycleStage: ''
 
-      });
+  
+    setIdModalOpenCosecha(false); 
+    setIsModalOpen(false); 
+    setIsModalOpenRechazar(false); 
+    setIsModalOpenEtapa(false); 
+    setIdModalOpenSeguimiento(false); 
+
+    if (mode === 'edit') {
+        setNewLote(lote);
+        setIsModalOpen(true);  
+    } else if (mode === 'cosechar') {
+        setNewLote(lote);
+        setIdModalOpenCosecha(true); 
+    } else if (mode === 'rechazar') {
+        setIsModalOpenRechazar(true);
+    } else if (mode === 'etapa') {
+        setIsModalOpenEtapa(true);
+    } else if (mode === 'seguimiento') {
+        setIdModalOpenSeguimiento(true);
+    } else {
+        setIsModalOpen(true); // Modal general
     }
-    setIsModalOpen(true);
-  };
+};
+
 
   // Cerrar el modal
   const closeModal = async () => {
     setIsModalOpen(false);
+    setIdModalOpenCosecha(false); 
+    setIsModalOpen(false); 
+    setIsModalOpenRechazar(false); 
+    setIsModalOpenEtapa(false); 
+    setIdModalOpenSeguimiento(false); 
     setSelectedLote(null);
     setModalMode('create');
     updateService();
@@ -226,9 +247,9 @@ const Lotes = () => {
                 <span>Filtro</span>
               </button>
 
-              <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center">
+              {/* <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center">
                 Cambiar etapa
-              </button>
+              </button> */}
               <button
                 className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center"
                 onClick={() => handleOpenModal(null, 'create')}
@@ -245,9 +266,13 @@ const Lotes = () => {
                 <div className="text-lg flex items-center justify-between font-bold">
                   <span>{lote.lotCode}</span>
                   <div className="flex items-center gap-2 text-[#168C0DFF]">
-                    {/* Ver Lote */}
+
                     <div className="relative group">
-                      <GoArrowSwitch size={19} className="cursor-pointer" />
+                      <GoArrowSwitch size={19} 
+                      className="cursor-pointer"
+                      onClick={() => handleOpenModal(lote.id, 'etapa')}
+                       />
+
                       <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                         Cambiar etapa
                       </span>
@@ -258,9 +283,6 @@ const Lotes = () => {
                         Ver Lote
                       </span>
                     </div>
-
-
-
                     {/* Editar Lote */}
                     <div className="relative group">
                       <FaRegEdit
@@ -285,7 +307,9 @@ const Lotes = () => {
 
                     {/* Rechazar */}
                     <div className="relative group">
-                      <Ban size={19} className="cursor-pointer" />
+                      <Ban size={19} className="cursor-pointer"
+                      onClick={() => handleOpenModal(lote.id, 'rechazar')}
+                      />
                       <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                         Rechazar
                       </span>
@@ -364,7 +388,10 @@ const Lotes = () => {
                     </button>
                   </div>
                   <div>
-                    <button className="bg-white text-[#168C0DFF] border border-[#168C0DFF] w-full px-6 py-2 rounded-lg  items-center">
+                    <button 
+                    className="bg-white text-[#168C0DFF] border border-[#168C0DFF] w-full px-6 py-2 rounded-lg  items-center"
+                    onClick={() => handleOpenModal(lote, 'cosechar')}
+                    >
                       Cierre y cosecha
                     </button>
                   </div>
@@ -418,6 +445,24 @@ const Lotes = () => {
           </GenericModal>
 
         )}
+
+{isModalOpenCosecha && (
+        <GenericModal
+          title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Cierre y cosecha'}
+          onClose={closeModal}
+          companyId={selectedCompany} >
+
+          <FormCosecha
+          showErrorAlert={showErrorAlertSuccess}
+           onUpdate={updateService}
+           lote={newLote}
+           mode={modalMode}
+           closeModal={closeModal}
+            />
+          
+        </GenericModal>
+      )}
+
         {showErrorAlertTable && (
           <div className="alert alert-error flex flex-col items-start space-y-1 p-2 mt-4 bg-red-500 text-white rounded-md">
             <div className="flex space-x-2">

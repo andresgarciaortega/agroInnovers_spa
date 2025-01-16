@@ -411,26 +411,45 @@ const CrearEspacio = () => {
     subspaces: {}
   });
 
+const handleAddVariable = (type, index) => {
+  if (type === 'main') {
+    setSelectedVariables((prev) => ({
+      ...prev,
+      subspaces: [...(prev.subspaces || []), nuevaVariable], // Si prev.subspaces es undefined, usa un arreglo vacío
+    }));
+    
+    
+  } else {
+    // Agregar variable al subespacio correspondiente
+    setSelectedVariables((prev) => {
+      const updatedSubspaces = [...prev.subspaces];
+      updatedSubspaces[index] = updatedSubspaces[index]
+        ? [...updatedSubspaces[index], selectedVariableId]
+        : [selectedVariableId];
+      return { ...prev, subspaces: updatedSubspaces };
+    });
+  }
+};
 
-  const handleAddVariable = (space) => {
-    if (space === "main" && selectedVariables.main) {
-      setSelectedVariables((prev) => ({
-        ...prev,
-        main: [...prev.main, selectedVariables.main],
-      }));
-    } else if (selectedVariables.subspaces[space]) {
-      setSelectedVariables((prev) => ({
-        ...prev,
-        subspaces: {
-          ...prev.subspaces,
-          [space]: [
-            ...(prev.subspaces[space] || []),
-            selectedVariables.subspaces[space],
-          ],
-        },
-      }));
-    }
-  };
+  // const handleAddVariable = (space) => {
+  //   if (space === "main" && selectedVariables.main) {
+  //     setSelectedVariables((prev) => ({
+  //       ...prev,
+  //       main: [...prev.main, selectedVariables.main],
+  //     }));
+  //   } else if (selectedVariables.subspaces[space]) {
+  //     setSelectedVariables((prev) => ({
+  //       ...prev,
+  //       subspaces: {
+  //         ...prev.subspaces,
+  //         [space]: [
+  //           ...(prev.subspaces[space] || []),
+  //           selectedVariables.subspaces[space],
+  //         ],
+  //       },
+  //     }));
+  //   }
+  // };
 
   const handleVariableChangeForSubspace = (index, variable) => {
     setSelectedVariables((prev) => {
@@ -1330,9 +1349,16 @@ const CrearEspacio = () => {
                       </button>
                     </div>
                   )}
-                {Array.isArray(selectedVariables.main) && 
+                 {selectedVariables.main.length > 0 && (
+  <div className="mt-4">
+    <h3 className="text-lg font-medium">Variables del Espacio:</h3>
+    <div className="mt-2 grid grid-cols-1 gap-2">
+    {Array.isArray(selectedVariables.main) &&
   selectedVariables.main.map((variable, index) => (
-    <div key={index} className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md">
+    <div
+      key={index}
+      className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
+    >
       <div className="flex justify-between items-center">
         <span>{variable.name || variable}</span>
         <button
@@ -1344,8 +1370,12 @@ const CrearEspacio = () => {
         </button>
       </div>
     </div>
-  ))
-}
+  ))}
+
+    </div>
+  </div>
+)}
+
 
 
 
@@ -1367,6 +1397,10 @@ const CrearEspacio = () => {
                     </GenericModal>
                   )}
 
+
+
+                </div>
+                <div className='p-3'>
                   {subspaces.map((subspace, index) => (
                     <div
                       key={index}
@@ -1437,40 +1471,45 @@ const CrearEspacio = () => {
                           </button>
                         )}
 
-                        {subspaces.map((subspace, index) => (
-                          <div key={index} className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4">
-                            <h3>Subespacio {index + 1}</h3>
+{subspaces.map((subspace, index) => (
+  <div key={index} className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4">
+    <h3>Subespacio {index + 1}</h3>
 
-                            {/* Mostrar variables seleccionadas para cada subespacio */}
-                            {selectedVariables.subspaces[index]?.length > 0 && (
-                              <div className="mt-6">
-                                <h3 className="text-lg font-medium">Variables Seleccionadas:</h3>
-                                <div className="mt-2 grid grid-cols-1 gap-2">
-                                  {selectedVariables.subspaces[index].map((variable, varIndex) => (
-                                    <div key={varIndex} className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md">
-                                      <div className="flex justify-between items-center">
-                                        <span>{variable.name || variable}</span>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleMedicionControl(variable)}
-                                          className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
-                                        >
-                                          Medición y Control
-                                        </button>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ))}
+    {/* Mostrar variables seleccionadas para cada subespacio */}
+    {Array.isArray(selectedVariables.subspaces[index]) && selectedVariables.subspaces[index].length > 0 && (
+  <div className="mt-6">
+    <h3 className="text-lg font-medium">Variables del Subespacio:</h3>
+    <div className="mt-2 grid grid-cols-1 gap-2">
+      {selectedVariables.subspaces[index].map((variable, varIndex) => (
+        <div
+          key={varIndex}
+          className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
+        >
+          <div className="flex justify-between items-center">
+            <span>{variable.name || variable}</span>
+            <button
+              type="button"
+              onClick={() => handleMedicionControl(variable)}
+              className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
+            >
+              Medición y Control
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+  </div>
+))}
+
 
                       </div>
                     </div>
                   ))}
-
                 </div>
+
               </div>
             )}
 

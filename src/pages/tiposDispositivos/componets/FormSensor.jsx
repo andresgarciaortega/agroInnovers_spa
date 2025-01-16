@@ -560,9 +560,9 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Presición</label>
                             <input
-                                type="numb"
+                                type="text"
                                 name="precision"
-                                placeholder="Posición"
+                                placeholder="precision"
                                 value={formData.precision}
                                 onChange={handleChange}
                                 disabled={mode === 'view'}

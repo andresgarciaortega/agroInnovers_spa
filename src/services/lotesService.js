@@ -40,6 +40,15 @@ const LotsService = {
             throw error;
         }
     },
+    async updateCosecha(id, data) {
+        try {
+            const response = await api.put(`/production-lots/edit/harvest/${id}`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error al actualizar las cosechas:', error);
+            throw error;
+        }
+    },
 
 
 

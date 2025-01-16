@@ -245,12 +245,21 @@ const EditarEspacio = ({ }) => {
                 assignDevices: Array.isArray(subSpace.assignDevices) ? subSpace.assignDevices : [],
                 configureMeasurementControls: Array.isArray(subSpace.configureMeasurementControls)
                     ? subSpace.configureMeasurementControls.map(control => ({
-                        ...control,
-                        sensorId: parseInt(control.sensorId, 10),
-                        actuatorId: parseInt(control.actuatorId, 10),
-                        productionParameterId: parseInt(control.productionParameterId, 10),
+                        measurementType: control.measurementType || '',
+                        sensorId: control.sensor ? control.sensor.id : null,
+                        actuatorId: control.actuator ? control.actuator.id : null,
+                        samplingTimeUnit: control.samplingTimeUnit || '',
+                        samplingFrequency: control.samplingFrequency || null,
+                        numberOfSamples: control.numberOfSamples || null,
+                        controlType: control.controlType || '',
+                        actuationTimeUnit: control.actuationTimeUnit || '',
+                        activationParameterRange: control.activationParameterRange || '',
+                        activationFrequency: control.activationFrequency || null,
+                        alertMessage: control.alertMessage || '',
+                        productionParameterId: control.parameter_production ? control.id : control.parameter_production || null,
                     }))
                     : [],
+            
             })),
 
             monitoringSystemId: formData.monitoringSystemId ? parseInt(formData.monitoringSystemId.id, 10) : null,
