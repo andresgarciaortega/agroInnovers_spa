@@ -234,14 +234,7 @@ const Usuario = () => {
 
   return (
     <div className="table-container">
-
-      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
-        <div className="relative w-full selectoraUniversal">
-          <CompanySelector />
-
-        </div>
-
-        <br />
+      <div className="">
         <div className="flex items-center space-x-2 text-gray-700">
           <HiOutlineUserGroup size={20} />
           <span>Usuarios</span>
@@ -252,11 +245,9 @@ const Usuario = () => {
             </span>
           )}
         </div>
-
-
       </div>
 
-      <div className="relative w-full mt-6 py-5 z-0">
+      <div className=" w-full py-5 buscadorTable">
         {/* Input de búsqueda */}
         <input
           type="text"
@@ -265,8 +256,6 @@ const Usuario = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-
-        {/* Icono de búsqueda alineado a la izquierda */}
         <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
 
@@ -377,13 +366,13 @@ const Usuario = () => {
 
       {/* Modal crea,editar,visualizar*/}
       {isModalOpen && (
-        <GenericModal 
-        title={modalMode === 'edit' ? 'Editar Usuario' : modalMode === 'view' ? 'Ver Usuario' : 'Añadir Usuario'} 
-        onClose={closeModal}>
-          <FormUser 
-          showErrorAlert={showErrorAlertSuccess} 
-          onUpdate={updateListUsers} 
-          user={newUser} mode={modalMode} closeModal={closeModal} />
+        <GenericModal
+          title={modalMode === 'edit' ? 'Editar Usuario' : modalMode === 'view' ? 'Ver Usuario' : 'Añadir Usuario'}
+          onClose={closeModal}>
+          <FormUser
+            showErrorAlert={showErrorAlertSuccess}
+            onUpdate={updateListUsers}
+            user={newUser} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
       )}
 

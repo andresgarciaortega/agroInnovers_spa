@@ -18,6 +18,10 @@ import { AiOutlineStop } from "react-icons/ai";
 import { BsBan } from "react-icons/bs";
 import { PiArrowsCounterClockwiseBold } from "react-icons/pi";
 import { GoArrowSwitch } from "react-icons/go";
+
+
+
+
 const Lotes = () => {
   const { companyId } = useParams();
   const [selectedLote, setSelectedLote] = useState(null);
@@ -190,21 +194,17 @@ const Lotes = () => {
   };
 
   return (
-    <div className="flex">
-      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
-        <div className="relative w-full">
-          <CompanySelector />
-        </div>
-        <br />
+    <div className="flex flex-col">
+      <div className="">
         <div className="flex items-center space-x-2 text-gray-700">
+          <PiArrowsCounterClockwiseBold size={20} /> {/* Ícono de Gestión de Variables */}
           <span>Lotes de producción</span>
           <span>/</span>
           <span className="text-black font-bold">{nameCompany}</span>
         </div>
-
       </div>
 
-      <div className="flex-1 p-6">
+      <div className="flex-1 ">
         <div className="relative w-full mt-2  z-0">
           {/* Input de búsqueda */}
           <input
@@ -214,10 +214,9 @@ const Lotes = () => {
           // value={searchTerm}
           // onChange={(e) => setSearchTerm(e.target.value)}
           />
-
           <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
         </div>
-        <div className="max-w-7xl mx-auto">
+        <div className="">
           <div className="flex justify-between items-center py-6 border-b">
             <h2 className="text-xl font-semibold">Lotes de producción</h2>
 
@@ -230,12 +229,12 @@ const Lotes = () => {
               <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center">
                 Cambiar etapa
               </button>
-              <button 
-  className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" 
-  onClick={() => handleOpenModal(null, 'create')}
->
-  Crear lote de producción
-</button>
+              <button
+                className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center"
+                onClick={() => handleOpenModal(null, 'create')}
+              >
+                Crear lote de producción
+              </button>
 
             </div>
           </div>
@@ -259,8 +258,8 @@ const Lotes = () => {
                         Ver Lote
                       </span>
                     </div>
-                    
-                   
+
+
 
                     {/* Editar Lote */}
                     <div className="relative group">

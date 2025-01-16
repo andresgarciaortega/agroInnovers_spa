@@ -304,7 +304,7 @@ const Sidebar = ({ selectedItem, setSelectedItem, userRoles }) => {
   const hasAccess = (roles) => roles.some(role => userRoles.includes(role));
 
   return (
-    <nav className="w-full md:max-w-80 bg-[#345246] text-white flex flex-col h-full">
+    <nav className="w-full md:max-w-80 bg-[#345246] text-white flex flex-col h-full menucompleto">
       <div className="p-2 flex justify-center">
         <img src={logo} alt="Logo" className="h-20" />
       </div>

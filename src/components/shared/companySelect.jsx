@@ -35,9 +35,9 @@ const CompanySelector = () => {
     const handleCompanyChange = (selectedOption) => {
         setSelectedCompanyUniversal(selectedOption); // Actualiza el contexto con la opción seleccionada
     };
-
+ 
     return (
-        <div className="relative w-full">
+        <div className="relative w-100 selectorUniversal">
             <Select
                 className="w-full"
                 onChange={handleCompanyChange}

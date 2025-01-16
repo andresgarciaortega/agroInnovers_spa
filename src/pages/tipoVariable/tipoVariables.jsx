@@ -234,13 +234,7 @@ const TipoVariable = () => {
 
   return (
     <div className="table-container">
-
-      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
-        <div className="relative w-full">
-          {/* <CompanySelector /> */}
-        </div>
-
-        <br />
+      <div className="">
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Variables */}
           <span>Gestión de variables</span>
@@ -252,9 +246,7 @@ const TipoVariable = () => {
           {selectedCompany && (
             <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
           )}
-
         </div>
-
       </div>
 
       <div className="relative w-full mt-6 py-5 z-0">

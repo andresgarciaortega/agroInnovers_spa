@@ -66,10 +66,6 @@ const Variable = () => {
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
 
-      console.log("Roles del usuario:", decodedToken);
-      console.log("Lista de UserRoles:", decodedToken.roles?.map(role => role.name) || []);
-
-
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
       if (!companyId) {
         setVariableList([]);
@@ -228,11 +224,7 @@ const Variable = () => {
 
   return (
     <div className="table-container ">
-      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
-        <div className="relative w-full">
-          {userRoles?.[0] === 'SUPER-ADMINISTRADOR' && <CompanySelector />}
-        </div>
-        <br />
+      <div className="">
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} />
           <span>Gestión de variables</span>

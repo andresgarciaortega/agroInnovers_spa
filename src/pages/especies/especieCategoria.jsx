@@ -266,12 +266,7 @@ const Especie = () => {
 
   return (
     <div className="table-container">
-      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
-        <div className="relative w-full">
-          {userRoles?.[0] === 'SUPER-ADMINISTRADOR' && <CompanySelector />}
-
-        </div>
-        <br />
+      <div className="">
         <div className="flex items-center space-x-2 text-gray-700">
           <BiWorld size={20} />
           <span>Gestión de especies</span>
