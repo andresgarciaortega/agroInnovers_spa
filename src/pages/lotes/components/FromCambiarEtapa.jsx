@@ -1,102 +1,80 @@
 import React, { useEffect, useState } from 'react';
 import LoteService from "../../../services/lotesService";
 import EspacioService from "../../../services/espacios";
-import { FaTrash } from 'react-icons/fa';
+import SpeciesService from "../../../services/SpeciesService";
 
 const FormCambiarEtapa = ({ lote, onUpdate, closeModal }) => {
-    const [step, setStep] = useState(1);
-    const [espacios, setEspacios] = useState([]); // Lista de espacios disponibles
-    const [especies, setEspecies] = useState([]); // Lista de especies asociadas al lote
-    const [etapas, setEtapas] = useState([]); // Lista de etapas de la especie seleccionada
+    const [espacios, setEspacios] = useState([]);
+    const [especies, setEspecies] = useState([]);
+    const [etapas, setEtapas] = useState([]); // Inicializar etapas como un array vacío
     const [formData, setFormData] = useState({
         lotCode: '',
-        startDate: '',
-        estimatedEndDate: '',
         productionSpaceId: '',
-        reportFrequency: '',
-        cycleStage: '', // Aquí se incluirá la etapa de producción
-        trackingConfig: [],
-        specieId: '', // ID de la especie seleccionada
+        specieId: '',
+        cycleStage: ''
     });
 
-    const [loteConEspecies, setLoteConEspecies] = useState(lote); // Estado para manejar el lote con las especies
-
     useEffect(() => {
+        fetchLotes(); // Cargar todos los lotes al montar el componente
         if (lote) {
-            setFormData({
+            setFormData(prev => ({
+                ...prev,
                 lotCode: lote.lotCode || '',
-                startDate: lote.startDate || '',
-                estimatedEndDate: lote.estimatedEndDate || '',
-                productionSpaceId: lote.productionSpace?.id || '',
-                reportFrequency: lote.reportFrequency || '',
-                cycleStage: lote.cycleStage || '',
-                specieId: lote.productionLotSpecies?.[0]?.specie?.id || '', // Asumiendo que el primer lote tiene una especie
-                trackingConfig: lote.trackingConfig || { 
-                    trackingStartDate: '', 
-                    trackingFrequency: '',
-                    productionCycleStage: ''
-                }
-            });
-    
-            if (lote.productionSpace?.id) {
-                fetchEspacioDetalles(lote.productionSpace.id); 
-            }
-            fetchEspeciesPorLote(lote.id); // Cargar las especies asociadas al lote
+                specieId: lote.productionLotSpecies?.[0]?.specie?.id || '',
+                cycleStage: lote.cycleStage || ''
+            }));
+            if (lote.id) fetchEspeciesPorLote(lote.id);
         }
-        fetchEspacios(); // Cargar los espacios
     }, [lote]);
 
-    useEffect(() => {
-        if (formData.specieId) {
-            fetchEtapasPorEspecie(formData.specieId); // Cargar las etapas al seleccionar una especie
-        }
-    }, [formData.specieId]);
-    useEffect(() => {
-        if (lote && lote.id) {
-            fetchEspeciesPorLote(lote.id);
-            console.log('fetchEspeciesPorLote', lote.id) // Cargar las especies asociadas al lote
-        }
-    }, [lote]);
-    useEffect(() => {
-        console.log('especies', especies);  // Verifica que las especies estén correctamente asignadas
-    }, [especies]);
-    
-    
     const fetchEspacios = async () => {
         try {
             const espaciosData = await EspacioService.getAllEspacio();
-            setEspacios(espaciosData); 
+            setEspacios(espaciosData);
         } catch (error) {
             console.error("Error al obtener los espacios:", error);
         }
     };
 
+    const [lotes, setLotes] = useState([]);
+
+    const fetchLotes = async () => {
+        try {
+            const lotesData = await LoteService.getAllLots();
+            setLotes(lotesData);
+        } catch (error) {
+            console.error("Error al obtener los lotes:", error);
+        }
+    };
+
     const fetchEspeciesPorLote = async (loteId) => {
         try {
-            const especiesData = await LoteService.getSpecieByLote({ productionLot: { id: loteId } });
+            const searchParameter = {
+                productionLotSpecie: {
+                    productionLot: {
+                        id: parseInt(loteId),
+                    },
+                },
+            };
+            const especiesData = await SpeciesService.getAllSpecie(0, searchParameter);
             setEspecies(especiesData);
         } catch (error) {
             console.error("Error al obtener las especies:", error);
         }
     };
-    
 
     const fetchEtapasPorEspecie = async (especieId) => {
         try {
-            const etapasData = await LoteService.getEtapasPorEspecie(especieId);
-            setEtapas(etapasData);
+            const etapasData = await SpeciesService.getSpecieById(especieId);
+            // Verificar que etapasData sea un array y luego actualizar el estado
+            if (Array.isArray(etapasData)) {
+                setEtapas(etapasData);
+            } else {
+                setEtapas([]); // Si no es un array, vaciar el estado de etapas
+            }
         } catch (error) {
             console.error("Error al obtener las etapas:", error);
-        }
-    };
-
-    const fetchEspacioDetalles = async (id) => {
-        try {
-            const espacios = await EspacioService.getAllEspacio();
-            const espacio = espacios.find(espacio => espacio.id === id);
-            setEspacioDetalles(espacio);
-        } catch (error) {
-            console.error("Error al obtener detalles del espacio:", error);
+            setEtapas([]); // Asegurarse de que etapas esté vacío en caso de error
         }
     };
 
@@ -110,18 +88,8 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (loteConEspecies.productionLotSpecies.length === 0) {
-            console.error("El lote debe tener al menos una especie.");
-            return;  
-        }
-
         try {
-            await LoteService.updateLots(lote.id, {
-                ...formData,
-                productionLotSpecies: loteConEspecies.productionLotSpecies 
-            });
-
+            await LoteService.updateLots(lote.id, formData);
             onUpdate();
             closeModal();
         } catch (error) {
@@ -134,16 +102,25 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal }) => {
             <div>
                 <label className="block text-sm font-medium">Lote de producción</label>
                 <select
-                    name="productionSpaceId"
-                    value={formData.productionSpaceId}
-                    onChange={handleChange}
+                    name="lotCode"
+                    value={formData.lotCode}
+                    onChange={(e) => {
+                        const selectedLoteId = e.target.value;
+                        setFormData(prevFormData => ({
+                            ...prevFormData,
+                            lotCode: selectedLoteId,
+                            specieId: '', // Reinicia especie
+                            cycleStage: '' // Reinicia etapa
+                        }));
+                        fetchEspeciesPorLote(selectedLoteId); // Cargar especies para el nuevo lote
+                    }}
                     className="mt-1 block w-full border rounded-md p-2"
                     required
                 >
-                    <option value="">Seleccione una opción</option>
-                    {espacios.map(espacio => (
-                        <option key={espacio.id} value={espacio.id}>
-                            {espacio.name}
+                    <option value="">Seleccione un lote</option>
+                    {lotes.map(lote => (
+                        <option key={lote.id} value={lote.id}>
+                            {lote.lotCode}
                         </option>
                     ))}
                 </select>
@@ -153,15 +130,23 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal }) => {
                 <label className="block text-sm font-medium">Especie</label>
                 <select
                     name="specieId"
-                    value={formData.specieId}
-                    onChange={handleChange}
+                    value={formData.specieId || ""}
+                    onChange={(e) => {
+                        const { value } = e.target;
+                        setFormData(prevFormData => ({
+                            ...prevFormData,
+                            specieId: value,
+                            cycleStage: '' // Reinicia la etapa al cambiar la especie
+                        }));
+                        fetchEtapasPorEspecie(value); // Actualiza las etapas para la especie seleccionada
+                    }}
                     className="mt-1 block w-full border rounded-md p-2"
                     required
                 >
                     <option value="">Seleccione una opción</option>
                     {especies.map(especie => (
                         <option key={especie.id} value={especie.id}>
-                            {especie.name}
+                            {especie.common_name}
                         </option>
                     ))}
                 </select>
@@ -188,7 +173,7 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal }) => {
             <div className="flex justify-end space-x-4 mt-6">
                 <button
                     type="button"
-                    onClick={() => closeModal()}
+                    onClick={closeModal}
                     className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
                 >
                     Volver

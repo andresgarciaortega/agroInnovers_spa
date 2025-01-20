@@ -4,10 +4,12 @@ import api from './ApiService';
 
 const SpeciesService = {
     // LISTAR TODAS LAS CATEGORÍAS
-    async getAllSpecie(idcompany = 0) {
+    async getAllSpecie(idcompany = 0, searchParameter) {
         try {
-            const response = await api.get(`/species?page=1&limit=100&company_id=${idcompany}`);
+            const response = await api.get(`/species?page=1&limit=100&company_id=${idcompany}&search=${encodeURIComponent(JSON.stringify(searchParameter))}`);
+            console.log('busqueda:',searchParameter )
             return response.data;
+
         } catch (error) {
             console.error('Error al obtener las Especies:', error);
             throw error;
