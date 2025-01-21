@@ -516,11 +516,11 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Valor máximo de medición</label>
+                            <label className="block text-sm font-medium text-gray-700">Valor máximo de operación</label>
                             <input
                                 type="number"
                                 name="maxValue"
-                                placeholder="Valor máximo de medición"
+                                placeholder="Valor máximo de Operación"
                                 value={formData.maxValue}
                                 onChange={handleChange}
                                 disabled={mode === 'view'}
@@ -531,11 +531,11 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
                             )}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Valor mínimo de medición</label>
+                            <label className="block text-sm font-medium text-gray-700">Valor mínimo de operación</label>
                             <input
                                 type="number"
                                 name="minValue"
-                                placeholder="Valor mínimo de medición<"
+                                placeholder="Valor mínimo de Operación"
                                 value={formData.minValue}
                                 onChange={handleChange}
                                 disabled={mode === 'view'}
