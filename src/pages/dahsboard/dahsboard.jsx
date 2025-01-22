@@ -18,6 +18,7 @@ import espacios from "../../services/espacios";
 import SpeciesService from "../../services/SpeciesService";
 import CategoryService from "../../services/CategoryService";
 import lotesService from "../../services/lotesService";
+import { useCompanyContext } from "../../context/CompanyContext";
 
 const Dashboard = () => {
   const [companyCount, setCompanyCount] = useState(0);
@@ -38,8 +39,10 @@ const Dashboard = () => {
   const [operarios, setOperarios] = useState([]);
   const [administrativos, setAdministrativos] = useState([]);
   const [superAdministrativos, setSuperAdministrativos] = useState([]);
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
   useEffect(() => {
+    hiddenSelect(false)
     const fetchData = async () => {
       try {
         const companies = await CompanyService.getAllCompany();

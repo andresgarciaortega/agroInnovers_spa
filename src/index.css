@@ -46,20 +46,36 @@ select {
     background-color: white;
     position: fixed;
     width: 100%;
-    height: 5em;
+    /* height: 5em; */
     margin-bottom: 10em;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid rgb(231, 231, 231);
   }
+
+
+  .selectorUniversal {
+    font-size: 0.8em !important;
+    width: 20em !important;
+
+  }
+
 
   .containerEmporesa {
-    margin-top: 6em;
+    margin-top: 10em;
   }
 
-  .buscadorModulo{
+  .buscadorModulo {
     position: absolute;
     top: -10px;
   }
-  .seccionNombreUser {
-    display: none;
+
+  .infosessionperfil {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+    margin-top: 1em;
   }
 
   .seccionNombreBtn {
@@ -76,26 +92,27 @@ select {
   .selectoraUniversal {
     width: 100% !important;
   }
+
+  .seccionLotes{
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 /* Para tablets (768px a 1024px) */
 @media screen and (min-width: 768px) and (max-width: 1024px) {
-  .iconSearch {
-    display: none;
-  }
 
 
   .infosessionperfil {
+    cursor: pointer;
     margin-right: 3em;
   }
 
   .selectorUniversal {
-    width: 85% !important;
+    width: 20em !important;
   }
 
-  .buscadorModulo {
-    width: 40%;
-  }
+
 }
 
 textarea {

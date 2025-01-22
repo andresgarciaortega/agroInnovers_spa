@@ -23,7 +23,7 @@ const Variable = () => {
   const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
-  const { selectedCompanyUniversal } = useCompanyContext();
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
   const [variableList, setVariableList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -49,6 +49,7 @@ const Variable = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    hiddenSelect(true)
     const fetchCompanies = async () => {
       try {
         const data = await CompanyService.getAllCompany();
@@ -223,8 +224,8 @@ const Variable = () => {
 
 
   return (
-    <div className="table-container ">
-      <div className="">
+    <div className="table-container containerEmporesa">
+      <div className="mb-5">
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} />
           <span>Gestión de variables</span>
@@ -238,7 +239,7 @@ const Variable = () => {
           )}
         </div>
       </div>
-      <div className="relative w-full mt-6 py-5 z-0">
+      <div className=" w-full mt-6 py-5 z-0">
         {/* Input de búsqueda */}
         <input
           type="text"
@@ -248,8 +249,6 @@ const Variable = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        {/* Icono de búsqueda alineado a la izquierda */}
-        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
 
 

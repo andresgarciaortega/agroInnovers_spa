@@ -28,7 +28,7 @@ const ListaEspecies = () => {
   const [categoryList, setCategoryList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
-  const { selectedCompanyUniversal } = useCompanyContext();
+    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
   const navigate = useNavigate();
 
@@ -56,6 +56,7 @@ const ListaEspecies = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    hiddenSelect(true)
     const fetchCompanies = async () => {
       try {
         const data = await CompanyService.getAllCompany();
@@ -283,7 +284,7 @@ const ListaEspecies = () => {
 
 
   return (
-    <div className="table-container ">
+    <div className="table-container containerEmporesa">
       <div className="">
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} />
@@ -308,7 +309,6 @@ const ListaEspecies = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
 
 

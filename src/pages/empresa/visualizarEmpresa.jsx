@@ -184,7 +184,7 @@ const VisualizarEmpresa = ({ }) => {
                   <span className="text-sm text-muted-foreground">Cosechados</span>
                 </div>
                 <div className="flex items-center mt-5">
-                  <span className="px-3 py-1 text-sm text-red-500 bg-red-100 r">1</span>
+                  <span className="px-3 py-1 text-sm text-red-500 bg-red-100 r">1</span> 
                   <span className="text-sm text-muted-foreground">Rechazado</span>
 
                 </div>

@@ -12,11 +12,14 @@ import { IoSearch } from "react-icons/io5";
 import ErrorAlert from "../../components/alerts/error";
 import LoadingView from '../../components/Loading/loadingView';
 import { FaRegBuilding, FaTv, FaBars } from 'react-icons/fa';
+import { useCompanyContext } from "../../context/CompanyContext";
 
 
 const Empresa = () => {
   const [companyList, setCompanyList] = useState([]);
   const navigate = useNavigate();
+  const { triggerUpdate, hiddenSelect } = useCompanyContext();
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,6 +43,7 @@ const Empresa = () => {
 
   // Cargar empresas cuando el componente se monta
   useEffect(() => {
+    hiddenSelect(false)
     const fetchCompanies = async () => {
 
       setIsLoading(true);
@@ -152,11 +156,17 @@ const Empresa = () => {
   const updateCompanies = async () => {
     try {
       const data = await CompanyService.getAllCompany();
-
+      handleUpdate();
       setCompanyList(data); // Actualiza companyList con los datos más recientes
+
     } catch (error) {
       console.error('Error al actualizar las empresas:', error);
     }
+  };
+
+
+  const handleUpdate = () => {
+      triggerUpdate(); // Esto forzará que `CompanySelector` se actualice
   };
 
   const showSuccessAlertSuccess = (message) => {
@@ -183,7 +193,6 @@ const Empresa = () => {
 
   return (
     <div className="table-container containerEmporesa">
-
       <div className="mb-5">
         <div className="flex items-center space-x-2 text-gray-700">
           <FaRegBuilding size={20} />
@@ -198,8 +207,7 @@ const Empresa = () => {
 
       {isLoading && <LoadingView />}
       {/* Barra de búsqueda */}
-      <div className=" buscadorModulo mb-5">
-        <IoSearch className="absolute left-3 top-3 text-gray-500" />
+      <div className="  mb-5 buscadorTable">
         <input
           type="text"
           placeholder="Buscar empresa "

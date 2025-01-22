@@ -7,6 +7,7 @@ import { useCompanyContext } from "../../context/CompanyContext";
 import { IoIosWarning, IoMdAlert, IoMdCheckmarkCircle } from "react-icons/io";
 import { IoSearch } from "react-icons/io5";
 import { FaFilter } from "react-icons/fa6";
+import { ImEqualizer2 } from "react-icons/im";
 
 import { Edit, Trash, Eye, Ban } from 'lucide-react';
 import Delete from '../../components/delete';
@@ -216,10 +217,10 @@ const Lotes = () => {
   };
 
   return (
-    <div className="flex flex-col">
-      <div className="">
+    <div className="table-container containerEmporesa">
+      <div className="mb-5">
         <div className="flex items-center space-x-2 text-gray-700">
-          <PiArrowsCounterClockwiseBold size={20} /> {/* Ícono de Gestión de Variables */}
+          <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Variables */}
           <span>Lotes de producción</span>
           <span>/</span>
           <span className="text-black font-bold">{nameCompany}</span>
@@ -227,7 +228,7 @@ const Lotes = () => {
       </div>
 
       <div className="flex-1 ">
-        <div className="relative w-full mt-2  z-0">
+        <div className="mb-5">
           {/* Input de búsqueda */}
           <input
             type="text"
@@ -236,10 +237,9 @@ const Lotes = () => {
           // value={searchTerm}
           // onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
         </div>
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center py-6 border-b ">
+          <div className="flex justify-between items-center py-6 border-b seccionLotes">
             <h2 className="text-xl font-semibold">Lotes de producción</h2>
 
             <div className="flex gap-4 ml-auto">

@@ -30,7 +30,7 @@ const Sensor = () => {
   const [sensorId, setSensorId] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
-  const { selectedCompanyUniversal } = useCompanyContext();
+    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
   const [variableList, setVariableList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -65,6 +65,7 @@ const Sensor = () => {
   const [userRoles, setUserRoles] = useState([]);
 
   useEffect(() => {
+    hiddenSelect(true)
     const fetchCompanies = async () => {
       try {
         const data = await CompanyService.getAllCompany();
@@ -272,7 +273,7 @@ const Sensor = () => {
   };
 
   return (
-    <div className="table-container ">
+    <div className="table-container containerEmporesa">
       <div className="">
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} />
@@ -296,7 +297,6 @@ const Sensor = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
       <div className="bg-white  rounded-lg shadow ">
         <div className="flex justify-between items-center p-6 border-b">

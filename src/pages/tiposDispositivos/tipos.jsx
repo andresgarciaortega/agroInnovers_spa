@@ -18,7 +18,7 @@ import { useCompanyContext } from "../../context/CompanyContext";
 import { FaMicrochip } from "react-icons/fa6";
 
 const Tipos = () => {
-  const { selectedCompanyUniversal } = useCompanyContext();
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
   const [expandedSection, setExpandedSection] = useState(null);
   const [searchVisible, setSearchVisible] = useState(false);
@@ -126,6 +126,7 @@ const Tipos = () => {
 
   });
   useEffect(() => {
+    hiddenSelect(false)
     const fetchSensor = async () => {
       try {
         // Verifica si selectedCompanyUniversal es nulo o si no tiene valor

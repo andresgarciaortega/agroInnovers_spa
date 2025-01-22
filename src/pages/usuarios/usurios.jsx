@@ -29,6 +29,7 @@ const Usuario = () => {
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
   const [nameCompany, setNameCompany] = useState("");
+  const { hiddenSelect } = useCompanyContext();
 
   const [usersList, setUsersList] = useState([]);
   const [companyList, setCompanyList] = useState([]);
@@ -57,6 +58,8 @@ const Usuario = () => {
 
 
   useEffect(() => {
+    hiddenSelect(true)
+
     const fetchCompanies = async () => {
       try {
         const data = await CompanyService.getAllCompany();
@@ -233,8 +236,8 @@ const Usuario = () => {
   }
 
   return (
-    <div className="table-container">
-      <div className="">
+    <div className="table-container containerEmporesa">
+      <div className="mb-5 z-50">
         <div className="flex items-center space-x-2 text-gray-700">
           <HiOutlineUserGroup size={20} />
           <span>Usuarios</span>
@@ -247,7 +250,7 @@ const Usuario = () => {
         </div>
       </div>
 
-      <div className=" w-full py-5 buscadorTable">
+      <div className="mb-5 buscadorTable">
         {/* Input de búsqueda */}
         <input
           type="text"
@@ -256,7 +259,6 @@ const Usuario = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
 
       <div className="bg-white rounded-lg shadow">

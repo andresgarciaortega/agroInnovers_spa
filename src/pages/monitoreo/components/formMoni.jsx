@@ -223,17 +223,24 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <label htmlFor="syncTime" className="block text-sm font-medium text-gray-700">Unidad tiempo sincronización</label>
-                                <input
+                                <label htmlFor="syncTime" className="block text-sm font-medium text-gray-700">
+                                    Unidad tiempo sincronización
+                                </label>
+                                <select
                                     id="syncTime"
                                     name="unidadSincronizacion"
-                                    type="number"
                                     value={formData.unidadSincronizacion}
                                     onChange={handleChange}
                                     className="border-gray-300 rounded-md shadow-sm p-2 w-full"
-                                    placeholder="Ingrese la unidad"
-                                />
+                                >
+                                    <option value="Meses">Meses</option>
+                                    <option value="Semanas">Semanas</option>
+                                    <option value="Dias">Días</option>
+                                    <option value="Horas">Horas</option>
+                                    <option value="Minutos">Minutos</option>
+                                </select>
                             </div>
+
                             <div className="grid gap-2">
                                 <label htmlFor="syncFreq" className="block text-sm font-medium text-gray-700">Frecuencia sincronización datos</label>
                                 <input
