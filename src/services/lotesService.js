@@ -15,6 +15,16 @@ const LotsService = {
         }
     },
 
+    async getAllLotsById(id) {
+        try {
+            const response = await api.get(`/production-lots/${id}`);
+            return response;
+        } catch (error) {
+            console.error('Error al obtener los lote:', error);
+            throw error;
+        }
+    },
+
     async createLots(data) {
         try {
             const response = await api.post('/production-lots/', data);
@@ -27,6 +37,8 @@ const LotsService = {
             };
         }
     },
+
+    
 
 
 

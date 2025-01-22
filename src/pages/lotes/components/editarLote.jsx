@@ -4,7 +4,7 @@ import EspacioService from "../../../services/espacios";
 import { FaTrash } from 'react-icons/fa';
 import { Edit, Trash, Eye, Ban } from 'lucide-react';
 
-const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
+const FormEditarLote = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
     const [step, setStep] = useState(1);
     const [espacios, setEspacios] = useState([]); // Lista de espacios disponibles
     const [espacioDetalles, setEspacioDetalles] = useState(null);
@@ -222,6 +222,8 @@ const FormEditarLote = ({ lote, onUpdate, closeModal }) => {
 
         try {
             await LoteService.updateLots(lote.id, data);
+            showErrorAlert(" Editado");
+
             onUpdate();
             closeModal();
         } catch (error) {
