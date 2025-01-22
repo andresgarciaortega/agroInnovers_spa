@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import logo from "../../assets/imagenes/logoBlanco.jpg";
+import logoSena from "../../assets/imagenes/sena.jpg";
+import logoMin from "../../assets/imagenes/ciencia.png";
 import AccesUser from '../../services/authService';
 import './auth.css'
 import { IoIosEye } from "react-icons/io";
@@ -170,6 +172,14 @@ const Login = () => {
                 Ingresar
               </button>
             </div>
+
+            <div className="contenedorImagenLogo">
+              <img src={logoSena} alt="Innovers Sena" className="h-14" />
+              <img src={logoMin} alt="Innovers Min Ciencia" className="h-14 min" />
+            </div>
+
+
+
           </form>
 
         </div>
