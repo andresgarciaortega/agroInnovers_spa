@@ -31,6 +31,7 @@ import Espacio from "../pages/espacioProduccion/espacio";
 import TipoEspacio from "../pages/TipoEspacio/tipoEspacio";
 import Seguimiento from "../pages/seguimiento/seguimiento";
 import Lotes from "../pages/lotes/lotes";
+import VisualizarLote from "../pages/lotes/components/visualizarLote";
 import Dashboard from "../pages/dahsboard/dahsboard";
 import LayoutHome from "../pages/Layouts/layout";
 import AuthLogin from "../pages/auth/login";
@@ -70,6 +71,8 @@ const AppRoutes = () => {
         <Route path="espacio" element={<Espacio />} />
         <Route path="tipoEspacio" element={<TipoEspacio />} />
         <Route path="lotes" element={<Lotes />} />
+        <Route path="visualizarLote/:id" element={<VisualizarLote />} />
+
         <Route path="seguimiento" element={<Seguimiento />} />
       </Route>
     </Routes>

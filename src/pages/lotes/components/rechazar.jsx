@@ -8,19 +8,49 @@ const FormRechazar = ({ lote, onUpdate, closeModal }) => {
   const [viewMode, setViewMode] = useState('general');
   const [espacioDetalles, setEspacioDetalles] = useState(null);
   const [especies, setEspecies] = useState([]);
+  const [loteConEspecies, setLoteConEspecies] = useState([]);
   const [variables, setVariables] = useState([]);
   const [formData, setFormData] = useState({
-    rejectionReason: '',
-    specieId: '',
-    variableTypeId: ''
-  });
+    productionLotId: '', // Asegúrate de que sea un valor adecuado
+    typeVariableId: '',
+    variableTrackingReports: [
+        {
+            variableId: '',
+            updateDate: '',
+            updateTime: '',
+            weightAmount: ''
+        }
+    ],
+    company_id: ''
+});
 
-  useEffect(() => {
-    if (lote?.productionSpace?.id) {
-      fetchEspacioDetalles(lote.productionSpace.id);
-    }
-    fetchEspecies();
-  }, [lote]);
+
+useEffect(() => {
+  if (lote && lote.lotCode) {
+      setFormData({
+          productionLotId: lote.lotCode || '',
+          startDate: lote.startDate || '',
+          productionLotSpecies:lote.productionLotSpecies || '',
+          estimatedEndDate: lote.estimatedEndDate || '',
+          productionSpaceId: lote.productionSpace?.id || '',
+          reportFrequency: lote.reportFrequency || '',
+          company_id: lote.company_id || '',
+          status: lote.status || '',
+          trackingConfig: lote.trackingConfig || {
+              trackingStartDate: '',
+              trackingFrequency: '',
+              productionCycleStage: ''
+          }
+      });
+
+      if (lote.productionSpace?.id) {
+          fetchEspacioDetalles(lote.productionSpace.id);
+      }
+      setLoteConEspecies(lote);
+  }
+  fetchEspecies()
+}, [lote]);
+
 
   const fetchEspacioDetalles = async (id) => {
     try {
@@ -34,7 +64,7 @@ const FormRechazar = ({ lote, onUpdate, closeModal }) => {
 
   const fetchEspecies = async () => {
     try {
-      const especiesData = await EspeciesService.getAllSpecie();
+      const especiesData = await EspeciesService.getAllSpecie(0,{});
       setEspecies(especiesData);
     } catch (error) {
       console.error("Error al obtener las especies:", error);
@@ -60,11 +90,27 @@ const FormRechazar = ({ lote, onUpdate, closeModal }) => {
       return;
     }
 
-    const rejectionData = {
+    let rejectionData = {
       rejectionReason: formData.rejectionReason,
-      specieId: viewMode === 'species' ? formData.specieId : null,
       lotId: lote.id,
     };
+
+    // Verificamos si estamos en el modo 'general'
+    if (viewMode === 'general') {
+      if (loteConEspecies && loteConEspecies.productLotSpecies && loteConEspecies.productLotSpecies.length > 0) {
+        // Extraemos los IDs de las especies asociadas al lote
+        const speciesIds = loteConEspecies.productLotSpecies.map(specie => specie.specieId);
+        rejectionData.specieIds = speciesIds; // Enviamos todos los IDs de especies
+        console.log("Especies asociadas al lote:", speciesIds);  // Verifica los IDs que se están enviando
+      } else {
+        console.error("No se encontraron especies asociadas al lote.");
+        alert("No se encontraron especies asociadas al lote.");
+        return;
+      }
+    } else if (viewMode === 'species' && formData.specieId) {
+      // Si el modo es 'species', enviamos solo el ID de la especie seleccionada
+      rejectionData.specieId = formData.specieId;
+    }
 
     try {
       // Simula el servicio para crear un rechazo
@@ -76,6 +122,8 @@ const FormRechazar = ({ lote, onUpdate, closeModal }) => {
       console.error("Error al crear el rechazo:", error);
     }
   };
+
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

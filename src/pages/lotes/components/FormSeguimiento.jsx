@@ -39,15 +39,19 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
                 weightAmount: ''
             }
         ],
-        company_id: ''
+        company_id: '',
+        specieId: '', // Especie seleccionada
+        speciesData: false // Agrega esta línea para manejar el estado de "por especie"
     });
     
     const [viewMode, setViewMode] = useState('general'); 
 
     useEffect(() => {
         if (lote) {
+        console.log("Lote recibido:", lote);
+
             setFormData({
-                productionLotId: lote.lotCode || '',
+                productionLotId: lote.id || '',
                 startDate: lote.startDate || '',
                 estimatedEndDate: lote.estimatedEndDate || '',
                 productionSpaceId: lote.productionSpace?.id || '',
@@ -70,7 +74,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
             setLoteConEspecies(lote);
         }
         fetchEspacios();
-        fetchEspecies();
+        fetchEspecies(0,{});
         fetchVariablesType()
     }, [lote]);
 
@@ -114,100 +118,116 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
     useEffect(() => {
         const fetchEspecies = async () => {
             try {
-                const data = await SpeciesService.getAllSpecie();
+                const data = await SpeciesService.getAllSpecie(0,{});
                 setTipoEspecies(data);
             } catch (error) {
                 console.error('Error fetching species:', error);
             }
         };
         fetchEspecies();
-    }, []);
+    }, [{}]);
 
     useEffect(() => {
         const fetchVariables = async () => {
-         
-            if (!formData.variableTypeId) return;
-            console.log('formData',  formData)
-            console.log('especie',  selectedSpeciesId)
-            console.log('tipo d evariable',  variableType)
-
-            try {
-                let data = [];
-                if (viewMode === 'species' && selectedSpeciesId) {
-                    data = await SpeciesService.getVariableBySpecie({species:{id:selectedSpeciesId} , typeVariable:{id:parseInt(formData.variableTypeId) }});
-                } else if (viewMode === 'general') {
-                    data = await SpeciesService.getVariableBySpecie({typeVariable:{id:parseInt(formData.variableTypeId)}});
-                }
-                if (data.length === 0) {
-                    setMainVariables([]);
-                } else {
-                    setMainVariables(data);
-                }
-            } catch (error) {
-                console.error('Error fetching variables:', error);
-                setMainVariables([]);
+          if (!formData.variableTypeId) return;
+      
+          try {
+            let data = [];
+            if (viewMode === "species" && selectedSpeciesId) {
+              data = await SpeciesService.getVariableBySpecie({
+                species: { id: selectedSpeciesId },
+                typeVariable: { id: parseInt(formData.variableTypeId) },
+              });
+            } else if (viewMode === "general") {
+              data = await SpeciesService.getVariableBySpecie({
+                typeVariable: { id: parseInt(formData.variableTypeId) },
+              });
             }
+            setMainVariables(data.length > 0 ? data : []);
+          } catch (error) {
+            console.error("Error fetching variables:", error);
+            setMainVariables([]);
+          }
         };
-
+      
         fetchVariables();
-    }, [formData.variableTypeId, selectedSpeciesId, viewMode]);
-
-    const handleChange = (e) => {
+      }, [formData.variableTypeId, selectedSpeciesId, viewMode]);
+      
+      const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData(prevFormData => ({ ...prevFormData, [name]: value }));
     };
+    
 
     const handleModeChange = (e) => {
-        setViewMode(e.target.value);
-        if (e.target.value === 'general') {
-            setFormData({ ...formData, selectedSpecieId: '' });
+        const mode = e.target.value;
+        setViewMode(mode);
+        
+        if (mode === 'general') {
+            setFormData({ ...formData, speciesData: false, specieId: null });
+        } else {
+            setFormData({ ...formData, speciesData: true });
         }
     };
+    
 
     const handleSpeciesChange = (e) => {
-        setSelectedSpeciesId(e.target.value);
+        const value = e.target.value;
+        setSelectedSpeciesId(value);
+        setFormData({ ...formData, specieId: value }); 
     };
-
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateForm()) return;
-    
+        
         try {
+        
+    
             const preparedData = {
-                ...formData,
                 productionLotId: parseInt(formData.productionLotId, 10),
+                speciesData: formData.speciesData,
+                specieId: formData.speciesData ? parseInt(formData.specieId, 10) : null,
+                typeVariableId: parseInt(formData.typeVariableId, 10),
                 company_id: parseInt(formData.company_id, 10),
+                variableTrackingReports: (formData.variableTrackingReports || []).map((report) => ({
+                    variableId: parseInt(report.variableId, 10),
+                    updateDate: report.updateDate,
+                    updateTime: report.updateTime,
+                    weightAmount: report.weightAmount.toString(),
+                })),
             };
     
             const response = await ReporteService.createReporte(preparedData);
-            console.log("Reporte creado:", response);
+            console.log('Reporte creado:', response);
             onUpdate();
             closeModal();
         } catch (error) {
-            console.error("Error al crear el reporte:", error);
+            console.error('Error al crear el reporte:', error);
         }
     };
     
     
     
     
-    const validateForm = (data) => {
-        const errors = [];
-        if (!data.productionLotId) errors.push("productionLotId es requerido");
-        if (!data.typeVariableId) errors.push("typeVariableId es requerido");
-        // if (!data.company_id) errors.push("company_id es requerido");
-        data.variableTrackingReports.forEach((report, index) => {
-            if (!report.variableId) errors.push(`variableId en el índice ${index} es requerido`);
-            if (!report.updateDate) errors.push(`updateDate en el índice ${index} es requerido`);
-            if (!report.updateTime) errors.push(`updateTime en el índice ${index} es requerido`);
-            if (!report.weightAmount) errors.push(`weightAmount en el índice ${index} es requerido`);
-        });
-        if (errors.length > 0) {
-            console.error("Errores en el formulario:", errors);
-            return false;
-        }
-        return true;
-    };
+    
+    
+    // const validateForm = (data) => {
+    //     const errors = [];
+    //     // if (!data.productionLotId) errors.push("productionLotId es requerido");
+    //     // if (!data.typeVariableId) errors.push("typeVariableId es requerido");
+    //     // if (!data.company_id) errors.push("company_id es requerido");
+    //     data.variableTrackingReports.forEach((report, index) => {
+    //         // if (!report.variableId) errors.push(`variableId en el índice ${index} es requerido`);
+    //         if (!report.updateDate) errors.push(`updateDate en el índice ${index} es requerido`);
+    //         if (!report.updateTime) errors.push(`updateTime en el índice ${index} es requerido`);
+    //         if (!report.weightAmount) errors.push(`weightAmount en el índice ${index} es requerido`);
+    //     });
+    //     if (errors.length > 0) {
+    //         console.error("Errores en el formulario:", errors);
+    //         return false;
+    //     }
+    //     return true;
+    // };
     
 
     const addVariable = () => {
@@ -270,61 +290,66 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
             <div>
                 <h2 className='font-bold pb-3'>Dato general o por especie</h2>
 
-                <div className="flex items-center space-x-4 ">
-                    <label className="flex items-center space-x-2">
-                        <input
-                            type="radio"
-                            name="viewMode"
-                            value={formData.speciesData}
+              
+        <div className="flex items-center space-x-4">
+          <label className="flex items-center space-x-2">
+            <input
+              type="radio"
+              name="viewMode"
+              value="general"
+              checked={viewMode === "general"}
+              onChange={handleModeChange}
+              className="accent-blue-500"
+            />
+            <span>General</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <input
+              type="radio"
+              name="viewMode"
+              value="species"
+              checked={viewMode === "species"}
+              onChange={handleModeChange}
+              className="accent-green-500"
+            />
+            <span>Por especie</span>
+          </label>
+        </div>
+      </div>
 
-                            checked={viewMode === 'general'}
-                            onChange={handleModeChange}
-                            className=""
-                        />
-                        <span>General</span>
-                    </label>
-                    <label className="flex items-center space-x-2">
-                        <input
-                            type="radio"
-                            name="viewMode"
-                            value={formData.speciesData}
-                            
-                            checked={viewMode === 'species'}
-                            onChange={handleModeChange}
-                            className="accent-green-500"
-                        />
-                        <span>Por especie</span>
-                    </label>
-                </div>
-            </div>
+      {viewMode === "species" && (
+        <div>
+          <label htmlFor="specieId" className="block text-sm font-medium">
+            Especie:
+          </label>
+          <select
+            id="specieId"
+            name="specieId"
+            value={selectedSpeciesId}
+            onChange={(e) => {
+                const value = e.target.value;
+                setSelectedSpeciesId(value); 
+                setFormData({ ...formData, specieId: value }); 
+              }}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Seleccione una especie</option>
+            {species.map((specie) => (
+              <option key={specie.id} value={specie.id}>
+                {specie.common_name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
-            {viewMode === 'species' && (
-                <div>
-                    <label htmlFor="species" className="block text-sm font-medium text-gray-700 mb-1">
-                        Especies
-                    </label>
-                    <select
-                        id="species"
-                        name="species"
-                        onChange={handleSpeciesChange}
-                        value={selectedSpeciesId || ""}
-                        className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
-                    >
-                        <option value="" className="text-gray-500">Selecciona una especie</option>
-                        {species.map((sub) => (
-                            <option key={sub.id} value={sub.id}>
-                                {sub.common_name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            )}
+
 
             <div>
                 <label className="block text-sm font-medium">Tipo de variable</label>
                 <select
-                    name="variableTypeId"
-                    value={formData.variableTypeId}
+                    name="typeVariableId"
+                    value={formData.typeVariableId }
                     onChange={handleChange}
                     className="mt-1 block w-full border rounded-md p-2"
                 >
@@ -427,7 +452,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
                 type="submit"
                 className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
             >
-                Editar
+                Crear seguimiento
             </button>
         </div>
         </form>

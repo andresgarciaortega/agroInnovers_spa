@@ -5,7 +5,7 @@ import EspeciesService from "../../../services/SpeciesService";
 import { FaTrash, FaEdit } from 'react-icons/fa';
 import GenericModal from '../../../components/genericModal';
 
-const FormCosechar = ({ lote, onUpdate, closeModal }) => {
+const FormCosechar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [step, setStep] = useState(1);
     const [espacios, setEspacios] = useState([]);
     const [Especies, setEspecies] = useState([]);
@@ -13,7 +13,7 @@ const FormCosechar = ({ lote, onUpdate, closeModal }) => {
     const [formData, setFormData] = useState({
         finalWeight: '',
         finalIndividuals: '',
-        selectedSpecieId: '',  // Agregar estado para el id de la especie seleccionada
+        selectedSpecieId: '',  
     });
 
     const [loteConEspecies, setLoteConEspecies] = useState(lote);
@@ -111,9 +111,14 @@ const FormCosechar = ({ lote, onUpdate, closeModal }) => {
         try {
             if (isEditing) {
                 await LoteService.updateCosecha(lote.id, { harvest: [newHarvestData] });
+                setIsEditing(false)
+                showErrorAlert("cosechado");
+                ("Cosechado");
             } else {
                 setHarvestData(prevHarvestData => [...prevHarvestData, newHarvestData]);
                 await LoteService.updateCosecha(lote.id, { harvest: [newHarvestData] });
+                showErrorAlert("cosechado");
+
             }
     
             setLoteConEspecies(prevState => ({
@@ -125,6 +130,7 @@ const FormCosechar = ({ lote, onUpdate, closeModal }) => {
     
             onUpdate();
             closeModalHandler();
+            closeModal();
         } catch (error) {
             console.error("Error al actualizar la cosecha:", error);
         }

@@ -101,7 +101,7 @@ const ListaEspecies = () => {
       }
 
       try {
-        const data = await SpeciesService.getAllSpecie(companyId);
+        const data = await SpeciesService.getAllSpecie(companyId, {});
         if (data.statusCode === 404) {
           setSpeciesList([]);
         } else {
@@ -117,7 +117,7 @@ const ListaEspecies = () => {
     };
 
     fetchEspecies();
-  }, [selectedCompanyUniversal]);
+  }, [selectedCompanyUniversal],{});
 
   const handleCompanyChange = (selectedOption) => {
     setSelectedCompany(selectedOption ? selectedOption.value : null);
