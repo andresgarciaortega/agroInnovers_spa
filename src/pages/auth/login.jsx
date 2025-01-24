@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import logo from "../../assets/imagenes/logoBlanco.jpg";
+import logoSena from "../../assets/imagenes/sena.jpg";
+import logoMin from "../../assets/imagenes/ciencia.png";
 import AccesUser from '../../services/authService';
 import './auth.css'
 import { IoIosEye } from "react-icons/io";
@@ -31,13 +33,13 @@ const Login = () => {
       localStorage.setItem('authToken', accesUser?.response)
 
       const decodedToken = await getDecodedToken();
-     
+
       localStorage.setItem("selectedCompany", JSON.stringify(
         {
           "value": decodedToken?.company.id,
           "label": decodedToken?.company.name,
         }
-      )) 
+      ))
       navigate('/home/dashboard', { replace: true });
 
     } else {
@@ -90,13 +92,14 @@ const Login = () => {
               {emailError && <p className="text-red-500 text-xs mt-1">Credenciales incorrectas. Por favor, inténtalo de nuevo.</p>}
             </div>
             <div className="mb-6 inputPassword">
-              <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
+              <label htmlFor="password"
+                className={`block text-sm font-bold mb-2 ${emailError ? 'text-red-500' : 'text-gray-700'}`}>
                 Contraseña
               </label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${passwordError ? 'border-red-500' : ''}`}
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${emailError ? 'border-red-500' : ''}`}
                 placeholder="Contraseña"
                 value={password}
                 onChange={(e) => {
@@ -169,6 +172,14 @@ const Login = () => {
                 Ingresar
               </button>
             </div>
+
+            <div className="contenedorImagenLogo">
+              <img src={logoSena} alt="Innovers Sena" className="h-14" />
+              <img src={logoMin} alt="Innovers Min Ciencia" className="h-14 min" />
+            </div>
+
+
+
           </form>
 
         </div>

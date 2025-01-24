@@ -33,13 +33,13 @@ const Monitoreo = () => {
   const [showErrorVariableAlert, setShowErrorVariableAlert] = useState(false);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
   const navigate = useNavigate();
-  const { selectedCompanyUniversal } = useCompanyContext();
   const [selectedCompany, setSelectedCompany] = useState('');
   const [selectedVariable, setSelectedVariable] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [userRoles, setUserRoles] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
 
   const [newSistem, setNewSistem] = useState({
@@ -54,6 +54,7 @@ const Monitoreo = () => {
   });
 
   useEffect(() => {
+    hiddenSelect(true)
     const fetchMonitoreo = async () => {
       try {
         const decodedToken = await getDecodedToken();
@@ -269,14 +270,9 @@ const Monitoreo = () => {
 
 
   return (
-    <div className="table-container">
+    <div className="table-container containerEmporesa">
 
-      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
-        <div className="relative w-full">
-          {userRoles?.[0] === 'SUPER-ADMINISTRADOR' && <CompanySelector />}
-        </div>
-
-        <br />
+      <div className="">
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Monitoreo */}
           <span>Gestión de Monitoreo</span>
@@ -302,7 +298,6 @@ const Monitoreo = () => {
         />
 
         {/* Icono de búsqueda alineado a la izquierda */}
-        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
 
       <div className="bg-white rounded-lg shadow">

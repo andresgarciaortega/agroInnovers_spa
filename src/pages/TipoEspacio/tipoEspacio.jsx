@@ -22,7 +22,7 @@ const TipoEspacio = () => {
   const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
-  const { selectedCompanyUniversal } = useCompanyContext();
+    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
   const [variableList, setVariableList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -46,6 +46,7 @@ const TipoEspacio = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    hiddenSelect(true)
     const fetchCompanies = async () => {
       try {
         const data = await CompanyService.getAllCompany();
@@ -213,13 +214,8 @@ const TipoEspacio = () => {
 
 
   return (
-    <div className="table-container ">
-      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
-        <div className="relative w-full">
-          <CompanySelector />
-
-        </div>
-        <br />
+    <div className="table-container containerEmporesa">
+      <div className="">
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} />
           <span>Gestión de espacios</span>
@@ -244,7 +240,7 @@ const TipoEspacio = () => {
         />
 
         {/* Icono de búsqueda alineado a la izquierda */}
-        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+        {/* <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" /> */}
       </div>
 
 

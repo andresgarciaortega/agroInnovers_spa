@@ -24,7 +24,8 @@ const Espacio = () => {
   const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
-  const { selectedCompanyUniversal } = useCompanyContext();
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
+  
   const navigate = useNavigate();
 
   const [variableList, setVariableList] = useState([]);
@@ -50,6 +51,7 @@ const Espacio = () => {
   const [userRoles, setUserRoles] = useState([]);
 
   useEffect(() => {
+    hiddenSelect(true)
     const fetchCompanies = async () => {
       try {
         const data = await CompanyService.getAllCompany();
@@ -278,12 +280,8 @@ const Espacio = () => {
     navigate(`../editarEspacio/${espacioId}`);
   };
   return (
-    <div className="table-container ">
-      <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
-        <div className="relative w-full">
-        {userRoles?.[0] === 'SUPER-ADMINISTRADOR' && <CompanySelector />}
-        </div>
-        <br />
+    <div className="table-container containerEmporesa">
+      <div className="mb-5">
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} />
           <span>Gestión de espacios</span>
@@ -297,7 +295,7 @@ const Espacio = () => {
           )}
         </div>
       </div>
-      <div className="relative w-full mt-6 py-5 z-0">
+      <div className="mb-5">
         {/* Input de búsqueda */}
         <input
           type="text"
@@ -307,7 +305,6 @@ const Espacio = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
 
 

@@ -188,7 +188,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
 import logo from "../assets/imagenes/logo.jpeg";
 import logoUser from "../assets/icons/user2.png";
@@ -210,25 +210,25 @@ import { getDecodedToken } from '../utils/auseAuth';
 // Menu items with roles allowed
 const menuItems = [
   // Solo accesible por SUPER-ADMINISTRADOR y ADMINISTRADOR
-  { 
-    icon: <RxDashboard />, 
-    label: "Dashboard", 
-    route: "/home/dashboard", 
-    roles: ["SUPER-ADMINISTRADOR", "ADMINISTRADOR", "OPERARIO"] 
+  {
+    icon: <RxDashboard />,
+    label: "Dashboard",
+    route: "/home/dashboard",
+    roles: ["SUPER-ADMINISTRADOR", "ADMINISTRADOR", "OPERARIO"]
   },
   // Solo accesible por SUPER-ADMINISTRADOR
-  { 
-    icon: <FaRegBuilding />, 
-    label: "Empresa", 
-    route: "/home/empresa", 
-    roles: ["SUPER-ADMINISTRADOR"] 
+  {
+    icon: <FaRegBuilding />,
+    label: "Empresa",
+    route: "/home/empresa",
+    roles: ["SUPER-ADMINISTRADOR"]
   },
   // Accesible por SUPER-ADMINISTRADOR y ADMINISTRADOR
-  { 
-    icon: <HiOutlineUserGroup />, 
-    label: "Usuarios", 
-    route: "/home/usuarios", 
-    roles: ["SUPER-ADMINISTRADOR", "ADMINISTRADOR"] 
+  {
+    icon: <HiOutlineUserGroup />,
+    label: "Usuarios",
+    route: "/home/usuarios",
+    roles: ["SUPER-ADMINISTRADOR", "ADMINISTRADOR"]
   },
   // Submenú accesible por SUPER-ADMINISTRADOR y ADMINISTRADOR
   {
@@ -251,11 +251,11 @@ const menuItems = [
     ],
   },
   // Accesible solo por ADMINISTRADOR y SUPER-ADMINISTRADOR
-  { 
-    icon: <FaTv />, 
-    label: "Sistema de monitoreo", 
-    route: "/home/monitoreo", 
-    roles: ["SUPER-ADMINISTRADOR", "ADMINISTRADOR", "OPERARIO"] 
+  {
+    icon: <FaTv />,
+    label: "Sistema de monitoreo",
+    route: "/home/monitoreo",
+    roles: ["SUPER-ADMINISTRADOR", "ADMINISTRADOR", "OPERARIO"]
   },
   // Submenú accesible por ADMINISTRADOR y SUPER-ADMINISTRADOR
   {
@@ -279,11 +279,11 @@ const menuItems = [
     ],
   },
   // Accesible solo por OPERARIO
-  { 
-    icon: <PiArrowsCounterClockwiseBold />, 
-    label: "Lotes de producción", 
-    route: "/home/lotes", 
-    roles: ["SUPER-ADMINISTRADOR","ADMINISTRADOR","OPERARIO"] 
+  {
+    icon: <PiArrowsCounterClockwiseBold />,
+    label: "Lotes de producción",
+    route: "/home/lotes",
+    roles: ["SUPER-ADMINISTRADOR", "ADMINISTRADOR", "OPERARIO"]
   },
 ];
 
@@ -291,6 +291,7 @@ const menuItems = [
 const Sidebar = ({ selectedItem, setSelectedItem, userRoles }) => {
   const navigate = useNavigate();
   const [openSubMenu, setOpenSubMenu] = useState(null);
+  const location = useLocation(); // Captura la ruta actual
 
   const handleClick = (route, index) => {
     setSelectedItem(index);
@@ -304,7 +305,7 @@ const Sidebar = ({ selectedItem, setSelectedItem, userRoles }) => {
   const hasAccess = (roles) => roles.some(role => userRoles.includes(role));
 
   return (
-    <nav className="w-full md:max-w-80 bg-[#345246] text-white flex flex-col h-full">
+    <nav className="w-full md:max-w-80 bg-[#345246] text-white flex flex-col h-full menucompleto">
       <div className="p-2 flex justify-center">
         <img src={logo} alt="Logo" className="h-20" />
       </div>
@@ -313,7 +314,8 @@ const Sidebar = ({ selectedItem, setSelectedItem, userRoles }) => {
           hasAccess(item.roles) && (
             <div key={index}>
               <button
-                className={`w-full text-left py-2 px-4 rounded-lg mb-2 flex items-center text-lg ${selectedItem === index ? 'bg-[#168C0DFF]' : 'bg-transparent'}`}
+                // className={`w-full text-left py-2 px-4 rounded-lg mb-2 flex items-center text-lg ${selectedItem === index ? 'bg-[#168C0DFF]' : 'bg-transparent'}`}
+                className={`w-full text-left py-2 px-4 rounded-lg mb-2 flex items-center text-xl ${location.pathname === item.route ? 'bg-[#168C0DFF]' : 'bg-transparent'}`}
                 onClick={() => item.submenu ? handleSubMenuClick(index) : handleClick(item.route, index)}
               >
                 <span className="mr-2">{item.icon}</span>
@@ -331,7 +333,8 @@ const Sidebar = ({ selectedItem, setSelectedItem, userRoles }) => {
                     hasAccess(subItem.roles) && (
                       <button
                         key={subIndex}
-                        className={`w-full text-left py-2 px-4 rounded-lg mb-2 flex items-center text-xl ${selectedItem === `${index}-${subIndex}` ? 'bg-[#168C0DFF]' : 'bg-transparent'}`}
+                        className={`w-full text-left py-2 px-4 rounded-lg mb-2 flex items-center text-xl ${location.pathname === subItem.route ? 'bg-[#168C0DFF]' : 'bg-transparent'
+                          }`}
                         onClick={() => handleClick(subItem.route, `${index}-${subIndex}`)}
                       >
                         {subItem.label}
@@ -374,7 +377,7 @@ export default function Component() {
         console.error("Error obteniendo el token decodificado:", error);
       }
     };
-  
+
     fetchDecodedToken();
   }, []);
 
@@ -393,7 +396,7 @@ export default function Component() {
       {isMobileView ? (
         <>
           <button
-            className="absolute top-7 right-4 p-2 bg-[#345246] rounded z-20 "
+            className="absolute top-6 right-4 p-2 bg-[#345246] rounded z-20 "
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? (

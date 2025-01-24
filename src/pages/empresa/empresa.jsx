@@ -11,11 +11,15 @@ import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
 import ErrorAlert from "../../components/alerts/error";
 import LoadingView from '../../components/Loading/loadingView';
+import { FaRegBuilding, FaTv, FaBars } from 'react-icons/fa';
+import { useCompanyContext } from "../../context/CompanyContext";
 
 
 const Empresa = () => {
   const [companyList, setCompanyList] = useState([]);
   const navigate = useNavigate();
+  const { triggerUpdate, hiddenSelect } = useCompanyContext();
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,22 +41,22 @@ const Empresa = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
 
-
   // Cargar empresas cuando el componente se monta
   useEffect(() => {
+    hiddenSelect(false)
     const fetchCompanies = async () => {
-      
+
       setIsLoading(true);
       try {
         const data = await CompanyService.getAllCompany();
         setCompanyList(data);
       } catch (error) {
         console.error('Error fetching companies:', error);
-      }finally {
+      } finally {
         setIsLoading(false);
       }
     };
-  
+
     fetchCompanies();
   }, []);
 
@@ -126,15 +130,15 @@ const Empresa = () => {
 
     // const data = await CompanyService.deleteCompany(selectedCompany.id);
     const data = await CompanyService.deleteCompany(selectedCompany.id);
-if (data.message) {
-    setMessageAlert(data.message);
-    showErrorAlertr(data.message)
-} else {
-    setMessageAlert("Empresa eliminada exitosamente");
-    showSuccessAlertSuccess("Compañía eliminada correctamente")
-}
+    if (data.message) {
+      setMessageAlert(data.message);
+      showErrorAlertr(data.message)
+    } else {
+      setMessageAlert("Empresa eliminada exitosamente");
+      showSuccessAlertSuccess("Compañía eliminada correctamente")
+    }
 
-    
+
     updateCompanies()
   };
 
@@ -152,11 +156,17 @@ if (data.message) {
   const updateCompanies = async () => {
     try {
       const data = await CompanyService.getAllCompany();
-
+      handleUpdate();
       setCompanyList(data); // Actualiza companyList con los datos más recientes
+
     } catch (error) {
       console.error('Error al actualizar las empresas:', error);
     }
+  };
+
+
+  const handleUpdate = () => {
+      triggerUpdate(); // Esto forzará que `CompanySelector` se actualice
   };
 
   const showSuccessAlertSuccess = (message) => {
@@ -182,11 +192,22 @@ if (data.message) {
   };
 
   return (
-    <div className="table-container">
-    {isLoading && <LoadingView />}
+    <div className="table-container containerEmporesa">
+      <div className="mb-5">
+        <div className="flex items-center space-x-2 text-gray-700">
+          <FaRegBuilding size={20} />
+          <span>Empresas</span>
+          {selectedCompany && (
+            <span className="text-black font-bold">
+              {companyList.find(company => company.id === selectedCompany)?.name || 'No seleccionado'}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {isLoading && <LoadingView />}
       {/* Barra de búsqueda */}
-      <div className="absolute transform -translate-y-20 right-30 w-1/2 buscadorModulo">
-        <IoSearch className="absolute left-3 top-3 text-gray-500" />
+      <div className="  mb-5 buscadorTable">
         <input
           type="text"
           placeholder="Buscar empresa "
@@ -289,12 +310,12 @@ if (data.message) {
       {/* Modal crea,editar,visualizar*/}
       {isModalOpen && (
         <GenericModal title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'} onClose={closeModal}>
-          <FormCompany 
-          showSuccessAlert={showSuccessAlertSuccess} 
-          onUpdate={updateCompanies} 
-          company={newCompany}
-           mode={modalMode} 
-           closeModal={closeModal} />
+          <FormCompany
+            showSuccessAlert={showSuccessAlertSuccess}
+            onUpdate={updateCompanies}
+            company={newCompany}
+            mode={modalMode}
+            closeModal={closeModal} />
         </GenericModal>
       )}
 

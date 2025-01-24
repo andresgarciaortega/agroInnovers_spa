@@ -12,12 +12,13 @@ import FormSensor from './componets/FormSensor';
 import FormViewSensor from './componets/formViewSensor';
 import FormActuador from './componets/FormActuador';
 import FormViewActuador from './componets/formViewActuador';
-
+import { ImEqualizer2 } from "react-icons/im";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
+import { FaMicrochip } from "react-icons/fa6";
 
 const Tipos = () => {
-  const { selectedCompanyUniversal } = useCompanyContext();
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
   const [expandedSection, setExpandedSection] = useState(null);
   const [searchVisible, setSearchVisible] = useState(false);
@@ -125,6 +126,7 @@ const Tipos = () => {
 
   });
   useEffect(() => {
+    hiddenSelect(false)
     const fetchSensor = async () => {
       try {
         // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
@@ -202,7 +204,7 @@ const Tipos = () => {
     setSearchQuery(e.target.value.toLowerCase()); // Convertimos a minúsculas para hacer la búsqueda insensible al caso
   };
 
-  
+
   const filteredSensorList = sensorList.filter((sensor) => {
     return (
       sensor.commercialName.toLowerCase().includes(searchQuery) ||
@@ -356,6 +358,10 @@ const Tipos = () => {
   };
   const renderSensorTabla = () => (
     <div>
+
+
+
+
       <div className="flex items-center justify-end mb-3 m-3">
         <div className="flex items-center">
           <button
@@ -504,23 +510,23 @@ const Tipos = () => {
     </div>
   );
 
-// buscar actuador 
-const [searchQueryAct, setSearchQueryAct] = useState('');
+  // buscar actuador 
+  const [searchQueryAct, setSearchQueryAct] = useState('');
 
 
-const handleSearchChangeAct = (e) => {
-  setSearchQueryAct(e.target.value.toLowerCase()); // Convertimos a minúsculas para hacer la búsqueda insensible al caso
-};
+  const handleSearchChangeAct = (e) => {
+    setSearchQueryAct(e.target.value.toLowerCase()); // Convertimos a minúsculas para hacer la búsqueda insensible al caso
+  };
 
 
-const filteredActuadorList = actuadorList.filter((actuador) => {
-  return (
-    actuador.commercialName.toLowerCase().includes(searchQueryAct) ||
-    actuador.actuatorTypeName.toLowerCase().includes(searchQueryAct) ||
-    actuador.model.toLowerCase().includes(searchQueryAct) ||
-    actuador.brand.toLowerCase().includes(searchQueryAct)
-  );
-});
+  const filteredActuadorList = actuadorList.filter((actuador) => {
+    return (
+      actuador.commercialName.toLowerCase().includes(searchQueryAct) ||
+      actuador.actuatorTypeName.toLowerCase().includes(searchQueryAct) ||
+      actuador.model.toLowerCase().includes(searchQueryAct) ||
+      actuador.brand.toLowerCase().includes(searchQueryAct)
+    );
+  });
 
   // Paginación de actuadores
   const indexOfLastActuador = currentPageActuador * itemsPerPageActuador;
@@ -664,7 +670,7 @@ const filteredActuadorList = actuadorList.filter((actuador) => {
       <div className="flex items-center justify-end mb-5 mt-2 m-3">
         <div className="relative flex items-center mr-4 w-full max-w-[400px]">
           <input
-          onChange={handleSearchChangeAct}
+            onChange={handleSearchChangeAct}
             type="text"
             placeholder="Buscar..."
             className="w-full px-4 py-2 pl-10 border border-gray-400 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
@@ -798,7 +804,19 @@ const filteredActuadorList = actuadorList.filter((actuador) => {
   );
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-4 ">
+
+      <div className="">
+        <div className="flex items-center space-x-2 text-gray-700">
+          <FaMicrochip size={20} /> {/* Ícono de Gestión de Variables */}
+          <span>Tipos de Dispositivos</span>
+          <span className="text-black font-bold"> </span>
+          {selectedCompany && (
+            <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
+          )}
+        </div>
+      </div>
+
       <div className="shadow-lg shadow-gray-400 rounded-lg">
         <button
           onClick={() => toggleSection("sensores")}

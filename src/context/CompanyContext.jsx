@@ -11,6 +11,19 @@ export const CompanyProvider = ({ children }) => {
         return savedCompany ? JSON.parse(savedCompany) : {}; // Si no existe, dejarlo en null
     });
 
+    const [shouldUpdate, setShouldUpdate] = useState(false);
+    const [showHidden, setSshowHidden] = useState(true);
+
+    const triggerUpdate = () => {
+        setShouldUpdate((prev) => !prev); // Cambiará de `true` a `false` y viceversa
+    };
+
+    const hiddenSelect = (tipo) => {
+        console.log("showHidden : ", showHidden)
+        setSshowHidden(tipo); // Cambiará de `true` a `false` y viceversa
+    };
+
+
     // Guardar la empresa seleccionada en localStorage cada vez que cambie
     useEffect(() => {
         if (selectedCompanyUniversal) {
@@ -19,7 +32,7 @@ export const CompanyProvider = ({ children }) => {
     }, [selectedCompanyUniversal]);
 
     return ( 
-        <CompanyContext.Provider value={{ selectedCompanyUniversal, setSelectedCompanyUniversal }}>
+        <CompanyContext.Provider value={{ selectedCompanyUniversal, setSelectedCompanyUniversal, shouldUpdate, triggerUpdate, showHidden, hiddenSelect  }}>
             {children}
         </CompanyContext.Provider>
     );
