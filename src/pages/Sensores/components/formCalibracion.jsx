@@ -306,24 +306,28 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
             reader.readAsDataURL(file);
         }
     };
+    
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <label htmlFor="sensor-calibrationDate" className="block text-sm font-medium text-gray-700">Fecha de calibración</label>
-                <input
-                    type="date"
-                    id="sensor-calibrationDate"
-                    name="calibrationDate"
-                    placeholder="Fecha delcalibración"
-                    value={formData.calibrationDate}
-                    onChange={handleChange}
-                    max={currentDate}
-                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                    required
-                    disabled={mode === 'view'}
-                />
-            </div>
+          <div>
+    <label htmlFor="sensor-calibrationDate" className="block text-sm font-medium text-gray-700">
+        Fecha de calibración
+    </label>
+    <input
+        type="date"
+        id="sensor-calibrationDate"
+        name="calibrationDate"
+        placeholder="Fecha de calibración"
+        value={formData.calibrationDate}
+        onChange={handleChange}
+        max={currentDate} // Usa la fecha actual como límite máximo
+        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+        required
+        disabled={mode === 'view'}
+    />
+</div>
+
 
 
             <div className="grid grid-cols-2 gap-4 mt-5">

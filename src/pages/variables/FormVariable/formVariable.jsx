@@ -35,9 +35,8 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
   ]);
   const [informativeCalculations] = useState([
     { id: 'Promedio', name: 'Promedio' },
-    { id: 'Suma', name: 'Suma' },
-    { id: 'Máximo', name: 'Máximo' },
-    { id: 'Mínimo', name: 'Mínimo' },
+    { id: 'Sumatorio', name: 'Sumatorio' },
+    { id: 'Valor Actual', name: 'Valor Actual' },
   ]);
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -220,26 +219,23 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
           disabled={mode === 'view'}
         />
       </div>
+     
 
       <div className="grid grid-cols-2 gap-4 mt-5">
-        <div>
-          <label htmlFor="unit_of_measurement" className="block text-sm font-medium text-gray-700">Unidad de medida</label>
-          <select
-            name="unit_of_measurement"
+      <div>
+        <label htmlFor="variable-name" className="block text-sm font-medium text-gray-700">Unidad de medida</label>
+        <input
+          type="text"
+          placeholder="Unidad de medida"
+
+          name="unit_of_measurement"
             value={formData.unit_of_measurement}
             onChange={handleChange}
             disabled={mode === 'view'}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            required
-          >
-            <option value="">Seleccione una opción</option>
-            {unitsOfMeasurement.map((unit) => (
-              <option key={unit.id} value={unit.id}>
-                {unit.name}
-              </option>
-            ))}
-          </select>
-        </div>
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          required
+        />
+      </div>
 
         <div>
           <label htmlFor="type_register_id" className="block text-sm font-medium text-gray-700">Tipo de registro</label>

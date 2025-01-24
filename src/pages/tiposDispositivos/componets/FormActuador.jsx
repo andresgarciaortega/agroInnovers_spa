@@ -836,7 +836,10 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
             </div>
 
 
-            {showAlertError && <ErrorAlert message={messageAlert} />}
+            {showAlertError
+             && <ErrorAlert message={messageAlert} 
+          onCancel={onClose}
+          />}
         </form>
     );
 };

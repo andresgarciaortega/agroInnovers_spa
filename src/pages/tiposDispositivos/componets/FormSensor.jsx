@@ -45,8 +45,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
         maxOperatingTemperature: '',
         maintenanceFrequency: '',
         calibrationFrequency: '',
-        company_id: companySeleector.value || ''
-        ,
+        company_id: companySeleector.value || '',
         calibrationPoints: [],
 
     });
@@ -193,6 +192,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                     normalResponse: point.normalResponse || ''
                 })) || [],
             });
+            console.log('tipo de sensor traido:', sensor)
             setImagePreview(sensor.icon); // Actualización de la vista previa del ícono
         } else {
             setFormData({
@@ -260,7 +260,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                 variableId: Number(formData.variableId),
                 maxMeasurementValue: Number(formData.maxMeasurementValue),
                 minMeasurementValue: Number(formData.minMeasurementValue),
-                precision: parseFloat(formData.precision) || null,
+                precision: formData.precision,
                 resolution: parseFloat(formData.resolution),
                 repeatability: parseFloat(formData.repeatability),
                 operatingVoltage: Number(formData.operatingVoltage),
@@ -303,13 +303,13 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
 
     const handleAddPoint = () => {
         const { value, normalResponse } = formData;
-
-        // Validación simple para evitar agregar entradas vacías
-        if (!value || !normalResponse) {
+    
+        // Validar que ambos campos tengan datos
+        if (!value.trim() || !normalResponse.trim()) {
             alert('Por favor, completa ambos campos antes de agregar.');
             return;
         }
-
+    
         setFormData((prev) => ({
             ...prev,
             calibrationPoints: [...prev.calibrationPoints, { value, normalResponse }],
@@ -317,6 +317,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
             normalResponse: '' // Limpia el campo de entrada
         }));
     };
+    
 
     const handleDeletePoint = (index) => {
         setFormData((prev) => ({
@@ -325,7 +326,10 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
         }));
     };
 
-
+    useEffect(() => {
+        console.log(formData.calibrationPoints); // Verifica el estado en cada renderizado
+    }, [formData.calibrationPoints]);
+    
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-800">
@@ -811,33 +815,41 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                            
                         </div>
                         <table className="min-w-full table-auto border-collapse mb-4 mt-4">
-                            <thead>
-                                <tr className="bg-gray-200">
-                                    {/* <th className="border px-4 py-2 font-bold">Punto de calibración</th> */}
-                                    <th className="border px-4 py-2 font-semibold">Valor</th>
-                                    <th className="border px-4 py-2 font-semibold">Respuesta</th>
-                                    <th className="border px-4 py-2 font-semibold">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {formData.calibrationPoints.map((param, index) => (
-                                    <tr key={index}>
-                                        <td className="border px-4 py-2">{param.value}</td>
-                                        <td className="border px-4 py-2">{param.normalResponse}</td>
-                                        <td className="border px-4 py-2">
-                                            <button
-                                                onClick={() => handleDeletePoint(index)}
-                                                className="text-red-500 hover:text-red-700 px-2 py-2 rounded"
-                                            >
-                                                <Trash size={20} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
+    <thead>
+        <tr className="bg-gray-200">
+            <th className="border px-4 py-2 font-semibold">Valor</th>
+            <th className="border px-4 py-2 font-semibold">Respuesta</th>
+            <th className="border px-4 py-2 font-semibold">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {formData.calibrationPoints.length > 0 ? ( // Solo renderiza filas si hay puntos
+            formData.calibrationPoints.map((param, index) => (
+                <tr key={index}>
+                    <td className="border px-4 py-2">{param.value}</td>
+                    <td className="border px-4 py-2">{param.normalResponse}</td>
+                    <td className="border px-4 py-2">
+                        <button
+                            onClick={() => handleDeletePoint(index)}
+                            className="text-red-500 hover:text-red-700 px-2 py-2 rounded"
+                        >
+                            <Trash size={20} />
+                        </button>
+                    </td>
+                </tr>
+            ))
+        ) : null} {/* No renderiza filas ni muestra mensaje */}
+    </tbody>
+</table>
+
+{/* Mostrar mensaje solo si la tabla está vacía */}
+{formData.calibrationPoints.length === 0 && (
+    <p className="text-center py-4 text-gray-500">
+        No hay puntos de calibración agregados.
+    </p>
+)}
 
 
-                        </table>
                     </div>
                 </>
             )}
