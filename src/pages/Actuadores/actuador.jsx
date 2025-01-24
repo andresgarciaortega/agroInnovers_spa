@@ -387,7 +387,7 @@ const Actuador = () => {
                   <td className="px-6 py-4 text-sm font-medium">
                     <button className="text-[#168C0DFF] px-2 py-2 rounded"
                       onClick={() => handleOpenModal(actuador.id, 'calibrar')}
-                      title="Calibrar Sensor"
+                      title="Calibrar Actuador"
 
                     >
                       <ImEqualizer size={18} />
@@ -400,19 +400,19 @@ const Actuador = () => {
                     </button>
                     <button className="text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(actuador, 'view')}>
                       <Eye size={18}
-                        title="Ver Detalles del Sensor"
+                        title="Ver Detalles del Actuador"
                       />
                     </button>
                     <button className="text-[#168C0DFF] px-2 py-2 rounded"
                       onClick={() => handleOpenModal(actuador, 'edit')}
-                      title="Editar Sensor"
+                      title="Editar Actuador"
 
                     >
                       <Edit size={18} />
                     </button>
                     <button className="text-[#168C0DFF] px-2 py-2 rounded"
                       onClick={() => handleDelete(actuador)}
-                      title="Eliminar Sensor"
+                      title="Eliminar Actuador"
                     >
                       <Trash size={18} />
                     </button>

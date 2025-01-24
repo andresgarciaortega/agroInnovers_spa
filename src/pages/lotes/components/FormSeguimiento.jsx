@@ -53,6 +53,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
             setFormData({
                 productionLotId: lote.id || '',
                 startDate: lote.startDate || '',
+                
                 estimatedEndDate: lote.estimatedEndDate || '',
                 productionSpaceId: lote.productionSpace?.id || '',
                 reportFrequency: lote.reportFrequency || '',
@@ -174,15 +175,18 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
     const handleSpeciesChange = (e) => {
         const value = e.target.value;
         setSelectedSpeciesId(value);
-        setFormData({ ...formData, specieId: value }); 
+        setFormData({ ...formData, specieId: value }); // Actualiza el formulario
     };
     
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        try {
-        
     
+        if (!formData.typeVariableId || isNaN(formData.typeVariableId)) {
+            alert("El campo Tipo de variable es obligatorio y debe ser un número.");
+            return;
+        }
+    
+        try {
             const preparedData = {
                 productionLotId: parseInt(formData.productionLotId, 10),
                 speciesData: formData.speciesData,
@@ -205,6 +209,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
             console.error('Error al crear el reporte:', error);
         }
     };
+    
     
     
     
@@ -328,8 +333,8 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
             value={selectedSpeciesId}
             onChange={(e) => {
                 const value = e.target.value;
-                setSelectedSpeciesId(value); 
-                setFormData({ ...formData, specieId: value }); 
+                setSelectedSpeciesId(value); // Actualiza el estado del ID seleccionado
+                setFormData({ ...formData, specieId: value }); // Actualiza el formulario
               }}
             className="w-full p-2 border rounded"
           >
@@ -348,7 +353,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
             <div>
                 <label className="block text-sm font-medium">Tipo de variable</label>
                 <select
-                    name="typeVariableId"
+                    name="variableTypeId"
                     value={formData.typeVariableId }
                     onChange={handleChange}
                     className="mt-1 block w-full border rounded-md p-2"
@@ -452,7 +457,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
                 type="submit"
                 className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
             >
-                Crear seguimiento
+                Editar
             </button>
         </div>
         </form>
