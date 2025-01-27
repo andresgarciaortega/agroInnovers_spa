@@ -77,33 +77,33 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleModeChange = (modeType, value) => {
-        setFormData({ ...formData, [modeType]: value });
-        console.log("modeType : ", value)
-        if (value === 'automatico') {
-            if (modeType === 'measurementType') {
-                setFormData({
-                    ...formData,
-                    measurementType: value,
-                    measurementType: '',
-                    sensorId: '',
-                    samplingTimeUnit: '',
-                    samplingFrequency: '',
-                    numberOfSamples: '',
-                });
-            } else if (modeType === 'controlType') {
-                setFormData({
-                    ...formData,
-                    controlType: value,
-                    controlType: '',
-                    actuatorId: '',
-                    actuationTimeUnit: '',
-                    activationParameterRange: '',
-                    activationFrequency: '',
-                });
-            }
-        }
-    };
+    // const handleModeChange = (modeType, value) => {
+    //     setFormData({ ...formData, [modeType]: value });
+    //     console.log("modeType : ", value)
+    //     if (value === 'automatico') {
+    //         if (modeType === 'measurementType') {
+    //             setFormData({
+    //                 ...formData,
+    //                 measurementType: value,
+    //                 measurementType: '',
+    //                 sensorId: '',
+    //                 samplingTimeUnit: '',
+    //                 samplingFrequency: '',
+    //                 numberOfSamples: '',
+    //             });
+    //         } else if (modeType === 'controlType') {
+    //             setFormData({
+    //                 ...formData,
+    //                 controlType: value,
+    //                 controlType: '',
+    //                 actuatorId: '',
+    //                 actuationTimeUnit: '',
+    //                 activationParameterRange: '',
+    //                 activationFrequency: '',
+    //             });
+    //         }
+    //     }
+    // };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
