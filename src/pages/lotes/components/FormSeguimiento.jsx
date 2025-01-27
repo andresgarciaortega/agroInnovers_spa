@@ -9,7 +9,7 @@ import GenericModal from '../../../components/genericModal';
 import SpeciesService from '../../../services/SpeciesService';
 import VariableType from '../../../services/VariableType';
 
-const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
+const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
     const [step, setStep] = useState(1);
     const [espacios, setEspacios] = useState([]);
     const [Especies, setEspecies] = useState([]);
@@ -213,6 +213,8 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
     
             const response = await ReporteService.createReporte(preparedData);
             console.log('Reporte creado:', response);
+            showErrorAlert("Reporte de seguimiento creado");
+
             onUpdate();
             closeModal();
         } catch (error) {
