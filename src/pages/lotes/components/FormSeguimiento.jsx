@@ -130,18 +130,18 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
 
     useEffect(() => {
         const fetchVariables = async () => {
-          if (!formData.variableTypeId) return;
+          if (!formData.typeVariableId) return;
       
           try {
             let data = [];
             if (viewMode === "species" && selectedSpeciesId) {
               data = await SpeciesService.getVariableBySpecie({
                 species: { id: selectedSpeciesId },
-                typeVariable: { id: parseInt(formData.variableTypeId) },
+                typeVariable: { id: parseInt(formData.typeVariableId) },
               });
             } else if (viewMode === "general") {
               data = await SpeciesService.getVariableBySpecie({
-                typeVariable: { id: parseInt(formData.variableTypeId) },
+                typeVariable: { id: parseInt(formData.typeVariableId) },
               });
             }
             setMainVariables(data.length > 0 ? data : []);
@@ -152,18 +152,28 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
         };
       
         fetchVariables();
-      }, [formData.variableTypeId, selectedSpeciesId, viewMode]);
+      }, [formData.typeVariableId, selectedSpeciesId, viewMode]);
       
       const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevFormData => ({ ...prevFormData, [name]: value }));
+        setFormData(prevFormData => ({ ...prevFormData, typeVariableId: value }));
     };
+    // const handleChange = (e) => {
+    //     const { name, value } = e.target;
+    //     setFormData(prevFormData => ({ ...prevFormData, [name]: value }));
+    // };
+    
+    
     
 
     const handleModeChange = (e) => {
         const mode = e.target.value;
         setViewMode(mode);
         
+        setSelectedSpeciesId(""); // Limpiar especie seleccionada cuando cambia el modo
+    setFormData({ ...formData, specieId: "" }); 
+
         if (mode === 'general') {
             setFormData({ ...formData, speciesData: false, specieId: null });
         } else {
@@ -181,10 +191,10 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
     
-        if (!formData.typeVariableId || isNaN(formData.typeVariableId)) {
-            alert("El campo Tipo de variable es obligatorio y debe ser un número.");
-            return;
-        }
+        // if (!formData.typeVariableId || isNaN(formData.typeVariableId)) {
+        //     alert("El campo Tipo de variable es obligatorio y debe ser un número.");
+        //     return;
+        // }
     
         try {
             const preparedData = {
@@ -210,7 +220,10 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
         }
     };
     
-    
+    const handleVariableTypeChange = (e) => {
+    const value = e.target.value;
+    setFormData(prevFormData => ({ ...prevFormData, typeVariableId: value }));
+};
     
     
     
@@ -353,7 +366,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal }) => {
             <div>
                 <label className="block text-sm font-medium">Tipo de variable</label>
                 <select
-                    name="variableTypeId"
+                    name="typeVariableId"
                     value={formData.typeVariableId }
                     onChange={handleChange}
                     className="mt-1 block w-full border rounded-md p-2"

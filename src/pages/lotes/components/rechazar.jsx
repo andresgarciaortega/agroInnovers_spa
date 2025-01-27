@@ -11,7 +11,7 @@ const FormRechazar = ({ lote, onUpdate, closeModal }) => {
   const [loteConEspecies, setLoteConEspecies] = useState([]);
   const [variables, setVariables] = useState([]);
   const [formData, setFormData] = useState({
-    productionLotId: '', // Asegúrate de que sea un valor adecuado
+    productionLotId: '', 
     typeVariableId: '',
     variableTrackingReports: [
         {
@@ -85,44 +85,56 @@ useEffect(() => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validación básica para la razón del rechazo
     if (!formData.rejectionReason) {
-      alert("Por favor, indique una razón para el rechazo.");
-      return;
+        alert("Por favor, indique una razón para el rechazo.");
+        return;
     }
 
-    let rejectionData = {
-      rejectionReason: formData.rejectionReason,
-      lotId: lote.id,
-    };
+    // Registro de datos para depuración
+    console.log("Contenido de loteConEspecies:", loteConEspecies);
 
-    // Verificamos si estamos en el modo 'general'
-    if (viewMode === 'general') {
-      if (loteConEspecies && loteConEspecies.productLotSpecies && loteConEspecies.productLotSpecies.length > 0) {
-        // Extraemos los IDs de las especies asociadas al lote
-        const speciesIds = loteConEspecies.productLotSpecies.map(specie => specie.specieId);
-        rejectionData.specieIds = speciesIds; // Enviamos todos los IDs de especies
-        console.log("Especies asociadas al lote:", speciesIds);  // Verifica los IDs que se están enviando
-      } else {
-        console.error("No se encontraron especies asociadas al lote.");
-        alert("No se encontraron especies asociadas al lote.");
+    // Validación de loteConEspecies y productLotSpecies
+    if (
+        !loteConEspecies || 
+        !Array.isArray(loteConEspecies.productLotSpecies) || 
+        loteConEspecies.productLotSpecies.length === 0
+    ) {
+        alert("No se encontraron datos de especies en el lote.");
+        console.error("Detalles del problema con loteConEspecies:", loteConEspecies);
         return;
-      }
-    } else if (viewMode === 'species' && formData.specieId) {
+    }
+
+    let rejectionData;
+
+    if (viewMode === "general") {
+        rejectionData = {
+            speciesData: false,
+            reason: formData.rejectionReason,
+        };
+    }  else if (viewMode === 'species' && formData.specieId) {
       // Si el modo es 'species', enviamos solo el ID de la especie seleccionada
       rejectionData.specieId = formData.specieId;
+    }  else {
+        alert("Por favor, seleccione una especie válida para rechazar.");
+        return;
     }
 
     try {
-      // Simula el servicio para crear un rechazo
-      console.log("Enviando rechazo:", rejectionData);
-      await LoteService.updateRechazo(lote.id, rejectionData); 
-      onUpdate();
-      closeModal();
+        console.log("Enviando rechazo:", rejectionData);
+        await LoteService.updateRechazo(lote.id, rejectionData);
+        onUpdate();
+        closeModal();
     } catch (error) {
-      console.error("Error al crear el rechazo:", error);
+        console.error("Error al crear el rechazo:", error);
+        alert("Ocurrió un error al intentar rechazar el lote.");
     }
-  };
+};
 
+
+
+  
 
 
   return (
