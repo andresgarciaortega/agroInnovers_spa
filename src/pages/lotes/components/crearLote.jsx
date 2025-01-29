@@ -43,6 +43,12 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             productionCycleStage: ''
         }
     });
+       const [trackingConfig, setTrackingConfig] = useState(
+            {
+                startDate: '',
+                trackingReportFrequency: '',
+                productionCycleStage: ''
+            })
 
     const [loteConEspecies, setLoteConEspecies] = useState({
         productionLotSpecies: []
@@ -180,7 +186,7 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
             if (trackingField === "productionCycleStage") {
                 const selectedStage = etapas.find((etapa) => etapa.id === parseInt(value));
-                setFormData(prevFormData => ({
+                setTrackingConfig(prevFormData => ({
                     ...prevFormData,
                     trackingConfig: {
                         ...prevFormData.trackingConfig,
@@ -188,7 +194,7 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                     }
                 }));
             } else {
-                setFormData(prevFormData => ({
+                setTrackingConfig(prevFormData => ({
                     ...prevFormData,
                     trackingConfig: {
                         ...prevFormData.trackingConfig,
@@ -235,10 +241,7 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             productionSpaceId: Number(formData.productionSpaceId),
             reportFrequency: formData.reportFrequency,
             cycleStage: formData.cycleStage,
-            productionTracking: {
-                startDate: formData.trackingConfig.startDate,
-                trackingReportFrequency: Number(formData.trackingConfig.trackingReportFrequency),
-                productionCycleStage: formData.trackingConfig.productionCycleStage
+            trackingConfig: {trackingConfig
             },
             productionLotSpecies: updatedSpecies,
             company_id: Number(formData.company_id),
@@ -308,30 +311,30 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const handleEdit = (especie) => {
         setIsEditMode(true); // Establecer el modo editar
         setFormData({
-          specieId: especie.specie.id,
-          initialIndividuals: especie.initialIndividuals,
-          initialWeight: especie.initialWeight,
-          startDate: especie.startDate,
-          reportFrequency: especie.reportFrequency,
-          cycleStage: especie.cycleStage,
+            specieId: especie.specie.id,
+            initialIndividuals: especie.initialIndividuals,
+            initialWeight: especie.initialWeight,
+            startDate: especie.startDate,
+            reportFrequency: especie.reportFrequency,
+            cycleStage: especie.cycleStage,
         });
         setIsModalOpen(true); // Abrir el modal
-      };
-      const handleCreate = () => {
+    };
+    const handleCreate = () => {
         setIsEditMode(false); // Establecer el modo crear
         setFormData({
-          specieId: '',
-          initialIndividuals: '',
-          initialWeight: '',
-          startDate: '',
-          reportFrequency: '',
-          cycleStage: '',
+            specieId: '',
+            initialIndividuals: '',
+            initialWeight: '',
+            startDate: '',
+            reportFrequency: '',
+            cycleStage: '',
         });
         setIsModalOpen(true); // Abrir el modal
-      };
-      const handleCerrarModal = () => {
+    };
+    const handleCerrarModal = () => {
         setIsModalOpen(false);
-      };
+    };
 
     const handleDelete = (especie) => {
         const updatedSpecies = loteConEspecies.productionLotSpecies.filter(
@@ -439,153 +442,153 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                             </div>
 
                             {loteConEspecies.productionLotSpecies && loteConEspecies.productionLotSpecies.length > 0 && (
-      <div className="mt-4">
-        <h4 className="text-lg font-semibold">Especies añadidas:</h4>
-        <div className="grid grid-cols-2 gap-4">
-          {loteConEspecies.productionLotSpecies.map((especie, index) => (
-            <div key={index} className="p-4 border rounded-md bg-white shadow-md">
-              <strong>{especie.specie.common_name}</strong>
-              <div>Individuos iniciales: {especie.initialIndividuals}</div>
-              <div>Peso inicial: {especie.initialWeight} kg</div>
+                                <div className="mt-4">
+                                    <h4 className="text-lg font-semibold">Especies añadidas:</h4>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {loteConEspecies.productionLotSpecies.map((especie, index) => (
+                                            <div key={index} className="p-4 border rounded-md bg-white shadow-md">
+                                                <strong>{especie.specie.common_name}</strong>
+                                                <div>Individuos iniciales: {especie.initialIndividuals}</div>
+                                                <div>Peso inicial: {especie.initialWeight} kg</div>
 
-              <div className="flex justify-end mt-2 space-x-4">
-                <button
-                  type="button"
-                  onClick={() => handleEdit(especie)}
-                  className="text-[#168C0DFF]"
-                >
-                  <Edit />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
+                                                <div className="flex justify-end mt-2 space-x-4">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleEdit(especie)}
+                                                        className="text-[#168C0DFF]"
+                                                    >
+                                                        <Edit />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
-   
+
 
                         </div>
                     )}
 
-{isModalOpen && (
-      <GenericModal onClose={handleCerrarModal} title={isEditMode ? 'Editar especie' : 'Añadir especie a producir'}>
-        <div className="mt-4">
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Especie</label>
-            <select
-              name="specieId"
-              value={formData.specieId}
-              onChange={(e) => {
-                const { value } = e.target;
-                setFormData((prevFormData) => ({
-                  ...prevFormData,
-                  specieId: value,
-                  cycleStage: '',
-                }));
-                fetchEtapasPorEspecie(value);
-              }}
-              className="mt-1 block w-full border rounded-md p-2"
-              required
-            >
-              <option value="">Seleccione una opción</option>
-              {especies.map((especie) => (
-                <option key={especie.id} value={especie.id}>
-                  {especie.common_name}
-                </option>
-              ))}
-            </select>
-          </div>
+                    {isModalOpen && (
+                        <GenericModal onClose={handleCerrarModal} title={isEditMode ? 'Editar especie' : 'Añadir especie a producir'}>
+                            <div className="mt-4">
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium">Especie</label>
+                                    <select
+                                        name="specieId"
+                                        value={formData.specieId}
+                                        onChange={(e) => {
+                                            const { value } = e.target;
+                                            setFormData((prevFormData) => ({
+                                                ...prevFormData,
+                                                specieId: value,
+                                                cycleStage: '',
+                                            }));
+                                            fetchEtapasPorEspecie(value);
+                                        }}
+                                        className="mt-1 block w-full border rounded-md p-2"
+                                        required
+                                    >
+                                        <option value="">Seleccione una opción</option>
+                                        {especies.map((especie) => (
+                                            <option key={especie.id} value={especie.id}>
+                                                {especie.common_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium">Individuos iniciales</label>
-              <input
-                type="number"
-                name="initialIndividuals"
-                value={formData.initialIndividuals}
-                onChange={handleChange}
-                className="mt-1 block w-full border rounded-md p-2"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Peso Inicial</label>
-              <input
-                type="number"
-                name="initialWeight"
-                value={formData.initialWeight}
-                onChange={handleChange}
-                className="mt-1 block w-full border rounded-md p-2"
-                required
-              />
-            </div>
-          </div>
+                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label className="block text-sm font-medium">Individuos iniciales</label>
+                                        <input
+                                            type="number"
+                                            name="initialIndividuals"
+                                            value={formData.initialIndividuals}
+                                            onChange={handleChange}
+                                            className="mt-1 block w-full border rounded-md p-2"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium">Peso Inicial</label>
+                                        <input
+                                            type="number"
+                                            name="initialWeight"
+                                            value={formData.initialWeight}
+                                            onChange={handleChange}
+                                            className="mt-1 block w-full border rounded-md p-2"
+                                            required
+                                        />
+                                    </div>
+                                </div>
 
-          <h2 className="mb-4">Configurar seguimiento de producción</h2>
+                                <h2 className="mb-4">Configurar seguimiento de producción</h2>
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium">Fecha de inicio</label>
-              <input
-                type="date"
-                name="startDate"
-                value={formData.startDate}
-                onChange={handleChange}
-                className="mt-1 block w-full border rounded-md p-2"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Frecuencia reporte de seguimiento</label>
-              <input
-                type="number"
-                name="reportFrequency"
-                value={formData.reportFrequency}
-                onChange={handleChange}
-                className="mt-1 block w-full border rounded-md p-2"
-                required
-              />
-            </div>
-          </div>
+                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label className="block text-sm font-medium">Fecha de inicio</label>
+                                        <input
+                                            type="date"
+                                            name="startDate"
+                                            value={formData.startDate}
+                                            onChange={handleChange}
+                                            className="mt-1 block w-full border rounded-md p-2"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium">Frecuencia reporte de seguimiento</label>
+                                        <input
+                                            type="number"
+                                            name="reportFrequency"
+                                            value={formData.reportFrequency}
+                                            onChange={handleChange}
+                                            className="mt-1 block w-full border rounded-md p-2"
+                                            required
+                                        />
+                                    </div>
+                                </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Etapa de producción</label>
-            <select
-              name="cycleStage"
-              value={formData.cycleStage}
-              onChange={handleChange}
-              className="mt-1 block w-full border rounded-md p-2"
-              required
-            >
-              <option value="">Seleccione una opción</option>
-              {etapas.map((etapa) => (
-                <option key={etapa.id} value={etapa.id}>
-                  {etapa.name}
-                </option>
-              ))}
-            </select>
-          </div>
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium">Etapa de producción</label>
+                                    <select
+                                        name="cycleStage"
+                                        value={formData.cycleStage}
+                                        onChange={handleChange}
+                                        className="mt-1 block w-full border rounded-md p-2"
+                                        required
+                                    >
+                                        <option value="">Seleccione una opción</option>
+                                        {etapas.map((etapa) => (
+                                            <option key={etapa.id} value={etapa.id}>
+                                                {etapa.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
 
-          <div className="flex justify-end mt-4">
-            <button
-              type="button"
-              onClick={handleCerrarModal}
-              className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 mr-2"
-            >
-              Cancelar
-            </button>
-            <button
-              type="button"
-              onClick={handleAgregarEspecie}
-              className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-            >
-              {isEditMode ? 'Guardar cambios' : 'Agregar'}
-            </button>
-          </div>
-        </div>
-      </GenericModal>
-    )}
+                                <div className="flex justify-end mt-4">
+                                    <button
+                                        type="button"
+                                        onClick={handleCerrarModal}
+                                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 mr-2"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleAgregarEspecie}
+                                        className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                                    >
+                                        {isEditMode ? 'Guardar cambios' : 'Agregar'}
+                                    </button>
+                                </div>
+                            </div>
+                        </GenericModal>
+                    )}
 
 
                     <div className="flex justify-end space-x-4 mt-6">

@@ -5,9 +5,9 @@ import api from './ApiService';
 const ReporteService = {
 
 
-    async getAllReporte(idcompany = 0) {
+    async getAllReporte(idcompany = 0, searchParameter) {
         try {
-            const response = await api.get(`/tracking-reports?page=1&limit=100&company=${idcompany}`);
+            const response = await api.get(`/tracking-reports?page=1&limit=100&company=${idcompany}&search=${encodeURIComponent(JSON.stringify(searchParameter))}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener los tipos de reportes:', error);
