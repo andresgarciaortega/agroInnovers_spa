@@ -129,9 +129,6 @@ const Usuario = () => {
   const currentCompanies = filteredUser.slice(indexOfFirstCompany, indexOfLastCompany);
 
 
-
-
-
   const handleNextPage = () => {
     if (currentPage < Math.ceil(filteredUser.length / itemsPerPage)) {
       setCurrentPage(currentPage + 1);

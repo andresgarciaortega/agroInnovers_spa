@@ -112,9 +112,7 @@ const VisualizarMonitoreo = () => {
           <IoIosWarning size={20} />
           <p>Recuerda que esto es solo una visualización, la vista real se optendra mas adelante</p>
         </div>
-        <div className="flex justify-end w-full">
-
-        </div>
+       
       </div>
     </div>
   );

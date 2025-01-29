@@ -10,6 +10,7 @@ import { IoIosWarning, IoMdAlert, IoMdCheckmarkCircle } from "react-icons/io";
 import { IoSearch } from "react-icons/io5";
 import { FaFilter } from "react-icons/fa6";
 import { ImEqualizer2 } from "react-icons/im";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 import { Edit, Trash, Eye, Ban } from 'lucide-react';
 import Delete from '../../components/delete';
@@ -28,7 +29,8 @@ import { GoArrowSwitch } from "react-icons/go";
 const Lotes = () => {
   const { companyId } = useParams();
   const navigate = useNavigate();
-
+ const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
   const [selectedLote, setSelectedLote] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
@@ -245,6 +247,28 @@ const Lotes = () => {
     console.log('si')
     navigate(`../visualizarLote/${lote.id}`);
   };
+
+  const indexOfLastCompany = currentPage * itemsPerPage;
+  const indexOfFirstCompany = indexOfLastCompany - itemsPerPage;
+  const currentCompanies = lotesList.slice(indexOfFirstCompany, indexOfLastCompany);
+
+
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(lotesList.length / itemsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleItemsPerPageChange = (event) => {
+    setItemsPerPage(Number(event.target.value));
+    setCurrentPage(1);
+  };
   return (
     <div className="table-container containerEmporesa">
       <div className="mb-5">
@@ -291,7 +315,7 @@ const Lotes = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-  {lotesList.map((lote) => (
+  {currentCompanies.map((lote) => (
     <div key={lote.id} className="border p-4 rounded-md shadow-lg border-gray-300">
       <div className="text-lg flex items-center justify-between font-bold">
         <span>{lote.lotCode}</span>
@@ -430,6 +454,7 @@ const Lotes = () => {
       </div>
     </div>
   ))}
+   
 
   {isDeleteModalOpen && (
     <Delete
@@ -445,6 +470,40 @@ const Lotes = () => {
     />
   )}
 </div>
+<div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+  
+          <div className="pagination-info text-sm flex items-center space-x-2">
+            <span>Cantidad de filas</span>
+            <select
+              className="border border-gray-200 rounded py-2 text-sm m-2"
+              value={itemsPerPage}
+              onChange={handleItemsPerPageChange}
+            >
+              <option value={6}>6</option>
+              <option value={12}>12</option>
+              <option value={21}>21</option>
+            </select>
+          </div>
+  
+  
+          <div className="pagination-controls text-xs flex items-center space-x-2">
+            <span>{currentPage} de {Math.ceil(lotesList.length / itemsPerPage)}</span>
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+            >
+              <IoIosArrowBack size={20} />
+            </button>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === Math.ceil(lotesList.length / itemsPerPage)}
+              className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+            >
+              <IoIosArrowForward size={20} />
+            </button>
+          </div>
+        </div>
 
 
 

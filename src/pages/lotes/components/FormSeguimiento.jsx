@@ -9,7 +9,7 @@ import GenericModal from '../../../components/genericModal';
 import SpeciesService from '../../../services/SpeciesService';
 import VariableType from '../../../services/VariableType';
 
-const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
+const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [step, setStep] = useState(1);
     const [espacios, setEspacios] = useState([]);
     const [Especies, setEspecies] = useState([]);
@@ -19,7 +19,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
 
     const [variableContainers, setVariableContainers] = useState([]);
     const [selectedSpeciesId, setSelectedSpeciesId] = useState("");
-    const [selectedVariableId, setSelectedVariableId] = useState(""); 
+    const [selectedVariableId, setSelectedVariableId] = useState("");
 
     const [selectedVariables, setSelectedVariables] = useState({
         main: [],
@@ -40,20 +40,25 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
             }
         ],
         company_id: '',
-        specieId: '', // Especie seleccionada
-        speciesData: false // Agrega esta línea para manejar el estado de "por especie"
+        specieId: '',
+        speciesData: false
     });
-    
-    const [viewMode, setViewMode] = useState('general'); 
+    const [variableTrackingReports, setVariableTrackingReports] = useState(
+        {
+            variableId: '',
+            updateDate: '',
+            updateTime: '',
+            weightAmount: ''
+        })
+
+    const [viewMode, setViewMode] = useState('general');
 
     useEffect(() => {
         if (lote) {
-        console.log("Lote recibido:", lote);
-
+            console.log("Lote recibido:", lote);
             setFormData({
                 productionLotId: lote.id || '',
                 startDate: lote.startDate || '',
-                
                 estimatedEndDate: lote.estimatedEndDate || '',
                 productionSpaceId: lote.productionSpace?.id || '',
                 reportFrequency: lote.reportFrequency || '',
@@ -65,19 +70,12 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
                     productionCycleStage: ''
                 }
             });
-
             if (lote.productionSpace?.id) {
                 fetchEspacioDetalles(lote.productionSpace.id);
             }
-            console.log('lote traido', lote)
-
-
-            setLoteConEspecies(lote);
         }
-        fetchEspacios();
-        fetchEspecies(0,{});
-        fetchVariablesType()
     }, [lote]);
+    
 
     const fetchEspacios = async () => {
         try {
@@ -119,7 +117,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
     useEffect(() => {
         const fetchEspecies = async () => {
             try {
-                const data = await SpeciesService.getAllSpecie(0,{});
+                const data = await SpeciesService.getAllSpecie(0, {});
                 setTipoEspecies(data);
             } catch (error) {
                 console.error('Error fetching species:', error);
@@ -130,31 +128,31 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
 
     useEffect(() => {
         const fetchVariables = async () => {
-          if (!formData.typeVariableId) return;
-      
-          try {
-            let data = [];
-            if (viewMode === "species" && selectedSpeciesId) {
-              data = await SpeciesService.getVariableBySpecie({
-                species: { id: selectedSpeciesId },
-                typeVariable: { id: parseInt(formData.typeVariableId) },
-              });
-            } else if (viewMode === "general") {
-              data = await SpeciesService.getVariableBySpecie({
-                typeVariable: { id: parseInt(formData.typeVariableId) },
-              });
+            if (!formData.typeVariableId) return;
+
+            try {
+                let data = [];
+                if (viewMode === "species" && selectedSpeciesId) {
+                    data = await SpeciesService.getVariableBySpecie({
+                        species: { id: selectedSpeciesId },
+                        typeVariable: { id: parseInt(formData.typeVariableId) },
+                    });
+                } else if (viewMode === "general") {
+                    data = await SpeciesService.getVariableBySpecie({
+                        typeVariable: { id: parseInt(formData.typeVariableId) },
+                    });
+                }
+                setMainVariables(data.length > 0 ? data : []);
+            } catch (error) {
+                console.error("Error fetching variables:", error);
+                setMainVariables([]);
             }
-            setMainVariables(data.length > 0 ? data : []);
-          } catch (error) {
-            console.error("Error fetching variables:", error);
-            setMainVariables([]);
-          }
         };
-      
+
         fetchVariables();
-      }, [formData.typeVariableId, selectedSpeciesId, viewMode]);
-      
-      const handleChange = (e) => {
+    }, [formData.typeVariableId, selectedSpeciesId, viewMode]);
+
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevFormData => ({ ...prevFormData, [name]: value }));
         setFormData(prevFormData => ({ ...prevFormData, typeVariableId: value }));
@@ -163,16 +161,16 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
     //     const { name, value } = e.target;
     //     setFormData(prevFormData => ({ ...prevFormData, [name]: value }));
     // };
-    
-    
-    
+
+
+
 
     const handleModeChange = (e) => {
         const mode = e.target.value;
         setViewMode(mode);
-        
-        setSelectedSpeciesId(""); // Limpiar especie seleccionada cuando cambia el modo
-    setFormData({ ...formData, specieId: "" }); 
+
+        setSelectedSpeciesId("");
+        setFormData({ ...formData, specieId: "" });
 
         if (mode === 'general') {
             setFormData({ ...formData, speciesData: false, specieId: null });
@@ -180,22 +178,22 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
             setFormData({ ...formData, speciesData: true });
         }
     };
-    
+
 
     const handleSpeciesChange = (e) => {
         const value = e.target.value;
         setSelectedSpeciesId(value);
-        setFormData({ ...formData, specieId: value }); // Actualiza el formulario
+        setFormData({ ...formData, specieId: value });
     };
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         // if (!formData.typeVariableId || isNaN(formData.typeVariableId)) {
         //     alert("El campo Tipo de variable es obligatorio y debe ser un número.");
         //     return;
         // }
-    
+
         try {
             const preparedData = {
                 productionLotId: parseInt(formData.productionLotId, 10),
@@ -203,14 +201,9 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
                 specieId: formData.speciesData ? parseInt(formData.specieId, 10) : null,
                 typeVariableId: parseInt(formData.typeVariableId, 10),
                 company_id: parseInt(formData.company_id, 10),
-                variableTrackingReports: (formData.variableTrackingReports || []).map((report) => ({
-                    variableId: parseInt(report.variableId, 10),
-                    updateDate: report.updateDate,
-                    updateTime: report.updateTime,
-                    weightAmount: report.weightAmount.toString(),
-                })),
+                variableTrackingReports:[variableTrackingReports]
             };
-    
+
             const response = await ReporteService.createReporte(preparedData);
             console.log('Reporte creado:', response);
             showErrorAlert("Reporte de seguimiento creado");
@@ -221,16 +214,16 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
             console.error('Error al crear el reporte:', error);
         }
     };
-    
+
     const handleVariableTypeChange = (e) => {
-    const value = e.target.value;
-    setFormData(prevFormData => ({ ...prevFormData, typeVariableId: value }));
-};
-    
-    
-    
-    
-    
+        const value = e.target.value;
+        setFormData(prevFormData => ({ ...prevFormData, typeVariableId: value }));
+    };
+
+
+
+
+
     // const validateForm = (data) => {
     //     const errors = [];
     //     // if (!data.productionLotId) errors.push("productionLotId es requerido");
@@ -248,7 +241,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
     //     }
     //     return true;
     // };
-    
+
 
     const addVariable = () => {
         console.log("ID de variable seleccionada:", selectedVariableId);
@@ -260,30 +253,41 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
             console.warn("No se encontró una variable con el ID seleccionado.");
             return;
         }
-
         const newVariable = {
-            id: Date.now(),
-            name: variableName,
-            date: new Date().toLocaleDateString(),
-            time: new Date().toLocaleTimeString(),
-            quantity: ""
+            id: selectedVariableId,
+            variableId: selectedVariableId,
+            updateDate: new Date().toLocaleDateString(),
+            updateTime: new Date().toLocaleTimeString(),
+            weightAmount: ""
         };
 
+
+
         setVariableContainers([...variableContainers, newVariable]);
-        setSelectedVariableId(""); 
+        setSelectedVariableId("");
     };
 
 
 
-    const handleContainerChange = (id, field, value) => {
-        setVariableContainers(prevContainers =>
-            prevContainers.map(container =>
-                container.id === id ? { ...container, [field]: value } : container
-            )
-        );
+    const handleContainerChange = (id, name, value) => {
+        console.log('container', id)
+        // setVariableContainers(prevContainers =>
+        //     prevContainers.map(container =>
+        //         container.id === id ? { ...container, [field]: value } : container
+        //     )
+        // );
+        // const { name, value } = e.target;
+
+        setVariableTrackingReports((prevFormDataAcces) => ({
+            ...prevFormDataAcces,
+            variableId: Number(id),
+            [name]: value,
+        }));
+        console.log('prueba v', variableTrackingReports)
     };
+
     const handleVariableChange = (e) => {
-        setSelectedVariableId(e.target.value); 
+        setSelectedVariableId(e.target.value);
     };
 
 
@@ -310,58 +314,58 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
             <div>
                 <h2 className='font-bold pb-3'>Dato general o por especie</h2>
 
-              
-        <div className="flex items-center space-x-4">
-          <label className="flex items-center space-x-2">
-            <input
-              type="radio"
-              name="viewMode"
-              value="general"
-              checked={viewMode === "general"}
-              onChange={handleModeChange}
-              className="accent-blue-500"
-            />
-            <span>General</span>
-          </label>
-          <label className="flex items-center space-x-2">
-            <input
-              type="radio"
-              name="viewMode"
-              value="species"
-              checked={viewMode === "species"}
-              onChange={handleModeChange}
-              className="accent-green-500"
-            />
-            <span>Por especie</span>
-          </label>
-        </div>
-      </div>
 
-      {viewMode === "species" && (
-        <div>
-          <label htmlFor="specieId" className="block text-sm font-medium">
-            Especie:
-          </label>
-          <select
-            id="specieId"
-            name="specieId"
-            value={selectedSpeciesId}
-            onChange={(e) => {
-                const value = e.target.value;
-                setSelectedSpeciesId(value); // Actualiza el estado del ID seleccionado
-                setFormData({ ...formData, specieId: value }); // Actualiza el formulario
-              }}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">Seleccione una especie</option>
-            {species.map((specie) => (
-              <option key={specie.id} value={specie.id}>
-                {specie.common_name}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+                <div className="flex items-center space-x-4">
+                    <label className="flex items-center space-x-2">
+                        <input
+                            type="radio"
+                            name="viewMode"
+                            value="general"
+                            checked={viewMode === "general"}
+                            onChange={handleModeChange}
+                            className="accent-blue-500"
+                        />
+                        <span>General</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                        <input
+                            type="radio"
+                            name="viewMode"
+                            value="species"
+                            checked={viewMode === "species"}
+                            onChange={handleModeChange}
+                            className="accent-green-500"
+                        />
+                        <span>Por especie</span>
+                    </label>
+                </div>
+            </div>
+
+            {viewMode === "species" && (
+                <div>
+                    <label htmlFor="specieId" className="block text-sm font-medium">
+                        Especie:
+                    </label>
+                    <select
+                        id="specieId"
+                        name="specieId"
+                        value={selectedSpeciesId}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setSelectedSpeciesId(value);
+                            setFormData({ ...formData, specieId: value });
+                        }}
+                        className="w-full p-2 border rounded"
+                    >
+                        <option value="">Seleccione una especie</option>
+                        {species.map((specie) => (
+                            <option key={specie.id} value={specie.id}>
+                                {specie.common_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
 
 
 
@@ -369,7 +373,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
                 <label className="block text-sm font-medium">Tipo de variable</label>
                 <select
                     name="typeVariableId"
-                    value={formData.typeVariableId }
+                    value={formData.typeVariableId}
                     onChange={handleChange}
                     className="mt-1 block w-full border rounded-md p-2"
                 >
@@ -422,14 +426,14 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
                     variableContainers.map((container) => (
                         <div key={container.id} className="border p-3 my-2 rounded-md">
                             <p><strong>Varable:</strong> {container.name}</p>
-                          
+
                             <div>
                                 <label className="block text-sm font-medium">Fecha Actualización</label>
                                 <input
                                     type="date"
-                                    name="finalIndividuals"
-                                    value={container.updateDate}
-                                    onChange={(e) => handleContainerChange(container.id, 'date', e.target.value)}
+                                    name="updateDate"
+                                    value={formData.updateDate}
+                                    onChange={(e) => handleContainerChange(container.id, 'updateDate', e.target.value)}
 
                                     className="mt-1 block w-full border rounded-md p-2"
                                 />
@@ -438,9 +442,9 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
                                 <label className="block text-sm font-medium">Hora Actualización</label>
                                 <input
                                     type="time"
-                                    name="finalIndividuals"
-                                    value={container.updateTime}
-                                    onChange={(e) => handleContainerChange(container.id, 'time', e.target.value)}
+                                    name="updateTime"
+                                    value={formData.updateTime}
+                                    onChange={(e) => handleContainerChange(container.id, 'updateTime', e.target.value)}
 
                                     className="mt-1 block w-full border rounded-md p-2"
                                 />
@@ -449,9 +453,9 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
                                 <label className="block text-sm font-medium">Cantidad/Peso</label>
                                 <input
                                     type="number"
-                                    name="finalIndividuals"
-                                    value={container.weightAmount}
-                                    onChange={(e) => handleContainerChange(container.id, 'quantity', e.target.value)}
+                                    name="weightAmount"
+                                    value={formData.weightAmount}
+                                    onChange={(e) => handleContainerChange(container.id, 'weightAmount', e.target.value)}
 
                                     className="mt-1 block w-full border rounded-md p-2"
                                 />
@@ -461,20 +465,20 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
                 )}
             </div>
             <div className="flex justify-end space-x-4 mt-6">
-            <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
-            >
-                Volver
-            </button>
-            <button
-                type="submit"
-                className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-            >
-                Editar
-            </button>
-        </div>
+                <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
+                >
+                    Volver
+                </button>
+                <button
+                    type="submit"
+                    className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                >
+                    Editar
+                </button>
+            </div>
         </form>
     );
 };
