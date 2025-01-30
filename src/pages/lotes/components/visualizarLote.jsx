@@ -23,7 +23,7 @@ const VisualizarLote = () => {
 
     const { selectedCompanyUniversal } = useCompanyContext();
     const [nameCompany, setNameCompany] = useState("");
-    const [lote, setLote] = useState(null);
+    // const [lote, setLote] = useState(null);
     const [seguimiento, setSeguimiento] = useState([]);
     const [expanded, setExpanded] = useState(null);
     const [typeVariable, setVariableType] = useState([]);
@@ -51,6 +51,14 @@ const VisualizarLote = () => {
         specieId: '', // Especie seleccionada
         speciesData: false // Agrega esta línea para manejar el estado de "por especie"
     });
+    const [lote, setLote] = useState({
+        lotCode: '',
+        startDate: '',
+        estimatedEndDate: '',
+        productionSpaceId: '',
+        reportFrequency: '',
+        cycleStage: ''
+      });
 
     useEffect(() => {
         const fetchLote = async () => {
@@ -148,13 +156,17 @@ const VisualizarLote = () => {
         setSelectedLote(id); // Asegurar que el lote actual está seleccionado
         setIdModalOpenSeguimiento(true);
         setModalMode(mode);
+        setLote(lote);
+        console.log('seguimiento:', lote)
+
 
         if (mode === "edit" && seguimiento) {
-            setFormData({
-                ...seguimiento,
-                productionLotId: id // Asegurar que el reporte pertenece al lote actual
-            });
+            setIsModalOpen(true);
+        setLote(lote);
+
         } else {
+        setLote(lote);
+
             setFormData({
                 productionLotId: id, // Asignar el ID del lote actual
                 typeVariableId: "",

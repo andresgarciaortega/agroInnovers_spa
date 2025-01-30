@@ -56,9 +56,11 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     useEffect(() => {
         if (lote) {
             console.log("Lote recibido:", lote);
+
             setFormData({
                 productionLotId: lote.id || '',
                 startDate: lote.startDate || '',
+
                 estimatedEndDate: lote.estimatedEndDate || '',
                 productionSpaceId: lote.productionSpace?.id || '',
                 reportFrequency: lote.reportFrequency || '',
@@ -70,12 +72,19 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                     productionCycleStage: ''
                 }
             });
+
             if (lote.productionSpace?.id) {
                 fetchEspacioDetalles(lote.productionSpace.id);
             }
+            console.log('lote traido', lote)
+
+
+            setLoteConEspecies(lote);
         }
+        fetchEspacios();
+        fetchEspecies(0, {});
+        fetchVariablesType()
     }, [lote]);
-    
 
     const fetchEspacios = async () => {
         try {
@@ -297,7 +306,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                 <div>
                     <p><strong>Código de lote:</strong> {lote?.lotCode}</p>
                     <p><strong>Estado del lote:</strong> {lote?.status}</p>
-                    <p><strong>Tipo de espacio:</strong> {espacioDetalles?.spaceTypeId.spaceTypeName}</p>
+                    {/* <p><strong>Tipo de espacio:</strong> {espacioDetalles?.spaceTypeId.spaceTypeName}</p> */}
                     <p><strong>Especies:</strong>
                         {lote?.productionLotSpecies?.map((specie, index) => (
                             <span key={index}>{specie.specie.common_name}{index < lote.productionLotSpecies.length - 1 ? ', ' : ''}</span>
@@ -407,63 +416,64 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                 </select>
 
                 {selectedVariableId && (
+                      <div className="flex justify-end space-x-4 ">
                     <button
                         type="button"
                         onClick={addVariable}
-                        className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md"
+                        className="mt-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md"
                     >
                         Añadir variable
                     </button>
+            </div>
+
                 )}
 
             </div>
 
             <div>
-                {/* <h3 className="font-bold mt-4">Variables añadidas</h3> */}
-                {variableContainers.length === 0 ? (
-                    <p>No se han añadido variables.</p>
-                ) : (
-                    variableContainers.map((container) => (
-                        <div key={container.id} className="border p-3 my-2 rounded-md">
-                            <p><strong>Varable:</strong> {container.name}</p>
+  {variableContainers.length === 0 ? (
+    <p>No se han añadido variables.</p>
+  ) : (
+    variableContainers.map((container) => (
+      <div key={container.id} className="border p-3 my-2 rounded-md">
+        <p><strong>Variable:</strong> {container.name}</p>
+        <div className="grid grid-cols-3 gap-4"> {/* Aquí se especifica el diseño en 3 columnas */}
+          <div>
+            <label className="block text-sm font-medium">Fecha Actualización</label>
+            <input
+              type="date"
+              name="updateDate"
+              value={formData.updateDate}
+              onChange={(e) => handleContainerChange(container.id, 'updateDate', e.target.value)}
+              className="mt-1 block w-full border rounded-md p-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Hora Actualización</label>
+            <input
+              type="time"
+              name="updateTime"
+              value={formData.updateTime}
+              onChange={(e) => handleContainerChange(container.id, 'updateTime', e.target.value)}
+              className="mt-1 block w-full border rounded-md p-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Cantidad/Peso</label>
+            <input
+              type="number"
+              name="weightAmount"
+              value={formData.weightAmount}
+              onChange={(e) => handleContainerChange(container.id, 'weightAmount', e.target.value)}
+              className="mt-1 block w-full border rounded-md p-2"
+            />
+          </div>
+        </div>
+      </div>
+    ))
+  )}
+</div>
 
-                            <div>
-                                <label className="block text-sm font-medium">Fecha Actualización</label>
-                                <input
-                                    type="date"
-                                    name="updateDate"
-                                    value={formData.updateDate}
-                                    onChange={(e) => handleContainerChange(container.id, 'updateDate', e.target.value)}
-
-                                    className="mt-1 block w-full border rounded-md p-2"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium">Hora Actualización</label>
-                                <input
-                                    type="time"
-                                    name="updateTime"
-                                    value={formData.updateTime}
-                                    onChange={(e) => handleContainerChange(container.id, 'updateTime', e.target.value)}
-
-                                    className="mt-1 block w-full border rounded-md p-2"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium">Cantidad/Peso</label>
-                                <input
-                                    type="number"
-                                    name="weightAmount"
-                                    value={formData.weightAmount}
-                                    onChange={(e) => handleContainerChange(container.id, 'weightAmount', e.target.value)}
-
-                                    className="mt-1 block w-full border rounded-md p-2"
-                                />
-                            </div>
-                        </div>
-                    ))
-                )}
-            </div>
             <div className="flex justify-end space-x-4 mt-6">
                 <button
                     type="button"

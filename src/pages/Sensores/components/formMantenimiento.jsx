@@ -457,8 +457,9 @@ const handleSubmit = async (e) => {
           id="estimatedReplacementDate"
           name="estimatedReplacementDate"
           placeholder="Hora Finalización"
-          value={formData.estimatedReplacementDate.substr(0,10)}
+          value={formData.estimatedReplacementDate}
           onChange={handleChange}
+          min={currentDate}
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           required
           disabled={mode === 'view'}

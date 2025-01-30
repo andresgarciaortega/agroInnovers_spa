@@ -6,7 +6,7 @@ const SpeciesService = {
     // LISTAR TODAS LAS CATEGORÍAS
     async getAllSpecie(idcompany = 0, searchParameter) {
         try {
-            const response = await api.get(`/species?page=1&limit=100&company_id=${idcompany}&search=${encodeURIComponent(JSON.stringify(searchParameter))}`);
+            const response = await api.get(`/species?page=1&limit=100&company=${idcompany}&search=${encodeURIComponent(JSON.stringify(searchParameter))}`);
             console.log('busqueda:',searchParameter )
             return response.data;
 
