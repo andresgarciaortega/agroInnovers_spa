@@ -297,7 +297,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                 <div>
                     <p><strong>Código de lote:</strong> {lote?.lotCode}</p>
                     <p><strong>Estado del lote:</strong> {lote?.status}</p>
-                    <p><strong>Tipo de espacio:</strong> {espacioDetalles?.spaceTypeId.spaceTypeName}</p>
+                    <p><strong>Tipo de espacio:</strong> {espacioDetalles?.spaceTypeId?.spaceTypeName}</p>
                     <p><strong>Especies:</strong>
                         {lote?.productionLotSpecies?.map((specie, index) => (
                             <span key={index}>{specie.specie.common_name}{index < lote.productionLotSpecies.length - 1 ? ', ' : ''}</span>

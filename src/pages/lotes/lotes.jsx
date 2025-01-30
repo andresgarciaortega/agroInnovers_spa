@@ -124,6 +124,7 @@ const Lotes = () => {
     setIdModalOpenSeguimiento(false);
 
     setSelectedLote(lote);
+    setNewLote(lote);
 
     switch (mode) {
       case "edit":
@@ -142,7 +143,6 @@ const Lotes = () => {
         setIsModalCrear(true);
         break;
       case "cosechar":
-        setNewLote(lote);
         setIdModalOpenCosecha(true);
         break;
       case "rechazar":
