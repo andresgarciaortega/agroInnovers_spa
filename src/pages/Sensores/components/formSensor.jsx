@@ -41,7 +41,7 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
         console.error('Error al obtener los tipos de sensores:', error);
       }
     };
-    
+
 
     const fetchCompanies = async () => {
       try {
@@ -103,36 +103,49 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    const today = new Date().toISOString().split("T")[0]; // Obtiene la fecha actual en formato YYYY-MM-DD
+
+    if (name === "installationDate" && value > today) {
+      showErrorAlert("La fecha de instalación no puede ser futura.");
+      return;
+    }
+
+    if (name === "estimatedChangeDate" && value < today) {
+      showErrorAlert("La fecha estimada de cambio no puede ser anterior a hoy.");
+      return;
+    }
+
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
   };
 
 
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-   
 
-      // Crear el objeto de datos a enviar
-      const formDataToSubmit = {
-        ...formData,
-        // icon: logoUrl || '',  // Usar la URL de la imagen (nueva o existente)
-        sensorCode: formData.sensorCode,
-        gpsPosition: formData.gpsPosition,
-        inputPort: parseInt(formData.inputPort, 10), // Convertir a número entero
-        readingPort: parseInt(formData.readingPort, 10), 
-        description: formData.description,
-        accessUsername: formData.accessUsername,
-        accessPassword: formData.accessPassword,
-        installationDate: formData.installationDate,
-        estimatedChangeDate: formData.estimatedChangeDate,
-        sensorTypeId: Number(formData.sensorTypeId),
-        
-        company_id: Number(companyId) || Number(formData.company_id),  
-      };
-      try {
+
+    // Crear el objeto de datos a enviar
+    const formDataToSubmit = {
+      ...formData,
+      // icon: logoUrl || '',  // Usar la URL de la imagen (nueva o existente)
+      sensorCode: formData.sensorCode,
+      gpsPosition: formData.gpsPosition,
+      inputPort: parseInt(formData.inputPort, 10), // Convertir a número entero
+      readingPort: parseInt(formData.readingPort, 10),
+      description: formData.description,
+      accessUsername: formData.accessUsername,
+      accessPassword: formData.accessPassword,
+      installationDate: formData.installationDate,
+      estimatedChangeDate: formData.estimatedChangeDate,
+      sensorTypeId: Number(formData.sensorTypeId),
+
+      company_id: Number(companyId) || Number(formData.company_id),
+    };
+    try {
       // Enviar la solicitud según el modo
       if (mode === 'create') {
         const createdVariable = await SensorService.createSensor(formDataToSubmit);
@@ -153,40 +166,40 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
   };
 
 
-//   const handleIconUpload = (e) => {
-//     const file = e.target.files[0];
-//     if (file) {
-//       setFormData({
-//         ...formData,
-//         icon: file,
-//       });
-//       const reader = new FileReader();
-//       reader.onloadend = () => {
-//         setImagePreview(reader.result);
-//       };
-//       reader.readAsDataURL(file);
-//     }
-//   };
+  //   const handleIconUpload = (e) => {
+  //     const file = e.target.files[0];
+  //     if (file) {
+  //       setFormData({
+  //         ...formData,
+  //         icon: file,
+  //       });
+  //       const reader = new FileReader();
+  //       reader.onloadend = () => {
+  //         setImagePreview(reader.result);
+  //       };
+  //       reader.readAsDataURL(file);
+  //     }
+  //   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-     
+
 
       <div className="grid grid-cols-2 gap-4 mt-5">
-      <div>
-        <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-700">Codigo ID sensor</label>
-        <input
-          type="text"
-          id="sensorCode"
-          name="sensorCode"
-          placeholder="Codigo del sensor"
-          value={formData.sensorCode}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
+        <div>
+          <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-700">Codigo ID sensor</label>
+          <input
+            type="text"
+            id="sensorCode"
+            name="sensorCode"
+            placeholder="Codigo del sensor"
+            value={formData.sensorCode}
+            onChange={handleChange}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            required
+            disabled={mode === 'view'}
+          />
+        </div>
         <div >
           <label htmlFor="sensorTypeId" className="block text-sm font-medium text-gray-700">Tipo de sensor</label>
           <select
@@ -200,10 +213,10 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
           >
             <option value="">Seleccione una opción</option>
             {sensorType && Array.isArray(sensorType) && sensorType.map((type) => (
-  <option key={type.id} value={type.id}>
-    {type.sensorTypeName}
-  </option>
-))}
+              <option key={type.id} value={type.id}>
+                {type.sensorTypeName}
+              </option>
+            ))}
 
           </select>
         </div>
@@ -227,52 +240,52 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
           </select>
         </div>
         <div>
-        <label htmlFor="gpsPosition" className="block text-sm font-medium text-gray-700">Posición GPS</label>
-        <input
-          type="text"
-          id="gpsPosition"
-          name="gpsPosition"
-          placeholder="Posición GPS"
-          value={formData.gpsPosition}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
-      <div>
-        <label htmlFor="inputPort" className="block text-sm font-medium text-gray-700">Puerto de entrada</label>
-        <input
-          type="number"
-          id="inputPort"
-          name="inputPort"
-          placeholder="Puerto de entrada"
-          value={formData.inputPort}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
-      <div>
-        <label htmlFor="readingPort" className="block text-sm font-medium text-gray-700">Puerto de lectura</label>
-        <input
-          type="number"
-          id="readingPort"
-          name="readingPort"
-          placeholder="Puerto de lectura"
-          value={formData.readingPort}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
+          <label htmlFor="gpsPosition" className="block text-sm font-medium text-gray-700">Posición GPS</label>
+          <input
+            type="text"
+            id="gpsPosition"
+            name="gpsPosition"
+            placeholder="Posición GPS"
+            value={formData.gpsPosition}
+            onChange={handleChange}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            required
+            disabled={mode === 'view'}
+          />
+        </div>
+        <div>
+          <label htmlFor="inputPort" className="block text-sm font-medium text-gray-700">Puerto de entrada</label>
+          <input
+            type="number"
+            id="inputPort"
+            name="inputPort"
+            placeholder="Puerto de entrada"
+            value={formData.inputPort}
+            onChange={handleChange}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            required
+            disabled={mode === 'view'}
+          />
+        </div>
+        <div>
+          <label htmlFor="readingPort" className="block text-sm font-medium text-gray-700">Puerto de lectura</label>
+          <input
+            type="number"
+            id="readingPort"
+            name="readingPort"
+            placeholder="Puerto de lectura"
+            value={formData.readingPort}
+            onChange={handleChange}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            required
+            disabled={mode === 'view'}
+          />
+        </div>
       </div>
 
-      
+
       <div>
-      <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
         <textarea
           id="description"
           name="description"
@@ -285,64 +298,64 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
         ></textarea>
       </div>
       <div className="grid grid-cols-2 gap-4 mt-5">
-      <div  >
-        <label htmlFor="accessUsername" className="block text-sm font-medium text-gray-700">Usuario de acceso</label>
-        <input
-          type="text"
-          id="accessUsername"
-          name="accessUsername"
-          placeholder="Usuario de acceso"
-          value={formData.accessUsername}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
+        <div  >
+          <label htmlFor="accessUsername" className="block text-sm font-medium text-gray-700">Usuario de acceso</label>
+          <input
+            type="text"
+            id="accessUsername"
+            name="accessUsername"
+            placeholder="Usuario de acceso"
+            value={formData.accessUsername}
+            onChange={handleChange}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            required
+            disabled={mode === 'view'}
+          />
+        </div>
+        <div>
+          <label htmlFor="accessPassword" className="block text-sm font-medium text-gray-700">Clave de acceso</label>
+          <input
+            type="password"
+            id="accessPassword"
+            name="accessPassword"
+            placeholder="Clave de acceso"
+            value={formData.accessPassword}
+            onChange={handleChange}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            required
+            disabled={mode === 'view'}
+          />
+        </div>
+        <div>
+          <label htmlFor="installationDate" className="block text-sm font-medium text-gray-700">Fecha de instalación</label>
+          <input
+            type="date"
+            id="installationDate"
+            name="installationDate"
+            value={formData.installationDate}
+            onChange={handleChange}
+            max={new Date().toISOString().split("T")[0]} // Restringe fechas futuras
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            required
+            disabled={mode === 'view'}
+          />
+        </div>
+        <div>
+          <label htmlFor="estimatedChangeDate" className="block text-sm font-medium text-gray-700">Fecha estimada de cambio (editable)</label>
+          <input
+            type="date"
+            id="estimatedChangeDate"
+            name="estimatedChangeDate"
+            value={formData.estimatedChangeDate}
+            onChange={handleChange}
+            min={new Date().toISOString().split("T")[0]} // Restringe fechas pasadas
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            required
+            disabled={mode === 'view'}
+          />
+        </div>
       </div>
-      <div>
-        <label htmlFor="accessPassword" className="block text-sm font-medium text-gray-700">Clave de acceso</label>
-        <input
-          type="password"
-          id="accessPassword"
-          name="accessPassword"
-          placeholder="Clave de acceso"
-          value={formData.accessPassword}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
-      <div>
-        <label htmlFor="installationDate" className="block text-sm font-medium text-gray-700">Fecha de instalación</label>
-        <input
-          type="date"
-          id="installationDate"
-          name="installationDate"
-          placeholder="Fecha de instalación"
-          value={formData.installationDate.substr(0,10)}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
-      <div>
-        <label htmlFor="estimatedChangeDate" className="block text-sm font-medium text-gray-700">Fecha estimada de cambio (editable)</label>
-        <input
-          type="date"
-          id="estimatedChangeDate"
-          name="estimatedChangeDate"
-          placeholder="Fecha de cambio"
-          value={formData.estimatedChangeDate.substr(0,10)}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
-      </div>
-      
+
 
 
 

@@ -22,6 +22,7 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [showAlertError, setShowAlertError] = useState(false);
     const [messageAlert, setMessageAlert] = useState("");
+    const today = new Date().toISOString().split('T')[0];
 
     const [formData, setFormData] = useState({
         lotCode: '',
@@ -38,6 +39,8 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             }
         ],
         trackingConfig: {
+            specieId: '',
+
             startDate: '',
             trackingReportFrequency: '',
             productionCycleStage: ''
@@ -45,6 +48,7 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     });
        const [trackingConfig, setTrackingConfig] = useState(
             {
+                specieId: '',
                 startDate: '',
                 trackingReportFrequency: '',
                 productionCycleStage: ''
@@ -371,6 +375,7 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                                 type="date"
                                 name="startDate"
                                 value={formData.startDate}
+                                max={today}
                                 onChange={handleChange}
                                 className="mt-1 block w-full border rounded-md p-2"
                                 required
@@ -383,6 +388,7 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                                 name="estimatedEndDate"
                                 value={formData.estimatedEndDate}
                                 onChange={handleChange}
+                                min={today}
                                 className="mt-1 block w-full border rounded-md p-2"
                                 required
                             />

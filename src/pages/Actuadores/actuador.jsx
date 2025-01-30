@@ -395,9 +395,11 @@ const Actuador = () => {
                     >
                       <TbSettingsCog size={18} />
                     </button>
-                    <button className="text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(actuador, 'view')}>
+                    <button className="text-[#168C0DFF] px-2 py-2 rounded" 
+                    onClick={() => handleOpenModal(actuador, 'view')}
+                    title="Ver Detalles del Actuador">
                       <Eye size={18}
-                        title="Ver Detalles del Actuador"
+                        
                       />
                     </button>
                     <button className="text-[#168C0DFF] px-2 py-2 rounded"

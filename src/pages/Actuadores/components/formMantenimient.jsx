@@ -16,6 +16,8 @@ const FromMantenimiento = ({selectedCompany,actuadorId, showErrorAlert, onUpdate
   const [registerTypes, setRegisterTypes] = useState([]);
   const [companies, setCompanies] = useState([]);
 
+  const currentDate = moment().format('YYYY-MM-DD');
+  const currentTime = moment().format('HH:mm');
   const [isDashboard, setIsDashboard] = useState(false);
   const [isIncrement, setIsIncrement] = useState(false);
   const [formData, setFormData] = useState({
@@ -278,6 +280,7 @@ const handleSubmit = async (e) => {
           type="date"
           id="actuador-maintenanceDate"
           name="maintenanceDate"
+          max={currentDate}
           placeholder="Fecha del mantenimiento"
           value={formData.maintenanceDate}
           onChange={handleChange}
@@ -295,6 +298,7 @@ const handleSubmit = async (e) => {
           type="time"
           id="startTime"
           name="startTime"
+          max={currentTime}
           placeholder="Hora Inicio"
           value={formatTime(formData.startTime)}
           onChange={handleTimeChange}
@@ -419,8 +423,9 @@ const handleSubmit = async (e) => {
           type="date"
           id="estimatedReplacementDate"
           name="estimatedReplacementDate"
-          placeholder="Hora Finalización"
-          value={formData.estimatedReplacementDate.substr(0,10)}
+          placeholder="Fecha estimada de cmabio"
+          min={currentDate}
+          value={formData.estimatedReplacementDate}
           onChange={handleChange}
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           required

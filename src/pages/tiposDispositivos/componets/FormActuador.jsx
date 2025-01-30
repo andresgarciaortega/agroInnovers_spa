@@ -789,6 +789,7 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
                                         <td className="border px-4 py-2">{param.normalResponse}</td>
                                         <td className="border px-4 py-2">
                                             <button
+                                            type='button'
                                                 onClick={() => handleDeletePoint(index)}
                                                 className="text-red-500 hover:text-red-700 px-2 py-2 rounded"
                                             >

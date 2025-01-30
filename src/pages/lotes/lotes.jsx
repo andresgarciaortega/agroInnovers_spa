@@ -578,7 +578,7 @@ const Lotes = () => {
 
         {isModalOpenCosecha && (
           <GenericModal
-            title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Cierre y cosecha'}
+            title={modalMode === 'edit' ? 'Editar Cierre y cosecha' : modalMode === 'view' ? 'Ver Cierre y cosecha' : 'Cierre y cosecha'}
             onClose={closeModal}
             companyId={selectedCompany} >
 
@@ -594,7 +594,7 @@ const Lotes = () => {
         )}
         {isModalOpenRechazar && (
           <GenericModal
-            title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Rechazar'}
+            title={modalMode === 'edit' ? 'Editar Rechazar' : modalMode === 'view' ? 'Ver Rechazar' : 'Rechazar'}
             onClose={closeModal}
             companyId={selectedCompany} >
 
@@ -611,7 +611,7 @@ const Lotes = () => {
 
         {isModalOpenEtapa && (
           <GenericModal
-            title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Cambiar etapa'}
+            title={modalMode === 'edit' ? 'Cambiar etapa' : modalMode === 'view' ? 'Cambiar etapa' : 'Cambiar etapa'}
             onClose={closeModal}
             companyId={selectedCompany} >
 
@@ -628,7 +628,7 @@ const Lotes = () => {
 
         {isModalOpenSeguimiento && (
           <GenericModal
-            title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Reporte de seguimiento'}
+            title={ 'Crear Reporte de seguimiento'}
             onClose={closeModal}
             companyId={selectedCompany} >
 
