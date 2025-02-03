@@ -8,9 +8,14 @@ import UploadToS3 from '../../../config/UploadToS3';
 import CompanyService from '../../../services/CompanyService';
 import { IoCloudUploadOutline } from "react-icons/io5";
 import SuccessAlert from "../../../components/alerts/success";
+import { useCompanyContext } from '../../../context/CompanyContext';
+import { BiWorld } from "react-icons/bi";
 
 const CrearCategorias = ({ }) => {
     const navigate = useNavigate();
+    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
+    const [nameCompany, setNameCompany] = useState("");
+
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [name, setName] = useState('');
     const [image, setImage] = useState(null);
@@ -34,6 +39,9 @@ const CrearCategorias = ({ }) => {
     });
 
     useEffect(() => {
+        hiddenSelect(false)
+        setNameCompany(selectedCompanyUniversal.label)
+
         const fetchCompany = async () => {
             try {
                 const data = await CompanyService.getAllCompany();
@@ -64,28 +72,28 @@ const CrearCategorias = ({ }) => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (!validateForm()) return;
-    
+
         try {
             let imageUrl = '';
             if (formData.image) {
                 imageUrl = await UploadToS3(formData.image);
             }
-    
+
             const parsedCompanyId = parseInt(companyId, 10);
             if (isNaN(parsedCompanyId)) {
                 handleErrorAlert("El ID de la empresa debe ser un número válido.");
                 return;
             }
-    
+
             const categoryData = {
                 name: name.trim(),
                 image: imageUrl || '',
                 company_id: parsedCompanyId,
             };
-    
+
             const createdCategory = await CategoryService.createCategory(categoryData);
             const createdCategoryId = createdCategory.id;
-    
+
             const subcategoryResponses = await Promise.all(
                 subcategory.map(async (subcategoryData) => {
                     try {
@@ -101,7 +109,7 @@ const CrearCategorias = ({ }) => {
                     }
                 })
             );
-    
+
             const stageResponses = await Promise.all(
                 stage.map(async (stageData) => {
                     try {
@@ -117,21 +125,21 @@ const CrearCategorias = ({ }) => {
                     }
                 })
             );
-            setShowSuccessAlert(true); 
+            setShowSuccessAlert(true);
             setTimeout(() => {
-                setShowSuccessAlert(false); 
+                setShowSuccessAlert(false);
             }, 2500);
             console.log("Categoría, subcategorías y etapas creadas correctamente.");
             setTimeout(() => {
                 navigate('../especies');
-            }, 3000); 
-            
+            }, 3000);
+
         } catch (error) {
             console.error("Error durante la creación:", error);
             handleErrorAlert(`Hubo un error al crear la categoría: ${error.message}`);
         }
     };
-    
+
 
     const handleAddStage = () => {
         setStage([...stage, { name: '', description: '' }]);
@@ -166,7 +174,7 @@ const CrearCategorias = ({ }) => {
             console.log("Show success alert:", showSuccessAlert);
         }
     }, [showSuccessAlert]);
-    
+
     const showErrorAlert = (message) => {
         console.error(message);
     };
@@ -206,7 +214,7 @@ const CrearCategorias = ({ }) => {
     //         </div>
     //     );
     // };
-    
+
 
     <CrearCategorias showErrorAlert={handleErrorAlert} />
     const handleCancel = () => {
@@ -217,7 +225,23 @@ const CrearCategorias = ({ }) => {
 
     return (
         <form onSubmit={handleSubmit} className="p-6">
-            <div className="mb-6">
+
+            <div className="">
+                <div className="flex items-center space-x-2 text-gray-700">
+                    <BiWorld size={20} />
+                    <span>Gestión de especies</span>
+                    <span>/</span>
+                    <span>Categoría</span>
+                    <span>/</span>
+                    <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
+                    <span className="text-black font-bold">  </span>
+                    <span>/</span>
+                    <span>Crear Categoría</span>
+                </div>
+            </div>
+
+
+            <div className="mt-6">
 
                 <div className="mb- py-">
                     <label className="block text-sm font-medium text-gray-700 mb-1" >Adjuntar Logo</label>
@@ -255,7 +279,7 @@ const CrearCategorias = ({ }) => {
                 )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 mt-6">
                 <div className="mb-6">
                     <label htmlFor="category-name" className="block text-sm font-medium text-gray-700 mb-1">Nombre categoría</label>
                     <input
@@ -337,7 +361,8 @@ const CrearCategorias = ({ }) => {
                         {stage.map((stage, index) => (
                             <div key={index} className="p-2 border border-gray-200 rounded-md">
                                 <div className="flex justify-between items-center mb-2">
-                                    <span className="font-medium">Etapa {index + 1}</span>
+                                    {/* Mostrar el nombre si existe, de lo contrario, mostrar "Etapa {index + 1}" */}
+                                    <span className="font-medium">{stage.name ? stage.name : `Etapa ${index + 1}`}</span>
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveStage(index)}
@@ -362,6 +387,7 @@ const CrearCategorias = ({ }) => {
                             </div>
                         ))}
                     </div>
+
                 </div>
             </div>
 
@@ -386,9 +412,9 @@ const CrearCategorias = ({ }) => {
                     {messageAlert}
                 </div>
             )}
-           {showSuccessAlert && (
-    <SuccessAlert message="Categoría creada exitosamente" />
-)}
+            {showSuccessAlert && (
+                <SuccessAlert message="Categoría creada exitosamente" />
+            )}
 
 
 

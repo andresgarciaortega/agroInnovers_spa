@@ -25,6 +25,7 @@ const EditarCategorias = () => {
     const [editEtapaIndex, setEditEtapandex] = useState(null);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
+    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
     const [nameCompany, setNameCompany] = useState("");
     const [selectedCompany, setSelectedCompany] = useState('');
@@ -51,6 +52,9 @@ const EditarCategorias = () => {
     });
 
     useEffect(() => {
+        setNameCompany(selectedCompanyUniversal.label)
+
+        hiddenSelect(false)
         fetchCategory();
         fetchCompanies();
     }, []);
@@ -144,17 +148,18 @@ const EditarCategorias = () => {
 
     const handleCancel = () => navigate('../especies');
 
+
+
+
+
     const handleSubmit = async (event) => {
         event.preventDefault();
-
+        console.log("entro aqui")
         try {
             let imageUrl = '';
-
-            if (formData.image.name) {
-
+            if (formData.image && formData.image.name) {
                 imageUrl = await UploadToS3(formData.image);
             } else {
-
                 imageUrl = newCategory.image;
             }
 
@@ -166,7 +171,6 @@ const EditarCategorias = () => {
             }
 
             const formDataToSubmit = {
-
                 name: formData.name,
                 image: imageUrl,
                 company_id: parsedCompanyId,
@@ -193,18 +197,19 @@ const EditarCategorias = () => {
             console.log("Show success alert:", showSuccessAlert);
             setTimeout(() => {
                 navigate('../especies');
-            }, 3000); 
-
+            }, 3000);
         } catch (error) {
             console.error("Error:", error);
             setShowAlertError(true);
             setMessageAlert("Hubo un error al editar la categoría");
             console.log("Show error alert:", showAlertError);
-
         }
-
-
     };
+
+
+
+
+
 
     useEffect(() => {
         if (showSuccessAlert) {
@@ -250,13 +255,8 @@ const EditarCategorias = () => {
 
 
     return (
-        <form onSubmit={handleSubmit} className="p-6">
-            <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
-                <div className="relative w-full">
-                    <CompanySelector />
-
-                </div>
-                <br />
+        <form onSubmit={handleSubmit} className="">
+            <div className="">
                 <div className="flex items-center space-x-2 text-gray-700">
                     <BiWorld size={20} />
                     <span>Gestión de especies</span>
@@ -268,14 +268,13 @@ const EditarCategorias = () => {
                     {selectedCompany && (
                         <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
                     )}
-
                     <span>/</span>
                     <span>Editar Categoría</span>
                 </div>
             </div>
 
 
-            <div className="mb-6">
+            <div className="mt-6">
                 <div className="mb- py-">
                     <label>Adjuntar Logo</label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
@@ -319,7 +318,7 @@ const EditarCategorias = () => {
                         required
                     />
                 </div>
-                
+
             </div>
             <hr className="my-6 border-gray-400" />
 

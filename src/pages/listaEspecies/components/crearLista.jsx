@@ -9,19 +9,20 @@ import { FaCheckCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } from '@mui/material';
 import UploadToS3 from '../../../config/UploadToS3';
+import { useCompanyContext } from '../../../context/CompanyContext';
 
 
 const CrearListas = () => {
   const navigate = useNavigate();
-      const [errorMessage, setErrorMessage] = useState('');
-  
-      const [fieldErrors, setFieldErrors] = useState({
-          min_normal_value: '',
-          max_normal_value: '',
-          min_limit: '',
-          max_limit: '',
-          variable: '',
-      });
+  const [errorMessage, setErrorMessage] = useState('');
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
+  const [fieldErrors, setFieldErrors] = useState({
+    min_normal_value: '',
+    max_normal_value: '',
+    min_limit: '',
+    max_limit: '',
+    variable: '',
+  });
   const [image, setImage] = useState(null);
   const [selectedStageId, setSelectedStageId] = useState(null);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
@@ -61,6 +62,9 @@ const CrearListas = () => {
 
 
   const [selected, setSelected] = useState([]);
+  const [formDataVariables, setFormDataVariables] = useState({
+    variable: [], // Inicializa como un array vacío
+  });
 
   const handleChangeCategory = (event) => {
     const { value } = event.target;
@@ -69,10 +73,19 @@ const CrearListas = () => {
       ...prevState,
       variable: value,
     }));
+
+
+    setFormDataVariables((prevState) => ({
+      ...prevState,
+      variable: value, // Guarda los IDs seleccionados en el estado
+    }));
+
+    console.log(formDataVariables)
   };
 
 
   useEffect(() => {
+    hiddenSelect(false)
     const fetchCompany = async () => {
       try {
         const data = await CompanyService.getAllCompany();
@@ -88,7 +101,10 @@ const CrearListas = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const categories = await CategoryService.getAllCategory();
+
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
+        const categories = await CategoryService.getAllCategory(companyId);
         setCategories(categories);
 
         const variables = await VaiableService.getAllVariable();
@@ -164,201 +180,201 @@ const CrearListas = () => {
     setIsModalOpen(false);
   };
 
-   const [selectedParameterIndex, setSelectedParameterIndex] = useState(null);
+  const [selectedParameterIndex, setSelectedParameterIndex] = useState(null);
 
 
-    const handleEditClick = (stageIndex, paramIndex) => {
-        const stage = formData.stage[stageIndex];
-        const parameter = stage.parameters[paramIndex];
+  const handleEditClick = (stageIndex, paramIndex) => {
+    const stage = formData.stage[stageIndex];
+    const parameter = stage.parameters[paramIndex];
 
-        setNewParameter({
-            variable: parameter.variable.id, // Asumiendo que 'variable' tiene un ID
-            min_normal_value: parameter.min_normal_value,
-            max_normal_value: parameter.max_normal_value,
-            min_limit: parameter.min_limit,
-            max_limit: parameter.max_limit,
-        });
-        setSelectedStageId(stage.id); // Guardar el ID de la etapa para luego actualizar
-        setSelectedParameterIndex(paramIndex); // Guardar el índice del parámetro
-        setIsModalOpen(true); // Abrir el modal
-    };
+    setNewParameter({
+      variable: parameter.variable.id, // Asumiendo que 'variable' tiene un ID
+      min_normal_value: parameter.min_normal_value,
+      max_normal_value: parameter.max_normal_value,
+      min_limit: parameter.min_limit,
+      max_limit: parameter.max_limit,
+    });
+    setSelectedStageId(stage.id); // Guardar el ID de la etapa para luego actualizar
+    setSelectedParameterIndex(paramIndex); // Guardar el índice del parámetro
+    setIsModalOpen(true); // Abrir el modal
+  };
 
-    const handleDeleteClick = (paramId) => {
-        setFormData((prevData) => {
-            return {
-                ...prevData,
-                stage: prevData.stage.map((stage) => ({
-                    ...stage,
-                    parameters: stage.parameters.filter((param) => param.id !== paramId),  // Compara con paramId
-                })),
-            };
-        });
-    };
+  const handleDeleteClick = (paramId) => {
+    setFormData((prevData) => {
+      return {
+        ...prevData,
+        stage: prevData.stage.map((stage) => ({
+          ...stage,
+          parameters: stage.parameters.filter((param) => param.id !== paramId),  // Compara con paramId
+        })),
+      };
+    });
+  };
 
 
 
-    const handleSaveParameter = () => {
-        setFieldErrors({
-            min_normal_value: '',
-            max_normal_value: '',
-            min_limit: '',
-            max_limit: '',
-            variable: '',
-        });
-        let hasError = false;
+  const handleSaveParameter = () => {
+    setFieldErrors({
+      min_normal_value: '',
+      max_normal_value: '',
+      min_limit: '',
+      max_limit: '',
+      variable: '',
+    });
+    let hasError = false;
 
-        // Validar si los campos están vacíos
-        if (!newParameter.variable) {
-            setFieldErrors((prevErrors) => ({
-                ...prevErrors,
-                variable: 'El campo Variable no puede estar vacío.',
-            }));
-            hasError = true;
-        }
+    // Validar si los campos están vacíos
+    if (!newParameter.variable) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        variable: 'El campo Variable no puede estar vacío.',
+      }));
+      hasError = true;
+    }
 
-        if (!newParameter.min_normal_value) {
-            setFieldErrors((prevErrors) => ({
-                ...prevErrors,
-                min_normal_value: 'El campo Valor mínimo normal no puede estar vacío.',
-            }));
-            hasError = true;
-        }
+    if (!newParameter.min_normal_value) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_normal_value: 'El campo Valor mínimo normal no puede estar vacío.',
+      }));
+      hasError = true;
+    }
 
-        if (!newParameter.max_normal_value) {
-            setFieldErrors((prevErrors) => ({
-                ...prevErrors,
-                max_normal_value: 'El campo Valor máximo normal no puede estar vacío.',
-            }));
-            hasError = true;
-        }
+    if (!newParameter.max_normal_value) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        max_normal_value: 'El campo Valor máximo normal no puede estar vacío.',
+      }));
+      hasError = true;
+    }
 
-        if (!newParameter.min_limit) {
-            setFieldErrors((prevErrors) => ({
-                ...prevErrors,
-                min_limit: 'El campo Límite mínimo no puede estar vacío.',
-            }));
-            hasError = true;
-        }
+    if (!newParameter.min_limit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_limit: 'El campo Límite mínimo no puede estar vacío.',
+      }));
+      hasError = true;
+    }
 
-        if (!newParameter.max_limit) {
-            setFieldErrors((prevErrors) => ({
-                ...prevErrors,
-                max_limit: 'El campo Límite máximo no puede estar vacío.',
-            }));
-            hasError = true;
-        }
+    if (!newParameter.max_limit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        max_limit: 'El campo Límite máximo no puede estar vacío.',
+      }));
+      hasError = true;
+    }
 
-        // Validar que el valor mínimo no sea mayor que el valor máximo
-        if (newParameter.min_normal_value > newParameter.max_normal_value) {
-            setFieldErrors((prevErrors) => ({
-                ...prevErrors,
-                min_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
-                max_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
-            }));
-            hasError = true;
-        }
+    // Validar que el valor mínimo no sea mayor que el valor máximo
+    if (newParameter.min_normal_value > newParameter.max_normal_value) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
+        max_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
+      }));
+      hasError = true;
+    }
 
-        // Validar que el límite mínimo no sea mayor que el límite máximo
-        if (newParameter.min_limit > newParameter.max_limit) {
-            setFieldErrors((prevErrors) => ({
-                ...prevErrors,
-                min_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
-                max_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
-            }));
-            hasError = true;
-        }
+    // Validar que el límite mínimo no sea mayor que el límite máximo
+    if (newParameter.min_limit > newParameter.max_limit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
+        max_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
+      }));
+      hasError = true;
+    }
 
-        // Si hay un error, evitar continuar
-        if (hasError) {
-            return;
-        }
+    // Si hay un error, evitar continuar
+    if (hasError) {
+      return;
+    }
 
-        // Buscar la variable seleccionada
-        const selectedVariable = variables.find((v) => v.id === Number(newParameter.variable));
-        if (!selectedVariable) {
-            setErrorMessage("Variable seleccionada no encontrada.");
-            return;
-        }
+    // Buscar la variable seleccionada
+    const selectedVariable = variables.find((v) => v.id === Number(newParameter.variable));
+    if (!selectedVariable) {
+      setErrorMessage("Variable seleccionada no encontrada.");
+      return;
+    }
 
-        let isDuplicate = false;
+    let isDuplicate = false;
 
-        setFormData((prevFormData) => {
-            const updatedStages = prevFormData.stage.map((stage) => {
-                if (stage.id === selectedStageId) {
-                    if (selectedParameterIndex !== null) {
-                        const updatedParameters = stage.parameters.map((param, paramIndex) => {
-                            if (paramIndex === selectedParameterIndex) {
-                                return {
-                                    ...param,
-                                    variable: selectedVariable,
-                                    min_normal_value: newParameter.min_normal_value,
-                                    max_normal_value: newParameter.max_normal_value,
-                                    min_limit: newParameter.min_limit,
-                                    max_limit: newParameter.max_limit,
-                                };
-                            }
-                            return param;
-                        });
-
-                        return { ...stage, parameters: updatedParameters };
-                    } else {
-                        const variableAlreadyAssigned = stage.parameters.some(
-                            (param) => param.variable.id === selectedVariable.id
-                        );
-
-                        if (variableAlreadyAssigned) {
-                            setErrorMessage("Esta variable ya tiene parámetros asignados a esta etapa.");
-                            isDuplicate = true;
-                            return stage;
-                        }
-
-                        return {
-                            ...stage,
-                            parameters: [
-                                ...(stage.parameters || []),
-                                {
-                                    ...newParameter,
-                                    variable: selectedVariable,
-                                },
-                            ],
-                        };
-                    }
-                }
-                return stage;
+    setFormData((prevFormData) => {
+      const updatedStages = prevFormData.stage.map((stage) => {
+        if (stage.id === selectedStageId) {
+          if (selectedParameterIndex !== null) {
+            const updatedParameters = stage.parameters.map((param, paramIndex) => {
+              if (paramIndex === selectedParameterIndex) {
+                return {
+                  ...param,
+                  variable: selectedVariable,
+                  min_normal_value: newParameter.min_normal_value,
+                  max_normal_value: newParameter.max_normal_value,
+                  min_limit: newParameter.min_limit,
+                  max_limit: newParameter.max_limit,
+                };
+              }
+              return param;
             });
 
-            if (isDuplicate) {
-                setIsModalOpen(true);
-                return prevFormData;
+            return { ...stage, parameters: updatedParameters };
+          } else {
+            const variableAlreadyAssigned = stage.parameters.some(
+              (param) => param.variable.id === selectedVariable.id
+            );
+
+            if (variableAlreadyAssigned) {
+              setErrorMessage("Esta variable ya tiene parámetros asignados a esta etapa.");
+              isDuplicate = true;
+              return stage;
             }
 
-            const updatedVariables = variables.map((variable) => {
-                if (variable.id === selectedVariable.id) {
-                    return { ...variable, parameters: [...(variable.parameters || []), newParameter] };
-                }
-                return variable;
-            });
-
-            setVariables(updatedVariables);
-
-            return { ...prevFormData, stage: updatedStages };
-        });
-
-        if (isDuplicate) {
-            setIsModalOpen(true);
-            return;
+            return {
+              ...stage,
+              parameters: [
+                ...(stage.parameters || []),
+                {
+                  ...newParameter,
+                  variable: selectedVariable,
+                },
+              ],
+            };
+          }
         }
+        return stage;
+      });
 
-        setIsModalOpen(false);
-        setNewParameter({
-            variable: '',
-            min_normal_value: '',
-            max_normal_value: '',
-            min_limit: '',
-            max_limit: '',
-        });
-        setErrorMessage('');
-    };
+      if (isDuplicate) {
+        setIsModalOpen(true);
+        return prevFormData;
+      }
+
+      const updatedVariables = variables.map((variable) => {
+        if (variable.id === selectedVariable.id) {
+          return { ...variable, parameters: [...(variable.parameters || []), newParameter] };
+        }
+        return variable;
+      });
+
+      setVariables(updatedVariables);
+
+      return { ...prevFormData, stage: updatedStages };
+    });
+
+    if (isDuplicate) {
+      setIsModalOpen(true);
+      return;
+    }
+
+    setIsModalOpen(false);
+    setNewParameter({
+      variable: '',
+      min_normal_value: '',
+      max_normal_value: '',
+      min_limit: '',
+      max_limit: '',
+    });
+    setErrorMessage('');
+  };
 
 
   const handleImageUpload = (event) => {
@@ -418,17 +434,10 @@ const CrearListas = () => {
         stages: updatedStages,
         variables: selectedVariables
       };
-
-      console.log('datos de formdaa}ta', formDataToSubmit);
-      console.log('Datos enviados:', JSON.stringify(formDataToSubmit, null, 2));
-
       const createdSpecie = await SpeciesService.createSpecie(formDataToSubmit);
-      console.log('crear especie', createdSpecie);
-      console.log("especie creada exitosamente");
       navigate('../ListaEspecie');
     } catch (error) {
       console.error("Error:", error);
-      console.log("Hubo un error al crear la especie");
     }
   };
 
@@ -459,20 +468,16 @@ const CrearListas = () => {
   //   setStages(updatedStages);
   // };
 
-  const handleParameterChange = (e, field) => {
-    const value = e.target.value;
+ const handleParameterChange = (e, field) => {
+  const value = e.target.value;
 
-    if (field === 'variable') {
-        setNewParameter((prev) => ({
-            ...prev,
-            [field]: value,
-        }));
-    } else {
-        setNewParameter((prev) => ({
-            ...prev,
-            [field]: value,
-        }));
-    }
+  setNewParameter((prev) => ({
+    ...prev,
+    [field]: field === 'variable' ? [value] : value,
+  }));
+
+  console.log("newParameter : ", formData)
+  console.log("newParameter : ", newParameter)
 };
 
   const addParameterToStage = (stageIndex) => {
@@ -640,10 +645,11 @@ const CrearListas = () => {
                     Variable
                   </label>
                   <FormControl
-                    className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.variable ? 'border-red-500' : 'text-gray-500'
+                    className={`w-full px-3 py-2 pr-10 border border-gray-300 selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.variable ? 'border-red-500' : 'text-gray-500'
                       }`}
                   >
                     <Select
+                      className='selectorMultipleVariables'
                       multiple
                       value={formData.variable || []}
                       onChange={handleChangeCategory}
@@ -741,7 +747,7 @@ const CrearListas = () => {
                         <div key={stageIndex} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
                           <div className="flex justify-between items-center mb-2">
                             <h3 className="text-sm font-semibold text-gray-800">
-                            {`Etapa ${stage?.name || 'Sin nombre'}`}
+                              {`Etapa ${stage?.name || 'Sin nombre'}`}
 
                             </h3>
                             <button
@@ -777,7 +783,7 @@ const CrearListas = () => {
                           </div>
 
                           <ul className="space-y-2 mt-4">
-                          {stage.parameters && stage.parameters.length > 0 && (
+                            {stage.parameters && stage.parameters.length > 0 && (
                               <div className="mt-4">
                                 <div className="flex justify-between space-x-">
                                   <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
@@ -909,9 +915,13 @@ const CrearListas = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
                 >
                   <option value="">Selecciona una opción</option>
-                  {variables?.map((variable) => (
-                    <option key={variable.id} value={variable.id}>{variable.name}</option>
-                  ))}
+                  {variables
+                    ?.filter((variable) => formDataVariables.variable.includes(variable.id)) // Filtrar seleccionados
+                    .map((variable) => (
+                      <option key={variable.id} value={variable.id}>
+                        {variable.name}
+                      </option>
+                    ))}
                 </select>
                 {fieldErrors.variable && (
                   <p className="text-red-500 text-sm mt-1">{fieldErrors.variable}</p>
