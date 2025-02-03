@@ -131,3 +131,9 @@ textarea {
 .selectorMultipleVariables{
   height: 2.7em !important;
 }
+
+
+.borderEspacio{
+  border: 1px solid red;
+  width: 100% !important;
+}

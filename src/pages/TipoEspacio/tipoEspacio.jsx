@@ -46,7 +46,7 @@ const TipoEspacio = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    hiddenSelect(true)
+    hiddenSelect(false)
     const fetchCompanies = async () => {
       try {
         const data = await CompanyService.getAllCompany();
@@ -70,7 +70,7 @@ const TipoEspacio = () => {
       }
 
       try {
-        const data = await TipoEspacioService.getAlltipoEspacio(companyId);
+        const data = await TipoEspacioService.getAlltipoEspacio();
         if (data.statusCode === 404) {
           setVariableList([]);
         } else {
@@ -221,12 +221,6 @@ const TipoEspacio = () => {
           <span>Gestión de espacios</span>
           <span>/</span>
           <span>Tipos de espacios</span>
-          <span>/</span>
-          <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
-          <span className="text-black font-bold">  </span>
-          {selectedCompanyUniversal && (
-            <span>{companyList.find(company => company.id === selectedCompanyUniversal)?.name}</span>
-          )}
         </div>
       </div>
       <div className="relative w-full mt-6 py-5 z-0">
