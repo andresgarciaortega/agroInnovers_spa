@@ -47,36 +47,36 @@ const Dashboard = () => {
       try {
         const companies = await CompanyService.getAllCompany();
         setCompanyCount(companies.length);
-    
+
         const users = await UserService.getAllUser();
         console.log("Usuarios obtenidos:", users);
 
         setOperarios(users.filter(user => user.roles.some(roles => roles.id === 3)).length);
         setAdministrativos(users.filter(user => user.roles.some(rol => rol.id === 2)).length);
         setSuperAdministrativos(users.filter(user => user.roles.some(rol => rol.id === 1)).length);
-        
-      setUserCount(users.length);
 
-      console.log("Usuarios operarios:", operarios);
-      console.log("Usuarios administrativos:", administrativos);
-      console.log("Usuarios superadministrativos:", superAdministrativos);
         setUserCount(users.length);
-    
+
+        console.log("Usuarios operarios:", operarios);
+        console.log("Usuarios administrativos:", administrativos);
+        console.log("Usuarios superadministrativos:", superAdministrativos);
+        setUserCount(users.length);
+
         const variables = await variableService.getAllVariable();
         setVariableCount(variables.length);
-    
+
         const variableTypes = await VariableType.getAllTypeVariable();
         setVariableTypeCount(variableTypes.length);
-    
+
         const actuators = await ActuadorService.getAllActuador();
         setActuatorCount(actuators.length);
-    
+
         const actuatorsType = await TypeDispositivoService.getAllActuador();
         setActuatorTypeCount(actuatorsType.length);
 
         const sensors = await SensorService.getAllSensor();
         setSensorCount(sensors.length);
-    
+
         const sensorsType = await TypeDispositivoService.getAllSensor();
         setSensorTypeCount(sensorsType.length);
 
@@ -85,13 +85,13 @@ const Dashboard = () => {
 
         const spacesType = await tipoEspacio.getAlltipoEspacio();
         setSpaceTypeCount(spacesType.length);
-    
+
         const species = await SpeciesService.getAllSpecie();
         setSpeciesCount(species.length);
-    
+
         const categories = await CategoryService.getAllCategory();
         setCategoryCount(categories.length);
-    
+
         const lots = await lotesService.getAllLots();
         setLotInProcessCount(lots.filter(lote => lote.status === 'in_process').length);
         setHarvestedLotCount(lots.filter(lote => lote.status === 'harvested').length);
@@ -100,11 +100,11 @@ const Dashboard = () => {
         console.error('Error fetching data:', error);
       }
     };
-    
-  
+
+
     fetchData();
   }, []);
-  
+
 
   const dashboardItems = [
     {
@@ -116,8 +116,8 @@ const Dashboard = () => {
       title: "Usuarios",
       icon: HiOutlineUserGroup,
       items: [{ label: "Super administradores", count: superAdministrativos },
-        { label: "Administrativos de cuenta empresarial", count: administrativos },
-        { label: "Usuarios de operación", count: operarios }
+      { label: "Administrativos de cuenta empresarial", count: administrativos },
+      { label: "Usuarios de operación", count: operarios }
 
 
       ],
@@ -171,7 +171,6 @@ const Dashboard = () => {
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">Portal de Super administrador</h1>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {dashboardItems.map((item, index) => {
           const Icon = item.icon;
@@ -198,9 +197,8 @@ const Dashboard = () => {
                       </span>
                     )}
                     <span
-                      className={`text-muted-foreground ${
-                        subItem.label.includes("•") ? "ml-4" : ""
-                      }`}
+                      className={`text-muted-foreground ${subItem.label.includes("•") ? "ml-4" : ""
+                        }`}
                     >
                       {subItem.label}
                     </span>
@@ -211,6 +209,13 @@ const Dashboard = () => {
           );
         })}
       </div>
+
+      <div id="tooltip-default" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+        Tooltip content
+        <div class="tooltip-arrow" data-popper-arrow></div>
+      </div>
+
+
     </div>
   );
 };

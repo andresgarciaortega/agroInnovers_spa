@@ -143,7 +143,6 @@ const Lotes = () => {
         setIsModalCrear(true);
         break;
       case "cosechar":
-        setNewLote(lote);
         setIdModalOpenCosecha(true);
         break;
       case "rechazar":
