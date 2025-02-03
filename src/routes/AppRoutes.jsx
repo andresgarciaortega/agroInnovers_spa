@@ -54,7 +54,6 @@ const AppRoutes = () => {
         <Route path="listaEspecie" element={<ListaEspecies />} />
         <Route path="visualizarLista/:id" element={<VisualizarLista/>} />
         <Route path="editarLista/:id" element={<EditarLista/>} />
-
         <Route path="crearLista" element={<CrearListas />} />
         <Route path="crearCategoria" element={<CrearCategorias />} />
         <Route path="editarCategoria/:id" element={<EditarCategorias/>} />
@@ -72,7 +71,6 @@ const AppRoutes = () => {
         <Route path="tipoEspacio" element={<TipoEspacio />} />
         <Route path="lotes" element={<Lotes />} />
         <Route path="visualizarLote/:id" element={<VisualizarLote />} />
-
         <Route path="seguimiento" element={<Seguimiento />} />
       </Route>
     </Routes>

@@ -20,6 +20,7 @@ const VisualizarCategoria = () => {
 
     const [editIndex, setEditIndex] = useState(null);
     const [editEtapaIndex, setEditEtapandex] = useState(null);
+    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
     const [nameCompany, setNameCompany] = useState("");
     const [selectedCompany, setSelectedCompany] = useState('');
@@ -43,6 +44,9 @@ const VisualizarCategoria = () => {
     });
 
     useEffect(() => {
+        setNameCompany(selectedCompanyUniversal.label)
+
+        hiddenSelect(false)
         fetchCategory();
         fetchCompanies();
     }, []);
@@ -103,7 +107,6 @@ const VisualizarCategoria = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         try {
             let imageUrl = image;
             if (image && typeof image === 'object') {
@@ -134,6 +137,7 @@ const VisualizarCategoria = () => {
                 })),
             };
 
+            console.log(formDataToSubmit)
             await CategoryService.updateCategory(id, formDataToSubmit);
             navigate('../especies');
         } catch (error) {
@@ -166,7 +170,7 @@ const VisualizarCategoria = () => {
 
     return (
         <form onSubmit={handleSubmit} className="p-6">
-            <div className="absolute transform -translate-y-28 right-30 w-1/2 z-10">
+            <div className="">
                 <div className="relative w-full">
                     <CompanySelector />
 
@@ -183,13 +187,12 @@ const VisualizarCategoria = () => {
                     {selectedCompany && (
                         <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
                     )}
-
                     <span>/</span>
                     <span>Visualizar Categoría</span>
                 </div>
             </div>
             {showAlertError && <div className="alert alert-error">{messageAlert}</div>}
-            <div className="mb-6">
+            <div className="mt-6">
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50">
                     {formData.image ? (
                         <img 
@@ -218,7 +221,7 @@ const VisualizarCategoria = () => {
             </div>
 
 
-            <div className="grid grid-cols- gap-4">
+            <div className="grid grid-cols- gap-4 mt-6">
                 <div className="mb-6">
                     <label htmlFor="category-name" className="block text-slg font-medium text-gray-700 mb-1">Nombre categoría</label>
                     <input

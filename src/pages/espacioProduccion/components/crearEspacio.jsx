@@ -13,6 +13,7 @@ import SpeciesService from '../../../services/SpeciesService';
 import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } from '@mui/material';
 import { FaChevronDown, FaChevronUp, FaTimes } from 'react-icons/fa';
 import { FiPlusCircle } from "react-icons/fi";
+import { useCompanyContext } from '../../../context/CompanyContext';
 
 const CrearEspacio = () => {
   const [selectedVariables, setSelectedVariables] = useState({
@@ -26,6 +27,7 @@ const CrearEspacio = () => {
   ]);
   const [selectedVariableId, setSelectedVariableId] = useState(null);
   const [modalMode, setModalMode] = useState("create");
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
   const [expandedSubspace, setExpandedSubspace] = useState(null);
   const [subspaceCount, setSubspaceCount] = useState(1);
@@ -191,16 +193,18 @@ const CrearEspacio = () => {
 
 
   useEffect(() => {
+    hiddenSelect(true)
     const fetchMonitoreo = async () => {
       try {
-        const data = await MonitoreoService.getAllMonitories();
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+        const data = await MonitoreoService.getAllMonitories(companyId);
         setMonitoreo(data);
       } catch (error) {
         console.error('Error fetching monitoreo:', error);
       }
     };
     fetchMonitoreo();
-  }, []);
+  }, [selectedCompanyUniversal]);
 
   useEffect(() => {
     const fetchTipoSensor = async () => {
@@ -344,6 +348,7 @@ const CrearEspacio = () => {
   const handleNoCheckboxChange = () => {
     setIsYesSelected(false);
     setDisableSpecies(false);
+    setDevicesList([])
   };
   const handleNoSubCheckboxChange = () => {
     setIsYesSelected(false);
@@ -392,8 +397,6 @@ const CrearEspacio = () => {
       ...devicesList,
       { deviceType: "", selectedDevice: "" }
     ]);
-
-
     // setDeviceType('');
     // setSelectedDevice('');
   };
@@ -442,7 +445,9 @@ const CrearEspacio = () => {
       })
     );
   };
+
   
+
   const handleAddVariable = (type, index) => {
     if (type === 'main') {
       setSelectedVariables((prev) => ({
@@ -456,20 +461,20 @@ const CrearEspacio = () => {
       setSelectedVariables((prev) => {
         // Asegúrate de que prev.subspaces sea un arreglo
         const updatedSubspaces = Array.isArray(prev.subspaces) ? [...prev.subspaces] : [];
-        
+
         // Asegúrate de que updatedSubspaces tenga el índice adecuado
         if (!updatedSubspaces[index]) {
           updatedSubspaces[index] = [];
         }
-        
+
         // Agregar la variable seleccionada
         updatedSubspaces[index].push(selectedVariableId); // Asegúrate de que 'selectedVariableId' esté definido correctamente
-        
+
         return { ...prev, subspaces: updatedSubspaces };
       });
     }
   };
-  
+
 
   const handleVariableChangeForSubspace = (index, variable) => {
 
@@ -490,27 +495,53 @@ const CrearEspacio = () => {
     console.log('arreglo de especies', especiesEspacio)
   };
 
+  // const handleChangeCategory = (event, index) => {
+  //   const { value } = event.target;
+  //   console.log('especies subespacio event', event, 'index', index, 'value', value)
+  //   setEspecieSubspasios(value);
+  //   setFormData((prevFormData) => {
+  //     const updatedSubspaces = [...prevFormData.subProductionSpaces];
+  //     updatedSubspaces[index] = {
+  //       ...updatedSubspaces[index],
+  //       species: value,
+  //     };
+  //     let valueSpecie = []
+  //     valueSpecie.push(value)
+
+  //     setEspecieSubspasios(valueSpecie)
+  //     console.log('arreglo de especies', especiesSubspacio)
+  //     return {
+  //       ...prevFormData,
+  //       subProductionSpaces: updatedSubspaces,
+  //     };
+  //   });
+  // };
+
   const handleChangeCategory = (event, index) => {
     const { value } = event.target;
-    console.log('especies subespacio event', event, 'index', index, 'value', value)
-    setEspecieSubspasios(value);
-    setFormData((prevFormData) => {
-      const updatedSubspaces = [...prevFormData.subProductionSpaces];
+
+    setSubspaces((prevSubspaces) => {
+      const updatedSubspaces = [...prevSubspaces];
+
+      // Asegurar que `species` sea un array
       updatedSubspaces[index] = {
         ...updatedSubspaces[index],
-        species: value,
+        species: Array.isArray(value) ? value : [value], // Asegurar que siempre sea un array
       };
-      let valueSpecie = []
-      valueSpecie.push(value)
-  
-      setEspecieSubspasios(valueSpecie)
-      console.log('arreglo de especies', especiesSubspacio)
-      return {
-        ...prevFormData,
-        subProductionSpaces: updatedSubspaces,
-      };
+
+      console.log("Subespacios actualizados:", updatedSubspaces);
+      return updatedSubspaces;
     });
   };
+
+
+
+
+
+
+
+
+
   const handleAddSpecies = () => {
     setSelectedSpecies((prev) => [...prev, ...formData.species]);
     setFormData((prevState) => ({
@@ -540,7 +571,7 @@ const CrearEspacio = () => {
     // Realizar la consulta para obtener las variables asociadas a la especie seleccionada
     const fetchVariablesForSubspace = async () => {
       try {
-        const data = await SpeciesService.getVariableBySpecie({species:{id:specieId}});
+        const data = await SpeciesService.getVariableBySpecie({ species: { id: specieId } });
         console.log(data)
         if (index !== 0) {
           setMainVariables(data);
@@ -851,7 +882,6 @@ const CrearEspacio = () => {
                       multiple
                       value={formData.species || []}
                       onChange={handleChangeCategoryEspace}
-
                       renderValue={(selectedIds) =>
                         species
                           .filter((option) => selectedIds.includes(option.id))
@@ -882,7 +912,7 @@ const CrearEspacio = () => {
                   </div>
 
 
-                  <div className="w-full grid grid-cols-1 gap-4">
+                  <div className="w-full grid grid-cols-1 gap-4 borderEspacio">
                     {subspaces.length > 0 && subspaces.map((subspace, index) => (
                       <div key={subspace.id} className="w-full border rounded-md p-4 mb-2">
                         <div className="flex justify-between items-center">
@@ -917,7 +947,7 @@ const CrearEspacio = () => {
                             <div className="mb-2 w-full">
                               <label className="block text-sm font-medium">Posición GPS:</label>
                               <input
-                                type="number"
+                                type="text"
                                 value={subspace.gpsPosition}
                                 onChange={(e) => handleInputChange(subspace.id, 'gpsPosition', e.target.value)}
                                 className="w-full px-3 py-2 border rounded-md"
@@ -987,7 +1017,7 @@ const CrearEspacio = () => {
                               />
                             </div>
 
-                            <div className="mb-2 w-full ">
+                            <div className="mb-2 w-full">
                               <label htmlFor={`species-${index}`} className="block text-sm font-medium text-gray-700 mb-1">
                                 Especies para el Subespacio {index + 1}
                               </label>
@@ -995,18 +1025,18 @@ const CrearEspacio = () => {
                                 <Select
                                   multiple
                                   id={`species-${index}`}
-                                  value={subspace.species || []}
+                                  value={subspaces[index]?.species || []} // Usar el estado `subspaces`
                                   onChange={(event) => handleChangeCategory(event, index)}
                                   renderValue={(selectedIds) =>
                                     species
                                       .filter((option) => selectedIds.includes(option.id))
                                       .map((option) => option.common_name)
-                                      .join(', ')
+                                      .join(", ")
                                   }
                                 >
                                   {species.map((option) => (
                                     <MenuItem key={option.id} value={option.id}>
-                                      <Checkbox checked={subspace.species?.includes(option.id)} />
+                                      <Checkbox checked={subspaces[index]?.species?.includes(option.id)} />
                                       <ListItemText primary={option.common_name} />
                                     </MenuItem>
                                   ))}
@@ -1029,49 +1059,54 @@ const CrearEspacio = () => {
                   <h2>Espacio</h2>
 
                   <label>¿Necesitas asignar dispositivos?</label>
-                  <div className="flex items-center space-x-4 mt-4">
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={isYesSelected}
-                        onChange={handleYesCheckboxChange}
-                        className="hidden"
-                      />
-                      <span
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isYesSelected ? "bg-white border-[#168C0DFF]" : "border-gray-400"}`}
-                      >
-                        {isYesSelected && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
-                      </span>
-                      <span className="text-sm font-medium">Sí</span>
-                    </label>
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={!isYesSelected}
-                        onChange={handleNoCheckboxChange}
-                        className="hidden"
-                      />
-                      <span
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${!isYesSelected ? "bg-white border-[#168C0DFF]" : "border-gray-400"}`}
-                      >
-                        {!isYesSelected && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
-                      </span>
-                      <span className="text-sm font-medium">No</span>
-                    </label>
+                  <div className="flex items-center justify-between mt-4">
+                    {/* Contenedor de los botones de radio a la izquierda */}
+                    <div className="flex items-center space-x-4">
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isYesSelected}
+                          onChange={handleYesCheckboxChange}
+                          className="hidden"
+                        />
+                        <span
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isYesSelected ? "bg-white border-[#168C0DFF]" : "border-gray-400"}`}
+                        >
+                          {isYesSelected && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
+                        </span>
+                        <span className="text-sm font-medium">Sí</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={!isYesSelected}
+                          onChange={handleNoCheckboxChange}
+                          className="hidden"
+                        />
+                        <span
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${!isYesSelected ? "bg-white border-[#168C0DFF]" : "border-gray-400"}`}
+                        >
+                          {!isYesSelected && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
+                        </span>
+                        <span className="text-sm font-medium">No</span>
+                      </label>
+                    </div>
+
+                    {/* Botón a la derecha */}
+                    {isYesSelected && (
+                      <div className="ml-auto flex justify-end p-2">
+                        <button
+                          type="button"
+                          onClick={handleAddDevice}
+                          className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
+                        >
+                          <FiPlusCircle />
+                          Añadir más
+                        </button>
+                      </div>
+                    )}
                   </div>
 
-                  {isYesSelected && (
-                    <div className='flex justify-end p-2'>
-                      <button
-                        type='button'
-                        onClick={handleAddDevice}
-                        className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
-                      >
-                        <FiPlusCircle />
-                        Añadir más
-                      </button>
-                    </div>
-                  )}
 
                   <div>
                     {devicesList.map((device, index) => (
@@ -1197,7 +1232,7 @@ const CrearEspacio = () => {
                                 onChange={(e) => handleSubspaceDeviceTypeChange(index, e.target.value)}
                                 className="w-full px-3 py-2 border rounded-md"
                                 disabled={!subspace.assignDevices || subspace.inheritDevices} // Deshabilitado si hereda
->
+                              >
                                 <option value="">Seleccione un tipo</option>
                                 <option value="actuador">Actuador</option>
                                 <option value="sensor">Sensor</option>
@@ -1211,7 +1246,7 @@ const CrearEspacio = () => {
                                 onChange={(e) => handleSubspaceDeviceChange(index, e.target.value)}
                                 className="w-full px-3 py-2 border rounded-md"
                                 disabled={!subspace.assignDevices || subspace.inheritDevices || !subspace.deviceType} // Deshabilitado si hereda o si no hay tipo
->
+                              >
                                 <option value="">Seleccione un dispositivo</option>
                                 {getDevicesByType(subspace.deviceType).map((device) => (
                                   <option key={device.id} value={device.id}>
