@@ -15,7 +15,10 @@ import { FaChevronDown, FaChevronUp, FaTimes } from 'react-icons/fa';
 import { FiPlusCircle } from "react-icons/fi";
 
 const CrearEspacio = () => {
-
+  const [selectedVariables, setSelectedVariables] = useState({
+    main: [],
+    subspaces: {}
+  });
   const [showSubspaceField, setShowSubspaceField] = useState(false);
   const [disableSpecies, setDisableSpecies] = useState(false);
   const [subspaces, setSubspaces] = useState([
@@ -140,6 +143,51 @@ const CrearEspacio = () => {
     ]
   });
 
+  const [subEspacio, setSubEspacio] = useState(
+    {
+      subProductionSpaces: [
+        {
+          name: '',
+          gpsPosition: '',
+          dimensionUnit: '',
+          shape: '',
+          length: '',
+          width: '',
+          depth: '',
+          area: '',
+          volume: '',
+          species: [],
+          monitoringSystemId: null,
+          assignDevices: [
+            {
+              deviceType: '',
+              sensorId: null,
+              actuatorId: null
+            }
+          ],
+          configureMeasurementControls: [
+            {
+              measurementType: '',
+              sensorId: null,
+              actuatorId: null,
+              samplingTimeUnit: '',
+              samplingFrequency: '',
+              numberOfSamples: '',
+              controlType: '',
+              actuationTimeUnit: '',
+              activationParameterRange: '',
+              activationFrequency: '',
+              alertMessage: '',
+              productionParameterId: null
+            }
+          ]
+        }
+      ],
+    });
+  const [especiesEspacio, setEspecieEspasios] = useState([
+  ]);
+  const [especiesSubspacio, setEspecieSubspasios] = useState([]);
+
 
 
   useEffect(() => {
@@ -184,14 +232,14 @@ const CrearEspacio = () => {
   useEffect(() => {
     const fetchEspecies = async () => {
       try {
-        const data = await SpeciesService.getAllSpecie();
+        const data = await SpeciesService.getAllSpecie(0, {});
         setTipoEspecies(data);
-        console.log('species', data);
+        console.log('especies traidas', data);
       } catch (error) {
         console.error('Error fetching species:', error);
       }
     };
-    fetchEspecies();
+    fetchEspecies(0, {});
   }, []);
 
 
@@ -200,7 +248,7 @@ const CrearEspacio = () => {
       if (!selectedSpeciesId) return;
 
       try {
-        const data = await SpeciesService.getVariableBySpecie({species:{id:selectedSpeciesId}});
+        const data = await SpeciesService.getVariableBySpecie({ species: { id: selectedSpeciesId } });
         console.log("Datos de variables de la especie:", data);
 
         if (data.statusCode === 404) {
@@ -215,7 +263,7 @@ const CrearEspacio = () => {
     };
 
     fetchVariable();
-  }, [selectedSpeciesId]); 
+  }, [selectedSpeciesId]);
 
   useEffect(() => {
     const fetchTipoEspacio = async () => {
@@ -230,78 +278,44 @@ const CrearEspacio = () => {
     fetchTipoEspacio();
   }, []);
 
+
+
   const handleAddSubspaceClick = () => {
     setDisableSpecies(true);
-    setFormData({ ...formData, species: [] });
-    setSubspaces([
-      ...subspaces,
+    // setSelectedSpecies([]); 
+
+    setSubspaces((prevSubspaces) => [
+      ...prevSubspaces,
       {
         id: Date.now(),
-        name: '',
-        gpsPosition: '',
-        dimensionUnit: '',
-        shape: '',
-        length: '',
-        width: '',
-        depth: '',
-        area: '',
-        volume: '',
-        species: []
-      }
+        name: "",
+        gpsPosition: "",
+        dimensionUnit: "",
+        shape: "",
+        length: "",
+        width: "",
+        depth: "",
+        area: "",
+        volume: "",
+        species: [],
+        assignDevices: false,
+        inheritDevices: false,
+        deviceType: "",
+        selectedDevice: "",
+      },
     ]);
   };
 
-  const handleOpenModal = (lote = null, mode = 'create') => {
-    setSelectedLote(lote);
-    setModalMode(mode);
-    if (mode === 'edit' || mode === 'view') {
-      setNewLote(lote);
-    } else {
-      setNewLote({
-        measurementType: '',
-        sensorId: '',
-        actuatorId: '',
-        samplingTimeUnit: '',
-        samplingFrequency: '',
-        numberOfSamples: '',
-        controlType: '',
-        actuationTimeUnit: '',
-        activationParameterRange: '',
-        activationFrequency: '',
-        alertMessage: '',
 
-      });
-    }
-    setIsModalOpen(true);
+
+  const handleOpenModal = (lote = null, mode = 'create') => {
+
   };
 
   // Cerrar el modal
   const closeModal = async () => {
-    setIsModalOpen(false);
-    setSelectedLote(null);
-    setModalMode('create');
-    updateService();
+
   };
-
-
-  // const handleAddSubspaceClick = () => {
-  //   const newSubspace = {
-  //     id: Date.now(),
-  //     species: [...formData.species],
-  //     name: '',
-  //     gpsPosition: '',
-  //     dimensionUnit: '',
-  //     shape: '',
-  //     length: '',
-  //     width: '',
-  //     depth: '',
-  //     area: '',
-  //     volume: '',
-  //     specificFeatures: ''
-  //   };
-  //   setSubspaces([...subspaces, newSubspace]);
-  // };
-
 
   const handleExpandSubspace = (id) => {
     setExpandedSubspace(expandedSubspace === id ? null : id);
@@ -331,6 +345,14 @@ const CrearEspacio = () => {
     setIsYesSelected(false);
     setDisableSpecies(false);
   };
+  const handleNoSubCheckboxChange = () => {
+    setIsYesSelected(false);
+    setDisableSpecies(false);
+  };
+  const handleNoHerCheckboxChange = () => {
+    setIsYesSelected(false);
+    setDisableSpecies(false);
+  };
 
   const handleDeviceTypeChange = (index, type) => {
     const newDevicesList = [...devicesList];
@@ -346,7 +368,7 @@ const CrearEspacio = () => {
 
 
   const handleInheritChange = () => {
-    setInheritSensors(!inheritSensors);
+
   };
 
   // Obtener dispositivos según el tipo 
@@ -375,13 +397,8 @@ const CrearEspacio = () => {
     // setDeviceType('');
     // setSelectedDevice('');
   };
-  // const handleSubspaceCheckboxChange = (index, field) => {
-  //   setSubspaces((prevSubspaces) =>
-  //     prevSubspaces.map((subspace, i) =>
-  //       i === index ? { ...subspace, [field]: !subspace[field] } : subspace
-  //     )
-  //   );
-  // };
+
+
 
   const handleSubspaceDeviceTypeChange = (index, type) => {
     const updatedSubspaces = [...subspaces];
@@ -399,63 +416,63 @@ const CrearEspacio = () => {
 
   const handleSubspaceCheckboxChange = (index, field) => {
     setSubspaces((prevSubspaces) =>
-      prevSubspaces.map((sub, i) =>
-        i === index ? { ...sub, [field]: !sub[field] } : sub
-      )
+      prevSubspaces.map((sub, i) => {
+        if (i === index) {
+          // Si se activa "Heredar dispositivos", desactiva la asignación manual
+          if (field === "inheritDevices" && !sub.inheritDevices) {
+            return {
+              ...sub,
+              inheritDevices: true,
+              assignDevices: false, // Deshabilita la asignación manual
+              deviceType: "",
+              selectedDevice: "",
+            };
+          }
+          // Si se activa "Asignar dispositivos", desactiva la herencia
+          if (field === "assignDevices" && !sub.assignDevices) {
+            return {
+              ...sub,
+              assignDevices: true,
+              inheritDevices: false, // Deshabilita la herencia
+            };
+          }
+          return { ...sub, [field]: !sub[field] };
+        }
+        return sub;
+      })
     );
   };
-
-  const [selectedVariables, setSelectedVariables] = useState({
-    main: [],
-    subspaces: {}
-  });
-
-const handleAddVariable = (type, index) => {
-  if (type === 'main') {
-    setSelectedVariables((prev) => ({
-      ...prev,
-      subspaces: [...(prev.subspaces || []), nuevaVariable], // Si prev.subspaces es undefined, usa un arreglo vacío
-    }));
-    
-    
-  } else {
-    // Agregar variable al subespacio correspondiente
-    setSelectedVariables((prev) => {
-      const updatedSubspaces = [...prev.subspaces];
-      updatedSubspaces[index] = updatedSubspaces[index]
-        ? [...updatedSubspaces[index], selectedVariableId]
-        : [selectedVariableId];
-      return { ...prev, subspaces: updatedSubspaces };
-    });
-  }
-};
-
-  // const handleAddVariable = (space) => {
-  //   if (space === "main" && selectedVariables.main) {
-  //     setSelectedVariables((prev) => ({
-  //       ...prev,
-  //       main: [...prev.main, selectedVariables.main],
-  //     }));
-  //   } else if (selectedVariables.subspaces[space]) {
-  //     setSelectedVariables((prev) => ({
-  //       ...prev,
-  //       subspaces: {
-  //         ...prev.subspaces,
-  //         [space]: [
-  //           ...(prev.subspaces[space] || []),
-  //           selectedVariables.subspaces[space],
-  //         ],
-  //       },
-  //     }));
-  //   }
-  // };
+  
+  const handleAddVariable = (type, index) => {
+    if (type === 'main') {
+      setSelectedVariables((prev) => ({
+        ...prev,
+        subspaces: [
+          ...(prev.subspaces || []), // Si prev.subspaces es undefined, usamos un arreglo vacío
+          nuevaVariable, // Asegúrate de que 'nuevaVariable' esté definida correctamente
+        ],
+      }));
+    } else {
+      setSelectedVariables((prev) => {
+        // Asegúrate de que prev.subspaces sea un arreglo
+        const updatedSubspaces = Array.isArray(prev.subspaces) ? [...prev.subspaces] : [];
+        
+        // Asegúrate de que updatedSubspaces tenga el índice adecuado
+        if (!updatedSubspaces[index]) {
+          updatedSubspaces[index] = [];
+        }
+        
+        // Agregar la variable seleccionada
+        updatedSubspaces[index].push(selectedVariableId); // Asegúrate de que 'selectedVariableId' esté definido correctamente
+        
+        return { ...prev, subspaces: updatedSubspaces };
+      });
+    }
+  };
+  
 
   const handleVariableChangeForSubspace = (index, variable) => {
-    setSelectedVariables((prev) => {
-      const updatedSubspaces = [...prev.subspaces];
-      updatedSubspaces[index] = [...(updatedSubspaces[index] || []), variable]; // Agregar variable al subespacio específico
-      return { ...prev, subspaces: updatedSubspaces };
-    });
+
   };
 
 
@@ -464,18 +481,30 @@ const handleAddVariable = (type, index) => {
     setFormData((prevState) => ({
       ...prevState,
       species: value,
+
     }));
+    let valueSpecie = []
+    valueSpecie.push(value)
+
+    setEspecieEspasios(valueSpecie)
+    console.log('arreglo de especies', especiesEspacio)
   };
+
   const handleChangeCategory = (event, index) => {
     const { value } = event.target;
-
+    console.log('especies subespacio event', event, 'index', index, 'value', value)
+    setEspecieSubspasios(value);
     setFormData((prevFormData) => {
       const updatedSubspaces = [...prevFormData.subProductionSpaces];
       updatedSubspaces[index] = {
         ...updatedSubspaces[index],
-        species: typeof value === 'string' ? value.split(',') : value,
+        species: value,
       };
-
+      let valueSpecie = []
+      valueSpecie.push(value)
+  
+      setEspecieSubspasios(valueSpecie)
+      console.log('arreglo de especies', especiesSubspacio)
       return {
         ...prevFormData,
         subProductionSpaces: updatedSubspaces,
@@ -491,23 +520,8 @@ const handleAddVariable = (type, index) => {
   };
 
   const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    if (name === "heredar") {
-      setHeredar(checked);
-    }
-  };
-  // const handleSpeciesChange = (e) => {
-  //   const speciesId = e.target.value;
-  //   const speciesFound = species.find(s => s.id === speciesId);
-  //   setSelectedSpecies(speciesFound);
-  //   setSelectedVariable('');
-  // };
-  // const handleSpeciesChange = (e) => {
-  //   const specieId = e.target.value;
-  //   setSelectedSpeciesId(specieId);
-  //   setSelectedVariable("");
-  // };
 
+  };
 
 
   const handleSpeciesChange = (index, specieId) => {
@@ -549,16 +563,6 @@ const handleAddVariable = (type, index) => {
     if (specieId) fetchVariablesForSubspace();
   };
 
-
-
-
-
-
-  // const handleVariableChange = (e) => {
-  //   const selected = variables.find((v) => v.id === e.target.value);
-  //   setSelectedVariable(selected);
-  // };
-
   const handleVariableChange = (space, variableId) => {
     if (space === "main") {
       setSelectedVariables((prev) => ({
@@ -591,100 +595,23 @@ const handleAddVariable = (type, index) => {
         console.error("Error fetching subcategory or stages:", error);
       }
     }
+
   };
   const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    const parseNumber = (value) => {
-      return value !== undefined && value !== null && !isNaN(value) ? parseInt(value, 10) : null;
-    };
-
-    const data = {
-      name: formData.name,
-      gpsPosition: formData.gpsPosition,
-      climateConditions: formData.climateConditions,
-      dimensionUnit: formData.dimensionUnit,
-      shape: formData.shape,
-      length: Math.max(formData.length || 0, 0),
-      width: Math.max(formData.width || 0, 0),
-      depth: Math.max(formData.depth || 0, 0),
-      area: Math.max(formData.area || 0, 0),
-      volume: Math.max(formData.volume || 0, 0),
-      specificFeatures: formData.specificFeatures,
-      monitoringSystemId: parseNumber(formData.monitoringSystemId),
-      spaceTypeId: parseNumber(formData.spaceTypeId),
-      species: Array.isArray(formData.species) ? formData.species : [],
-      subProductionSpaces: formData.subProductionSpaces.map(subSpace => ({
-        name: subSpace.name,
-        gpsPosition: subSpace.gpsPosition,
-        dimensionUnit: subSpace.dimensionUnit,
-        shape: subSpace.shape,
-        length: Math.max(subSpace.length || 0, 0),
-        width: Math.max(subSpace.width || 0, 0),
-        depth: Math.max(subSpace.depth || 0, 0),
-        area: Math.max(subSpace.area || 0, 0),
-        volume: Math.max(subSpace.volume || 0, 0),
-        species: Array.isArray(subSpace.species) ? subSpace.species : [],
-        monitoringSystemId: parseNumber(subSpace.monitoringSystemId),
-        assignDevices: Array.isArray(subSpace.assignDevices) ? subSpace.assignDevices : [],
-        configureMeasurementControls: Array.isArray(subSpace.configureMeasurementControls)
-          ? subSpace.configureMeasurementControls.map(control => ({
-            measurementType: control.measurementType,
-            sensorId: parseNumber(control.sensorId),
-            actuatorId: parseNumber(control.actuatorId),
-            samplingTimeUnit: control.samplingTimeUnit,
-            samplingFrequency: parseNumber(control.samplingFrequency),
-            numberOfSamples: parseNumber(control.numberOfSamples),
-            controlType: control.controlType,
-            actuationTimeUnit: control.actuationTimeUnit,
-            activationParameterRange: control.activationParameterRange,
-            activationFrequency: parseNumber(control.activationFrequency),
-            alertMessage: control.alertMessage,
-            productionParameterId: parseNumber(control.productionParameterId)
-          }))
-          : [],
-      })),
-      assignDevices: Array.isArray(formData.assignDevices) ? formData.assignDevices : [],
-      configureMeasurementControls: Array.isArray(formData.configureMeasurementControls)
-        ? formData.configureMeasurementControls.map(control => ({
-          measurementType: control.measurementType,
-          sensorId: parseNumber(control.sensorId),
-          actuatorId: parseNumber(control.actuatorId),
-          samplingTimeUnit: control.samplingTimeUnit,
-          samplingFrequency: parseNumber(control.samplingFrequency),
-          numberOfSamples: parseNumber(control.numberOfSamples),
-          controlType: control.controlType,
-          actuationTimeUnit: control.actuationTimeUnit,
-          activationParameterRange: control.activationParameterRange,
-          activationFrequency: parseNumber(control.activationFrequency),
-          alertMessage: control.alertMessage,
-          productionParameterId: parseNumber(control.productionParameterId)
-        }))
-        : []
-    };
-
-    try {
-      const response = await EspacioService.createEspacio(data);
-      console.log('Espacio creado con éxito', response);
-      navigate('../espacio');
-    } catch (error) {
-      console.error('Error al crear el espacio:', error);
-    }
   };
 
 
   const handleMedicionControl = (variable) => {
-    setSelectedVariableId(variable.id);
-    setIsModalOpen(true);
+
   };
 
   return (
-    <form className="p-6">
-      <div className="container mx-auto p-8">
+    <form className="">
+      <div className="container mx-auto p-2">
         <div className="bg-white rounded-lg shadow-xl p-6">
           <h2 className="text-2xl font-semibold mb-6">Crear Lista de Especies</h2>
 
-          {/* Steps Header */}
           <div className="flex flex-col mb-6">
             <div className="flex items-center justify-between mb-2">
               <div className={`${step === 0 ? 'text-black font-bold' : 'text-gray-500'} flex items-center`}>
@@ -742,12 +669,12 @@ const handleAddVariable = (type, index) => {
                     Posición GPS
                   </label>
                   <input
-                    type="number"
+                    type="numtextber"
                     id="gpsPosition"
                     name="gpsPosition"
                     value={formData.gpsPosition || ''}
                     onChange={handleChange}
-                    placeholder="Posición GPS"
+                    placeholder="Link de posición GPS"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
                   />
                 </div>
@@ -762,7 +689,7 @@ const handleAddVariable = (type, index) => {
                     onChange={handleChange}
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer"
                   >
-                    <option value="" className="text-gray-500">Selecciona una opción</option>
+                    <option value="" className="text-gray-300">Selecciona una opción</option>
                     {monitoreo?.length > 0 && monitoreo.map((sub) => (
                       <option key={sub.id} value={sub.id}>
                         {sub.nombreId}
@@ -822,7 +749,7 @@ const handleAddVariable = (type, index) => {
                     Forma
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     id="shape"
                     name="shape"
                     value={formData.shape || ''}
@@ -942,19 +869,21 @@ const handleAddVariable = (type, index) => {
                   </FormControl>
                 </div>
                 <div className="w-full">
-                  <div className="mb-4">
+                  <div className="mb-4 justify justify-end">
                     <button
                       type="button"
                       onClick={handleAddSubspaceClick}
-                      disabled={disableSpecies}
-                      className="px-4 py-2 bg-green-500 text-white rounded-md shadow hover:bg-green-600"
+                      // disabled={disableSpecies}
+                      className="inline-flex justify-end rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
+
                     >
                       Añadir Subespacio
                     </button>
                   </div>
 
+
                   <div className="w-full grid grid-cols-1 gap-4">
-                    {subspaces.map((subspace, index) => (
+                    {subspaces.length > 0 && subspaces.map((subspace, index) => (
                       <div key={subspace.id} className="w-full border rounded-md p-4 mb-2">
                         <div className="flex justify-between items-center">
                           <h3 className="font-semibold text-lg">{`Subespacio ${index + 1}`}</h3>
@@ -962,20 +891,20 @@ const handleAddVariable = (type, index) => {
                             <button
                               type="button"
                               onClick={() => handleExpandSubspace(subspace.id)}
-                              className="text-blue-500"
+                              className="text-gray-300"
                             >
                               {expandedSubspace === subspace.id ? <FaChevronUp /> : <FaChevronDown />}
                             </button>
                             <button
                               onClick={() => handleRemoveSubspace(subspace.id)}
-                              className="text-red-500"
+                              className="text-red-300"
                             >
                               <FaTimes />
                             </button>
                           </div>
                         </div>
                         {expandedSubspace === subspace.id && (
-                          <div className="w-full grid grid-cols-1 gap-4 mt-5">
+                          <div className="w-full grid grid-cols-2 gap-4 mt-5">
                             <div className="mb-2 w-full">
                               <label className="block text-sm font-medium">Nombre espacio</label>
                               <input
@@ -1096,7 +1025,7 @@ const handleAddVariable = (type, index) => {
             {step === 1 && (
 
               <div className="grid grid-cols-1 gap-4  ">
-                <div className='border border-gray-400 rounded-md shadow shadow-gray-400'>
+                <div className='border border-gray-400 rounded-md shadow shadow-gray-400 p-4'>
                   <h2>Espacio</h2>
 
                   <label>¿Necesitas asignar dispositivos?</label>
@@ -1132,7 +1061,7 @@ const handleAddVariable = (type, index) => {
                   </div>
 
                   {isYesSelected && (
-                    <div className='flex justify-end'>
+                    <div className='flex justify-end p-2'>
                       <button
                         type='button'
                         onClick={handleAddDevice}
@@ -1146,7 +1075,7 @@ const handleAddVariable = (type, index) => {
 
                   <div>
                     {devicesList.map((device, index) => (
-                      <div key={index} className="flex space-x-4 mt-6">
+                      <div key={index} className="flex space-x-4 mt-6 ">
                         <div className="w-1/2 mb-2">
                           <label className="block text-sm font-medium">Tipo de dispositivo:</label>
                           <select
@@ -1210,6 +1139,20 @@ const handleAddVariable = (type, index) => {
                                   </span>
                                   <span className="text-sm font-medium">Sí</span>
                                 </label>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={!isYesSelected}
+                                    onChange={handleNoSubCheckboxChange}
+                                    className="hidden"
+                                  />
+                                  <span
+                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${!isYesSelected ? "bg-white border-[#168C0DFF]" : "border-gray-400"}`}
+                                  >
+                                    {!isYesSelected && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
+                                  </span>
+                                  <span className="text-sm font-medium">No</span>
+                                </label>
                               </div>
                             </div>
 
@@ -1230,6 +1173,20 @@ const handleAddVariable = (type, index) => {
                                   </span>
                                   <span className="text-sm font-medium">Sí</span>
                                 </label>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={!isYesSelected}
+                                    onChange={handleNoHerCheckboxChange}
+                                    className="hidden"
+                                  />
+                                  <span
+                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${!isYesSelected ? "bg-white border-[#168C0DFF]" : "border-gray-400"}`}
+                                  >
+                                    {!isYesSelected && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
+                                  </span>
+                                  <span className="text-sm font-medium">No</span>
+                                </label>
                               </div>
                             </div>
 
@@ -1239,8 +1196,8 @@ const handleAddVariable = (type, index) => {
                                 value={subspace.deviceType}
                                 onChange={(e) => handleSubspaceDeviceTypeChange(index, e.target.value)}
                                 className="w-full px-3 py-2 border rounded-md"
-                                disabled={!subspace.assignDevices}
-                              >
+                                disabled={!subspace.assignDevices || subspace.inheritDevices} // Deshabilitado si hereda
+>
                                 <option value="">Seleccione un tipo</option>
                                 <option value="actuador">Actuador</option>
                                 <option value="sensor">Sensor</option>
@@ -1253,8 +1210,8 @@ const handleAddVariable = (type, index) => {
                                 value={subspace.selectedDevice}
                                 onChange={(e) => handleSubspaceDeviceChange(index, e.target.value)}
                                 className="w-full px-3 py-2 border rounded-md"
-                                disabled={!subspace.assignDevices || !subspace.deviceType}
-                              >
+                                disabled={!subspace.assignDevices || subspace.inheritDevices || !subspace.deviceType} // Deshabilitado si hereda o si no hay tipo
+>
                                 <option value="">Seleccione un dispositivo</option>
                                 {getDevicesByType(subspace.deviceType).map((device) => (
                                   <option key={device.id} value={device.id}>
@@ -1348,35 +1305,32 @@ const handleAddVariable = (type, index) => {
                       </button>
                     </div>
                   )}
-                 {selectedVariables.main.length > 0 && (
-  <div className="mt-4">
-    <h3 className="text-lg font-medium">Variables del Espacio:</h3>
-    <div className="mt-2 grid grid-cols-1 gap-2">
-    {Array.isArray(selectedVariables.main) &&
-  selectedVariables.main.map((variable, index) => (
-    <div
-      key={index}
-      className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
-    >
-      <div className="flex justify-between items-center">
-        <span>{variable.name || variable}</span>
-        <button
-          type="button"
-          onClick={() => handleMedicionControl(variable)}
-          className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
-        >
-          Medición y Control
-        </button>
-      </div>
-    </div>
-  ))}
+                  {selectedVariables.main.length > 0 && (
+                    <div className="mt-4">
+                      <h3 className="text-lg font-medium">Variables del Espacio:</h3>
+                      <div className="mt-2 grid grid-cols-1 gap-2">
+                        {Array.isArray(selectedVariables.main) &&
+                          selectedVariables.main.map((variable, index) => (
+                            <div
+                              key={index}
+                              className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
+                            >
+                              <div className="flex justify-between items-center">
+                                <span>{variable.name || variable}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleMedicionControl(variable)}
+                                  className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
+                                >
+                                  Medición y Control
+                                </button>
+                              </div>
+                            </div>
+                          ))}
 
-    </div>
-  </div>
-)}
-
-
-
+                      </div>
+                    </div>
+                  )}
 
                   {isModalOpen && (
                     <GenericModal
@@ -1470,38 +1424,38 @@ const handleAddVariable = (type, index) => {
                           </button>
                         )}
 
-{subspaces.map((subspace, index) => (
-  <div key={index} className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4">
-    <h3>Subespacio {index + 1}</h3>
+                        {subspaces.map((subspace, index) => (
+                          <div key={index} className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4">
+                            <h3>Subespacio {index + 1}</h3>
 
-    {/* Mostrar variables seleccionadas para cada subespacio */}
-    {Array.isArray(selectedVariables.subspaces[index]) && selectedVariables.subspaces[index].length > 0 && (
-  <div className="mt-6">
-    <h3 className="text-lg font-medium">Variables del Subespacio:</h3>
-    <div className="mt-2 grid grid-cols-1 gap-2">
-      {selectedVariables.subspaces[index].map((variable, varIndex) => (
-        <div
-          key={varIndex}
-          className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
-        >
-          <div className="flex justify-between items-center">
-            <span>{variable.name || variable}</span>
-            <button
-              type="button"
-              onClick={() => handleMedicionControl(variable)}
-              className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
-            >
-              Medición y Control
-            </button>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+                            {/* Mostrar variables seleccionadas para cada subespacio */}
+                            {Array.isArray(selectedVariables.subspaces[index]) && selectedVariables.subspaces[index].length > 0 && (
+                              <div className="mt-6">
+                                <h3 className="text-lg font-medium">Variables del Subespacio:</h3>
+                                <div className="mt-2 grid grid-cols-1 gap-2">
+                                  {selectedVariables.subspaces[index].map((variable, varIndex) => (
+                                    <div
+                                      key={varIndex}
+                                      className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
+                                    >
+                                      <div className="flex justify-between items-center">
+                                        <span>{variable.name || variable}</span>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleMedicionControl(variable)}
+                                          className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
+                                        >
+                                          Medición y Control
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
 
-  </div>
-))}
+                          </div>
+                        ))}
 
 
                       </div>
