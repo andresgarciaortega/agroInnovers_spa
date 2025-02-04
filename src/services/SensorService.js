@@ -6,9 +6,9 @@ const SensorService = {
 
 
     // LISTAR TODAS LAS varibles
-    async getAllSensor(idcompany = 0) {
+    async getAllSensor(idcompany = 0,searchParameter) {
         try {
-            const response = await api.get(`/sensors?company=${idcompany}`);
+            const response = await api.get(`/sensors?company=${idcompany}&search=${encodeURIComponent(JSON.stringify(searchParameter))}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener las sensors:', error);
