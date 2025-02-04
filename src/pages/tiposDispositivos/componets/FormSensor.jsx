@@ -300,24 +300,32 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
 
 
 
-
     const handleAddPoint = () => {
         const { value, normalResponse } = formData;
     
-        // Validar que ambos campos tengan datos
-        if (!value.trim() || !normalResponse.trim()) {
+        // Validación para evitar agregar elementos vacíos
+        if (!value || !normalResponse) {
             alert('Por favor, completa ambos campos antes de agregar.');
             return;
         }
     
         setFormData((prev) => ({
             ...prev,
-            calibrationPoints: [...prev.calibrationPoints, { value, normalResponse }],
-            value: '', // Limpia el campo de entrada
-            normalResponse: '' // Limpia el campo de entrada
+            calibrationPoints: [
+                ...prev.calibrationPoints,
+                { value: value.trim(), normalResponse: normalResponse.trim() }
+            ]
         }));
-    };
     
+        // Limpiar los campos después de actualizar el estado
+        setTimeout(() => {
+            setFormData((prev) => ({
+                ...prev,
+                value: '',
+                normalResponse: ''
+            }));
+        }, 0);
+    };
 
     const handleDeletePoint = (index) => {
         setFormData((prev) => ({
@@ -823,23 +831,24 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
         </tr>
     </thead>
     <tbody>
-        {formData.calibrationPoints.length > 0 ? ( // Solo renderiza filas si hay puntos
-            formData.calibrationPoints.map((param, index) => (
-                <tr key={index}>
-                    <td className="border px-4 py-2">{param.value}</td>
-                    <td className="border px-4 py-2">{param.normalResponse}</td>
-                    <td className="border px-4 py-2">
-                        <button
-                        type='button'
-                            onClick={() => handleDeletePoint(index)}
-                            className="text-red-500 hover:text-red-700 px-2 py-2 rounded"
-                        >
-                            <Trash size={20} />
-                        </button>
-                    </td>
-                </tr>
-            ))
-        ) : null} {/* No renderiza filas ni muestra mensaje */}
+         {formData.calibrationPoints.length > 0 &&
+           formData.calibrationPoints.map((param, index) => (
+             param.value && param.normalResponse ? (  // Evita renderizar objetos vacíos
+               <tr key={index}>
+                 <td className="border px-4 py-2">{param.value}</td>
+                 <td className="border px-4 py-2">{param.normalResponse}</td>
+                 <td className="border px-4 py-2">
+                   <button
+                     type="button"
+                     onClick={() => handleDeletePoint(index)}
+                     className="text-red-500 hover:text-red-700 px-2 py-2 rounded"
+                   >
+                     <Trash size={20} />
+                   </button>
+                 </td>
+               </tr>
+             ) : null
+           ))}
     </tbody>
 </table>
 
