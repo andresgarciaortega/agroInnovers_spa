@@ -45,19 +45,19 @@ const ViewEspacio = ({ }) => {
         variables: [],
         configureMeasurementControls: [],
     });
-      const [newControl, setNewControl] = useState({
-            measurementType: '',
-            sensorId: '',
-            actuatorId: '',
-            samplingTimeUnit: '',
-            samplingFrequency: '',
-            numberOfSamples: '',
-            controlType: '',
-            actuationTimeUnit: '',
-            activationParameterRange: '',
-            activationFrequency: '',
-            alertMessage: '',
-        });
+    const [newControl, setNewControl] = useState({
+        measurementType: '',
+        sensorId: '',
+        actuatorId: '',
+        samplingTimeUnit: '',
+        samplingFrequency: '',
+        numberOfSamples: '',
+        controlType: '',
+        actuationTimeUnit: '',
+        activationParameterRange: '',
+        activationFrequency: '',
+        alertMessage: '',
+    });
     const [isEditable, setIsEditable] = useState(false);
 
     useEffect(() => {
@@ -71,12 +71,12 @@ const ViewEspacio = ({ }) => {
 
             setFormData(
                 {
-                ...data,
-                configureMeasurementControls: Array.isArray(data.configureMeasurementControls)
-                    ? data.configureMeasurementControls
-                    : [],
-            }
-        );
+                    ...data,
+                    configureMeasurementControls: Array.isArray(data.configureMeasurementControls)
+                        ? data.configureMeasurementControls
+                        : [],
+                }
+            );
 
             console.log('Espacio cargado:', data);
         } catch (error) {
@@ -148,10 +148,10 @@ const ViewEspacio = ({ }) => {
         setFormData({ ...formData, subProductionSpaces: newSubSpaces });
     };
     const handleSubmit = async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
         console.log('Datos de configureMeasurementControls:', formData.subProductionSpaces.map(subSpace => subSpace.configureMeasurementControls));
-    
+
         const data = {
             id: formData.id,
             name: formData.name,
@@ -193,11 +193,11 @@ const ViewEspacio = ({ }) => {
             })),
             monitoringSystemId: formData.monitoringSystemId ? parseInt(formData.monitoringSystemId.id, 10) : null,
         };
-    
+
         try {
             const response = await EspacioService.updateEspacio(formData.id, data);
             console.log('Espacio actualizado con éxito', response);
-            navigate('../espacio'); 
+            navigate('../espacio');
         } catch (error) {
             console.error('Error al actualizar el espacio:', error);
             if (error.response) {
@@ -205,10 +205,10 @@ const ViewEspacio = ({ }) => {
             }
         }
     };
-    
-    
-    
-    
+
+
+
+
     const handleDeleteSubSpace = (index) => {
         const updatedSubSpaces = formData.subProductionSpaces.filter((_, i) => i !== index);
         setFormData({ ...formData, subProductionSpaces: updatedSubSpaces });
@@ -261,18 +261,18 @@ const ViewEspacio = ({ }) => {
 
                             <h1 className="text-2xl font-bold">{formData.name} </h1>
                             <button
-          type="button"
-          className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg"
-          onClick={() => {
-            if (isEditable) {
-                handleSubmit(); 
-            } else {
-              setIsEditable(true); 
-            }
-          }}
-        >
-          {isEditable ? 'Guardar Cambios' : 'Editar Espacio'}
-        </button>
+                                type="button"
+                                className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg"
+                                onClick={() => {
+                                    if (isEditable) {
+                                        handleSubmit();
+                                    } else {
+                                        setIsEditable(true);
+                                    }
+                                }}
+                            >
+                                {isEditable ? 'Guardar Cambios' : 'Editar Espacio'}
+                            </button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -385,12 +385,12 @@ const ViewEspacio = ({ }) => {
                             <label className="text-sm text-muted-foreground">Sistema de monitoreo y control</label>
                             <select
                                 className="w-full p-2 border rounded"
-                                value={formData.monitoringSystemId?.id || ''} 
+                                value={formData.monitoringSystemId?.id || ''}
                                 onChange={(e) => setFormData({
                                     ...formData,
                                     monitoringSystemId: {
                                         ...formData.monitoringSystemId,
-                                        id: e.target.value 
+                                        id: e.target.value
                                     }
                                 })}
                                 disabled={!isEditable}
@@ -398,7 +398,7 @@ const ViewEspacio = ({ }) => {
                                 <option value="" disabled>Selecciona un sistema de monitoreo</option>
                                 {monitoringSystems.map(system => (
                                     <option key={system.id} value={system.id}>
-                                        {system.nombreId} 
+                                        {system.nombreId}
                                     </option>
                                 ))}
                             </select>
@@ -428,7 +428,7 @@ const ViewEspacio = ({ }) => {
                                             <div
                                                 key={index}
                                                 className="bg-white shadow-md rounded-lg flex items-center gap-4"
-                                                style={{ height: "169px" }} 
+                                                style={{ height: "169px" }}
                                             >
 
                                                 <div className="w-60">
@@ -464,7 +464,7 @@ const ViewEspacio = ({ }) => {
                                 </div>
                             </div>
                         </div>
-                        
+
 
 
                         <div className="md:grid-cols-3 gap-6 ">
@@ -498,12 +498,15 @@ const ViewEspacio = ({ }) => {
                                                     <p>
 
                                                         <button
-                                                        type='button'
-                                                            onClick={() => openMap(subSpace.gpsPosition)}
                                                             className="text-blue-600 underline"
+                                                            onClick={() => window.open(
+                                                                `https://www.google.com/maps?q=${selectedPosition.latitude},${selectedPosition.longitude}&z=15`,
+                                                                "_blank"
+                                                            )}
                                                         >
-                                                            Ver posición
+                                                            Ver Posición
                                                         </button>
+
                                                     </p>
                                                     <div>
                                                         <label className="block text-sm font-medium mt-5">Nombre subespacio</label>
@@ -601,31 +604,31 @@ const ViewEspacio = ({ }) => {
                                                         </div>
                                                     </div>
                                                     {Array.isArray(subSpace.configureMeasurementControls) && subSpace.configureMeasurementControls.length > 0 ? (
-                                <div className="space-y-4 mb-9 mt-5 ">
-                                    <div className="grid grid-cols- gap-4 border border-gray-200">
-                                        {subSpace.configureMeasurementControls.map((control, controlIndex) => (
-                                            <div
-                                                key={controlIndex}
-                                                className="bg-slate-50 shadow-md flex items-center gap-4 border-gray-200  relative"
+                                                        <div className="space-y-4 mb-9 mt-5 ">
+                                                            <div className="grid grid-cols- gap-4 border border-gray-200">
+                                                                {subSpace.configureMeasurementControls.map((control, controlIndex) => (
+                                                                    <div
+                                                                        key={controlIndex}
+                                                                        className="bg-slate-50 shadow-md flex items-center gap-4 border-gray-200  relative"
 
-                                                style={{ height: "169px" }}
-                                            >
-                                                <div className="w-60">
-                                                    <img
-                                                        src={control.variable_production.icon}
-                                                        alt={control.variable_production.name}
-                                                        className="rounded-lg object-contain h-full"
-                                                    />
-                                                </div>
+                                                                        style={{ height: "169px" }}
+                                                                    >
+                                                                        <div className="w-60">
+                                                                            <img
+                                                                                src={control.variable_production.icon}
+                                                                                alt={control.variable_production.name}
+                                                                                className="rounded-lg object-contain h-full"
+                                                                            />
+                                                                        </div>
 
-                                                <div>
-                                                    <p className="text-lg font-semibold">{control.variable_production.name}</p>
-                                                    <p className="text-sm text-gray-600">Medición: {control.measurementType}</p>
-                                                    <p className="text-sm text-gray-600">Sensor: {control.sensor?.sensorCode}</p>
-                                                    <p className="text-sm text-gray-600">Control: {control.controlType}</p>
-                                                    <p className="text-sm text-gray-600">Actuador: {control.actuator.actuatorCode}</p>
-                                                </div>
-                                                {/* <div className="absolute top-2 right-2 flex gap-2">
+                                                                        <div>
+                                                                            <p className="text-lg font-semibold">{control.variable_production.name}</p>
+                                                                            <p className="text-sm text-gray-600">Medición: {control.measurementType}</p>
+                                                                            <p className="text-sm text-gray-600">Sensor: {control.sensor?.sensorCode}</p>
+                                                                            <p className="text-sm text-gray-600">Control: {control.controlType}</p>
+                                                                            <p className="text-sm text-gray-600">Actuador: {control.actuator.actuatorCode}</p>
+                                                                        </div>
+                                                                        {/* <div className="absolute top-2 right-2 flex gap-2">
                                                                                 <Edit size={18}
                                                                                     className=" text-[#168C0DFF] cursor-pointer "
                                                                                     onClick={() => handleOpenModal(control, 'edit')}
@@ -635,13 +638,13 @@ const ViewEspacio = ({ }) => {
                                                                                     onClick={() => handleDeleteClick(index)}
                                                                                 />
                                                                             </div> */}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : (
-                                <p className="text-center text-gray-500 col-span-2">No hay controles de medición configurados.</p>
-                            )}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-center text-gray-500 col-span-2">No hay controles de medición configurados.</p>
+                                                    )}
                                                 </div>
 
                                             ) : (
@@ -653,38 +656,28 @@ const ViewEspacio = ({ }) => {
                                                     <p>
 
                                                         <button
-                                                            onClick={() => openMap(subSpace.gpsPosition)}
                                                             className="text-blue-600 underline"
+                                                            onClick={() => window.open(
+                                                                `https://www.google.com/maps?q=${selectedPosition.latitude},${selectedPosition.longitude}&z=15`,
+                                                                "_blank"
+                                                            )}
                                                         >
-                                                            Ver posición
+                                                            Ver Posición
                                                         </button>
+
                                                     </p>
                                                 </>
                                             )}
                                         </div>
                                     ))}
 
-                                    {selectedPosition && (
-                                        <div className="justify-start col-span-1">
-                                            {/* Botón para cerrar el mapa */}
-                                            <button
-                                                onClick={() => setSelectedPosition(null)}
-                                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg hover:bg-red-600"
-                                                title="Cerrar mapa"
-                                            >
-                                                &times;
-                                            </button>
-                                            <iframe
-                                                src={`https://www.google.com/maps?q=${selectedPosition.latitude},${selectedPosition.longitude}&z=15&output=embed`}
-                                                width="100%"
-                                                height="300"
-                                                style={{ border: 0 }}
-                                                allowFullScreen=""
-                                                loading="lazy"
-                                                title="Mapa"
-                                            ></iframe>
-                                        </div>
-                                    )}
+                                    {/* {selectedPosition && window.open(
+    `https://www.google.com/maps?q=${selectedPosition.latitude},${selectedPosition.longitude}&z=15`,
+    "_blank"
+)} */}
+
+
+
                                 </div>
 
                                 {/* Botones de editar y eliminar */}
@@ -696,7 +689,7 @@ const ViewEspacio = ({ }) => {
                                         >
                                             <FaTrash /> {/* Icono de eliminar */}
                                         </button>
-                                       
+
                                     </div>
                                 )}
                             </div>
@@ -726,7 +719,7 @@ const ViewEspacio = ({ }) => {
                 </GenericModal>
             )}
         </form>
-        
+
     );
 
 };
