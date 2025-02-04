@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { IoCloudUploadOutline } from "react-icons/io5";
 import LoteService from "../../services/lotesService";
+import ReporteService from "../../services/LoteSeguimiento";
 import { useParams } from "react-router-dom";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
@@ -90,6 +91,41 @@ const Lotes = () => {
 
     fetchLotes();
   }, [selectedCompanyUniversal]);
+  useEffect(() => {
+    const fetchReportesSeguimiento = async () => {
+      try {
+        // Obtener reportes de seguimiento
+        const reportes = await ReporteService.getAllReporte(0,{});
+  
+        console.log ('reportes', reportes)
+        const reportesPorEspecie = reportes.reduce((acc, reporte) => {
+          const especieId = reporte.specieId;
+          if (!acc[especieId]) {
+            acc[especieId] = [];
+          }
+          acc[especieId].push({
+            variableName: reporte.variableName,
+            weightAmount: reporte.weightAmount,
+            updateDate: reporte.updateDate,
+          });
+          return acc;
+        }, {});
+  
+        // Asignar los reportes a cada especie
+        setEspecies((prevEspecies) =>
+          prevEspecies.map((especie) => ({
+            ...especie,
+            reportesSeguimiento: reportesPorEspecie[especie.id] || [],
+          }))
+        );
+      } catch (error) {
+        console.error("Error al obtener reportes de seguimiento:", error);
+      }
+    };
+  
+    fetchReportesSeguimiento();
+  }, [0,{}]);
+  
 
   const getRemainingDays = (endDate) => {
     const currentDate = new Date();
@@ -269,6 +305,9 @@ const Lotes = () => {
     setItemsPerPage(Number(event.target.value));
     setCurrentPage(1);
   };
+  // console.log("productoLoSpecies:", loteList.productoLoSpecies);
+
+
   return (
     <div className="table-container containerEmporesa">
       <div className="mb-5">
@@ -420,16 +459,42 @@ const Lotes = () => {
               </div>
 
               <div
-                className={`mt-2 overflow-hidden transition-all duration-800 ease-in-out ${expanded === especie.id ? 'max-h-screen' : 'max-h-0'}`}
-              >
-                {expanded === especie.id && (
-                  <>
-                    <p>Peso inicial: {especie.initialWeight} kg</p>
-                    <p>Fecha de ingreso: {especie.entryDate}</p>
-                    <p>Otra información relevante...</p>
-                  </>
-                )}
-              </div>
+  className={`mt-2 overflow-hidden transition-all duration-800 ease-in-out ${expanded === especie.id ? 'max-h-screen' : 'max-h-0'}`}
+>
+  {expanded === especie.id && (
+    <>
+      <p>Etapa: {especie.initialWeight} </p>
+      <p>Peso inicial: {especie.initialWeight} kg</p>
+
+      {/* Verifica si la especie fue rechazada */}
+      {especie.rejected && (
+        <p className="text-red-600 font-medium mt-2">
+          Razón de rechazo: {especie.rejectionReason}
+        </p>
+      )}
+
+      {/* Verifica si hay reportes de seguimiento */}
+      {especie.reportesSeguimiento && especie.reportesSeguimiento.length > 0 ? (
+        <>
+          <h4 className="mt-2 font-bold">Reportes de seguimiento:</h4>
+          <ul>
+            {especie.reportesSeguimiento.map((reporte, index) => (
+              <li key={index} className="mt-1">
+                <strong>Variable:</strong> {reporte.variableName} <br />
+                <strong>Cantidad:</strong> {reporte.weightAmount} <br />
+                <strong>Última fecha:</strong> {new Date(reporte.updateDate).toLocaleDateString()}
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <p>No hay reportes de seguimiento disponibles.</p>
+      )}
+    </>
+  )}
+</div>
+
+
             </div>
           ))}
         </div>
