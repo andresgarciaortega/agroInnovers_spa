@@ -479,6 +479,12 @@ const CrearEspacio = () => {
   };
 
   const handleAddVariable = (type, index) => {
+
+    if (selectedVariable && !selectedVariables.includes(selectedVariable)) {
+      setSelectedVariables([...selectedVariables, selectedVariable]);
+    }
+
+    
     if (type === 'main') {
       setSelectedVariables((prev) => ({
         ...prev,
