@@ -69,8 +69,7 @@ const EditarEspacio = ({ }) => {
     useEffect(() => {
         fetchSpace();
         feychMonitoring();
-        feychActuador();
-        feychSensor();
+        feychSensor(0, {});
     }, []);
 
     const fetchSpace = async () => {
@@ -106,7 +105,7 @@ const EditarEspacio = ({ }) => {
     const feychSensor = async () => {
         console.log('id', id)
         try {
-            const data = await SensorService.getAllSensor();
+            const data = await SensorService.getAllSensor(0, {});
             setSensor(data);
 
             // setNewCompany(data)
@@ -118,7 +117,8 @@ const EditarEspacio = ({ }) => {
     const feychActuador = async () => {
         console.log('id', id)
         try {
-            const data = await ActuadorService.getAllActuador();
+            const data = await ActuadorService.getAllActuador(0,{});
+
             setActuador(data);
 
             // setNewCompany(data)
@@ -126,6 +126,8 @@ const EditarEspacio = ({ }) => {
         } catch (error) {
             console.error('Error fetching actuadores:', error);
         }
+        feychActuador(0, {});
+
     };
 
     useEffect(() => {

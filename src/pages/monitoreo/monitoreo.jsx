@@ -50,6 +50,7 @@ const Monitoreo = () => {
     claveAcceso: '',
     unidadSincronizacion: '',
     frecuenciaSincronizacion: '',
+    productionSpaces: [],
 
   });
 
@@ -267,7 +268,9 @@ const Monitoreo = () => {
     }
   };
 
-
+  const handleEditMonitoreo = (monitoreo) => {
+    navigate(`../visualizarMonitoreo/${monitoreo.id}`);
+  };
 
   return (
     <div className="table-container containerEmporesa">
@@ -344,7 +347,7 @@ const Monitoreo = () => {
                   <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
                   <td className="px-6 py-4 text-sm font-medium">
                     <button className=" text-[#168C0DFF] px-2 py-2 rounded">
-                      <Eye size={18} onClick={() => navigate('../visualizarMonitoreo')} />
+                      <Eye size={18} onClick={() => handleEditMonitoreo(monitoreo)} />
                     </button>
                     <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(monitoreo, 'edit')}>
                       <Edit size={18} />
