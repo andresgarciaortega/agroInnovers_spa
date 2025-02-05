@@ -28,25 +28,25 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
     useEffect(() => {
         const fetchSensors = async () => {
             try {
-                const data = await SensorService.getAllSensor();
+                const data = await SensorService.getAllSensor(0, {});
                 setSensors(data);
             } catch (error) {
                 console.error('Error fetching sensors:', error);
             }
         };
-        fetchSensors();
+        fetchSensors(0, {});
     }, []);
 
     useEffect(() => {
         const fetchActuators = async () => {
             try {
-                const data = await ActuadorService.getAllActuador();
+                const data = await ActuadorService.getAllActuador(0, {});
                 setActuators(data);
             } catch (error) {
                 console.error('Error fetching actuators:', error);
             }
         };
-        fetchActuators();
+        fetchActuators(0, {});
     }, []);
 
     useEffect(() => {
@@ -77,33 +77,33 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
         setFormData({ ...formData, [name]: value });
     };
 
-    // const handleModeChange = (modeType, value) => {
-    //     setFormData({ ...formData, [modeType]: value });
-    //     console.log("modeType : ", value)
-    //     if (value === 'automatico') {
-    //         if (modeType === 'measurementType') {
-    //             setFormData({
-    //                 ...formData,
-    //                 measurementType: value,
-    //                 measurementType: '',
-    //                 sensorId: '',
-    //                 samplingTimeUnit: '',
-    //                 samplingFrequency: '',
-    //                 numberOfSamples: '',
-    //             });
-    //         } else if (modeType === 'controlType') {
-    //             setFormData({
-    //                 ...formData,
-    //                 controlType: value,
-    //                 controlType: '',
-    //                 actuatorId: '',
-    //                 actuationTimeUnit: '',
-    //                 activationParameterRange: '',
-    //                 activationFrequency: '',
-    //             });
-    //         }
-    //     }
-    // };
+    const handleModeChange = (modeType, value) => {
+        setFormData({ ...formData, [modeType]: value });
+        console.log("modeType : ", value)
+        if (value === 'automatico') {
+            if (modeType === 'measurementType') {
+                setFormData({
+                    ...formData,
+                    measurementType: value,
+                    measurementType: '',
+                    sensorId: '',
+                    samplingTimeUnit: '',
+                    samplingFrequency: '',
+                    numberOfSamples: '',
+                });
+            } else if (modeType === 'controlType') {
+                setFormData({
+                    ...formData,
+                    controlType: value,
+                    controlType: '',
+                    actuatorId: '',
+                    actuationTimeUnit: '',
+                    activationParameterRange: '',
+                    activationFrequency: '',
+                });
+            }
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();

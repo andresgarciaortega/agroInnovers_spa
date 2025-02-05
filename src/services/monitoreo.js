@@ -11,7 +11,16 @@ const SystemMonitory = {
             const response = await api.get(`/sistemas?page=1&limit=100&company=${idcompany}`);
             return response.data;
         } catch (error) {
-            console.error('Error al obtener los tipos de variable:', error);
+            console.error('Error al obtener los sistemas:', error);
+            throw error;
+        }
+    },
+    async getMotitoriesById(id) {
+        try {
+            const response = await api.get(`/sistemas/${id}`);
+            return response;
+        } catch (error) {
+            console.error('Error al obtener los sistemas:', error);
             throw error;
         }
     },

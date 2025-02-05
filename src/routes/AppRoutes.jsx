@@ -60,7 +60,7 @@ const AppRoutes = () => {
         <Route path="visualizarCategoria/:id" element={<VisualizarCategoria/>} />
         <Route path="especies" element={<Especies />} />
         <Route path="monitoreo" element={<Monitoreo />} />
-        <Route path="visualizarMonitoreo" element={<VisualizarMonitoreo />} />
+        <Route path="visualizarMonitoreo/:id" element={<VisualizarMonitoreo />} />
         <Route path="tipos" element={<Tipos />} />
         <Route path="sensor" element={<Sensores />} />
         <Route path="actuador" element={<Actuadores />} />
