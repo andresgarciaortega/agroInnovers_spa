@@ -353,7 +353,7 @@ const Variable = () => {
       {/* Modalcrear-editar-visualizar*/}
       {isModalOpen && (
         <GenericModal
-          title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver Cariable' : 'Añadir Variable'}
+          title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver variable' : 'Añadir Variable'}
           onClose={closeModal}
 
           companyId={selectedCompany} >

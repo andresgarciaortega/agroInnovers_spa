@@ -57,7 +57,7 @@ const CrearListas = () => {
     max_limit: '',
   });
   const [stages, setStages] = useState([
-    { id: 1, description: '', time_to_production: 0, parameters: [] },
+    // { id: 1, description: '', time_to_production: 0, parameters: [] },
   ]);
 
 
@@ -172,21 +172,30 @@ const CrearListas = () => {
   };
 
   const handleOpenModal = (stageId) => {
-    // Asegúrate de que estás accediendo correctamente al estado 'stage'
-    const selectedStage = stages?.find((s) => s.id === stageId); // Usamos "stage?" para evitar errores si es undefined
-
-    if (!selectedStage) {
-      console.error("No se encontró la etapa con ID:", stageId);
-      return;
+    const stage = stages.find(stage => stage.id === stageId);
+    if (!stage.parameters) {
+      stage.parameters = [];
     }
-
-    if (!selectedStage.parameters) {
-      selectedStage.parameters = [];
-    }
-
-    setCurrentStageId(stageId);
+    setSelectedStageId(stageId);
     setIsModalOpen(true);
   };
+
+  // const handleOpenModal = (stageId) => {
+  //   // Asegúrate de que estás accediendo correctamente al estado 'stage'
+  //   const selectedStage = stages?.find((s) => s.id === stageId); // Usamos "stage?" para evitar errores si es undefined
+
+  //   if (!selectedStage) {
+  //     console.error("No se encontró la etapa con ID:", stageId);
+  //     return;
+  //   }
+
+  //   if (!selectedStage.parameters) {
+  //     selectedStage.parameters = [];
+  //   }
+
+  //   setCurrentStageId(stageId);
+  //   setIsModalOpen(true);
+  // };
 
 
 
@@ -226,147 +235,63 @@ const CrearListas = () => {
   };
 
   const handleSaveParameter = () => {
-    setFieldErrors({
-      min_normal_value: '',
-      max_normal_value: '',
-      min_limit: '',
-      max_limit: '',
-      variable: '',
-    });
-    let hasError = false;
+    // Validar que todos los campos estén llenos
+    let errors = {};
 
-    // Validar si los campos están vacíos
-    if (!newParameter.variable) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        variable: 'El campo Variable no puede estar vacío.',
-      }));
-      hasError = true;
+    if (!newParameter.variable) errors.variable = "Debe seleccionar una variable";
+    if (!newParameter.min_normal_value) errors.min_normal_value = "Campo requerido";
+    if (!newParameter.max_normal_value) errors.max_normal_value = "Campo requerido";
+    if (!newParameter.min_limit) errors.min_limit = "Campo requerido";
+    if (!newParameter.max_limit) errors.max_limit = "Campo requerido";
+
+    if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        return;
     }
 
-    if (!newParameter.min_normal_value) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        min_normal_value: 'El campo Valor mínimo normal no puede estar vacío.',
-      }));
-      hasError = true;
-    }
+    // Crear el nuevo parámetro
+    const parameterToAdd = {
+        id: Date.now(), // Generar un ID temporal
+        variable: variables.find(v => v.id === newParameter.variable) || { name: "Desconocido" },
+        min_normal_value: newParameter.min_normal_value,
+        max_normal_value: newParameter.max_normal_value,
+        min_limit: newParameter.min_limit,
+        max_limit: newParameter.max_limit
+    };
 
-    if (!newParameter.max_normal_value) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        max_normal_value: 'El campo Valor máximo normal no puede estar vacío.',
-      }));
-      hasError = true;
-    }
-
-    if (!newParameter.min_limit) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        min_limit: 'El campo Límite mínimo no puede estar vacío.',
-      }));
-      hasError = true;
-    }
-
-    if (!newParameter.max_limit) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        max_limit: 'El campo Límite máximo no puede estar vacío.',
-      }));
-      hasError = true;
-    }
-
-    // Validar que el valor mínimo no sea mayor que el valor máximo
-    if (newParameter.min_normal_value > newParameter.max_normal_value) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        min_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
-        max_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
-      }));
-      hasError = true;
-    }
-
-    // Validar que el límite mínimo no sea mayor que el límite máximo
-    if (newParameter.min_limit > newParameter.max_limit) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        min_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
-        max_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
-      }));
-      hasError = true;
-    }
-
-    // Si hay un error, evitar continuar
-    if (hasError) {
-      return;
-    }
-
-    // Buscar la variable seleccionada
-    const selectedVariable = variables.find((v) => v.id === Number(newParameter.variable));
-    if (!selectedVariable) {
-      setErrorMessage("Variable seleccionada no encontrada.");
-      return;
-    }
-
-    let isDuplicate = false;
-
-    // Dentro de handleSaveParameter, después de actualizar los parámetros:
-    setFormData((prevFormData) => {
-      const updatedStages = prevFormData.stage.map((stage) => {
+    // Encontrar la etapa seleccionada
+    const updatedStages = formData.stage.map(stage => {
         if (stage.id === selectedStageId) {
-          // Si hay parámetros nuevos, agréguelos
-          if (selectedParameterIndex !== null) {
-            const updatedParameters = stage.parameters.map((param, paramIndex) => {
-              if (paramIndex === selectedParameterIndex) {
-                return {
-                  ...param,
-                  variable: selectedVariable,
-                  min_normal_value: newParameter.min_normal_value,
-                  max_normal_value: newParameter.max_normal_value,
-                  min_limit: newParameter.min_limit,
-                  max_limit: newParameter.max_limit,
-                };
-              }
-              return param;
-            });
-
-            return { ...stage, parameters: updatedParameters };
-          } else {
-            // Si no hay parámetros previos, añádelo a la lista de parámetros
             return {
-              ...stage,
-              parameters: [
-                ...(stage.parameters || []),
-                {
-                  ...newParameter,
-                  variable: selectedVariable,
-                },
-              ],
+                ...stage,
+                parameters: [...(stage.parameters || []), parameterToAdd]
             };
-          }
         }
         return stage;
-      });
-
-      return { ...prevFormData, stage: updatedStages };
     });
 
+    // Actualizar el estado con los nuevos datos
+    setFormData(prevState => ({
+        ...prevState,
+        stage: updatedStages
+    }));
 
-    if (isDuplicate) {
-      setIsModalOpen(true);
-      return;
-    }
-
-    setIsModalOpen(false);
+    // Limpiar el estado del nuevo parámetro
     setNewParameter({
-      variable: '',
-      min_normal_value: '',
-      max_normal_value: '',
-      min_limit: '',
-      max_limit: '',
+        variable: "",
+        min_normal_value: "",
+        max_normal_value: "",
+        min_limit: "",
+        max_limit: ""
     });
-    setErrorMessage('');
-  };
+
+    // Limpiar errores
+    setFieldErrors({});
+
+    // Cerrar el modal
+    setIsModalOpen(false);
+};
+
 
 
 
@@ -766,7 +691,7 @@ const CrearListas = () => {
                               <label className="text-sm font-medium text-gray-700">Tiempo de Producción</label>
                               <input
                                 type="number"
-                                placeholder="Tiempo de producción"
+                                placeholder="Tiempo de producción en días"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                 value={stages[stageIndex]?.time_to_production || ''}
                                 onChange={(e) => handleStageChange(stageIndex, 'time_to_production', e.target.value)}
@@ -776,44 +701,30 @@ const CrearListas = () => {
                           </div>
 
                           <ul className="space-y-2 mt-4">
-                            {stage.parameters && stage.parameters.length > 0 && (
-                              <div className="mt-4">
-                                <div className="flex justify-between space-x-">
-                                  <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
-                                    Condiciones operación normal
-                                  </h4>
-                                  <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 py- w-full">
-                                    Condiciones operación Criticas
-                                  </h4>
-                                </div>
-                                <table className="min-w-full table-auto border-collapse">
-                                  <thead>
-                                    <tr className="bg-gray-200">
-                                      <th className="border px-4 py-2 font-bold">Variable</th>
-                                      <th className="border px-4 py-2 font-semibold">Mínimo</th>
-                                      <th className="border px-4 py-2 font-semibold">Máximo</th>
-                                      <th className="border px-4 py-2 font-semibold">Límite Mín</th>
-                                      <th className="border px-4 py-2 font-semibold">Límite Máx</th>
-                                      <th className="border px-4 py-2 font-semibold">Acciones</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {stage.parameters.map((param, paramIndex) => (
-                                      <tr key={paramIndex}>
-                                        <td className="border px-4 py-2">{param.variable.name}</td>
-                                        <td className="border px-4 py-2">{param.min_normal_value}</td>
-                                        <td className="border px-4 py-2">{param.max_normal_value}</td>
-                                        <td className="border px-4 py-2">{param.min_limit}</td>
-                                        <td className="border px-4 py-2">{param.max_limit}</td>
-                                        <td className="border px-4 py-2">
-                                          {/* Aquí puedes agregar botones para editar/eliminar parámetros */}
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            )}
+                          {stage.parameters?.length > 0 && (
+      <table>
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Mínimo</th>
+            <th>Máximo</th>
+            <th>Límite Mín</th>
+            <th>Límite Máx</th>
+          </tr>
+        </thead>
+        <tbody>
+          {stage.parameters.map((param, paramIndex) => (
+            <tr key={paramIndex}>
+              <td>{param.variable?.name || 'N/A'}</td>
+              <td>{param.min_normal_value}</td>
+              <td>{param.max_normal_value}</td>
+              <td>{param.min_limit}</td>
+              <td>{param.max_limit}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
                           </ul>
 
                         </div>

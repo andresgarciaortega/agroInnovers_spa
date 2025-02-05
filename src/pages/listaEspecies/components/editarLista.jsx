@@ -143,42 +143,6 @@ const EditarLista = () => {
         }
     };
 
-
-
-    // // Guardar parametros
-    // const handleSaveParameter = () => {
-    //     if (!newParameter.variable || !newParameter.variable.name) {
-    //         alert("Debes seleccionar una variable válida");
-    //         return;
-    //     }
-
-    //     setFormData((prevFormData) => {
-    //         const updatedStages = prevFormData.stage.map((stage) => {
-    //             if (stage.id === selectedStageId) {
-    //                 return {
-    //                     ...stage,
-    //                     parameters: [...(stage.parameters || []), { ...newParameter }],
-    //                 };
-    //             }
-    //             return stage;
-    //         });
-
-    //         console.log('Datos actualizados:', updatedStages);
-    //         return { ...prevFormData, stage: updatedStages };
-    //     });
-
-    //     setIsModalOpen(false);
-    //     setNewParameter({
-    //         variable: '',
-    //         min_normal_value: '',
-    //         max_normal_value: '',
-    //         min_limit: '',
-    //         max_limit: '',
-    //     });
-    // };
-
-    // Guardar parámetros
-
     const [selectedParameterIndex, setSelectedParameterIndex] = useState(null);
 
 
@@ -411,55 +375,7 @@ const EditarLista = () => {
         }
     };
 
-    const handleDeleteImage = () => {
-
-        setFormData({ ...formData, image: null });
-    };
-
-
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-
-        if (name === 'category') {
-            CategoryService.getSubcategories(value).then((data) => {
-                setSubcategories(data);
-            });
-        }
-    };
-
-    const handleAddStage = () => {
-        setStage([...stage, { name: '', description: '' }]);
-    };
-
-    const handleRemoveStage = (index) => {
-        setStage(stage.filter((_, i) => i !== index));
-    };
-
-    const handleStageChange = (index, field, value) => {
-        setStages((prevStages) =>
-            prevStages.map((stage, i) =>
-                i === index
-                    ? { ...stage, [field]: value }
-                    : stage
-            )
-        );
-    };
-
-    const handleVariableChange = (e) => {
-        const { value } = e.target;
-        setSelectedVariables(value);
-    };
-
-    const handleNextStep = () => {
-        setStep((prev) => prev + 1);
-    };
-
-    const handlePrevStep = () => {
-        setStep((prev) => prev - 1);
-    };
-
+  
     const handleOpenModal = (stageId) => {
         const stage = formData.stage.find(stage => stage.id === stageId);
         if (!stage.parameters) {
@@ -474,19 +390,6 @@ const EditarLista = () => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setNewParameter({ variable: '', min_normal_value: '', max_normal_value: '', min_limit: '', max_limit: '' });
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewParameter({
-            ...newParameter,
-            [name]: value
-        });
-    };
-
-
-    const handleGoBack = () => {
-        navigate('../listaEspecie');
     };
 
     const handleImageUpload = (e) => {
@@ -613,9 +516,9 @@ const EditarLista = () => {
             <div className="container mx-auto p-2">
                 <div className="bg-white rounded-lg shadow-xl p-6">
                     <div className="grid grid-cols-3 gap-4 mb-6">
-                        <div className="mb- py-">
-                            <label>Adjuntar Logo</label>
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
+                        <div className=" py-2">
+                            {/* <label>Adjuntar Logo</label> */}
+                            <div className="border-2 p-2 border-dashed border-gray-300 rounded-lg  text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
                                 {imagePreview ? (
                                     <img src={imagePreview} alt="Logo" className="mx-auto h-20 object-contain" />
                                 ) : (
@@ -628,7 +531,7 @@ const EditarLista = () => {
                                     </>
                                 )}
                             </div>
-                            <input id="logo-upload" type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                            <input id="logo-upload" type="file" className="hidden " onChange={handleImageUpload} accept="image/*" />
                         </div>
                         <div className="flex flex-col justify-center">
                             <div className="mb-2">
@@ -801,7 +704,7 @@ const EditarLista = () => {
 
                             Cancelar
                         </button>
-                        <button type="submit" className="btn btn-primary">Guardar</button>
+                        <button type="submit" className="bg-[#168C0DFF]  text-white px-4 py-2 rounded border border-white">Guardar</button>
                     </div>
                 </div>
             </div>
