@@ -174,19 +174,19 @@ const CrearListas = () => {
   const handleOpenModal = (stageId) => {
     // Asegúrate de que estás accediendo correctamente al estado 'stage'
     const selectedStage = stages?.find((s) => s.id === stageId); // Usamos "stage?" para evitar errores si es undefined
-    
+
     if (!selectedStage) {
-        console.error("No se encontró la etapa con ID:", stageId);
-        return;
+      console.error("No se encontró la etapa con ID:", stageId);
+      return;
     }
 
     if (!selectedStage.parameters) {
-        selectedStage.parameters = [];
+      selectedStage.parameters = [];
     }
 
     setCurrentStageId(stageId);
     setIsModalOpen(true);
-};
+  };
 
 
 
@@ -227,146 +227,146 @@ const CrearListas = () => {
 
   const handleSaveParameter = () => {
     setFieldErrors({
-        min_normal_value: '',
-        max_normal_value: '',
-        min_limit: '',
-        max_limit: '',
-        variable: '',
+      min_normal_value: '',
+      max_normal_value: '',
+      min_limit: '',
+      max_limit: '',
+      variable: '',
     });
     let hasError = false;
 
     // Validar si los campos están vacíos
     if (!newParameter.variable) {
-        setFieldErrors((prevErrors) => ({
-            ...prevErrors,
-            variable: 'El campo Variable no puede estar vacío.',
-        }));
-        hasError = true;
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        variable: 'El campo Variable no puede estar vacío.',
+      }));
+      hasError = true;
     }
 
     if (!newParameter.min_normal_value) {
-        setFieldErrors((prevErrors) => ({
-            ...prevErrors,
-            min_normal_value: 'El campo Valor mínimo normal no puede estar vacío.',
-        }));
-        hasError = true;
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_normal_value: 'El campo Valor mínimo normal no puede estar vacío.',
+      }));
+      hasError = true;
     }
 
     if (!newParameter.max_normal_value) {
-        setFieldErrors((prevErrors) => ({
-            ...prevErrors,
-            max_normal_value: 'El campo Valor máximo normal no puede estar vacío.',
-        }));
-        hasError = true;
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        max_normal_value: 'El campo Valor máximo normal no puede estar vacío.',
+      }));
+      hasError = true;
     }
 
     if (!newParameter.min_limit) {
-        setFieldErrors((prevErrors) => ({
-            ...prevErrors,
-            min_limit: 'El campo Límite mínimo no puede estar vacío.',
-        }));
-        hasError = true;
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_limit: 'El campo Límite mínimo no puede estar vacío.',
+      }));
+      hasError = true;
     }
 
     if (!newParameter.max_limit) {
-        setFieldErrors((prevErrors) => ({
-            ...prevErrors,
-            max_limit: 'El campo Límite máximo no puede estar vacío.',
-        }));
-        hasError = true;
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        max_limit: 'El campo Límite máximo no puede estar vacío.',
+      }));
+      hasError = true;
     }
 
     // Validar que el valor mínimo no sea mayor que el valor máximo
     if (newParameter.min_normal_value > newParameter.max_normal_value) {
-        setFieldErrors((prevErrors) => ({
-            ...prevErrors,
-            min_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
-            max_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
-        }));
-        hasError = true;
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
+        max_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
+      }));
+      hasError = true;
     }
 
     // Validar que el límite mínimo no sea mayor que el límite máximo
     if (newParameter.min_limit > newParameter.max_limit) {
-        setFieldErrors((prevErrors) => ({
-            ...prevErrors,
-            min_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
-            max_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
-        }));
-        hasError = true;
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
+        max_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
+      }));
+      hasError = true;
     }
 
     // Si hay un error, evitar continuar
     if (hasError) {
-        return;
+      return;
     }
 
     // Buscar la variable seleccionada
     const selectedVariable = variables.find((v) => v.id === Number(newParameter.variable));
     if (!selectedVariable) {
-        setErrorMessage("Variable seleccionada no encontrada.");
-        return;
+      setErrorMessage("Variable seleccionada no encontrada.");
+      return;
     }
 
     let isDuplicate = false;
 
     // Dentro de handleSaveParameter, después de actualizar los parámetros:
-setFormData((prevFormData) => {
-    const updatedStages = prevFormData.stage.map((stage) => {
+    setFormData((prevFormData) => {
+      const updatedStages = prevFormData.stage.map((stage) => {
         if (stage.id === selectedStageId) {
-            // Si hay parámetros nuevos, agréguelos
-            if (selectedParameterIndex !== null) {
-                const updatedParameters = stage.parameters.map((param, paramIndex) => {
-                    if (paramIndex === selectedParameterIndex) {
-                        return {
-                            ...param,
-                            variable: selectedVariable,
-                            min_normal_value: newParameter.min_normal_value,
-                            max_normal_value: newParameter.max_normal_value,
-                            min_limit: newParameter.min_limit,
-                            max_limit: newParameter.max_limit,
-                        };
-                    }
-                    return param;
-                });
-
-                return { ...stage, parameters: updatedParameters };
-            } else {
-                // Si no hay parámetros previos, añádelo a la lista de parámetros
+          // Si hay parámetros nuevos, agréguelos
+          if (selectedParameterIndex !== null) {
+            const updatedParameters = stage.parameters.map((param, paramIndex) => {
+              if (paramIndex === selectedParameterIndex) {
                 return {
-                    ...stage,
-                    parameters: [
-                        ...(stage.parameters || []),
-                        {
-                            ...newParameter,
-                            variable: selectedVariable,
-                        },
-                    ],
+                  ...param,
+                  variable: selectedVariable,
+                  min_normal_value: newParameter.min_normal_value,
+                  max_normal_value: newParameter.max_normal_value,
+                  min_limit: newParameter.min_limit,
+                  max_limit: newParameter.max_limit,
                 };
-            }
+              }
+              return param;
+            });
+
+            return { ...stage, parameters: updatedParameters };
+          } else {
+            // Si no hay parámetros previos, añádelo a la lista de parámetros
+            return {
+              ...stage,
+              parameters: [
+                ...(stage.parameters || []),
+                {
+                  ...newParameter,
+                  variable: selectedVariable,
+                },
+              ],
+            };
+          }
         }
         return stage;
-    });
+      });
 
-    return { ...prevFormData, stage: updatedStages };
-});
+      return { ...prevFormData, stage: updatedStages };
+    });
 
 
     if (isDuplicate) {
-        setIsModalOpen(true);
-        return;
+      setIsModalOpen(true);
+      return;
     }
 
     setIsModalOpen(false);
     setNewParameter({
-        variable: '',
-        min_normal_value: '',
-        max_normal_value: '',
-        min_limit: '',
-        max_limit: '',
+      variable: '',
+      min_normal_value: '',
+      max_normal_value: '',
+      min_limit: '',
+      max_limit: '',
     });
     setErrorMessage('');
-};
+  };
 
 
 
@@ -461,17 +461,17 @@ setFormData((prevFormData) => {
   //   setStages(updatedStages);
   // };
 
- const handleParameterChange = (e, field) => {
-  const value = e.target.value;
+  const handleParameterChange = (e, field) => {
+    const value = e.target.value;
 
-  setNewParameter((prev) => ({
-    ...prev,
-    [field]: field === 'variable' ? [value] : value,
-  }));
+    setNewParameter((prev) => ({
+      ...prev,
+      [field]: field === 'variable' ? [value] : value,
+    }));
 
-  console.log("newParameter 1: ", formData)
-  console.log("newParameter : ", newParameter)
-};
+    console.log("newParameter 1: ", formData)
+    console.log("newParameter : ", newParameter)
+  };
 
   const addParameterToStage = (stageIndex) => {
     const updatedStages = [...stages];
@@ -776,45 +776,45 @@ setFormData((prevFormData) => {
                           </div>
 
                           <ul className="space-y-2 mt-4">
-    {stage.parameters && stage.parameters.length > 0 && (
-        <div className="mt-4">
-            <div className="flex justify-between space-x-">
-                <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
-                    Condiciones operación normal
-                </h4>
-                <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 py- w-full">
-                    Condiciones operación Criticas
-                </h4>
-            </div>
-            <table className="min-w-full table-auto border-collapse">
-                <thead>
-                    <tr className="bg-gray-200">
-                        <th className="border px-4 py-2 font-bold">Variable</th>
-                        <th className="border px-4 py-2 font-semibold">Mínimo</th>
-                        <th className="border px-4 py-2 font-semibold">Máximo</th>
-                        <th className="border px-4 py-2 font-semibold">Límite Mín</th>
-                        <th className="border px-4 py-2 font-semibold">Límite Máx</th>
-                        <th className="border px-4 py-2 font-semibold">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {stage.parameters.map((param, paramIndex) => (
-                        <tr key={paramIndex}>
-                            <td className="border px-4 py-2">{param.variable.name}</td>
-                            <td className="border px-4 py-2">{param.min_normal_value}</td>
-                            <td className="border px-4 py-2">{param.max_normal_value}</td>
-                            <td className="border px-4 py-2">{param.min_limit}</td>
-                            <td className="border px-4 py-2">{param.max_limit}</td>
-                            <td className="border px-4 py-2">
-                                {/* Aquí puedes agregar botones para editar/eliminar parámetros */}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    )}
-</ul>
+                            {stage.parameters && stage.parameters.length > 0 && (
+                              <div className="mt-4">
+                                <div className="flex justify-between space-x-">
+                                  <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
+                                    Condiciones operación normal
+                                  </h4>
+                                  <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 py- w-full">
+                                    Condiciones operación Criticas
+                                  </h4>
+                                </div>
+                                <table className="min-w-full table-auto border-collapse">
+                                  <thead>
+                                    <tr className="bg-gray-200">
+                                      <th className="border px-4 py-2 font-bold">Variable</th>
+                                      <th className="border px-4 py-2 font-semibold">Mínimo</th>
+                                      <th className="border px-4 py-2 font-semibold">Máximo</th>
+                                      <th className="border px-4 py-2 font-semibold">Límite Mín</th>
+                                      <th className="border px-4 py-2 font-semibold">Límite Máx</th>
+                                      <th className="border px-4 py-2 font-semibold">Acciones</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {stage.parameters.map((param, paramIndex) => (
+                                      <tr key={paramIndex}>
+                                        <td className="border px-4 py-2">{param.variable.name}</td>
+                                        <td className="border px-4 py-2">{param.min_normal_value}</td>
+                                        <td className="border px-4 py-2">{param.max_normal_value}</td>
+                                        <td className="border px-4 py-2">{param.min_limit}</td>
+                                        <td className="border px-4 py-2">{param.max_limit}</td>
+                                        <td className="border px-4 py-2">
+                                          {/* Aquí puedes agregar botones para editar/eliminar parámetros */}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+                          </ul>
 
                         </div>
                       ))}
