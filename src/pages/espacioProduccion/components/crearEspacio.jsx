@@ -479,18 +479,15 @@ const CrearEspacio = () => {
   };
 
   const handleAddVariable = (type, index) => {
-
-    if (selectedVariable && !selectedVariables.includes(selectedVariable)) {
-      setSelectedVariables([...selectedVariables, selectedVariable]);
-    }
-
-    
+    console.log("selectedVariableId :::::::::", selectedVariables.main)
     if (type === 'main') {
+      let data= []
+      data.push(selectedVariables.main)
       setSelectedVariables((prev) => ({
         ...prev,
-        subspaces: [...(prev.subspaces || []), nuevaVariable], // Si prev.subspaces es undefined, usa un arreglo vacío
+        main: [...prev, data], // Agrega nuevaVariable al arreglo main
       }));
-
+      console.log("selectedVariables == ", selectedVariables);
 
     } else {
       // Agregar variable al subespacio correspondiente
@@ -504,8 +501,12 @@ const CrearEspacio = () => {
     }
   };
 
-  const handleVariableChangeForSubspace = (index, variable) => {
 
+
+
+
+  
+  const handleVariableChangeForSubspace = (index, variable) => {
   };
 
 
@@ -623,6 +624,7 @@ const CrearEspacio = () => {
   };
 
   const handleVariableChange = (space, variableId) => {
+
     if (space === "main") {
       setSelectedVariables((prev) => ({
         ...prev,
@@ -1370,7 +1372,7 @@ const CrearEspacio = () => {
                     <div>
                       <button
                         type="button"
-                        onClick={handleAddVariable}
+                        onClick={() => handleAddVariable('main')} // Pasar 'main' como tipo
                         className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
                       >
                         <FiPlusCircle />
