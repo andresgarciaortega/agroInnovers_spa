@@ -315,7 +315,7 @@ const TipoVariable = () => {
           {/* Modaeliminación */}
           {isDeleteModalOpen && (
             <Delete
-              message={`¿Seguro que desea eliminar el usuario ${selectedTypeVariable?.name}?`}
+              message={`¿Seguro que desea eliminar el Tipo de variable ${selectedTypeVariable?.name}?`}
               onCancel={handleCancelDelete}
               onConfirm={handleConfirmDelete}
             />

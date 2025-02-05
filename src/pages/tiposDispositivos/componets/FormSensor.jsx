@@ -302,13 +302,13 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
 
     const handleAddPoint = () => {
         const { value, normalResponse } = formData;
-    
+
         // Validación para evitar agregar elementos vacíos
         if (!value || !normalResponse) {
             alert('Por favor, completa ambos campos antes de agregar.');
             return;
         }
-    
+
         setFormData((prev) => ({
             ...prev,
             calibrationPoints: [
@@ -316,7 +316,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                 { value: value.trim(), normalResponse: normalResponse.trim() }
             ]
         }));
-    
+
         // Limpiar los campos después de actualizar el estado
         setTimeout(() => {
             setFormData((prev) => ({
@@ -337,7 +337,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
     useEffect(() => {
         console.log(formData.calibrationPoints); // Verifica el estado en cada renderizado
     }, [formData.calibrationPoints]);
-    
+
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-800">
@@ -775,7 +775,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                         <div className="flex justify-between items-center p-6 border-b">
 
                             <h2 className="text-xl font-semibold">Punto de calibración</h2>
-                           
+
 
                         </div>
                         <div className="grid grid-cols-3 gap-4">
@@ -812,52 +812,52 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                             <div className='px-3 py-3'>
                                 <label className="block text-sm font-medium text-white"> .</label>
                                 <button
-                                type="button"
-                                onClick={handleAddPoint}
-                                className="mb-2 inline-flex items-center px-5 py-3 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                    type="button"
+                                    onClick={handleAddPoint}
+                                    className="mb-2 inline-flex items-center px-5 py-3 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
 
-                            >
-                                Agregar
-                            </button>
+                                >
+                                    Agregar
+                                </button>
                             </div>
-                           
+
                         </div>
                         <table className="min-w-full table-auto border-collapse mb-4 mt-4">
-    <thead>
-        <tr className="bg-gray-200">
-            <th className="border px-4 py-2 font-semibold">Valor</th>
-            <th className="border px-4 py-2 font-semibold">Respuesta</th>
-            <th className="border px-4 py-2 font-semibold">Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-         {formData.calibrationPoints.length > 0 &&
-           formData.calibrationPoints.map((param, index) => (
-             param.value && param.normalResponse ? (  // Evita renderizar objetos vacíos
-               <tr key={index}>
-                 <td className="border px-4 py-2">{param.value}</td>
-                 <td className="border px-4 py-2">{param.normalResponse}</td>
-                 <td className="border px-4 py-2">
-                   <button
-                     type="button"
-                     onClick={() => handleDeletePoint(index)}
-                     className="text-red-500 hover:text-red-700 px-2 py-2 rounded"
-                   >
-                     <Trash size={20} />
-                   </button>
-                 </td>
-               </tr>
-             ) : null
-           ))}
-    </tbody>
-</table>
+                            <thead>
+                                <tr className="bg-gray-200">
+                                    <th className="border px-4 py-2 font-semibold">Valor</th>
+                                    <th className="border px-4 py-2 font-semibold">Respuesta</th>
+                                    <th className="border px-4 py-2 font-semibold">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {formData.calibrationPoints.length > 0 &&
+                                    formData.calibrationPoints.map((param, index) => (
+                                        param.value && param.normalResponse ? (  // Evita renderizar objetos vacíos
+                                            <tr key={index}>
+                                                <td className="border px-4 py-2">{param.value}</td>
+                                                <td className="border px-4 py-2">{param.normalResponse}</td>
+                                                <td className="border px-4 py-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDeletePoint(index)}
+                                                        className="text-red-500 hover:text-red-700 px-2 py-2 rounded"
+                                                    >
+                                                        <Trash size={20} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ) : null
+                                    ))}
+                            </tbody>
+                        </table>
 
-{/* Mostrar mensaje solo si la tabla está vacía */}
-{formData.calibrationPoints.length === 0 && (
-    <p className="text-center py-4 text-gray-500">
-        No hay puntos de calibración agregados.
-    </p>
-)}
+                        {/* Mostrar mensaje solo si la tabla está vacía */}
+                        {formData.calibrationPoints.length === 0 && (
+                            <p className="text-center py-4 text-gray-500">
+                                No hay puntos de calibración agregados.
+                            </p>
+                        )}
 
 
                     </div>
