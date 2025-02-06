@@ -20,6 +20,7 @@ const CrearEspacio = () => {
     main: [],
     subspaces: []
   });
+  const [ids, setIds] = useState([])
   const [showSubspaceField, setShowSubspaceField] = useState(false);
   const [disableSpecies, setDisableSpecies] = useState(false);
   const [subspaces, setSubspaces] = useState([
@@ -478,14 +479,14 @@ const CrearEspacio = () => {
     );
   };
 
+  let data = []
   const handleAddVariable = (type, index) => {
     console.log("selectedVariableId :::::::::", selectedVariables.main)
     if (type === 'main') {
-      let data= []
       data.push(selectedVariables.main)
       setSelectedVariables((prev) => ({
         ...prev,
-        main: [...prev, data], // Agrega nuevaVariable al arreglo main
+        main: [data], // Agrega nuevaVariable al arreglo main
       }));
       console.log("selectedVariables == ", selectedVariables);
 
@@ -664,7 +665,7 @@ const CrearEspacio = () => {
 
 
   const handleMedicionControl = (variable) => {
-
+    setIsModalOpen(true)
   };
 
   return (
