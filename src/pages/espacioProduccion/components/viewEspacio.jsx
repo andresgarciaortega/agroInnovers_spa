@@ -261,18 +261,19 @@ const ViewEspacio = ({ }) => {
 
                             <h1 className="text-2xl font-bold">{formData.name} </h1>
                             <button
-                                type="button"
-                                className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg"
-                                onClick={() => {
-                                    if (isEditable) {
-                                        handleSubmit();
-                                    } else {
-                                        setIsEditable(true);
-                                    }
-                                }}
-                            >
-                                {isEditable ? 'Guardar Cambios' : 'Editar Espacio'}
-                            </button>
+    type="button"
+    className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg"
+    onClick={(e) => {
+        if (isEditable) {
+            handleSubmit(e); // Ahora pasamos `e` correctamente
+        } else {
+            setIsEditable(true);
+        }
+    }}
+>
+    {isEditable ? 'Guardar Cambios' : 'Editar Espacio'}
+</button>
+
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">

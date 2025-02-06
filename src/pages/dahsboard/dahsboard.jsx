@@ -68,16 +68,16 @@ const Dashboard = () => {
         const variableTypes = await VariableType.getAllTypeVariable();
         setVariableTypeCount(variableTypes.length);
 
-        const actuators = await ActuadorService.getAllActuador();
+        const actuators = await ActuadorService.getAllActuador(0,{});
         setActuatorCount(actuators.length);
 
-        const actuatorsType = await TypeDispositivoService.getAllActuador();
+        const actuatorsType = await TypeDispositivoService.getAllActuador(0,{});
         setActuatorTypeCount(actuatorsType.length);
 
-        const sensors = await SensorService.getAllSensor();
+        const sensors = await SensorService.getAllSensor(0,{});
         setSensorCount(sensors.length);
 
-        const sensorsType = await TypeDispositivoService.getAllSensor();
+        const sensorsType = await TypeDispositivoService.getAllSensor(0,{});
         setSensorTypeCount(sensorsType.length);
 
         const spaces = await espacios.getAllEspacio();
@@ -86,16 +86,16 @@ const Dashboard = () => {
         const spacesType = await tipoEspacio.getAlltipoEspacio();
         setSpaceTypeCount(spacesType.length);
 
-        const species = await SpeciesService.getAllSpecie();
+        const species = await SpeciesService.getAllSpecie(0,{});
         setSpeciesCount(species.length);
 
-        const categories = await CategoryService.getAllCategory();
+        const categories = await CategoryService.getAllCategory(0,{});
         setCategoryCount(categories.length);
 
         const lots = await lotesService.getAllLots();
-        setLotInProcessCount(lots.filter(lote => lote.status === 'in_process').length);
-        setHarvestedLotCount(lots.filter(lote => lote.status === 'harvested').length);
-        setRejectedLotCount(lots.filter(lote => lote.status === 'rejected').length);
+        setLotInProcessCount(lots.filter(lote => lote.status === 'Producción').length);
+        setHarvestedLotCount(lots.filter(lote => lote.status === 'Cosechado').length);
+        setRejectedLotCount(lots.filter(lote => lote.status === 'Rechazado').length);
       } catch (error) {
         console.error('Error fetching data:', error);
       }

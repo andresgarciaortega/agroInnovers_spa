@@ -248,6 +248,9 @@ const VisualizarCategoria = () => {
 
                 {formData.subcategory.map((subcategory, index) => (
                     <div key={index} className="flex gap-4 mt-2 items-center">
+                        <div className='w-full'>
+                    <label className="block text-sm font-medium text-gray-700">Nombre Subcategoría</label>
+
                         <input
                             type="text"
                             value={subcategory.name}
@@ -256,6 +259,7 @@ const VisualizarCategoria = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md"
                             disabled={editIndex !== index}
                         />
+                        </div>
                        
                     </div>
                 ))}
@@ -282,6 +286,8 @@ const VisualizarCategoria = () => {
 
                         <div className="flex justify-between items-center">
                             <div className="w-full">
+                            <label className="block text-sm font-medium text-gray-700">Nombre Etapa</label>
+
                                 <input
                                     type="text"
                                     value={stage.name}
@@ -294,7 +300,8 @@ const VisualizarCategoria = () => {
                         </div>
 
                         <div className="mt-2">
-                            {/* Descripción de la etapa */}
+                        <label className="block text-sm font-medium text-gray-700">Descripción</label>
+
                             <input
                                 type="text"
                                 value={stage.description}

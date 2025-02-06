@@ -351,7 +351,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
           <input
             type="text"
             name="gps"
-            placeholder="Posición GPS"
+            placeholder="Link de la posición GPS"
             value={formData.gps}
             onChange={handleChange}
             disabled={mode === 'view'}

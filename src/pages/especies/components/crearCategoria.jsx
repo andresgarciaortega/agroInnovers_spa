@@ -201,10 +201,7 @@ const CrearCategorias = ({ }) => {
             handleErrorAlert("Debe agregar al menos una etapa.");
             return false;
         }
-        if (subcategory.length === 0) {
-            handleErrorAlert("Debe agregar al menos una subcategoría.");
-            return false;
-        }
+        
         return true;
     };
     // const SuccessAlert = ({ message }) => {

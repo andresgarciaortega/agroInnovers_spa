@@ -6,8 +6,20 @@ import GenericModal from '../../components/genericModal';
 import FormCompany from './FormCompany/formCompany';
 import { useParams, useNavigate } from 'react-router-dom'; 
 import { IoArrowBack } from 'react-icons/io5';
-
+import UserService from "../../services/UserService";
+import Sistema from "../../services/monitoreo";
+import variableService from "../../services/variableService";
+import VariableType from "../../services/VariableType";
+import ActuadorService from "../../services/ActuadorService";
+import SensorService from "../../services/SensorService";
+import TypeDispositivoService from "../../services/TypeDispositivosService";
+import tipoEspacio from "../../services/tipoEspacio";
+import espacios from "../../services/espacios";
+import SpeciesService from "../../services/SpeciesService";
+import CategoryService from "../../services/CategoryService";
+import lotesService from "../../services/lotesService";
 import { Package2, Factory, Variable, Activity, Cpu, Users } from 'lucide-react';
+import { useCompanyContext } from "../../context/CompanyContext";
 
 
 const VisualizarEmpresa = ({ }) => {
@@ -22,6 +34,26 @@ const VisualizarEmpresa = ({ }) => {
   const [messageAlert, setMessageAlert] = useState("");
   const [companyList, setCompanyList] = useState([]);
   const [typeDocuments, setTypeDocuments] = useState([]);
+
+  const [userCount, setUserCount] = useState(0);
+    const [variableCount, setVariableCount] = useState(0);
+    const [variableTypeCount, setVariableTypeCount] = useState(0);
+    const [actuatorCount, setActuatorCount] = useState(0);
+    const [actuatorTypeCount, setActuatorTypeCount] = useState(0);
+    const [sensorCount, setSensorCount] = useState(0);
+    const [sensorTypeCount, setSensorTypeCount] = useState(0);
+    const [spaceCount, setSpaceCount] = useState(0);
+    const [spaceTypeCount, setSpaceTypeCount] = useState(0);
+    const [speciesCount, setSpeciesCount] = useState(0);
+    const [categoryCount, setCategoryCount] = useState(0);
+    const [sistema, setSistema] = useState(0);
+    const [lotInProcessCount, setLotInProcessCount] = useState(0);
+    const [harvestedLotCount, setHarvestedLotCount] = useState(0);
+    const [rejectedLotCount, setRejectedLotCount] = useState(0);
+    const [operarios, setOperarios] = useState([]);
+    const [administrativos, setAdministrativos] = useState([]);
+    const [superAdministrativos, setSuperAdministrativos] = useState([]);
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -71,6 +103,74 @@ const VisualizarEmpresa = ({ }) => {
     }
   };
 
+  useEffect(() => {
+    hiddenSelect(false)
+    const fetchData = async () => {
+      try {
+        // const companies = await CompanyService.getAllCompany();
+        // setCompanyCount(companies.length);
+
+        const users = await UserService.getAllUser(companyId);
+        console.log("Usuarios obtenidos:", users);
+
+        setOperarios(users.filter(user => user.roles.some(roles => roles.id === 3)).length);
+        setAdministrativos(users.filter(user => user.roles.some(rol => rol.id === 2)).length);
+        setSuperAdministrativos(users.filter(user => user.roles.some(rol => rol.id === 1)).length);
+
+        setUserCount(users.length);
+
+        console.log("Usuarios operarios:", operarios);
+        console.log("Usuarios administrativos:", administrativos);
+        console.log("Usuarios superadministrativos:", superAdministrativos);
+        setUserCount(users.length);
+
+        const variables = await variableService.getAllVariable(companyId);
+        setVariableCount(variables.length);
+
+        const variableTypes = await VariableType.getAllTypeVariable();
+        setVariableTypeCount(variableTypes.length);
+        console.log('tipos d evariable', variableTypeCount.name)
+
+        const actuators = await ActuadorService.getAllActuador(companyId,{});
+        setActuatorCount(actuators.length);
+
+        const actuatorsType = await TypeDispositivoService.getAllActuador(companyId);
+        setActuatorTypeCount(actuatorsType.length);
+
+        const sistemas = await Sistema.getAllMonitories(companyId);
+        setSistema(sistemas.length);
+        console.log(sistemas,'sistemas')
+
+        const sensors = await SensorService.getAllSensor(companyId, {});
+        setSensorCount(sensors.length);
+
+        const sensorsType = await TypeDispositivoService.getAllSensor(companyId);
+        setSensorTypeCount(sensorsType.length);
+
+        const spaces = await espacios.getAllEspacio(companyId);
+        setSpaceCount(spaces.length);
+
+        const spacesType = await tipoEspacio.getAlltipoEspacio(companyId);
+        setSpaceTypeCount(spacesType.length);
+
+        const species = await SpeciesService.getAllSpecie(companyId);
+        setSpeciesCount(species.length);
+
+        const categories = await CategoryService.getAllCategory(companyId);
+        setCategoryCount(categories.length);
+
+        const lots = await lotesService.getAllLots(companyId);
+        setLotInProcessCount(lots.filter(lote => lote.status === 'Producción').length);
+        setHarvestedLotCount(lots.filter(lote => lote.status === 'Cosechado').length);
+        setRejectedLotCount(lots.filter(lote => lote.status === 'Rechazado').length);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+
+    fetchData(companyId);
+  }, []);
 
   // Cerrar el modal
   const closeModal = () => {
@@ -176,15 +276,15 @@ const VisualizarEmpresa = ({ }) => {
               <div className="space-y-2">
                 <div className="flex items-center ">
 
-                  <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">5</span>
+                  <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">{lotInProcessCount}</span>
                   <span className="text-sm text-muted-foreground">En proceso</span>
                 </div>
                 <div className="flex items-center ">
-                  <span className="px-3 py-1 text-sm text-yellow-500 bg-yellow-100 rounded-md">2</span>
+                  <span className="px-3 py-1 text-sm text-yellow-500 bg-yellow-100 rounded-md">{harvestedLotCount}</span>
                   <span className="text-sm text-muted-foreground">Cosechados</span>
                 </div>
                 <div className="flex items-center mt-5">
-                  <span className="px-3 py-1 text-sm text-red-500 bg-red-100 r">1</span> 
+                  <span className="px-3 py-1 text-sm text-red-500 bg-red-100 r">{rejectedLotCount}</span> 
                   <span className="text-sm text-muted-foreground">Rechazado</span>
 
                 </div>
@@ -211,15 +311,15 @@ const VisualizarEmpresa = ({ }) => {
               </div>
               <br />
               <div className="space-y-2">
-                <span className='py-2 font-medium justify-between'> 2 lagos de intensiva</span>
-                <div className="flex items-center ">
+                <span className='py-2 font-medium justify-between'>{spaceCount}</span>
+                {/* <div className="flex items-center ">
                   <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">2</span>
                   <span className="text-sm text-muted-foreground">En producción</span>
                 </div>
                 <div className="flex items-center">
                   <span className="px-3 py-1 text-sm text-red-500 bg-red-100 rounded-md">1</span>
                   <span className="text-sm text-muted-foreground ">Sin producir</span>
-                </div>
+                </div> */}
               </div>
               <div className="space-y-2 py-5">
                 <span className='font-medium justify-between '>8 lagos de conencionales</span>
@@ -266,7 +366,7 @@ const VisualizarEmpresa = ({ }) => {
               <br />
               <div>
                 <div className="flex items-center ">
-                  <span className="px-3 py-1 text-sm  text-blue-500 bg-blue-100  rounded-md">2</span>
+                  <span className="px-3 py-1 text-sm  text-blue-500 bg-blue-100  rounded-md">{sistema}</span>
                   <span className="text-sm text-muted-foreground">Sistemas</span>
                 </div>
               </div>
@@ -279,11 +379,11 @@ const VisualizarEmpresa = ({ }) => {
               <br />
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">2</span>
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">{sensorCount}</span>
                   <span className="text-sm text-muted-foreground">Sensores internos</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">20</span>
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">{actuatorCount}</span>
                   <span className="text-sm text-muted-foreground">Actuadores</span>
                 </div>
               </div>
@@ -296,11 +396,11 @@ const VisualizarEmpresa = ({ }) => {
               <br />
               <div>
                 <div className="flex items-center ">
-                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">3</span>
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">{administrativos}</span>
                   <span className="text-sm text-muted-foreground">Administradores de cuenta</span>
                 </div>
                 <div className="flex items-center ">
-                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">5</span>
+                  <span className="px-3 py-1 text-sm text-blue-500 bg-blue-100 rounded-md">{operarios}</span>
                   <span className="text-sm text-muted-foreground">Usuarios de operación</span>
                 </div>
               </div>

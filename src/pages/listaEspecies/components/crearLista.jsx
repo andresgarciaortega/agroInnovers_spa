@@ -10,10 +10,15 @@ import { useNavigate } from 'react-router-dom';
 import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } from '@mui/material';
 import UploadToS3 from '../../../config/UploadToS3';
 import { useCompanyContext } from '../../../context/CompanyContext';
+import { Trash, Edit, Factory, Variable, Activity, Cpu, Users } from 'lucide-react';
+import SuccessAlert from "../../../components/alerts/success";
 
 
 const CrearListas = () => {
   const navigate = useNavigate();
+  
+    const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const [messageAlert, setMessageAlert] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
   const [fieldErrors, setFieldErrors] = useState({
@@ -139,6 +144,11 @@ const CrearListas = () => {
     }
   };
 
+   useEffect(() => {
+        if (showSuccessAlert) {
+            console.log("Show success alert:", showSuccessAlert);
+        }
+    }, [showSuccessAlert]);
 
   const handleVariableChange = (e) => {
     const { value } = e.target;
@@ -146,25 +156,28 @@ const CrearListas = () => {
   };
 
   const handleNextStep = () => {
-    const { category, subcategory, scientificName, commonName, variable, image, description } = formData;
-
+    const { category, subcategory, scientificName, commonName, variable, image, description, company_id } = formData;
+  
     let newErrors = {};
-
-    // if (!category) newErrors.category = 'Este campo es obligatorio';
-    // if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
-    // if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
-    // if (!commonName) newErrors.commonName = 'Este campo es obligatorio';
-    // if (!variable) newErrors.variable = 'Este campo es obligatorio';
-    // // if (!image) newErrors.image = 'Este campo es obligatorio';
-    // if (!description) newErrors.description = 'Este campo es obligatorio';
-
+  
+    if (!category) newErrors.category = 'Este campo es obligatorio';
+    if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
+    if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
+    if (!commonName) newErrors.commonName = 'Este campo es obligatorio';
+    if (!variable) newErrors.variable = 'Este campo es obligatorio';
+    if (!image) newErrors.image = 'Este campo es obligatorio';
+    if (!description) newErrors.description = 'Este campo es obligatorio';
+    if (!company_id) newErrors.company_id = 'Este campo es obligatorio'; // Corrige la clave si es necesario
+  
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
+      setErrors(newErrors);  // Se actualiza el estado de los errores
+      return;  // No permite avanzar al siguiente paso
     }
-
-    setStep((prev) => prev + 1);
+  
+    setStep((prev) => prev + 1);  // Solo avanza si no hay errores
   };
+  
+
 
 
   const handlePrevStep = () => {
@@ -201,98 +214,307 @@ const CrearListas = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setNewParameter({
+      variable: '',
+      min_normal_value: '',
+      max_normal_value: '',
+      min_limit: '',
+      max_limit: '',
+    });
+    setSelectedParameterIndex(null); // Limpiar el índice del parámetro seleccionado
+    setErrorMessage('');
   };
 
   const [selectedParameterIndex, setSelectedParameterIndex] = useState(null);
 
 
   const handleEditClick = (stageIndex, paramIndex) => {
-    const stage = formData.stage[stageIndex];
+    // Obtener el parámetro seleccionado
+    const stage = stages[stageIndex];
     const parameter = stage.parameters[paramIndex];
-
+  
+    // Guardar la información actual del parámetro en el estado `newParameter`
     setNewParameter({
-      variable: parameter.variable.id, // Asumiendo que 'variable' tiene un ID
+      variable: parameter.variable.id, 
       min_normal_value: parameter.min_normal_value,
       max_normal_value: parameter.max_normal_value,
       min_limit: parameter.min_limit,
       max_limit: parameter.max_limit,
     });
-    setSelectedStageId(stage.id); // Guardar el ID de la etapa para luego actualizar
-    setSelectedParameterIndex(paramIndex); // Guardar el índice del parámetro
-    setIsModalOpen(true); // Abrir el modal
+  
+    // Guardar la etapa y el índice del parámetro que se está editando
+    setSelectedStageId(stage.id);
+    setSelectedParameterIndex(paramIndex);
+    setIsModalOpen(true); // Abrir el modal para editar
   };
+  
 
-  const handleDeleteClick = (paramId) => {
-    setFormData((prevData) => {
-      return {
-        ...prevData,
-        stage: prevData.stage.map((stage) => ({
-          ...stage,
-          parameters: stage.parameters.filter((param) => param.id !== paramId),  // Compara con paramId
-        })),
-      };
-    });
-  };
 
+
+  // const handleDeleteClick = (paramId) => {
+  //   setFormData((prevData) => {
+  //     return {
+  //       ...prevData,
+  //       stage: prevData.stage.map((stage) => ({
+  //         ...stage,
+  //         parameters: stage.parameters.filter((param) => param.id !== paramId),  // Compara con paramId
+  //       })),
+  //     };
+  //   });
+  // };
+
+  useEffect(() => {
+    setStages(formData.stage);
+  }, [formData.stage]);
+  
+ 
   const handleSaveParameter = () => {
-    // Validar que todos los campos estén llenos
-    let errors = {};
+    // Validaciones (tu código actual)
+    setFieldErrors({
+      min_normal_value: '',
+      max_normal_value: '',
+      min_limit: '',
+      max_limit: '',
+      variable: '',
+    });
+    
+    let hasError = false;
+    
+    // Validar si los campos están vacíos
+    if (!newParameter.variable) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        variable: 'El campo Variable no puede estar vacío.',
+      }));
+      hasError = true;
+    }
+    
+    if (!newParameter.min_normal_value) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_normal_value: 'El campo Valor mínimo normal no puede estar vacío.',
+      }));
+      hasError = true;
+    }
+    
+    if (!newParameter.max_normal_value) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        max_normal_value: 'El campo Valor máximo normal no puede estar vacío.',
+      }));
+      hasError = true;
+    }
+    
+    if (!newParameter.min_limit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_limit: 'El campo Límite mínimo no puede estar vacío.',
+      }));
+      hasError = true;
+    }
+    
+    if (!newParameter.max_limit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        max_limit: 'El campo Límite máximo no puede estar vacío.',
+      }));
+      hasError = true;
+    }
+    
+    // Convertir valores a número para evitar problemas con comparaciones
+    const minNormalValue = Number(newParameter.min_normal_value);
+    const maxNormalValue = Number(newParameter.max_normal_value);
+    const minLimit = Number(newParameter.min_limit);
+    const maxLimit = Number(newParameter.max_limit);
+    
+    if (minNormalValue === maxNormalValue) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_normal_value: 'El valor mínimo normal no puede ser igual al valor máximo normal.',
+        max_normal_value: 'El valor mínimo normal no puede ser igual al valor máximo normal.',
+      }));
+      hasError = true;
+    }
+    
+    // 2️⃣ min_limit NO puede ser igual a max_limit
+    if (minLimit === maxLimit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_limit: 'El límite mínimo no puede ser igual al límite máximo.',
+        max_limit: 'El límite mínimo no puede ser igual al límite máximo.',
+      }));
+      hasError = true;
+    }
+    // Validar que el valor mínimo normal y el límite mínimo no sean iguales
+    if (minNormalValue === minLimit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_normal_value: 'El valor mínimo normal no puede ser igual al límite mínimo.',
+        min_limit: 'El valor mínimo normal no puede ser igual al límite mínimo.',
+      }));
+      hasError = true;
+    }
+    
+    // Validar que el valor mínimo normal sea mayor que el límite mínimo
+    if (minNormalValue < minLimit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_normal_value: 'El valor mínimo normal debe ser mayor que el límite mínimo.',
+        min_limit: 'El límite mínimo debe ser menor que el valor mínimo normal.',
+      }));
+      hasError = true;
+    }
+    
+    // Validar que el valor máximo normal y el límite máximo no sean iguales
+    if (maxNormalValue === maxLimit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        max_normal_value: 'El valor máximo normal no puede ser igual al límite máximo.',
+        max_limit: 'El valor máximo normal no puede ser igual al límite máximo.',
+      }));
+      hasError = true;
+    }
+    
+    // Validar que el valor máximo normal sea menor que el límite máximo
+    if (maxNormalValue > maxLimit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        max_normal_value: 'El valor máximo normal debe ser menor que el límite máximo.',
+        max_limit: 'El límite máximo debe ser mayor que el valor máximo normal.',
+      }));
+      hasError = true;
+    }
+    
+    // Si hay un error, evitar continuar
+    if (hasError) {
+      return;
+    }
+    
+    // let hasError = false;
 
-    if (!newParameter.variable) errors.variable = "Debe seleccionar una variable";
-    if (!newParameter.min_normal_value) errors.min_normal_value = "Campo requerido";
-    if (!newParameter.max_normal_value) errors.max_normal_value = "Campo requerido";
-    if (!newParameter.min_limit) errors.min_limit = "Campo requerido";
-    if (!newParameter.max_limit) errors.max_limit = "Campo requerido";
-
-    if (Object.keys(errors).length > 0) {
-        setFieldErrors(errors);
-        return;
+    // Validar si los campos están vacíos
+    if (!newParameter.variable) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        variable: 'El campo Variable no puede estar vacío.',
+      }));
+      hasError = true;
     }
 
-    // Crear el nuevo parámetro
-    const parameterToAdd = {
-        id: Date.now(), // Generar un ID temporal
-        variable: variables.find(v => v.id === newParameter.variable) || { name: "Desconocido" },
-        min_normal_value: newParameter.min_normal_value,
-        max_normal_value: newParameter.max_normal_value,
-        min_limit: newParameter.min_limit,
-        max_limit: newParameter.max_limit
-    };
+    if (!newParameter.min_normal_value) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_normal_value: 'El campo Valor mínimo normal no puede estar vacío.',
+      }));
+      hasError = true;
+    }
 
-    // Encontrar la etapa seleccionada
-    const updatedStages = formData.stage.map(stage => {
+    if (!newParameter.max_normal_value) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        max_normal_value: 'El campo Valor máximo normal no puede estar vacío.',
+      }));
+      hasError = true;
+    }
+
+    if (!newParameter.min_limit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_limit: 'El campo Límite mínimo no puede estar vacío.',
+      }));
+      hasError = true;
+    }
+
+    if (!newParameter.max_limit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        max_limit: 'El campo Límite máximo no puede estar vacío.',
+      }));
+      hasError = true;
+    }
+
+    // Validar que el valor mínimo no sea mayor que el valor máximo
+    if (newParameter.min_normal_value > newParameter.max_normal_value) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
+        max_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
+      }));
+      hasError = true;
+    }
+
+    // Validar que el límite mínimo no sea mayor que el límite máximo
+    if (newParameter.min_limit > newParameter.max_limit) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        min_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
+        max_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
+      }));
+      hasError = true;
+    }
+
+    // Si hay un error, evitar continuar
+    if (hasError) {
+      return;
+    }
+  
+    // Buscar la variable seleccionada
+    const selectedVariable = variables.find((v) => v.id === Number(newParameter.variable));
+    if (!selectedVariable) {
+      setErrorMessage("Variable seleccionada no encontrada.");
+      return;
+    }
+  
+    // Crear el nuevo parámetro
+    const newParam = {
+      ...newParameter,
+      variable: selectedVariable,
+    };
+  
+    // Actualizar el estado de `stages`
+    setStages((prevStages) => {
+      return prevStages.map((stage) => {
         if (stage.id === selectedStageId) {
-            return {
-                ...stage,
-                parameters: [...(stage.parameters || []), parameterToAdd]
-            };
+          return {
+            ...stage,
+            parameters: [...(stage.parameters || []), newParam], // Agregar el nuevo parámetro
+          };
         }
         return stage;
+      });
     });
-
-    // Actualizar el estado con los nuevos datos
-    setFormData(prevState => ({
-        ...prevState,
-        stage: updatedStages
-    }));
-
-    // Limpiar el estado del nuevo parámetro
-    setNewParameter({
-        variable: "",
-        min_normal_value: "",
-        max_normal_value: "",
-        min_limit: "",
-        max_limit: ""
-    });
-
-    // Limpiar errores
-    setFieldErrors({});
-
-    // Cerrar el modal
+  
+    // Cerrar el modal y limpiar el formulario
     setIsModalOpen(false);
-};
-
-
+    setNewParameter({
+      variable: '',
+      min_normal_value: '',
+      max_normal_value: '',
+      min_limit: '',
+      max_limit: '',
+    });
+    setErrorMessage('');
+  };
+  
+  // Sincronizar `stages` con `formData`
+  useEffect(() => {
+    setStages(formData.stage);
+  }, [formData.stage]);
+  
+  // Eliminar parámetro
+  const handleDeleteClick = (paramId) => {
+    setStages((prevStages) => {
+      return prevStages.map((stage) => {
+        if (stage.id === selectedStageId) {
+          return {
+            ...stage,
+            parameters: stage.parameters.filter((param) => param.id !== paramId),
+          };
+        }
+        return stage;
+      });
+    });
+  };
 
 
   const handleImageUpload = (event) => {
@@ -309,9 +531,9 @@ const CrearListas = () => {
       reader.readAsDataURL(file);
     }
   };
-  const showErrorAlert = (message) => {
-    console.error(message);
-  };
+  // const showErrorAlert = (message) => {
+  //   console.error(message);
+  // };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -333,13 +555,16 @@ const CrearListas = () => {
         description: stage.description,
         time_to_production: isNaN(stage.time_to_production) ? 0 : parseInt(stage.time_to_production, 10),
         parameters: (stage.parameters || []).map(param => ({
-          variable_id: param.variable_id,
-          min_normal_value: param.min_normal_value,
-          max_normal_value: param.max_normal_value,
-          min_limit: param.min_limit,
-          max_limit: param.max_limit
+          variable_id: param?.variable?.id && !isNaN(parseInt(param.variable.id, 10))
+          ? parseInt(param.variable.id, 10)
+          : 0,
+            min_normal_value: isNaN(param.min_normal_value) ? 0 : parseInt(param.min_normal_value, 10),
+            max_normal_value: isNaN(param.max_normal_value) ? 0 : parseInt(param.max_normal_value, 10),
+            min_limit: isNaN(param.min_limit) ? 0 : parseInt(param.min_limit, 10),
+            max_limit: isNaN(param.max_limit) ? 0 : parseInt(param.max_limit, 10)
         }))
-      }));
+    }));
+    
 
       const formDataToSubmit = {
         scientific_name: formData.scientificName,
@@ -353,7 +578,15 @@ const CrearListas = () => {
         variables: selectedVariables
       };
       const createdSpecie = await SpeciesService.createSpecie(formDataToSubmit);
-      navigate('../ListaEspecie');
+      showErrorAlertSuccess("Creada");
+      setShowSuccessAlert(true);
+      setTimeout(() => {
+          setShowSuccessAlert(false);
+      }, 2500);
+      setTimeout(() => {
+        navigate('../ListaEspecie');
+    }, 3000);
+    
     } catch (error) {
       console.error("Error:", error);
     }
@@ -363,10 +596,6 @@ const CrearListas = () => {
     if (isModalOpen) {
     }
   }, [isModalOpen]);
-
-
-
-
 
 
   const [formattedStages, setFormattedStages] = useState([]);
@@ -423,7 +652,14 @@ const CrearListas = () => {
       });
   };
 
-
+  const showErrorAlertSuccess = (message) => {
+    setShowErrorAlert(true);
+    setMessageAlert(`Especie ${message} exitosamente`);
+  
+    setTimeout(() => {
+      setShowErrorAlert(false);
+    }, 2500);
+  };
   const handleRemoveStage = (index) => setFormData({
     ...formData, stage: formData.stage.filter((_, i) => i !== index)
   });
@@ -445,8 +681,8 @@ const CrearListas = () => {
     console.log(formattedStages)
   }
   return (
-    <form onSubmit={handleSubmit} className="p-6">
-      <div className="container mx-auto p-8">
+    <form onSubmit={handleSubmit} className="p-">
+      <div className="container mx-auto py-2">
         <div className="bg-white rounded-lg shadow-xl p-6">
           <h2 className="text-2xl font-semibold mb-6">Crear Lista de Especies</h2>
 
@@ -613,7 +849,7 @@ const CrearListas = () => {
                     onChange={handleImageUpload}
                     accept="image/*"
                   />
-                  {errors.variable && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
+                  {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
                 </div>
 
                 <div className="col-span-2">
@@ -634,7 +870,7 @@ const CrearListas = () => {
                       </option>
                     ))}
                   </select>
-                  {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
+                  {errors.empresa && <p className="text-red-500 text-xs mt-1">{errors.empresa}</p>}
                 </div>
                 <div className="col-span-2">
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
@@ -678,7 +914,7 @@ const CrearListas = () => {
                           </div>
 
                           <div className="flex justify-between mb-2">
-                            <div className="w-1/2">
+                            <div className="w-1/2 p-1">
                               <label className="text-sm font-medium text-gray-700">Descripción</label>
                               <input
                                 type="text"
@@ -687,7 +923,7 @@ const CrearListas = () => {
                                 onChange={(e) => handleStageChange(stageIndex, 'description', e.target.value)}
                               />
                             </div>
-                            <div className="w-1/2">
+                            <div className="w-1/2 p-1">
                               <label className="text-sm font-medium text-gray-700">Tiempo de Producción</label>
                               <input
                                 type="number"
@@ -701,30 +937,59 @@ const CrearListas = () => {
                           </div>
 
                           <ul className="space-y-2 mt-4">
-                          {stage.parameters?.length > 0 && (
-      <table>
-        <thead>
-          <tr>
-            <th>Variable</th>
-            <th>Mínimo</th>
-            <th>Máximo</th>
-            <th>Límite Mín</th>
-            <th>Límite Máx</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stage.parameters.map((param, paramIndex) => (
-            <tr key={paramIndex}>
-              <td>{param.variable?.name || 'N/A'}</td>
-              <td>{param.min_normal_value}</td>
-              <td>{param.max_normal_value}</td>
-              <td>{param.min_limit}</td>
-              <td>{param.max_limit}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )}
+                            {stage?.parameters?.length > 0 && (
+                              <div className="mt-4">
+                                <div className="flex justify-between space-x-">
+                                  <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
+                                    Condiciones operación normal
+                                  </h4>
+                                  <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 py- w-full">
+                                    Condiciones operación Criticas
+                                  </h4>
+                                </div>
+                                <table className="min-w-full table-auto border-collapse">
+                                  <thead>
+                                    <tr className="bg-gray-200">
+                                      <th className="border px-4 py-2 font-bold">Variable</th>
+                                      <th className="border px-4 py-2 font-semibold">Mínimo</th>
+                                      <th className="border px-4 py-2 font-semibold">Máximo</th>
+                                      <th className="border px-4 py-2 font-semibold">Límite Mín</th>
+                                      <th className="border px-4 py-2 font-semibold">Límite Máx</th>
+                                      <th className="border px-4 py-2 font-semibold">Acciones</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {stage.parameters?.map((param, paramIndex) => (
+                                      <tr key={paramIndex}>
+                                        <td className="border px-4 py-2">{param.variable?.name || 'N/A'}</td>
+
+                                        <td className="border px-4 py-2">{param.min_normal_value}</td>
+                                        <td className="border px-4 py-2">{param.max_normal_value}</td>
+                                        <td className="border px-4 py-2">{param.min_limit}</td>
+                                        <td className="border px-4 py-2">{param.max_limit}</td>
+                                        <td className="border px-4 py-2">
+                                          <button
+                                            type='button'
+                                            onClick={() => handleEditClick(stageIndex, paramIndex)}
+                                            className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
+                                          >
+                                            <Edit size={20} />
+                                          </button>
+                                          <button
+                                            type='button'
+                                            onClick={() => handleDeleteClick(param.id)}
+                                            className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
+                                          >
+                                            <Trash size={20} />
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+
+                                </table>
+                              </div>
+                            )}
                           </ul>
 
                         </div>
@@ -860,7 +1125,14 @@ const CrearListas = () => {
             </div>
           </div>
         )}
-
+  {showErrorAlert && (
+          <div className="alert alert-danger p-4 rounded-md text-red-600">
+          {messageAlert}
+      </div>
+  )}
+  {showSuccessAlert && (
+      <SuccessAlert message="Especie creada exitosamente" />
+  )}
       </div>
     </form>
   );

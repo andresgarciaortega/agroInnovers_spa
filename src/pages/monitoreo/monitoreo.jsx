@@ -50,7 +50,10 @@ const Monitoreo = () => {
     claveAcceso: '',
     unidadSincronizacion: '',
     frecuenciaSincronizacion: '',
-    productionSpaces: [],
+    productionSpaces: [
+      {productionLots: [],}
+    ],
+   
 
   });
 
@@ -78,15 +81,17 @@ const Monitoreo = () => {
         } else {
           setShowErrorAlertTable(false);
           setData(Array.isArray(data) ? data : []);
+          console.log('datos de monitoreo', data)
         }
       } catch (error) {
         console.error('Error fetching type Monitoreo:', error);
         setData([]);
+        console.log('datos de monitoreo', data)
         setMessageAlert('Esta empresa no tiene Monitoreo registradas, Intentalo con otra empresa');
         setShowErrorAlertTable(true);
       }
     };
-
+    console.log('datos de monitoreo', data)
     fetchMonitoreo();
   }, [selectedCompanyUniversal]);
 
@@ -343,8 +348,19 @@ const Monitoreo = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-700">{monitoreo.displayFisico ? monitoreo.ipFija : 'Sin asignar'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
-                  <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+                  <td className="px-6 py-4 text-sm text-gray-700">
+  {monitoreo.productionSpaces.length > 0 
+    ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].name 
+    : 'No asignado'}
+</td>
+<td className="px-6 py-4 text-sm text-gray-700">
+  {monitoreo.productionSpaces?.length > 0 &&
+   monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots?.length > 0
+    ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots[
+        monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots.length - 1
+      ].loteCode
+    : 'No asignado'}
+</td>
                   <td className="px-6 py-4 text-sm font-medium">
                     <button className=" text-[#168C0DFF] px-2 py-2 rounded">
                       <Eye size={18} onClick={() => handleEditMonitoreo(monitoreo)} />

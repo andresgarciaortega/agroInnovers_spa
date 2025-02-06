@@ -253,7 +253,7 @@ const ListaEspecies = () => {
   };
 
   const updateService = async () => {
-    // setShowErrorAlertTable(false);
+    setShowErrorAlertTable(false);
     // setSpeciesList([]);
 
     try {

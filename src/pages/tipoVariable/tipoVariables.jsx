@@ -347,7 +347,7 @@ const TipoVariable = () => {
       {/* Modalcrear-editar-visualizar*/}
 
       {isModalOpen && (
-        <GenericModal title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver Cariable' : 'Añadir Variable'}
+        <GenericModal title={modalMode === 'edit' ? 'Editar Variable' : modalMode === 'view' ? 'Ver Variable' : 'Añadir Variable'}
           onClose={closeModal}>
           <FormTypeVariable
             showErrorAlert={showErrorAlertSuccess}

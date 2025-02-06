@@ -85,7 +85,6 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
                 setFormData({
                     ...formData,
                     measurementType: value,
-                    measurementType: '',
                     sensorId: '',
                     samplingTimeUnit: '',
                     samplingFrequency: '',
