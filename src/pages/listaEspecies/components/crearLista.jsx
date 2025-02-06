@@ -156,25 +156,28 @@ const CrearListas = () => {
   };
 
   const handleNextStep = () => {
-    const { category, subcategory, scientificName, commonName, variable, image, description } = formData;
-
+    const { category, subcategory, scientificName, commonName, variable, image, description, company_id } = formData;
+  
     let newErrors = {};
-
-    // if (!category) newErrors.category = 'Este campo es obligatorio';
-    // if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
-    // if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
-    // if (!commonName) newErrors.commonName = 'Este campo es obligatorio';
-    // if (!variable) newErrors.variable = 'Este campo es obligatorio';
-    // // if (!image) newErrors.image = 'Este campo es obligatorio';
-    // if (!description) newErrors.description = 'Este campo es obligatorio';
-
+  
+    if (!category) newErrors.category = 'Este campo es obligatorio';
+    if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
+    if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
+    if (!commonName) newErrors.commonName = 'Este campo es obligatorio';
+    if (!variable) newErrors.variable = 'Este campo es obligatorio';
+    if (!image) newErrors.image = 'Este campo es obligatorio';
+    if (!description) newErrors.description = 'Este campo es obligatorio';
+    if (!company_id) newErrors.company_id = 'Este campo es obligatorio'; // Corrige la clave si es necesario
+  
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
+      setErrors(newErrors);  // Se actualiza el estado de los errores
+      return;  // No permite avanzar al siguiente paso
     }
-
-    setStep((prev) => prev + 1);
+  
+    setStep((prev) => prev + 1);  // Solo avanza si no hay errores
   };
+  
+
 
 
   const handlePrevStep = () => {
@@ -846,7 +849,7 @@ const CrearListas = () => {
                     onChange={handleImageUpload}
                     accept="image/*"
                   />
-                  {errors.variable && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
+                  {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
                 </div>
 
                 <div className="col-span-2">
@@ -867,7 +870,7 @@ const CrearListas = () => {
                       </option>
                     ))}
                   </select>
-                  {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
+                  {errors.empresa && <p className="text-red-500 text-xs mt-1">{errors.empresa}</p>}
                 </div>
                 <div className="col-span-2">
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
@@ -924,7 +927,7 @@ const CrearListas = () => {
                               <label className="text-sm font-medium text-gray-700">Tiempo de Producción</label>
                               <input
                                 type="number"
-                                placeholder="Tiempo de producción"
+                                placeholder="Tiempo de producción en días"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                 value={stages[stageIndex]?.time_to_production || ''}
                                 onChange={(e) => handleStageChange(stageIndex, 'time_to_production', e.target.value)}
