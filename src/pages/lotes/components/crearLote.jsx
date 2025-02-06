@@ -86,6 +86,7 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
         fetchCompanies();
 
     }, [lote]);
+    
 
     const fetchEspacios = async () => {
         try {

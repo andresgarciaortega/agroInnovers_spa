@@ -15,10 +15,13 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import CompanySelector from "../../../components/shared/companySelect";
 import { useCompanyContext } from "../../../context/CompanyContext";
 import { Alert } from '@mui/material';
+import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } from '@mui/material';
 
 const EditarLista = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+        const [showErrorAlert, setShowErrorAlert] = useState(false);
+    
     const [imagePreview, setImagePreview] = useState(null);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -44,7 +47,7 @@ const EditarLista = () => {
         subcategory_id: 0,
         scientificName: '',
         commonName: '',
-        variable_id: 0,
+        variable_id: [],
         image: '',
         descripcion: '',
         stage: [],
@@ -110,12 +113,14 @@ const EditarLista = () => {
                 subcategory_id: data.subcategory?.id || 0,
                 scientificName: data.scientific_name || '',
                 commonName: data.common_name || '',
-                variable_id: data.variables || 0,
+                variable_id: data.variables.map(variable => variable.id) || [],
+
                 image: data.photo || null,
                 descripcion: data.description || '',
                 stage: data.stages || [],
                 parameters: data.parameters || [],
             });
+            console.log('datos', formData)
 
             setImagePreview(data.photo);
 
@@ -145,7 +150,11 @@ const EditarLista = () => {
 
     const [selectedParameterIndex, setSelectedParameterIndex] = useState(null);
 
-
+    useEffect(() => {
+        if (showSuccessAlert) {
+            console.log("Show success alert:", showSuccessAlert);
+        }
+    }, [showSuccessAlert]);
     const handleEditClick = (stageIndex, paramIndex) => {
         const stage = formData.stage[stageIndex];
         const parameter = stage.parameters[paramIndex];
@@ -177,6 +186,7 @@ const EditarLista = () => {
 
 
     const handleSaveParameter = () => {
+        // Validaciones (tu código actual)
         setFieldErrors({
             min_normal_value: '',
             max_normal_value: '',
@@ -184,7 +194,120 @@ const EditarLista = () => {
             max_limit: '',
             variable: '',
         });
+
         let hasError = false;
+
+        // Validar si los campos están vacíos
+        if (!newParameter.variable) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                variable: 'El campo Variable no puede estar vacío.',
+            }));
+            hasError = true;
+        }
+
+        if (!newParameter.min_normal_value) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                min_normal_value: 'El campo Valor mínimo normal no puede estar vacío.',
+            }));
+            hasError = true;
+        }
+
+        if (!newParameter.max_normal_value) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                max_normal_value: 'El campo Valor máximo normal no puede estar vacío.',
+            }));
+            hasError = true;
+        }
+
+        if (!newParameter.min_limit) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                min_limit: 'El campo Límite mínimo no puede estar vacío.',
+            }));
+            hasError = true;
+        }
+
+        if (!newParameter.max_limit) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                max_limit: 'El campo Límite máximo no puede estar vacío.',
+            }));
+            hasError = true;
+        }
+
+        // Convertir valores a número para evitar problemas con comparaciones
+        const minNormalValue = Number(newParameter.min_normal_value);
+        const maxNormalValue = Number(newParameter.max_normal_value);
+        const minLimit = Number(newParameter.min_limit);
+        const maxLimit = Number(newParameter.max_limit);
+
+        if (minNormalValue === maxNormalValue) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                min_normal_value: 'El valor mínimo normal no puede ser igual al valor máximo normal.',
+                max_normal_value: 'El valor mínimo normal no puede ser igual al valor máximo normal.',
+            }));
+            hasError = true;
+        }
+
+        // 2️⃣ min_limit NO puede ser igual a max_limit
+        if (minLimit === maxLimit) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                min_limit: 'El límite mínimo no puede ser igual al límite máximo.',
+                max_limit: 'El límite mínimo no puede ser igual al límite máximo.',
+            }));
+            hasError = true;
+        }
+        // Validar que el valor mínimo normal y el límite mínimo no sean iguales
+        if (minNormalValue === minLimit) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                min_normal_value: 'El valor mínimo normal no puede ser igual al límite mínimo.',
+                min_limit: 'El valor mínimo normal no puede ser igual al límite mínimo.',
+            }));
+            hasError = true;
+        }
+
+        // Validar que el valor mínimo normal sea mayor que el límite mínimo
+        if (minNormalValue < minLimit) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                min_normal_value: 'El valor mínimo normal debe ser mayor que el límite mínimo.',
+                min_limit: 'El límite mínimo debe ser menor que el valor mínimo normal.',
+            }));
+            hasError = true;
+        }
+
+        // Validar que el valor máximo normal y el límite máximo no sean iguales
+        if (maxNormalValue === maxLimit) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                max_normal_value: 'El valor máximo normal no puede ser igual al límite máximo.',
+                max_limit: 'El valor máximo normal no puede ser igual al límite máximo.',
+            }));
+            hasError = true;
+        }
+
+        // Validar que el valor máximo normal sea menor que el límite máximo
+        if (maxNormalValue > maxLimit) {
+            setFieldErrors((prevErrors) => ({
+                ...prevErrors,
+                max_normal_value: 'El valor máximo normal debe ser menor que el límite máximo.',
+                max_limit: 'El límite máximo debe ser mayor que el valor máximo normal.',
+            }));
+            hasError = true;
+        }
+
+        // Si hay un error, evitar continuar
+        if (hasError) {
+            return;
+        }
+
+        // let hasError = false;
 
         // Validar si los campos están vacíos
         if (!newParameter.variable) {
@@ -375,7 +498,7 @@ const EditarLista = () => {
         }
     };
 
-  
+
     const handleOpenModal = (stageId) => {
         const stage = formData.stage.find(stage => stage.id === stageId);
         if (!stage.parameters) {
@@ -485,20 +608,21 @@ const EditarLista = () => {
                     })
                     : [],
 
-                variables: Array.isArray(formData.variable_id)
-                    ? formData.variable_id.map((variable) =>
-                        variable && variable.id && !isNaN(parseInt(variable.id, 10)) ? parseInt(variable.id, 10) : null
-                    )
-                    : [],
+                variables: formData.variable_id || [],
             };
 
             console.log('imagen', imageUrl)
 
             console.log('datos de la etapa:', formDataToSubmit);
             await SpeciesService.updateSpecie(id, formDataToSubmit);
+      showErrorAlertSuccess("Editada");
+
             setShowSuccessAlert(true);
-            setTimeout(() => setShowSuccessAlert(false), 3000);
-            navigate('../Listaespecie');
+            setTimeout(() =>{ 
+                setShowSuccessAlert(false)}, 2500);
+                setTimeout(() => {
+                    navigate('../ListaEspecie');
+                }, 3000);
         } catch (error) {
             console.error("Error al actualizar especie:", error);
             setShowAlertError(true);
@@ -506,7 +630,14 @@ const EditarLista = () => {
         }
     };
 
-
+    const showErrorAlertSuccess = (message) => {
+        setShowErrorAlert(true);
+        setMessageAlert(`Especie ${message} exitosamente`);
+      
+        setTimeout(() => {
+          setShowErrorAlert(false);
+        }, 2500);
+      };
 
 
     const handleCancel = () => navigate('../Listaespecie');
@@ -516,11 +647,11 @@ const EditarLista = () => {
             <div className="container mx-auto p-2">
                 <div className="bg-white rounded-lg shadow-xl p-6">
                     <div className="grid grid-cols-3 gap-4 mb-6">
-                        <div className=" py-2">
+                        <div className=" py-2 ">
                             {/* <label>Adjuntar Logo</label> */}
-                            <div className="border-2 p-2 border-dashed border-gray-300 rounded-lg  text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
+                            <div className="border-2 p-2 border-dashed border-gray-300 rounded-lg  text-center cursor-pointer hover:bg-gray-50 h-full" onClick={() => document.getElementById('logo-upload').click()}>
                                 {imagePreview ? (
-                                    <img src={imagePreview} alt="Logo" className="mx-auto h-20 object-contain" />
+                                    <img src={imagePreview} alt="Logo" className="mx-auto h-full w-full object-contain" />
                                 ) : (
                                     <>
                                         <IoCloudUploadOutline className="mx-auto h-12 w-12 text-gray-400" />
@@ -531,10 +662,10 @@ const EditarLista = () => {
                                     </>
                                 )}
                             </div>
-                            <input id="logo-upload" type="file" className="hidden " onChange={handleImageUpload} accept="image/*" />
+                            <input id="logo-upload" type="file" className="hidden  " onChange={handleImageUpload} accept="image/*" />
                         </div>
-                        <div className="flex flex-col justify-center">
-                            <div className="mb-2">
+                        <div className="flex flex-col justify-center mb-2 p-1 ">
+                            <div className="mb-4">
                                 <label htmlFor="commonName" className="block text-sm font-medium text-gray-700">
                                     Nombre común
                                 </label>
@@ -544,12 +675,13 @@ const EditarLista = () => {
                                     name="commonName"
                                     value={formData.commonName}
                                     onChange={(e) => setFormData({ ...formData, commonName: e.target.value })}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                    className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+
                                     required
                                 />
                             </div>
 
-                            <div>
+                            <div className="mb-4">
                                 <label htmlFor="scientificName" className="block text-sm font-medium text-gray-700">
                                     Nombre científico
                                 </label>
@@ -559,7 +691,23 @@ const EditarLista = () => {
                                     name="scientificName"
                                     value={formData.scientificName}
                                     onChange={(e) => setFormData({ ...formData, scientificName: e.target.value })}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                    className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700">
+                                    Descripción
+                                </label>
+                                <input
+                                    type="text"
+                                    id="descripcion"
+                                    name="descripcion"
+                                    value={formData.descripcion}
+                                    onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                                    className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+
                                     required
                                 />
                             </div>
@@ -575,7 +723,8 @@ const EditarLista = () => {
                                     name="category_id"
                                     value={formData.category_id}
                                     onChange={handleCategoryChange}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                    className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+
                                     disabled
                                 >
                                     <option value="">Selecciona una categoría</option>
@@ -598,7 +747,8 @@ const EditarLista = () => {
                                     onChange={(e) =>
                                         setFormData({ ...formData, subcategory_id: e.target.value })
                                     }
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                    className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+
                                     disabled
                                 >
                                     <option value="">Selecciona una subcategoría</option>
@@ -609,6 +759,37 @@ const EditarLista = () => {
                                     ))}
                                 </select>
                             </div>
+                            <div>
+                                <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Variable
+                                </label>
+                                <FormControl
+                                    className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+                                >
+                                    <Select
+                                        className='selectorMultipleVariables'
+                                        multiple
+                                        value={formData.variable_id || []}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, variable_id: e.target.value })
+                                        }
+                                        renderValue={(selectedIds) =>
+                                            variables
+                                                .filter((option) => selectedIds.includes(option.id))
+                                                .map((option) => option.name)
+                                                .join(', ')
+                                        }
+                                    >
+                                        {variables.map((option) => (
+                                            <MenuItem key={option.id} value={option.id}>
+                                                <Checkbox checked={formData.variable_id?.includes(option.id)} />
+                                                <ListItemText primary={option.name} />
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </div>
+
                         </div>
                     </div>
 
@@ -784,9 +965,18 @@ const EditarLista = () => {
                             </button>
                         </div>
                     </div>
+                    
                 </div>
-            )}
 
+            )}
+ {showErrorAlert && (
+          <div className="alert alert-danger p-4 rounded-md text-red-600">
+          {messageAlert}
+      </div>
+  )}
+  {showSuccessAlert && (
+                        <SuccessAlert message="Especie Editada exitosamente" />
+                    )}
 
 
         </form>

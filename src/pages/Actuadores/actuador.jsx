@@ -125,7 +125,7 @@ const Actuador = () => {
       }
 
       try {
-        const data = await ActuadorService.getAllActuador(companyId);
+        const data = await ActuadorService.getAllActuador(companyId, {});
         if (data.statusCode === 404) {
           setVariableList([]);
           setMessageAlert('Esta empresa no tiene Actuadores registrados.');
@@ -144,7 +144,7 @@ const Actuador = () => {
     };
 
     fetchActuador();
-  }, [selectedCompanyUniversal]);
+  }, [selectedCompanyUniversal] ,{});
 
 
 

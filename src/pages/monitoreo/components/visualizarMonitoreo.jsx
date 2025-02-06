@@ -67,18 +67,18 @@ setMonitorName(data.nombreId); // Guardar el nombre del monitor
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre de lote</th>
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Espacio</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sub espacio</th>
+          {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sub espacio</th> */}
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha Cosecha</th>
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-200">
-        {lotes.map((lote) => (
+        {lotes.map((lote, index) => (
           <tr key={lote.id}>
-            <td className="px-6 py-4 text-sm text-gray-500">{lote.id}</td>
+            <td className="px-6 py-4 text-sm text-gray-500">{index + 1}</td>
             <td className="px-6 py-4 text-sm text-cyan-400 underline border-blue-300">{lote.name}</td>
             <td className="px-6 py-4 text-sm text-gray-500">{lote.NameSpacio}</td>
-            <td className="px-6 py-4 text-sm text-gray-500">{lote.SubEspacio}</td>
+            {/* <td className="px-6 py-4 text-sm text-gray-500">{lote.SubEspacio}</td> */}
             <td className="px-6 py-4 text-sm text-gray-500">{lote.fechaCosecha}</td>
             <td className="px-6 py-4 text-sm text-gray-500">{lote.Estado}</td>
           </tr>
@@ -93,19 +93,19 @@ setMonitorName(data.nombreId); // Guardar el nombre del monitor
         <tr>
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre Espacio</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sub espacio</th>
+          {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sub espacio</th> */}
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo de Espacio</th>
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Posición GPS</th>
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-200">
-        {espacios.map((espacio) => (
+        {espacios.map((espacio, index) => (
           <tr key={espacio.id}>
-            <td className="px-6 py-4 text-sm text-gray-500">{espacio.id}</td>
+            <td className="px-6 py-4 text-sm text-gray-500">{index+1}</td>
             <td className="px-6 py-4 text-sm text-cyan-400 underline border-blue-300">
               {espacio.NameSpacio}
             </td>
-            <td className="px-6 py-4 text-sm text-gray-500">{espacio.SubEspacio}</td>
+            {/* <td className="px-6 py-4 text-sm text-gray-500">{espacio.SubEspacio}</td> */}
             <td className="px-6 py-4 text-sm text-gray-500">{espacio.TypeSpacio}</td>
             <td className="px-6 py-4 text-sm text-cyan-400 underline border-blue-300">{espacio.PosicionGps}</td>
           </tr>

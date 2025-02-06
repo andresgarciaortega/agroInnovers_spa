@@ -175,36 +175,48 @@ const Especie = () => {
 
   const handleConfirmDelete = async () => {
     if (!selectedCategory) return;
-
+  
     try {
       setIsDeleteModalOpen(false);
-
+      
+      // Eliminar las subcategorías y etapas asociadas antes de eliminar la categoría principal
+      const deleteSubcategoriesAndStages = async (category) => {
+        const subcategoryDeletePromises = category.subcategories.map(subcategory => {
+          return CategoryServices.deleteSubcategory(subcategory.id);  // Reemplaza con la API adecuada
+        });
+        
+        const stageDeletePromises = category.stages.map(stage => {
+          return CategoryServices.deleteStages(stage.id);  // Reemplaza con la API adecuada
+        });
+  
+        await Promise.all([...subcategoryDeletePromises, ...stageDeletePromises]);
+      };
+  
+      // Llamamos a la función de eliminación en cascada antes de eliminar la categoría
+      await deleteSubcategoriesAndStages(selectedCategory);
+  
+      // Ahora eliminamos la categoría
       await CategoryServices.deleteCategory(selectedCategory.id);
-
-      // Mensaje de éxito
+  
+      // Mostrar el mensaje de éxito
       const successMessage = "Categoría eliminada exitosamente";
       setMessageAlert(successMessage);
       showErrorAlertSuccess(successMessage);
-
-      // Actualiza la lista de categorías
+  
+      // Actualiza la lista de categorías después de la eliminación
       updateService();
     } catch (error) {
       updateService();
-
-      // Determina el mensaje según el tipo de error
-      let errorMessage;
+      
+      let errorMessage = "Hubo un error al eliminar la categoría y sus elementos asociados.";
       if (error.response && error.response.status === 409) {
-        errorMessage =
-          "Esta categoría no se puede eliminar porque tiene etapas y subcategorías asociadas.";
-      } else {
-        errorMessage = "Esta categoría no se puede eliminar porque tiene etapas y subcategorías asociadas.";
+        errorMessage = "No se puede eliminar porque tiene etapas o subcategorías asociadas.";
       }
-
-      // Muestra la alerta de error con el mensaje adecuado
+  
       showErrorAlertError(errorMessage);
     }
   };
-
+  
   const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true);
     setMessageAlert(message); // Mensaje de éxito

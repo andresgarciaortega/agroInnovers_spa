@@ -95,7 +95,7 @@ const Sensor = () => {
       setNameCompany(selectedCompanyUniversal.label); // Establecer el nombre de la empresa seleccionada
 
       try {
-        const data = await SensorService.getAllSensor(companyId); // Servicio que filtra por empresa
+        const data = await SensorService.getAllSensor(companyId, {}); // Servicio que filtra por empresa
         if (data?.length === 0) {
           setVariableList([]);
           setMessageAlert('Esta empresa no tiene sensores registrados.');
@@ -113,7 +113,7 @@ const Sensor = () => {
     };
 
     fetchSensores();
-  }, [selectedCompanyUniversal]);
+  }, [selectedCompanyUniversal], {});
 
 
   const handleCompanyChange = (selectedOption) => {
@@ -331,7 +331,7 @@ const Sensor = () => {
                   <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorCode}</td>
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <td className=" whitespace-nowrap text-sm text-gray-700">
                       {sensor.sensorType && sensor.sensorType.icon ? (
                         <img
                           src={sensor.sensorType.icon}
