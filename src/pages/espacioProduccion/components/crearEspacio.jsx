@@ -18,10 +18,10 @@ import { useCompanyContext } from '../../../context/CompanyContext';
 const CrearEspacio = () => {
   const [selectedVariables, setSelectedVariables] = useState({
     main: [],
-    subspaces: {}
+    subspaces: []
   });
   const [showSubspaceField, setShowSubspaceField] = useState(false);
-  const [disableSpecies, setDisableSpecies] = useState(true);
+  const [disableSpecies, setDisableSpecies] = useState(false);
   const [subspaces, setSubspaces] = useState([
     // { assignDevices: false, inheritDevices: false}
     // , deviceType: "", selectedDevice: "" }
@@ -189,9 +189,8 @@ const CrearEspacio = () => {
         }
       ],
     });
-  const [especiesEspacio, setEspecieEspasios] = useState({
-    species: [], });
-  const [especiesSubspacio, setEspecieSubspasios] = useState({species:[] ,});
+  const [especiesEspacio, setEspecieEspasios] = useState([]);
+  const [especiesSubspacio, setEspecieSubspasios] = useState({ species: [], });
 
 
 
@@ -225,7 +224,7 @@ const CrearEspacio = () => {
   useEffect(() => {
     const fetchTipoActuador = async () => {
       try {
-        const data = await Actuadorervice.getAllActuador(0,{});
+        const data = await Actuadorervice.getAllActuador(0, {});
         setTipoActuador(data);
         console.log('actuadores', data)
 
@@ -351,35 +350,35 @@ const CrearEspacio = () => {
   };
 
   const handleNoCheckboxChange = (index) => {
-    setIsYesSelected(false); 
-    setIsYesHeSelected(false); 
-    setDisableSpecies(false); 
-    setDevicesList([]); 
+    setIsYesSelected(false);
+    setIsYesHeSelected(false);
+    setDisableSpecies(false);
+    setDevicesList([]);
     setSubspaces((prevSubspaces) =>
       prevSubspaces.map((sub, i) => {
         if (i === index) {
           return {
             ...sub,
             inheritDevices: false, // Se marca "No" para heredar
-            
+
           };
         }
         return sub;
       })
     );
-  
-    
+
+
   };
-  
+
 
   const handleNoSubCheckboxChange = (index) => {
     setIsYesSubSelected(false);
-  
+
   };
 
   const handleNoHerCheckboxChange = (index) => {
     setIsYesHeSelected(false);
-   
+
   };
 
   const handleDeviceTypeChange = (index, type) => {
@@ -399,7 +398,7 @@ const CrearEspacio = () => {
 
   };
 
- 
+
   const getDevicesByType = (type) => {
     if (type === "actuador") {
       return tipoActuador.map((device) => ({
@@ -453,14 +452,14 @@ const CrearEspacio = () => {
                 deviceType: "",
                 selectedDevice: "",
               };
-  
+
             case "assignDevices":
               return {
                 ...sub,
                 assignDevices: true,
                 inheritDevices: false, // Desmarcar "Heredar dispositivos"
               };
-  
+
             case "noInheritDevices":  // Esta opción marca "No" para heredar dispositivos
               return {
                 ...sub,
@@ -469,7 +468,7 @@ const CrearEspacio = () => {
                 deviceType: "",
                 selectedDevice: "",
               };
-  
+
             default:
               return sub;
           }
@@ -478,15 +477,18 @@ const CrearEspacio = () => {
       })
     );
   };
-  
+
   const handleAddVariable = (type, index) => {
+    console.log("selectedVariableId :::::::::", selectedVariables.main)
     if (type === 'main') {
+      let data= []
+      data.push(selectedVariables.main)
       setSelectedVariables((prev) => ({
         ...prev,
-        subspaces: [...(prev.subspaces || []), nuevaVariable], // Si prev.subspaces es undefined, usa un arreglo vacío
+        main: [...prev, data], // Agrega nuevaVariable al arreglo main
       }));
-      
-      
+      console.log("selectedVariables == ", selectedVariables);
+
     } else {
       // Agregar variable al subespacio correspondiente
       setSelectedVariables((prev) => {
@@ -499,8 +501,12 @@ const CrearEspacio = () => {
     }
   };
 
-  const handleVariableChangeForSubspace = (index, variable) => {
 
+
+
+
+  
+  const handleVariableChangeForSubspace = (index, variable) => {
   };
 
 
@@ -618,6 +624,7 @@ const CrearEspacio = () => {
   };
 
   const handleVariableChange = (space, variableId) => {
+
     if (space === "main") {
       setSelectedVariables((prev) => ({
         ...prev,
@@ -927,15 +934,12 @@ const CrearEspacio = () => {
                       type="button"
                       onClick={handleAddSubspaceClick}
                       // disabled={disableSpecies}
-                      className="inline-flex justify-end rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
-
-                    >
+                      className="inline-flex justify-end rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]">
                       Añadir Subespacio
                     </button>
                   </div>
 
-
-                  <div className="w-full grid grid-cols-1 gap-4 borderEspacio">
+                  <div className="w-full grid grid-cols-1 gap-4 ">
                     {subspaces.length > 0 && subspaces.map((subspace, index) => (
                       <div key={subspace.id} className="w-full border rounded-md p-4 mb-2">
                         <div className="flex justify-between items-center">
@@ -1173,134 +1177,130 @@ const CrearEspacio = () => {
 
                 <div>
 
-                {subspaces.length > 0 && (
-  <div>
-    <div className="grid grid-cols-2 gap-4">
-      {subspaces.map((subspace, index) => (
-        <div key={index} className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4">
-          <h3>Subespacio {index + 1}</h3>
+                  {subspaces.length > 0 && (
+                    <div>
+                      <div className="grid grid-cols-2 gap-4">
+                        {subspaces.map((subspace, index) => (
+                          <div key={index} className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4">
+                            <h3>Subespacio {index + 1}</h3>
 
-          {/* Opción para asignar dispositivos */}
-          <div className="mb-4">
-            <label>¿Necesitas asignar dispositivos?</label>
-            <div className="flex items-center space-x-4 mt-2">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name={`assignDevices-${index}`} // Agrupar radio buttons por subespacio
-                  checked={subspace.assignDevices}
-                  onChange={() => handleSubspaceCheckboxChange(index, "assignDevices")}
-                  className="hidden"
-                />
-                <span
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    subspace.assignDevices ? "bg-green-500 border-green-500" : "border-gray-400"
-                  }`}
-                >
-                  {subspace.assignDevices && <span className="w-3 h-3 bg-white rounded-full"></span>}
-                </span>
-                <span className="text-sm font-medium">Sí</span>
-              </label>
+                            {/* Opción para asignar dispositivos */}
+                            <div className="mb-4">
+                              <label>¿Necesitas asignar dispositivos?</label>
+                              <div className="flex items-center space-x-4 mt-2">
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name={`assignDevices-${index}`} // Agrupar radio buttons por subespacio
+                                    checked={subspace.assignDevices}
+                                    onChange={() => handleSubspaceCheckboxChange(index, "assignDevices")}
+                                    className="hidden"
+                                  />
+                                  <span
+                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${subspace.assignDevices ? "bg-green-500 border-green-500" : "border-gray-400"
+                                      }`}
+                                  >
+                                    {subspace.assignDevices && <span className="w-3 h-3 bg-white rounded-full"></span>}
+                                  </span>
+                                  <span className="text-sm font-medium">Sí</span>
+                                </label>
 
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name={`assignDevices-${index}`} // Mismo name para que solo se seleccione uno
-                  checked={!subspace.assignDevices}
-                  onChange={() => handleSubspaceCheckboxChange(index, "assignDevices")}
-                  className="hidden"
-                />
-                <span
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    !subspace.assignDevices ? "bg-white border-[#168C0DFF]" : "border-gray-400"
-                  }`}
-                >
-                  {!subspace.assignDevices && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
-                </span>
-                <span className="text-sm font-medium">No</span>
-              </label>
-            </div>
-          </div>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name={`assignDevices-${index}`} // Mismo name para que solo se seleccione uno
+                                    checked={!subspace.assignDevices}
+                                    onChange={() => handleSubspaceCheckboxChange(index, "assignDevices")}
+                                    className="hidden"
+                                  />
+                                  <span
+                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${!subspace.assignDevices ? "bg-white border-[#168C0DFF]" : "border-gray-400"
+                                      }`}
+                                  >
+                                    {!subspace.assignDevices && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
+                                  </span>
+                                  <span className="text-sm font-medium">No</span>
+                                </label>
+                              </div>
+                            </div>
 
-          {/* Opción para heredar dispositivos */}
-          <div className="mb-4">
-            <label>Heredar dispositivos</label>
-            <div className="flex items-center space-x-4 mt-2">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name={`inheritDevices-${index}`} // Agrupar radio buttons por subespacio
-                  checked={subspace.inheritDevices}
-                  onChange={() => handleSubspaceCheckboxChange(index, "inheritDevices")}
-                  className="hidden"
-                />
-                <span
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    subspace.inheritDevices ? "bg-green-500 border-green-500" : "border-gray-400"
-                  }`}
-                >
-                  {subspace.inheritDevices && <span className="w-3 h-3 bg-white rounded-full"></span>}
-                </span>
-                <span className="text-sm font-medium">Sí</span>
-              </label>
+                            {/* Opción para heredar dispositivos */}
+                            <div className="mb-4">
+                              <label>Heredar dispositivos</label>
+                              <div className="flex items-center space-x-4 mt-2">
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name={`inheritDevices-${index}`} // Agrupar radio buttons por subespacio
+                                    checked={subspace.inheritDevices}
+                                    onChange={() => handleSubspaceCheckboxChange(index, "inheritDevices")}
+                                    className="hidden"
+                                  />
+                                  <span
+                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${subspace.inheritDevices ? "bg-green-500 border-green-500" : "border-gray-400"
+                                      }`}
+                                  >
+                                    {subspace.inheritDevices && <span className="w-3 h-3 bg-white rounded-full"></span>}
+                                  </span>
+                                  <span className="text-sm font-medium">Sí</span>
+                                </label>
 
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name={`inheritDevices-${index}`} // Mismo name para que solo se seleccione uno
-                  checked={!subspace.inheritDevices}
-                  onChange={() => handleSubspaceCheckboxChange(index, "noInheritDevices")}
-                  className="hidden"
-                />
-                <span
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    !subspace.inheritDevices ? "bg-white border-[#168C0DFF]" : "border-gray-400"
-                  }`}
-                >
-                  {!subspace.inheritDevices && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
-                </span>
-                <span className="text-sm font-medium">No</span>
-              </label>
-            </div>
-          </div>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name={`inheritDevices-${index}`} // Mismo name para que solo se seleccione uno
+                                    checked={!subspace.inheritDevices}
+                                    onChange={() => handleSubspaceCheckboxChange(index, "noInheritDevices")}
+                                    className="hidden"
+                                  />
+                                  <span
+                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${!subspace.inheritDevices ? "bg-white border-[#168C0DFF]" : "border-gray-400"
+                                      }`}
+                                  >
+                                    {!subspace.inheritDevices && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
+                                  </span>
+                                  <span className="text-sm font-medium">No</span>
+                                </label>
+                              </div>
+                            </div>
 
-          {/* Tipo de dispositivo */}
-          <div className="mb-2">
-            <label className="block text-sm font-medium">Tipo de dispositivo:</label>
-            <select
-              value={subspace.deviceType}
-              onChange={(e) => handleSubspaceDeviceTypeChange(index, e.target.value)}
-              className="w-full px-3 py-2 border rounded-md"
-              disabled={!subspace.assignDevices || subspace.inheritDevices}
-            >
-              <option value="">Seleccione un tipo</option>
-              <option value="actuador">Actuador</option>
-              <option value="sensor">Sensor</option>
-            </select>
-          </div>
+                            {/* Tipo de dispositivo */}
+                            <div className="mb-2">
+                              <label className="block text-sm font-medium">Tipo de dispositivo:</label>
+                              <select
+                                value={subspace.deviceType}
+                                onChange={(e) => handleSubspaceDeviceTypeChange(index, e.target.value)}
+                                className="w-full px-3 py-2 border rounded-md"
+                                disabled={!subspace.assignDevices || subspace.inheritDevices}
+                              >
+                                <option value="">Seleccione un tipo</option>
+                                <option value="actuador">Actuador</option>
+                                <option value="sensor">Sensor</option>
+                              </select>
+                            </div>
 
-          {/* Nombre del dispositivo */}
-          <div className="mb-2">
-            <label className="block text-sm font-medium">Nombre del dispositivo:</label>
-            <select
-              value={subspace.selectedDevice}
-              onChange={(e) => handleSubspaceDeviceChange(index, e.target.value)}
-              className="w-full px-3 py-2 border rounded-md"
-              disabled={!subspace.assignDevices || subspace.inheritDevices || !subspace.deviceType}
-            >
-              <option value="">Seleccione un dispositivo</option>
-              {getDevicesByType(subspace.deviceType).map((device) => (
-                <option key={device.id} value={device.id}>
-                  {device.code}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+                            {/* Nombre del dispositivo */}
+                            <div className="mb-2">
+                              <label className="block text-sm font-medium">Nombre del dispositivo:</label>
+                              <select
+                                value={subspace.selectedDevice}
+                                onChange={(e) => handleSubspaceDeviceChange(index, e.target.value)}
+                                className="w-full px-3 py-2 border rounded-md"
+                                disabled={!subspace.assignDevices || subspace.inheritDevices || !subspace.deviceType}
+                              >
+                                <option value="">Seleccione un dispositivo</option>
+                                {getDevicesByType(subspace.deviceType).map((device) => (
+                                  <option key={device.id} value={device.id}>
+                                    {device.code}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
 
                 </div>
@@ -1325,20 +1325,21 @@ const CrearEspacio = () => {
                     <select
                       id="species"
                       name="species"
-                      onChange={(e) => handleSpeciesChange('main', e.target.value)}  // Aquí se pasa el ID de la especie
-                      value={selectedSpeciesId || ""}  // Asegúrate de que el valor se vincule correctamente al estado
+                      onChange={(e) => handleSpeciesChange("main", e.target.value)}
                       className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
                     >
                       <option value="" className="text-gray-500">
                         Selecciona una opción
                       </option>
-                      {species?.length > 0 &&
-                        species.map((sub) => (
+                      {species
+                        ?.filter((sub) => (especiesEspacio.flat()).includes(sub.id)) // Convertir en array plano
+                        .map((sub) => (
                           <option key={sub.id} value={sub.id}>
                             {sub.common_name}
                           </option>
                         ))}
                     </select>
+
 
                     {/* Selector de variables para especie principal */}
                     <div className="mt-4">
@@ -1367,13 +1368,11 @@ const CrearEspacio = () => {
                       </select>
                     </div>
                   </div>
-
-
                   {selectedVariables['main'] && (
                     <div>
                       <button
                         type="button"
-                        onClick={handleAddVariable}
+                        onClick={() => handleAddVariable('main')} // Pasar 'main' como tipo
                         className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
                       >
                         <FiPlusCircle />
@@ -1403,7 +1402,6 @@ const CrearEspacio = () => {
                               </div>
                             </div>
                           ))}
-
                       </div>
                     </div>
                   )}

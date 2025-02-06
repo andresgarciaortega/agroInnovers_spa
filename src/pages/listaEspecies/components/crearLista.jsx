@@ -90,7 +90,7 @@ const CrearListas = () => {
 
 
   useEffect(() => {
-    hiddenSelect(false)
+    hiddenSelect(true)
     const fetchCompany = async () => {
       try {
         const data = await CompanyService.getAllCompany();
@@ -120,7 +120,7 @@ const CrearListas = () => {
     };
 
     fetchData();
-  }, []);
+  }, [selectedCompanyUniversal]);
 
 
   const handleChange = async (e) => {

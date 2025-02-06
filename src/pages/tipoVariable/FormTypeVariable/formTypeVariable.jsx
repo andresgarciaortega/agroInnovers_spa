@@ -163,7 +163,7 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
          disabled={mode === 'view'}/>
       </div>
 
-      <div className="flex space-x-4">
+      <div className="flex space-x-4 w-full">
         <div className="w-1/2">
           <label htmlFor="typevariable-name" className="block text-sm font-medium text-gray-700">Nombre variable</label>
           <input
@@ -179,7 +179,7 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
           />
         </div>
 
-        <div className="w-1/2">
+        {/* <div className="w-1/2">
           <label className="block text-sm font-medium text-gray-700">Empresa</label>
           <select
             name="company"
@@ -196,7 +196,7 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
       </div>
 
       <div className="col-span-2">

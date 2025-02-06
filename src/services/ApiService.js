@@ -1,8 +1,8 @@
 // services/ApiService.js
 
 // const BASE_URL = import.meta.env.VITE_API_BASE_URL; // Cambia a VITE_API_BASE_URL
-const BASE_URL =  'http://localhost:3000';
-// const BASE_URL = 'https://agroinnovers-e9f12d4deefa.herokuapp.com' 
+// const BASE_URL =  'http://localhost:3000';
+const BASE_URL = 'https://agroinnovers-e9f12d4deefa.herokuapp.com' 
 // const BASE_URL = 'https://l9b59ve1ri.execute-api.us-east-1.amazonaws.com/master'
 
 const TIMEOUT = 5000; // Timeout en milisegundos
