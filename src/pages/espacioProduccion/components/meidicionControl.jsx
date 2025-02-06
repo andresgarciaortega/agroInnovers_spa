@@ -94,7 +94,6 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
                 setFormData({
                     ...formData,
                     controlType: value,
-                    controlType: '',
                     actuatorId: '',
                     actuationTimeUnit: '',
                     activationParameterRange: '',
