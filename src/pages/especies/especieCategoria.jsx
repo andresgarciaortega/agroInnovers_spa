@@ -175,48 +175,36 @@ const Especie = () => {
 
   const handleConfirmDelete = async () => {
     if (!selectedCategory) return;
-  
+
     try {
       setIsDeleteModalOpen(false);
-      
-      // Eliminar las subcategorías y etapas asociadas antes de eliminar la categoría principal
-      const deleteSubcategoriesAndStages = async (category) => {
-        const subcategoryDeletePromises = category.subcategories.map(subcategory => {
-          return CategoryServices.deleteSubcategory(subcategory.id);  // Reemplaza con la API adecuada
-        });
-        
-        const stageDeletePromises = category.stages.map(stage => {
-          return CategoryServices.deleteStages(stage.id);  // Reemplaza con la API adecuada
-        });
-  
-        await Promise.all([...subcategoryDeletePromises, ...stageDeletePromises]);
-      };
-  
-      // Llamamos a la función de eliminación en cascada antes de eliminar la categoría
-      await deleteSubcategoriesAndStages(selectedCategory);
-  
-      // Ahora eliminamos la categoría
+
       await CategoryServices.deleteCategory(selectedCategory.id);
-  
-      // Mostrar el mensaje de éxito
+
+      // Mensaje de éxito
       const successMessage = "Categoría eliminada exitosamente";
       setMessageAlert(successMessage);
       showErrorAlertSuccess(successMessage);
-  
-      // Actualiza la lista de categorías después de la eliminación
+
+      // Actualiza la lista de categorías
       updateService();
     } catch (error) {
       updateService();
-      
-      let errorMessage = "Hubo un error al eliminar la categoría y sus elementos asociados.";
-      if (error.response && error.response.status === 409) {
-        errorMessage = "No se puede eliminar porque tiene etapas o subcategorías asociadas.";
+
+      // Determina el mensaje según el tipo de error
+      let errorMessage;
+      if (error.response && error.response.status === 500) {
+        errorMessage =
+          "Esta categoría no se puede eliminar porque tiene etapas y subcategorías asociadas.";
+      } else {
+        errorMessage = "Esta categoría no se puede eliminar porque ya etsa asociada a una especie.";
       }
-  
+
+      // Muestra la alerta de error con el mensaje adecuado
       showErrorAlertError(errorMessage);
     }
   };
-  
+
   const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true);
     setMessageAlert(message); // Mensaje de éxito
@@ -317,6 +305,7 @@ const Especie = () => {
           <table className="w-full">
             <thead className="bg-gray-300">
               <tr>
+                <th className="px-"></th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre categoría</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subcategorías</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Etapas</th>
@@ -326,18 +315,20 @@ const Especie = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {currentCategories.map((category) => (
                 <tr key={category.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 flex items-center space-x-2">
+                  
+                  <td className=" p-3  whitespace-nowrap text-sm text-gray-900">
                     {category.image && (
                       <img
-                        src={category.image}
-                        alt={category.name}
-                        className="h-10 w-10 object-cover rounded-full"
+                      src={category.image}
+                      alt={category.name}
+                        className="h-12 w-12 object-cover rounded-full"
                       />
                     )}
-                    <span>{category.name}</span>
                   </td>
+                  <td className="whitespace-nowrap text-sm text-gray-900">{category.name}</td>
 
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+
+                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     <span className="text-[#168C0DFF] border-b-2 underline  font-bold bg-blue-50 px-2 py-1 rounded-md">
                       {category.subcategories.length}
                     </span>
