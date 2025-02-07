@@ -671,7 +671,7 @@ const CrearEspacio = () => {
     <form className="">
       <div className="container mx-auto p-2">
         <div className="bg-white rounded-lg shadow-xl p-6">
-          <h2 className="text-2xl font-semibold mb-6">Crear Lista de Especies</h2>
+          <h2 className="text-2xl font-semibold mb-6">Crear Espacios</h2>
 
           <div className="flex flex-col mb-6">
             <div className="flex items-center justify-between mb-2">
