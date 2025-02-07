@@ -502,19 +502,53 @@ const CrearListas = () => {
   }, [formData.stage]);
   
   // Eliminar parámetro
-  const handleDeleteClick = (paramId) => {
+  // const handleDeleteClick = (paramId) => {
+  //   setStages((prevStages) => {
+  //     return prevStages.map((stage) => {
+  //       if (stage.id === selectedStageId) {
+  //         return {
+  //           ...stage,
+  //           parameters: stage.parameters.filter((param) => param.id !== paramId),
+  //         };
+  //       }
+  //       return stage;
+  //     });
+  //   });
+  // };
+
+  // const handleDeleteClick = (stageIndex, paramId) => {
+  //   console.log("stageIndex : ", stageIndex)
+  //   console.log("paramId : ", paramId)
+  //   console.log( "Data stage " , stages)
+  //   setStages((prevStages) => {
+  //     return prevStages.map((stage, index) => {
+  //       if (index === stageIndex) {
+  //         return {
+  //           ...stage,
+  //           parameters: stage.parameters.filter((param) => param.id !== paramId),
+  //         };
+  //       }
+  //       return stage;
+  //     });
+  //   });
+  // };
+
+  const handleDeleteClick = (stageIndex, paramIndex) => {
     setStages((prevStages) => {
-      return prevStages.map((stage) => {
-        if (stage.id === selectedStageId) {
+      return prevStages.map((stage, index) => {
+        if (index === stageIndex) {
+          const updatedParameters = [...stage.parameters]; // Copia el array de parámetros
+          updatedParameters.splice(paramIndex, 1); // Elimina el parámetro en la posición correcta
           return {
             ...stage,
-            parameters: stage.parameters.filter((param) => param.id !== paramId),
+            parameters: updatedParameters,
           };
         }
         return stage;
       });
     });
   };
+
 
 
   const handleImageUpload = (event) => {
@@ -934,6 +968,7 @@ const CrearListas = () => {
                               />
 
                             </div>
+                            <h1>arreglo : {stage?.parameters?.length}</h1>
                           </div>
 
                           <ul className="space-y-2 mt-4">
@@ -977,7 +1012,7 @@ const CrearListas = () => {
                                           </button>
                                           <button
                                             type='button'
-                                            onClick={() => handleDeleteClick(param.id)}
+                                            onClick={() => handleDeleteClick(stageIndex, paramIndex)}
                                             className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
                                           >
                                             <Trash size={20} />
