@@ -338,6 +338,8 @@ const EditarCategorias = () => {
 
                 {formData.subcategory.map((subcategory, index) => (
                     <div key={index} className="flex gap-4 mt-2 items-center">
+                         <div className='w-full'>
+                         <label className="block text-sm font-medium text-gray-700">Nombre Subcategoría</label>
                         <input
                             type="text"
                             value={subcategory.name}
@@ -346,6 +348,7 @@ const EditarCategorias = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md"
                             disabled={editIndex !== index}
                         />
+                        </div>
                         <div className="flex gap-2">
                             {editIndex === index ? (
                                 <button
@@ -429,6 +432,7 @@ const EditarCategorias = () => {
 
                         <div className="flex justify-between items-center">
                             <div className="w-full">
+                            <label className="block text-sm font-medium text-gray-700">Nombre Etapa</label>
 
                                 <input
                                     type="text"
@@ -442,6 +446,7 @@ const EditarCategorias = () => {
                         </div>
 
                         <div className="mt-2">
+                        <label className="block text-sm font-medium text-gray-700">Descripción</label>
 
                             <input
                                 type="text"

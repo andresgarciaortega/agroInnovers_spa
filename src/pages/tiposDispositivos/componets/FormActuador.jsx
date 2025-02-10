@@ -415,11 +415,11 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
                             )}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Vida útil</label>
+                            <label className="block text-sm font-medium text-gray-700">Vida útil (en meses)</label>
                             <input
                                 type="number"
                                 name="lifespan"
-                                placeholder="Vida útil"
+                                placeholder="Vida útil "
                                 value={formData.lifespan}
                                 onChange={handleChange}
                                 disabled={mode === 'view'}
@@ -847,7 +847,7 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
                         // disabled={isButtonDisabled}
                         className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
                     >
-                        {mode === 'create' ? 'Crear Tipo sensor' : 'Guardar Cambios'}
+                        {mode === 'create' ? 'Crear Tipo Actuador' : 'Guardar Cambios'}
                     </button>
                 )}
             </div>

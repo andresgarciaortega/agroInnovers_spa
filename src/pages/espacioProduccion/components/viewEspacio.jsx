@@ -138,8 +138,13 @@ const ViewEspacio = ({ }) => {
         }));
     };
     const openMap = (gpsPosition) => {
+        if (!gpsPosition) return;
+    
         const [latitude, longitude] = gpsPosition.split(',').map(Number);
-        setSelectedPosition({ latitude, longitude });
+        
+        // Abre Google Maps en una nueva pestaña
+        const url = `https://www.google.com/maps?q=${latitude},${longitude}&z=15`;
+        window.open(url, "_blank"); // "_blank" abre en una nueva pestaña
     };
 
     const handleInputChange = (index, field, value) => {
@@ -498,15 +503,13 @@ const ViewEspacio = ({ }) => {
                                                     </p>
                                                     <p>
 
-                                                        <button
-                                                            className="text-blue-600 underline"
-                                                            onClick={() => window.open(
-                                                                `https://www.google.com/maps?q=${selectedPosition.latitude},${selectedPosition.longitude}&z=15`,
-                                                                "_blank"
-                                                            )}
-                                                        >
-                                                            Ver Posición
-                                                        </button>
+                                                    <button
+                                                            type='button'
+                                                                onClick={() => openMap(subSpace.gpsPosition)}
+                                                                className="text-blue-600 underline"
+                                                            >
+                                                                Ver posición
+                                                            </button>
 
                                                     </p>
                                                     <div>
@@ -656,15 +659,13 @@ const ViewEspacio = ({ }) => {
                                                     </p>
                                                     <p>
 
-                                                        <button
-                                                            className="text-blue-600 underline"
-                                                            onClick={() => window.open(
-                                                                `https://www.google.com/maps?q=${selectedPosition.latitude},${selectedPosition.longitude}&z=15`,
-                                                                "_blank"
-                                                            )}
-                                                        >
-                                                            Ver Posición
-                                                        </button>
+                                                    <button
+                                                            type='button'
+                                                                onClick={() => openMap(subSpace.gpsPosition)}
+                                                                className="text-blue-600 underline"
+                                                            >
+                                                                Ver posición
+                                                            </button>
 
                                                     </p>
                                                 </>

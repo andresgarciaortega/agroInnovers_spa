@@ -5,7 +5,7 @@ import { FaTrash } from 'react-icons/fa';
 import { Edit, Trash, Eye, Ban } from 'lucide-react';
 import EspeciesService from "../../../services/SpeciesService";
 import GenericModal from '../../../components/genericModal';
-import CrearEspacio from '../../espacioProduccion/components/crearEspacio';
+// import CrearEspacio from '../../espacioProduccion/components/crearEspacio';
 import CompanyService from '../../../services/CompanyService';
 
 const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
@@ -388,7 +388,8 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                                 name="estimatedEndDate"
                                 value={formData.estimatedEndDate}
                                 onChange={handleChange}
-                                min={today}
+                                min={new Date(Date.now() + 86400000).toISOString().split("T")[0]} // Mínimo: mañana
+
                                 className="mt-1 block w-full border rounded-md p-2"
                                 required
                             />

@@ -341,16 +341,16 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
           />
         </div>
         <input
-  type="date"
-  id="estimatedChangeDate"
-  name="estimatedChangeDate"
-  value={formData.estimatedChangeDate}
-  onChange={handleChange}
-  min={new Date(Date.now() + 86400000).toISOString().split("T")[0]} // Mínimo: mañana
-  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-  required
-  disabled={mode === 'view'}
-/>
+          type="date"
+          id="estimatedChangeDate"
+          name="estimatedChangeDate"
+          value={formData.estimatedChangeDate}
+          onChange={handleChange}
+          min={new Date(Date.now() + 86400000).toISOString().split("T")[0]} // Mínimo: mañana
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          required
+          disabled={mode === 'view'}
+        />
 
       </div>
 
