@@ -268,7 +268,6 @@ const FormEditarLote = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
             {step === 1 && (
                 <>
-                    <h3 className="text-lg font-semibold">Paso 1: Editar lotes de producción</h3>
                     <div>
                         <label className="block text-sm font-medium">Código del lote</label>
                         <input

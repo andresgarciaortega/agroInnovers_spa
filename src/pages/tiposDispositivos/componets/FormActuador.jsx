@@ -262,7 +262,8 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
                 controlSignal: String(formData.controlSignal), // Convertir a cadena
                 maxValue: Number(formData.maxValue),
                 minValue: Number(formData.minValue),
-                precision: formData.precision ? parseFloat(formData.precision) : null, // Validar precision
+                precision: String(formData.precision),
+
                 speed: Number(formData.speed),
                 repeatability: parseFloat(formData.repeatability),
                 operatingVoltage: Number(formData.operatingVoltage),
@@ -852,10 +853,10 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
             </div>
 
 
-            {showAlertError
+            {/* {showAlertError
                 && <ErrorAlert message={messageAlert}
                     onCancel={onClose}
-                />}
+                />} */}
         </form>
     );
 };

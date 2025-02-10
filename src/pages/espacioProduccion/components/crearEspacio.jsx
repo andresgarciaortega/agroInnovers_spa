@@ -483,8 +483,13 @@ const CrearEspacio = () => {
   };
 
   let data = []
+<<<<<<< HEAD
+  
+  const handleAddVariable = (type, index) => {
+=======
   const handleAddVariable = (e,type, index) => {
     e.preventDefault();
+>>>>>>> 1f0c03d9dbbb1bf731252a944bddd999dad7f9e7
     console.log("selectedVariableId :::::::::", selectedVariables.main)
     data.push(selectedVariables.main)
     console.log(data)
