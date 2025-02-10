@@ -332,6 +332,8 @@ const CrearCategorias = ({ }) => {
                                         <X size={16} />
                                     </button>
                                 </div>
+                            <label className="block text-sm font-medium text-gray-700">Nombre Subcategoría</label>
+
                                 <input
                                     type="text"
                                     value={subcategory.name}
@@ -359,7 +361,9 @@ const CrearCategorias = ({ }) => {
                             <div key={index} className="p-2 border border-gray-200 rounded-md">
                                 <div className="flex justify-between items-center mb-2">
                                     {/* Mostrar el nombre si existe, de lo contrario, mostrar "Etapa {index + 1}" */}
-                                    <span className="font-medium">{stage.name ? stage.name : `Etapa ${index + 1}`}</span>
+                                    <span className="font-medium">Etapa {index + 1}</span>
+
+                                    {/* <span className="font-medium">{stage.name ? stage.name : `Etapa ${index + 1}`}</span> */}
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveStage(index)}
@@ -368,6 +372,8 @@ const CrearCategorias = ({ }) => {
                                         <X size={16} />
                                     </button>
                                 </div>
+                            <label className="block text-sm font-medium text-gray-700">Nombre Etapa</label>
+                                
                                 <input
                                     type="text"
                                     value={stage.name}
@@ -375,6 +381,8 @@ const CrearCategorias = ({ }) => {
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
                                     placeholder="Nombre de etapa"
                                 />
+                            <label className="block text-sm font-medium text-gray-700 mt-5">Descripción</label>
+
                                 <textarea
                                     value={stage.description}
                                     onChange={(e) => handleStageChange(index, 'description', e.target.value)}

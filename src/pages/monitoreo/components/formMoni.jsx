@@ -232,9 +232,7 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
                                     value={formData.unidadSincronizacion}
                                     onChange={handleChange}
                                     className="border-gray-300 rounded-md shadow-sm p-2 w-full"
-                                >
-                                    <option value="Meses">Meses</option>
-                                    <option value="Semanas">Semanas</option>
+                                >   
                                     <option value="Dias">Días</option>
                                     <option value="Horas">Horas</option>
                                     <option value="Minutos">Minutos</option>

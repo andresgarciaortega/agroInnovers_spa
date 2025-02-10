@@ -10,6 +10,7 @@ const FormEditarLote = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
     const [espacioDetalles, setEspacioDetalles] = useState(null);
     const [etapas, setEtapas] = useState([]); // Estado para almacenar las etapas
     const [espaciosSeleccionados, setEspaciosSeleccionados] = useState([]); // Espacios seleccionados para agregar
+    const today = new Date().toISOString().split('T')[0];
 
     const [formData, setFormData] = useState({
         lotCode: '',
@@ -288,6 +289,8 @@ const FormEditarLote = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
                                 name="startDate"
                                 value={formData.startDate}
                                 onChange={handleChange}
+                                max={today}
+
                                 className="mt-1 block w-full border rounded-md p-2"
                                 required
                             />
@@ -299,6 +302,8 @@ const FormEditarLote = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
                                 name="estimatedEndDate"
                                 value={formData.estimatedEndDate}
                                 onChange={handleChange}
+                                min={new Date(Date.now() + 86400000).toISOString().split("T")[0]} // Mínimo: mañana
+
                                 className="mt-1 block w-full border rounded-md p-2"
                                 required
                             />

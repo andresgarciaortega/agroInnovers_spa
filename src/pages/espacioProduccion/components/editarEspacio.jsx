@@ -178,9 +178,15 @@ const EditarEspacio = ({ }) => {
         }));
     };
     const openMap = (gpsPosition) => {
+        if (!gpsPosition) return;
+    
         const [latitude, longitude] = gpsPosition.split(',').map(Number);
-        setSelectedPosition({ latitude, longitude });
+        
+        // Abre Google Maps en una nueva pestaña
+        const url = `https://www.google.com/maps?q=${latitude},${longitude}&z=15`;
+        window.open(url, "_blank"); // "_blank" abre en una nueva pestaña
     };
+    
 
     const handleInputChange = (index, field, value) => {
         const newSubSpaces = [...formData.subProductionSpaces];
@@ -589,6 +595,7 @@ const EditarEspacio = ({ }) => {
                                                         <p>
 
                                                             <button
+                                                            type='button'
                                                                 onClick={() => openMap(subSpace.gpsPosition)}
                                                                 className="text-blue-600 underline"
                                                             >
@@ -742,6 +749,7 @@ const EditarEspacio = ({ }) => {
                                                         <p>
 
                                                             <button
+                                                            
                                                                 onClick={() => openMap(subSpace.gpsPosition)}
                                                                 className="text-blue-600 underline"
                                                             >
