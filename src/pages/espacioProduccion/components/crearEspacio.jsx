@@ -47,14 +47,7 @@ const CrearEspacio = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editVariable, setEditVariable] = useState(null); // Variable para editar
 
-  const handleNextStep = () => {
-    if (step < 2) setStep((prev) => prev + 1);
-  };
-
-  const handlePrevStep = () => {
-    if (step > 0) setStep((prev) => prev - 1);
-  };
-
+ 
   const [inheritSensors, setInheritSensors] = useState(false);
   const [variablesBySubspace, setVariablesBySubspace] = useState({});
 
@@ -193,6 +186,16 @@ const CrearEspacio = () => {
   const [especiesEspacio, setEspecieEspasios] = useState([]);
   const [especiesSubspacio, setEspecieSubspasios] = useState({ species: [], });
 
+  const handleNextStep = () => {
+    if (step < 2) setStep((prev) => prev + 1);
+    console.log("primer dato : ", formData)
+    console.log("primer dato subspaces: ", subspaces)
+  };
+
+  const handlePrevStep = () => {
+    if (step > 0) setStep((prev) => prev - 1);
+    console.log("devicesList : ", devicesList)
+  };
 
 
   useEffect(() => {
@@ -480,14 +483,21 @@ const CrearEspacio = () => {
   };
 
   let data = []
+<<<<<<< HEAD
   
   const handleAddVariable = (type, index) => {
+=======
+  const handleAddVariable = (e,type, index) => {
+    e.preventDefault();
+>>>>>>> 1f0c03d9dbbb1bf731252a944bddd999dad7f9e7
     console.log("selectedVariableId :::::::::", selectedVariables.main)
+    data.push(selectedVariables.main)
+    console.log(data)
     if (type === 'main') {
       data.push(selectedVariables.main)
       setSelectedVariables((prev) => ({
         ...prev,
-        main: [data], // Agrega nuevaVariable al arreglo main
+        main: data, // Agrega nuevaVariable al arreglo main
       }));
       console.log("selectedVariables == ", selectedVariables);
 
@@ -625,12 +635,14 @@ const CrearEspacio = () => {
     if (specieId) fetchVariablesForSubspace();
   };
 
-  const handleVariableChange = (space, variableId) => {
-
+  let datosVariables = []
+  const handleVariableChange = (e, space, variableId) => {
+    e.preventDefault()
     if (space === "main") {
+      datosVariables.push(variableId)
       setSelectedVariables((prev) => ({
         ...prev,
-        main: variableId,
+        main: datosVariables,
       }));
     } else {
       setSelectedVariables((prev) => ({
@@ -1050,7 +1062,7 @@ const CrearEspacio = () => {
                               <label htmlFor={`species-${index}`} className="block text-sm font-medium text-gray-700 mb-1">
                                 Especies para el Subespacio {index + 1}
                               </label>
-                              <FormControl fullWidth>
+                              <FormControl fullWidth> 
                                 <Select
                                   multiple
                                   id={`species-${index}`}
@@ -1079,7 +1091,6 @@ const CrearEspacio = () => {
                   </div>
                 </div>
               </div>
-
             )}
             {step === 1 && (
 
@@ -1354,7 +1365,7 @@ const CrearEspacio = () => {
                       <select
                         id="variable"
                         name="variable"
-                        onChange={(e) => handleVariableChange("main", e.target.value)}
+                        onChange={(e) => handleVariableChange(e, "main", e.target.value)}
                         value={selectedVariables["main"] || ""}
                         className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
                       >
@@ -1374,7 +1385,7 @@ const CrearEspacio = () => {
                     <div>
                       <button
                         type="button"
-                        onClick={() => handleAddVariable('main')} // Pasar 'main' como tipo
+                        onClick={(e) => handleAddVariable(e, 'main')} // Pasar 'main' como tipo
                         className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
                       >
                         <FiPlusCircle />
@@ -1473,7 +1484,7 @@ const CrearEspacio = () => {
                           <select
                             id={`variable-${index}`}
                             name={`variable-${index}`}
-                            onChange={(e) => handleVariableChange(index, e.target.value)}
+                            onChange={(e) => handleVariableChange(e, index, e.target.value)}
                             value={selectedVariables.subspaces[index] || ""}
                             className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
                           >

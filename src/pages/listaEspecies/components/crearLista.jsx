@@ -533,7 +533,8 @@ const CrearListas = () => {
   //   });
   // };
 
-  const handleDeleteClick = (stageIndex, paramIndex) => {
+  const handleDeleteClick = (stageIndex, paramIndex, param) => {
+    console.log(param)
     setStages((prevStages) => {
       return prevStages.map((stage, index) => {
         if (index === stageIndex) {
@@ -1012,7 +1013,7 @@ const CrearListas = () => {
                                           </button>
                                           <button
                                             type='button'
-                                            onClick={() => handleDeleteClick(stageIndex, paramIndex)}
+                                            onClick={() => handleDeleteClick(stageIndex, paramIndex, param)}
                                             className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
                                           >
                                             <Trash size={20} />
