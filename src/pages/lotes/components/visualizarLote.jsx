@@ -7,6 +7,7 @@ import VariableType from '../../../services/VariableType';
 import { Edit, Trash, Eye, Plus } from 'lucide-react';
 import { IoIosWarning } from "react-icons/io";
 import FormSeguimiento from './FormSeguimiento';
+import FormEditSeguimiento from './editarSeguimient';
 import GenericModal from '../../../components/genericModal';
 import SuccessAlert from "../../../components/alerts/success";
 import { useCompanyContext } from "../../../context/CompanyContext";
@@ -15,7 +16,10 @@ import Delete from '../../../components/delete';
 
 const VisualizarLote = () => {
     const { id } = useParams();
+    const [hasSearched, setHasSearched] = useState(false);
+
     const [selectedLote, setSelectedLote] = useState(null);
+    const [selectedReporte, setSelectedReporte] = useState(null);
     const [selectedCompany, setSelectedCompany] = useState('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [messageAlert, setMessageAlert] = useState("");
@@ -28,6 +32,7 @@ const VisualizarLote = () => {
     const [expanded, setExpanded] = useState(null);
     const [typeVariable, setVariableType] = useState([]);
     const [isModalOpenSeguimiento, setIdModalOpenSeguimiento] = useState(false);
+    const [isModalOpenEditSeguimiento, setIdModalOpenEditSeguimiento] = useState(false);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -99,6 +104,8 @@ const VisualizarLote = () => {
 
 
     const handleBuscar = () => {
+        setShowErrorAlertTable(false);
+        setHasSearched(true); 
         const filters = {
             typeVariable: formData.typeVariableId ? { id: parseInt(formData.typeVariableId, 10) } : undefined,
             speciesData: tipoReporte === "especie",
@@ -151,40 +158,38 @@ const VisualizarLote = () => {
         setExpanded(expanded === id ? null : id);
     };
 
-    // Abrir el modal
-    const handleOpenModal = (mode = "create", seguimiento = null) => {
-        setSelectedLote(id); // Asegurar que el lote actual está seleccionado
+    const handleOpenModal = () => {
+        setSelectedLote(id);
         setIdModalOpenSeguimiento(true);
-        setModalMode(mode);
-        setLote(lote);
-        console.log('seguimiento:', lote)
-
-
-        if (mode === "edit" && seguimiento) {
-            setIsModalOpen(true);
-        setLote(lote);
-
-        } else {
-        setLote(lote);
-
-            setFormData({
-                productionLotId: id, // Asignar el ID del lote actual
-                typeVariableId: "",
-                variableTrackingReports: [
-                    {
-                        variableId: "",
-                        updateDate: "",
-                        updateTime: "",
-                        weightAmount: ""
-                    }
-                ],
-                company_id: selectedCompanyUniversal?.value || "",
-                specieId: "",
-                speciesData: false
-            });
-        }
+        setModalMode("create");
+        
+        setFormData({
+            productionLotId: id, 
+            typeVariableId: "",
+            variableTrackingReports: [
+                {
+                    variableId: "",
+                    updateDate: "",
+                    updateTime: "",
+                    weightAmount: ""
+                }
+            ],
+            company_id: selectedCompanyUniversal?.value || "",
+            specieId: "",
+            speciesData: false
+        });
     };
-
+    
+    const handleOpenModalEdit = (reporte) => {
+        if (!reporte) return;
+        setSelectedReporte(reporte); 
+        setSelectedLote(id);
+        setIdModalOpenEditSeguimiento(true);
+        setModalMode("edit");
+    
+        setFormData(reporte);
+    };
+    
     const handleDelete = (reporte) => {
         setSelectedLote(reporte);
         setIsDeleteModalOpen(true);
@@ -217,6 +222,7 @@ const VisualizarLote = () => {
     // Cerrar el modal
     const closeModal = () => {
         setIdModalOpenSeguimiento(false);
+        setIdModalOpenEditSeguimiento(false);
         // setCurrentUser(null);
         setModalMode('create');
     };
@@ -305,8 +311,9 @@ const VisualizarLote = () => {
             <div className="border border-gray-300 p-2 mt-4 shadow-lg">
                 <h2 className="text-xl font-bold mb-4">Reporte de seguimiento</h2>
 
-                {/* Filtros */}
+                
                 <div className="grid grid-cols-7 gap-4 mb-4">
+                
                     <select
                         name="typeVariableId"
                         value={formData.typeVariableId}
@@ -326,6 +333,7 @@ const VisualizarLote = () => {
                         value={tipoReporte}
                         onChange={(e) => setTipoReporte(e.target.value)}
                     >
+                        <option value="">Seleccione un tipo de reporte</option>
                         <option value="general">General</option>
                         <option value="especie">Por Especie</option>
                     </select>
@@ -370,16 +378,17 @@ const VisualizarLote = () => {
                         </button>
                     </div>
                     <div className="overflow-x-auto">
-                        {seguimiento.length === 0 ? (
-                            <div className="alert alert-error flex flex-col items-start space-y-2 p-4 mt-4 bg-red-500 text-white rounded-md">
-                                <div className="flex items-center space-x-2">
-                                    <IoIosWarning size={20} />
-                                    <p >El tipo de variable en este lote aún no tiene un reporte de seguimiento añadido.</p>
+                    {hasSearched && seguimiento.length === 0 && (
+   <div className="alert alert-error flex flex-col items-start space-y-2 p-4 mt-4 bg-red-500 text-white rounded-md">
+   <div className="flex items-center space-x-2">
+       <IoIosWarning size={20} />
+       <p >El tipo de variable en este lote aún no tiene un reporte de seguimiento añadido.</p>
 
-                                </div>
+   </div>
 
-                            </div>
-                        ) : (
+</div>
+)}
+
                             <table className="w-full">
                                 <thead className="bg-gray-300 ">
                                     <tr>
@@ -413,7 +422,7 @@ const VisualizarLote = () => {
                                                     <Eye size={18} />
                                                 </button>
                                                 <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
-                                                    onClick={() => handleOpenModal(reporte, 'edit')}>
+                                                    onClick={() => handleOpenModalEdit(reporte)}>
                                                     <Edit size={18} />
                                                 </button>
                                                 <button className="px-2 py-4 whitespace-nowrap text-sm font-medium"
@@ -426,7 +435,7 @@ const VisualizarLote = () => {
                                     ))}
                                 </tbody>
                             </table>
-                        )}
+                        
                     </div>
                 </div>
             </div>
@@ -445,28 +454,43 @@ const VisualizarLote = () => {
   )}
             {isModalOpenSeguimiento && (
                 <GenericModal
-                    title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver sensor' : 'Reporte de seguimiento'}
+                    title={modalMode === 'edit' ? 'Editar Reporte de seguimiento' : modalMode === 'view' ? 'Ver Reporte de seguimiento' : 'Reporte de seguimiento'}
                     onClose={closeModal}
                     companyId={selectedCompany} >
 
                     <FormSeguimiento
                         showErrorAlert={showErrorAlertSuccess}
                         onUpdate={updateService}
-                        lote={formData}
+                        lote={lote}
                         mode={modalMode}
                         closeModal={closeModal}
                     />
 
                 </GenericModal>
             )}
-             {showErrorAlertTable && (
-                      <div className="alert alert-error flex flex-col items-start space-y-1 p-2 mt-4 bg-red-500 text-white rounded-md">
-                        <div className="flex space-x-2">
-                          <IoIosWarning size={20} />
-                          <p>{messageAlert}</p>
-                        </div>
-                      </div>
-                    )}
+            {isModalOpenEditSeguimiento && (
+                <GenericModal
+                    title={modalMode === 'edit' ? 'Editar Reporte de seguimiento' : modalMode === 'view' ? 'Ver Reporte de seguimiento' : 'Reporte de seguimiento'}
+                    onClose={closeModal}
+                    companyId={selectedCompany} >
+
+                    <FormEditSeguimiento
+                        showErrorAlert={showErrorAlertSuccess}
+                        onUpdate={updateService}
+                        lote={lote}
+                        reporte={selectedReporte}
+                        mode={modalMode}
+                        closeModal={closeModal}
+                    />
+
+                </GenericModal>
+            )}
+            {showErrorAlert && (
+        <div className="mt-4 p-3 bg-red-100 text-red-700 border border-red-400 rounded-md flex items-center">
+            <IoIosWarning className="mr-2" /> {messageAlert}
+            <button onClick={handleCloseAlert} className="ml-auto text-sm text-red-600">Cerrar</button>
+        </div>
+    )}
         </div>
     );
 };

@@ -340,20 +340,18 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
             disabled={mode === 'view'}
           />
         </div>
-        <div>
-          <label htmlFor="estimatedChangeDate" className="block text-sm font-medium text-gray-700">Fecha estimada de cambio (editable)</label>
-          <input
-            type="date"
-            id="estimatedChangeDate"
-            name="estimatedChangeDate"
-            value={formData.estimatedChangeDate}
-            onChange={handleChange}
-            min={new Date().toISOString().split("T")[0]} // Restringe fechas pasadas
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            required
-            disabled={mode === 'view'}
-          />
-        </div>
+        <input
+  type="date"
+  id="estimatedChangeDate"
+  name="estimatedChangeDate"
+  value={formData.estimatedChangeDate}
+  onChange={handleChange}
+  min={new Date(Date.now() + 86400000).toISOString().split("T")[0]} // Mínimo: mañana
+  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+  required
+  disabled={mode === 'view'}
+/>
+
       </div>
 
 

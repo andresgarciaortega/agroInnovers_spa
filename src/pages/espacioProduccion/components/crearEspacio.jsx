@@ -480,6 +480,7 @@ const CrearEspacio = () => {
   };
 
   let data = []
+  
   const handleAddVariable = (type, index) => {
     console.log("selectedVariableId :::::::::", selectedVariables.main)
     if (type === 'main') {
