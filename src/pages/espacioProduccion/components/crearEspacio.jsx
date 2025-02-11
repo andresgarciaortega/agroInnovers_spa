@@ -183,8 +183,11 @@ const CrearEspacio = () => {
         }
       ],
     });
+
   const [especiesEspacio, setEspecieEspasios] = useState([]);
   const [especiesSubspacio, setEspecieSubspasios] = useState({ species: [], });
+
+  const [VariablesSelected, setVariablesSelected] = useState([]);
 
   const handleNextStep = () => {
     if (step < 2) setStep((prev) => prev + 1);
@@ -495,7 +498,17 @@ const CrearEspacio = () => {
         main: data, // Agrega nuevaVariable al arreglo main
       }));
       console.log("selectedVariables == ", selectedVariables);
-
+      if (selectedVariables.main[0] != undefined && selectedVariables.main[0] != null && selectedVariables.main[0].length > 0 && !Array.isArray(selectedVariables.main[0])){
+       setVariablesSelected((prev) => ({
+         ...prev,
+         datosVariables: [
+           ...(prev.datosVariables || []),
+           {id: selectedVariables.main[0]}
+         ].filter((value, index, self) =>
+         index === self.findIndex((t) => t.id === value.id)
+         )
+      }));
+      }
     } else {
       // Agregar variable al subespacio correspondiente
       setSelectedVariables((prev) => {
@@ -505,6 +518,15 @@ const CrearEspacio = () => {
           : [selectedVariableId];
         return { ...prev, subspaces: updatedSubspaces };
       });
+      setVariablesSelected((prev) => ({
+        ...prev,
+        datosVariables: [
+          ...(prev.datosVariables || []),
+          {id: selectedVariables.subspaces[0]}
+        ].filter((value, index, self) =>
+        index === self.findIndex((t) => t.id === value.id)
+        )
+     }));
     }
   };
 
@@ -592,6 +614,7 @@ const CrearEspacio = () => {
 
 
   const handleSpeciesChange = (index, specieId) => {
+    console.log(selectedSpecies)
     // Actualizar el estado de la especie seleccionada para ese subespacio
     const newSelectedSpecies = { ...selectedSpecies, [index]: specieId };
     setSelectedSpecies(newSelectedSpecies);  // Esto actualizará el estado seleccionado
@@ -633,11 +656,12 @@ const CrearEspacio = () => {
   let datosVariables = []
   const handleVariableChange = (e, space, variableId) => {
     e.preventDefault()
+
     if (space === "main") {
       datosVariables.push(variableId)
-      setSelectedVariables((prev) => ({
-        ...prev,
-        main: datosVariables,
+       setSelectedVariables((prev) => ({
+         ...prev,
+         main: datosVariables,
       }));
     } else {
       setSelectedVariables((prev) => ({
@@ -649,8 +673,7 @@ const CrearEspacio = () => {
       }));
     }
   };
-
-
+  
   const handleChange = async (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -1319,7 +1342,10 @@ const CrearEspacio = () => {
 
             {step === 2 && (
               <div>
-                <div className="border border-gray-400 p-3 rounded-lg">
+                {subspaces.length > 0 ? (
+                  null
+                ) : (
+                  <div className="border border-gray-400 p-3 rounded-lg">
                   <div>
                     <h2 className="font-bold p-1">Espacio</h2>
                   </div>
@@ -1355,7 +1381,7 @@ const CrearEspacio = () => {
                         htmlFor="variable"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Variables Asociadas
+                        Variables Asociadas espacios
                       </label>
                       <select
                         id="variable"
@@ -1369,7 +1395,7 @@ const CrearEspacio = () => {
                         </option>
                         {mainVariables.length > 0 &&
                           mainVariables.map((variable, index) => (
-                            <option key={index} value={variable.id}>
+                            <option key={index} value={variable.name}>
                               {variable.name}
                             </option>
                           ))}
@@ -1388,18 +1414,18 @@ const CrearEspacio = () => {
                       </button>
                     </div>
                   )}
-                  {selectedVariables.main.length > 0 && (
+                  {VariablesSelected.datosVariables && VariablesSelected.datosVariables.length > 0 && (
                     <div className="mt-4">
                       <h3 className="text-lg font-medium">Variables del Espacio:</h3>
                       <div className="mt-2 grid grid-cols-1 gap-2">
-                        {Array.isArray(selectedVariables.main) &&
-                          selectedVariables.main.map((variable, index) => (
+                        {Array.isArray(VariablesSelected.datosVariables) &&
+                          VariablesSelected.datosVariables.map((datosVariables, index) => (
                             <div
                               key={index}
                               className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
                             >
                               <div className="flex justify-between items-center">
-                                <span>{variable.name || variable}</span>
+                                <span>{datosVariables.id}</span>
                                 <button
                                   type="button"
                                   onClick={() => handleMedicionControl(variable)}
@@ -1435,11 +1461,13 @@ const CrearEspacio = () => {
 
 
                 </div>
+                )}
+
                 <div className='p-3'>
                   {subspaces.map((subspace, index) => (
                     <div
                       key={index}
-                      className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4"
+                      className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4 mb-4"
                     >
                       <h3>Subespacio {index + 1}</h3>
                       {/* Selección de especie */}
@@ -1460,12 +1488,19 @@ const CrearEspacio = () => {
                           <option value="" className="text-gray-500">
                             Selecciona una opción
                           </option>
-                          {species?.length > 0 &&
-                            species.map((sub) => (
+                          {console.log(species)}
+                          {console.log(species.map((e) => (console.log(e?.id))))}
+                          {console.log(especiesEspacio)}
+                          {console.log(species.map((e) => (console.log(e?.id))))}
+                          {console.log(subspaces)}
+                          {console.log(subspaces.map((e) => (e?.species.map((s) => console.log(Array.isArray(s) ? s : [s])))))}
+                          {species
+                            ?.filter((sub) => (subspaces.species.flat()).includes(sub.id)) // Convertir en array plano
+                            .map((sub) => (
                               <option key={sub.id} value={sub.id}>
                                 {sub.common_name}
                               </option>
-                            ))}
+                          ))}
                         </select>
 
                         {/* Selección de variables */}
@@ -1495,49 +1530,46 @@ const CrearEspacio = () => {
                         </div>
 
                         {/* Botón para añadir la variable seleccionada */}
-                        {selectedVariables.subspaces[index] && (
-                          <button
-                            type="button"
-                            onClick={() => handleAddVariable(index)}
-                            className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
-                          >
-                            <FiPlusCircle />
-                            Añadir Variable
-                          </button>
+                        
+                        {selectedVariables['main'] && (
+                          <div>
+                            <button
+                              type="button"
+                              onClick={(e) => handleAddVariable(e, 'main')} // Pasar 'main' como tipo
+                              className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
+                            >
+                              <FiPlusCircle />
+                              Añadir Variable
+                            </button>
+                          </div>
+                        )}
+                        {VariablesSelected.datosVariables && VariablesSelected.datosVariables.length > 0 && (
+                          <div className="mt-4">
+                            <h3 className="text-lg font-medium">Variables del Espacio:</h3>
+                            <div className="mt-2 grid grid-cols-1 gap-2">
+                              {Array.isArray(VariablesSelected.datosVariables) &&
+                                VariablesSelected.datosVariables.map((datosVariables, index) => (
+                                  <div
+                                    key={index}
+                                    className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
+                                  >
+                                    <div className="flex justify-between items-center">
+                                      <span>{datosVariables.id}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleMedicionControl(variable)}
+                                        className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
+                                      >
+                                        Medición y Control
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
                         )}
 
-                        {subspaces.map((subspace, index) => (
-                          <div key={index} className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4">
-                            <h3>Subespacio {index + 1}</h3>
 
-                            {/* Mostrar variables seleccionadas para cada subespacio */}
-                            {Array.isArray(selectedVariables.subspaces[index]) && selectedVariables.subspaces[index].length > 0 && (
-                              <div className="mt-6">
-                                <h3 className="text-lg font-medium">Variables del Subespacio:</h3>
-                                <div className="mt-2 grid grid-cols-1 gap-2">
-                                  {selectedVariables.subspaces[index].map((variable, varIndex) => (
-                                    <div
-                                      key={varIndex}
-                                      className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
-                                    >
-                                      <div className="flex justify-between items-center">
-                                        <span>{variable.name || variable}</span>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleMedicionControl(variable)}
-                                          className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
-                                        >
-                                          Medición y Control
-                                        </button>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                          </div>
-                        ))}
 
 
                       </div>
