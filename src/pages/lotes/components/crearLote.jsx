@@ -541,6 +541,8 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                                             type="date"
                                             name="startDate"
                                             value={formData.startDate}
+                                max={today}
+
                                             onChange={handleChange}
                                             className="mt-1 block w-full border rounded-md p-2"
                                             required

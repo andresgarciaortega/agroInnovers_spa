@@ -340,6 +340,10 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
             disabled={mode === 'view'}
           />
         </div>
+      
+        <div>
+          <label htmlFor="installationDate" className="block text-sm font-medium text-gray-700">Fecha estimada de cambio (editable)</label>
+         
         <input
           type="date"
           id="estimatedChangeDate"
@@ -351,6 +355,7 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
           required
           disabled={mode === 'view'}
         />
+         </div>
 
       </div>
 
