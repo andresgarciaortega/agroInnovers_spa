@@ -14,6 +14,8 @@ import CompanyService from '../../../services/CompanyService';
 import { IoCloudUploadOutline } from "react-icons/io5";
 import CompanySelector from "../../../components/shared/companySelect";
 import { useCompanyContext } from "../../../context/CompanyContext";
+import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } from '@mui/material';
+
 
 const VisualizarLista = () => {
     const navigate = useNavigate();
@@ -76,6 +78,8 @@ const VisualizarLista = () => {
         try {
             const subcategory = await CategoryService.getCategoryById(categoryId);
             setSubcategories(subcategory.subcategories); // Asegúrate de que subcategories es un array con `id` y `name`
+            const variables = await VaiableService.getAllVariable();
+            setVariables(variables);
         } catch (error) {
             console.error('Error fetching subcategories:', error);
         }
@@ -93,7 +97,7 @@ const VisualizarLista = () => {
                 subcategory_id: data.subcategory?.id  || 0,
                 scientificName: data.scientific_name || '',
                 commonName: data.common_name || '',
-                variable_id: data.variables || 0,
+                variable_id:  data.variables.map(variable => variable.id) || [],
                 image: data.photo || null,
                 descripcion: data.description || '',
                 stage: data.stages || [],
@@ -296,6 +300,22 @@ const VisualizarLista = () => {
                                     required
                                 />
                             </div>
+                            <div>
+                                <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700">
+                                    Descripción
+                                </label>
+                                <input
+                                    type="text"
+                                    id="descripcion"
+                                    name="descripcion"
+                                    value={formData.descripcion}
+                                    onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                                    className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+                                    disabled
+
+                                    required
+                                />
+                            </div>
                         </div>
                         
 
@@ -344,7 +364,40 @@ const VisualizarLista = () => {
                                     ))}
                                 </select>
                             </div>
+                            <div>
+                                <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Variable
+                                </label>
+                                <FormControl
+                                    className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+                                >
+                                    <Select
+                                        className='selectorMultipleVariables'
+                                        multiple
+                                    disabled
+
+                                        value={formData.variable_id || []}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, variable_id: e.target.value })
+                                        }
+                                        renderValue={(selectedIds) =>
+                                            variables
+                                                .filter((option) => selectedIds.includes(option.id))
+                                                .map((option) => option.name)
+                                                .join(', ')
+                                        }
+                                    >
+                                        {variables.map((option) => (
+                                            <MenuItem key={option.id} value={option.id}>
+                                                <Checkbox checked={formData.variable_id?.includes(option.id)} />
+                                                <ListItemText primary={option.name} />
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </div>
                         </div>
+                       
                     </div>
 
 
