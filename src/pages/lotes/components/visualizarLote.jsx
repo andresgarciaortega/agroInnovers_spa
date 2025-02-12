@@ -405,16 +405,7 @@ const VisualizarLote = () => {
                         </button>
                     </div>
                     <div className="overflow-x-auto">
-                        {hasSearched && seguimiento.length === 0 && (
-                            <div className="alert alert-error flex flex-col items-start space-y-2 p-4 mt-4 bg-red-500 text-white rounded-md">
-                                <div className="flex items-center space-x-2">
-                                    <IoIosWarning size={20} />
-                                    <p >El tipo de variable en este lote aún no tiene un reporte de seguimiento añadido.</p>
-
-                                </div>
-
-                            </div>
-                        )}
+                       
 
                         <table className="w-full">
                             <thead className="bg-gray-300 ">
@@ -461,7 +452,18 @@ const VisualizarLote = () => {
                                     </tr>
                                 ))}
                             </tbody>
+                            
                         </table>
+                        {hasSearched && seguimiento.length === 0 && (
+                            <div className="alert alert-error flex flex-col items-start space-y-2 p-4 mt-4 bg-red-500 text-white rounded-md w-full">
+                                <div className="flex items-center space-x-2">
+                                    <IoIosWarning size={20} />
+                                    <p >El tipo de variable en este lote aún no tiene un reporte de seguimiento añadido.</p>
+
+                                </div>
+
+                            </div>
+                        )}
 
                     </div>
                 </div>
