@@ -21,9 +21,9 @@ const VisualizarLote = () => {
     const [selectedLote, setSelectedLote] = useState(null);
     const [selectedReporte, setSelectedReporte] = useState(null);
     const [selectedCompany, setSelectedCompany] = useState('');
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [messageAlert, setMessageAlert] = useState("");
-  const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [messageAlert, setMessageAlert] = useState("");
+    const [showErrorAlert, setShowErrorAlert] = useState(false);
 
     const { selectedCompanyUniversal } = useCompanyContext();
     const [nameCompany, setNameCompany] = useState("");
@@ -33,7 +33,7 @@ const VisualizarLote = () => {
     const [typeVariable, setVariableType] = useState([]);
     const [isModalOpenSeguimiento, setIdModalOpenSeguimiento] = useState(false);
     const [isModalOpenEditSeguimiento, setIdModalOpenEditSeguimiento] = useState(false);
-  const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
+    const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState("create");
@@ -60,16 +60,17 @@ const VisualizarLote = () => {
         lotCode: '',
         startDate: '',
         estimatedEndDate: '',
-        productionSpaceId: '',
+        productionSpace: '',
         reportFrequency: '',
         cycleStage: ''
-      });
+    });
 
     useEffect(() => {
         const fetchLote = async () => {
             try {
                 const response = await LoteService.getAllLotsById(id);
                 setLote(response);
+                console.log('lote traido', lote)
 
                 // Asegúrate de traer las especies completas, no solo sus IDs
                 setEspecies(response.productionLotSpecies?.map((item) => ({
@@ -105,7 +106,7 @@ const VisualizarLote = () => {
 
     const handleBuscar = () => {
         setShowErrorAlertTable(false);
-        setHasSearched(true); 
+        setHasSearched(true);
         const filters = {
             typeVariable: formData.typeVariableId ? { id: parseInt(formData.typeVariableId, 10) } : undefined,
             speciesData: tipoReporte === "especie",
@@ -141,19 +142,21 @@ const VisualizarLote = () => {
         }));
     };
 
-    const calcularIndividuosMuertos = (seguimiento) => {
+    const calcularIndividuosMuertos = (seguimiento, especieId) => {
         const mortandadReportes = seguimiento.filter(reporte =>
-            reporte.typeVariable?.name === 'Mortandad'
+            reporte.typeVariable?.id === 64 && 
+            reporte.specie?.id === especieId 
         );
-
+    
         const sumaMortandad = mortandadReportes.reduce((acc, reporte) => {
             const cantidad = parseFloat(reporte.variableTrackingReports[0]?.weightOrQuantity) || 0;
             return acc + cantidad;
+
         }, 0);
+    console.log ('cantidad',sumaMortandad)
 
         return sumaMortandad;
     };
-
     const toggleExpand = (id) => {
         setExpanded(expanded === id ? null : id);
     };
@@ -162,9 +165,9 @@ const VisualizarLote = () => {
         setSelectedLote(id);
         setIdModalOpenSeguimiento(true);
         setModalMode("create");
-        
+
         setFormData({
-            productionLotId: id, 
+            productionLotId: id,
             typeVariableId: "",
             variableTrackingReports: [
                 {
@@ -179,24 +182,25 @@ const VisualizarLote = () => {
             speciesData: false
         });
     };
-    
-    const handleOpenModalEdit = (reporte) => {
+
+    const handleOpenModalEdit = (reporte, mode) => {
         if (!reporte) return;
-        setSelectedReporte(reporte); 
+        setSelectedReporte(reporte);
         setSelectedLote(id);
+
         setIdModalOpenEditSeguimiento(true);
-        setModalMode("edit");
-    
+        setModalMode(mode);
+
         setFormData(reporte);
     };
-    
+
     const handleDelete = (reporte) => {
         setSelectedLote(reporte);
         setIsDeleteModalOpen(true);
-      };
-  
-    
-      const handleConfirmDelete = async () => {
+    };
+
+
+    const handleConfirmDelete = async () => {
         setIsDeleteModalOpen(false);
         setSelectedLote(null);
         await ReporteService.deleteReporte(selectedLote.id);
@@ -204,19 +208,19 @@ const VisualizarLote = () => {
         showErrorAlertSuccess("eliminado");
         updateService(); // Llama de nuevo a la API para actualizar la lista sin recargar la página
     };
-    
-      const handleCloseAlert = () => {
+
+    const handleCloseAlert = () => {
         setShowErrorAlert(false);
         updateService(); // Llama de nuevo a la API para actualizar la lista sin recargar la página
 
-      };
-    
-      const handleCancelDelete = () => {
+    };
+
+    const handleCancelDelete = () => {
         setSelectedLote(null);
         setIsDeleteModalOpen(false);
         updateService(); // Llama de nuevo a la API para actualizar la lista sin recargar la página
 
-      };
+    };
 
 
     // Cerrar el modal
@@ -245,7 +249,7 @@ const VisualizarLote = () => {
                 id: item.specie?.id,
                 name: item.specie?.common_name || "Sin nombre"
             })));
-        } catch  (error) {
+        } catch (error) {
             console.error("Error fetching lots:", error);
             setLotesList([]);
             setShowErrorAlertTable(true);
@@ -269,25 +273,47 @@ const VisualizarLote = () => {
                     <div>
                         <p><strong>Código del Lote:</strong> {lote.lotCode}</p>
                         <p><strong>Estado del lote:</strong> {lote.status}</p>
+                        <p>
+                            <strong>Posición GPS:</strong>{" "}
+                            {lote.productionSpace?.gpsPosition ? (
+                                <a
+                                    href={`https://www.google.com/maps?q=${lote.productionSpace.gpsPosition}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ color: "blue", textDecoration: "underline", cursor: "pointer" }}
+                                >
+                                    Ver posición
+                                </a>
+                            ) : (
+                                "No disponible"
+                            )}
+                        </p>
+                        {/* <p><strong>Alertas resividas:</strong> {lote.status}</p> */}
                     </div>
                     <div>
                         <p><strong>Fecha de Inicio:</strong> {lote.startDate}</p>
                         <p><strong>Fecha estimada de finalización:</strong> {lote.estimatedEndDate}</p>
+                        <p><strong>Nombre del espacio:</strong> {lote.productionSpace?.name}</p>
+                        {/* <p><strong>Tipo de espacio:</strong> {lote.spaceTypeId?.name}</p> */}
                     </div>
                 </div>
             )}
             <div className="border border-gray-300 p-4 mt-4 shadow-lg">
                 <h2 className="text-xl font-bold mb-4">Especies</h2>
                 <div className="grid grid-cols-1 gap-4">
-                    {lote?.productionLotSpecies?.map((especie) => (
-                        <div
+                {lote?.productionLotSpecies?.map((especie) => {
+        // Verificar si trackingConfig existe y tiene al menos un elemento
+        const etapa = especie.trackingConfig?.[0]?.productionCycleStage?.name || "Etapa no disponible";
+
+        return (
+            <div
                             key={especie.id}
                             className="border p-2 rounded-md bg-gray-100 shadow-lg"
                         >
                             <div className="flex justify-between items-center">
                                 <div>
                                     <p><strong>{especie.specie.common_name}</strong></p>
-                                    <p>Etapa: {especie.stage}</p>
+                                    <p>Etapa: {etapa}</p>
                                     <p>Peso Total inicial: {especie.initialWeight} kg</p>
                                     <p>Peso Total Final: {especie.finalWeight} kg</p>
                                 </div>
@@ -295,7 +321,7 @@ const VisualizarLote = () => {
                                 <div className="ml-auto text-right">
                                     <p>N° individuos iniciales: {especie.initialIndividuals}</p>
                                     <p>N° individuos finales: {especie.finalIndividuals}</p>
-                                    <p>N° individuos muertos: {calcularIndividuosMuertos(seguimiento)}</p>
+                                    <p>N° individuos muertos: {calcularIndividuosMuertos(seguimiento, especie.specie.id)}</p>
                                 </div>
 
 
@@ -303,7 +329,8 @@ const VisualizarLote = () => {
 
 
                         </div>
-                    ))}
+        );
+})}
                 </div>
             </div>
 
@@ -311,9 +338,9 @@ const VisualizarLote = () => {
             <div className="border border-gray-300 p-2 mt-4 shadow-lg">
                 <h2 className="text-xl font-bold mb-4">Reporte de seguimiento</h2>
 
-                
+
                 <div className="grid grid-cols-7 gap-4 mb-4">
-                
+
                     <select
                         name="typeVariableId"
                         value={formData.typeVariableId}
@@ -356,11 +383,11 @@ const VisualizarLote = () => {
                     <button
                         onClick={handleBuscar}
                         className="bg-gray-200 text-white px-4 py-2 rounded-md flex items-center justify-center col-span-1 shadow-lg"
-                       
+
                     >
-                         
+
                         <AiOutlineSearch className="text-lg mr-1 text-[#168C0DFF]"
-                         />
+                        />
                     </button>
                 </div>
 
@@ -378,80 +405,80 @@ const VisualizarLote = () => {
                         </button>
                     </div>
                     <div className="overflow-x-auto">
-                    {hasSearched && seguimiento.length === 0 && (
-   <div className="alert alert-error flex flex-col items-start space-y-2 p-4 mt-4 bg-red-500 text-white rounded-md">
-   <div className="flex items-center space-x-2">
-       <IoIosWarning size={20} />
-       <p >El tipo de variable en este lote aún no tiene un reporte de seguimiento añadido.</p>
+                        {hasSearched && seguimiento.length === 0 && (
+                            <div className="alert alert-error flex flex-col items-start space-y-2 p-4 mt-4 bg-red-500 text-white rounded-md">
+                                <div className="flex items-center space-x-2">
+                                    <IoIosWarning size={20} />
+                                    <p >El tipo de variable en este lote aún no tiene un reporte de seguimiento añadido.</p>
 
-   </div>
+                                </div>
 
-</div>
-)}
+                            </div>
+                        )}
 
-                            <table className="w-full">
-                                <thead className="bg-gray-300 ">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Espacio de producción </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variable</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Especie</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad medida</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        <table className="w-full">
+                            <thead className="bg-gray-300 ">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Espacio de producción </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variable</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Especie</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad medida</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {seguimiento.map((reporte, index) => (
+                                    <tr key={index}>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ textTransform: 'uppercase' }}>{reporte.productionLot?.productionSpace?.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.variable?.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.updateDate}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {tipoReporte === "general"
+                                                ? lote?.productionLotSpecies?.map(especie => especie.specie.common_name).join(", ")
+                                                : reporte.specie?.common_name}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.weightOrQuantity}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.variable?.unit_of_measurement}</td>
+                                        <td className="bg-customGreen text-[#168C0DFF] px- py-2 rounded">
+                                            <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
+                                                onClick={() => handleOpenModalEdit(reporte, 'view')}>
+                                                <Eye size={18} />
+                                            </button>
+                                            <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
+                                                onClick={() => handleOpenModalEdit(reporte, 'edit')}>
+                                                <Edit size={18} />
+                                            </button>
+                                            <button className="px-2 py-4 whitespace-nowrap text-sm font-medium"
+                                                onClick={() => handleDelete(reporte)}>
+                                                <Trash size={18}
+                                                />
+                                            </button>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {seguimiento.map((reporte, index) => (
-                                        <tr key={index}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ textTransform: 'uppercase' }}>{reporte.productionLot?.productionSpace?.name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.variable?.name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.updateDate}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {tipoReporte === "general"
-                                                    ? lote?.productionLotSpecies?.map(especie => especie.specie.common_name).join(", ")
-                                                    : reporte.specie?.common_name}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.weightOrQuantity}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.variable?.unit_of_measurement}</td>
-                                            <td className="bg-customGreen text-[#168C0DFF] px- py-2 rounded">
-                                                <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
-                                                    onClick={() => handleOpenModal(reporte, 'view')}>
-                                                    <Eye size={18} />
-                                                </button>
-                                                <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
-                                                    onClick={() => handleOpenModalEdit(reporte)}>
-                                                    <Edit size={18} />
-                                                </button>
-                                                <button className="px-2 py-4 whitespace-nowrap text-sm font-medium"
-                                                    onClick={() => handleDelete(reporte)}>
-                                                    <Trash size={18}
-                                                    />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        
+                                ))}
+                            </tbody>
+                        </table>
+
                     </div>
                 </div>
             </div>
             {isDeleteModalOpen && (
-    <Delete
-      message={`¿Seguro que desea eliminar este reporte de sgeuimeinto ${selectedLote?.lotCode}?`}
-      onCancel={handleCancelDelete}
-      onConfirm={handleConfirmDelete}
-    />
-  )}
-  {showErrorAlert && (
-    <SuccessAlert
-      message={messageAlert}
-      onCancel={handleCloseAlert}
-    />
-  )}
+                <Delete
+                    message={`¿Seguro que desea eliminar este reporte de sgeuimeinto ${selectedLote?.lotCode}?`}
+                    onCancel={handleCancelDelete}
+                    onConfirm={handleConfirmDelete}
+                />
+            )}
+            {showErrorAlert && (
+                <SuccessAlert
+                    message={messageAlert}
+                    onCancel={handleCloseAlert}
+                />
+            )}
             {isModalOpenSeguimiento && (
                 <GenericModal
                     title={modalMode === 'edit' ? 'Editar Reporte de seguimiento' : modalMode === 'view' ? 'Ver Reporte de seguimiento' : 'Reporte de seguimiento'}
@@ -486,11 +513,11 @@ const VisualizarLote = () => {
                 </GenericModal>
             )}
             {showErrorAlert && (
-        <div className="mt-4 p-3 bg-red-100 text-red-700 border border-red-400 rounded-md flex items-center">
-            <IoIosWarning className="mr-2" /> {messageAlert}
-            <button onClick={handleCloseAlert} className="ml-auto text-sm text-red-600">Cerrar</button>
-        </div>
-    )}
+                <div className="mt-4 p-3 bg-red-100 text-red-700 border border-red-400 rounded-md flex items-center">
+                    <IoIosWarning className="mr-2" /> {messageAlert}
+                    <button onClick={handleCloseAlert} className="ml-auto text-sm text-red-600">Cerrar</button>
+                </div>
+            )}
         </div>
     );
 };

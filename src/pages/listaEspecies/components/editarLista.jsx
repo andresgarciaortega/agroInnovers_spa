@@ -619,10 +619,10 @@ const EditarLista = () => {
 
             setShowSuccessAlert(true);
             setTimeout(() =>{ 
-                setShowSuccessAlert(false)}, 2500);
+                setShowSuccessAlert(false)}, 2000);
                 setTimeout(() => {
                     navigate('../ListaEspecie');
-                }, 3000);
+                }, 2010);
         } catch (error) {
             console.error("Error al actualizar especie:", error);
             setShowAlertError(true);
@@ -795,7 +795,7 @@ const EditarLista = () => {
 
                     <div className="mt-6">
                         {formData.stage.map((stage, stageIndex) => (
-                            <div key={stageIndex} className="mt-4 rounded-md p-4 border border-gray-300">
+                            <div key={stage.id} className="mt-4 rounded-md p-4 border border-gray-300">
                                 <div className="flex justify-between items-center mb-2">
                                     <h3 className="text-lg font-semibold text-gray-800">
                                         {`Etapa ${stage.stage.name}`}
@@ -810,13 +810,43 @@ const EditarLista = () => {
                                 </div>
 
                                 <div className="flex flex-col text-sm">
-                                    <p className="text-gray-700">
-                                        <span className="">Descripción:</span>
-                                        <strong>{stage.description}</strong>
-                                    </p>
-                                    <p className="text-gray-700 mt-2">
-                                        <span className="">Tiempo de producción:</span> <strong>{stage.time_to_production}</strong>
-                                    </p>
+                                <label htmlFor="scientificName" className="block text-sm font-medium text-gray-700">
+                                    Descripción de la etapa
+                                </label>
+                                <input
+                                    type="text"
+                                    id="scientificName"
+                                    name="scientificName"
+                                    value={stage.description}
+                                    onChange={(e) => {
+                                        const updatedStages = formData.stage.map((s, idx) =>
+                                            idx === stageIndex ? { ...s, description: e.target.value } : s
+                                        );
+                                        setFormData({ ...formData, stage: updatedStages });
+                                    }}
+                                    className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+
+                                    required
+                                />
+                                    <label htmlFor="scientificName" className="block text-sm font-medium text-gray-700 mt-3">
+                                    Tiempo de producción (en días)	
+                                </label>
+                                <input
+                                    type="text"
+                                    id="scientificName"
+                                    name="scientificName"
+                                    value={stage.time_to_production}
+                                    onChange={(e) => {
+                                        const updatedStages = formData.stage.map((s, idx) =>
+                                            idx === stageIndex ? { ...s, time_to_production: e.target.value } : s
+                                        );
+                                        setFormData({ ...formData, stage: updatedStages });
+                                    }}
+                                    className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+
+                                    required
+                                />
+                                  
 
                                     {stage.parameters.length > 0 && (
                                         <div className="mt-4">

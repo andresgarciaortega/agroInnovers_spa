@@ -16,6 +16,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [variableType, setVariableType] = useState([]);
     const [loteConEspecies, setLoteConEspecies] = useState(lote);
     const [species, setTipoEspecies] = useState([]);
+    const today = new Date().toISOString().split('T')[0];
 
     const [variableContainers, setVariableContainers] = useState([]);
     const [selectedSpeciesId, setSelectedSpeciesId] = useState("");
@@ -446,6 +447,8 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                                     <label className="block text-sm font-medium">Fecha Actualización</label>
                                     <input
                                         type="date"
+                                max={today}
+
                                         name="updateDate"
                                         value={formData.updateDate}
                                         onChange={(e) => handleContainerChange(container.id, 'updateDate', e.target.value)}

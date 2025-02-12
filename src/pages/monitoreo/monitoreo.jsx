@@ -51,9 +51,9 @@ const Monitoreo = () => {
     unidadSincronizacion: '',
     frecuenciaSincronizacion: '',
     productionSpaces: [
-      {productionLots: [],}
+      { productionLots: [] }
     ],
-   
+
 
   });
 
@@ -75,7 +75,7 @@ const Monitoreo = () => {
         }
         const data = await SystemMonitory.getAllMonitories(companyId);
 
-
+        console.log("Datos recibidos:", data);
         if (data.statusCode === 404) {
           setData([]);
         } else {
@@ -348,19 +348,20 @@ const Monitoreo = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-700">{monitoreo.displayFisico ? monitoreo.ipFija : 'Sin asignar'}</td>
+
                   <td className="px-6 py-4 text-sm text-gray-700">
-  {monitoreo.productionSpaces.length > 0 
-    ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].name 
-    : 'No asignado'}
-</td>
-<td className="px-6 py-4 text-sm text-gray-700">
-  {monitoreo.productionSpaces?.length > 0 &&
-   monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots?.length > 0
-    ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots[
-        monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots.length - 1
-      ].loteCode
-    : 'No asignado'}
-</td>
+                    {monitoreo.productionSpaces && monitoreo.productionSpaces.length > 0
+                      ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots.length > 0
+                        ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots[0].lotCode
+                        : "No asignado"
+                      : "No asignado"}
+
+                  </td>
+                  <td>
+                    {monitoreo.productionSpaces?.length > 0 && monitoreo.productionSpaces.length > 0
+                      ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].name
+                      : "No asignado"}
+                  </td>
                   <td className="px-6 py-4 text-sm font-medium">
                     <button className=" text-[#168C0DFF] px-2 py-2 rounded">
                       <Eye size={18} onClick={() => handleEditMonitoreo(monitoreo)} />

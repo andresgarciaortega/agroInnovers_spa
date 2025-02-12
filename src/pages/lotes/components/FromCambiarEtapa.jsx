@@ -3,23 +3,23 @@ import LoteService from "../../../services/lotesService";
 import EspacioService from "../../../services/espacios";
 import SpeciesService from "../../../services/SpeciesService";
 
-const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert  }) => {
+const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [espacios, setEspacios] = useState([]);
     const [especies, setEspecies] = useState([]);
     const [etapas, setEtapas] = useState([]); // Inicializar etapas como un array vacío
-      const [formData, setFormData] = useState({
-           lotCode: '',
-           startDate: '',
-           estimatedEndDate: '',
-           productionSpaceId: '',
-           reportFrequency: '',
-           cycleStage: '',
-           trackingConfig: {
-               trackingStartDate: '',
-               trackingFrequency: '',
-               productionCycleStage: ''
-           }
-       });
+    const [formData, setFormData] = useState({
+        lotCode: '',
+        startDate: '',
+        estimatedEndDate: '',
+        productionSpaceId: '',
+        reportFrequency: '',
+        cycleStage: '',
+        trackingConfig: {
+            trackingStartDate: '',
+            trackingFrequency: '',
+            productionCycleStage: ''
+        }
+    });
 
     useEffect(() => {
         fetchLotes();
@@ -32,6 +32,7 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert  }) => {
             }));
             if (lote.id) fetchEspeciesPorLote(lote.id);
         }
+        console.log('lote traido',lote )
     }, [lote]);
 
     const fetchEspacios = async () => {
@@ -72,53 +73,69 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert  }) => {
 
     const fetchEtapasPorEspecie = async (especieId) => {
         try {
-            const especieData = await SpeciesService.getSpecieById(especieId); 
+            const especieData = await SpeciesService.getSpecieById(especieId);
             if (especieData && especieData.stages) {
                 const etapasList = especieData.stages.map(stageItem => ({
                     id: stageItem.stage.id,
                     name: stageItem.stage.name
                 }));
-                setEtapas(etapasList); 
+                setEtapas(etapasList);
                 console.log('etapas:', etapasList)
             } else {
-                setEtapas([]); 
+                setEtapas([]);
             }
         } catch (error) {
             console.error("Error al obtener las etapas:", error);
         }
     };
-    
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prevFormData => ({
-            ...prevFormData,
-            [name]: value
-        }));
+    
+        if (name === "productionCycleStage") {
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                trackingConfig: {
+                    ...prevFormData.trackingConfig,
+                    productionCycleStage: value
+                }
+            }));
+        } else {
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                [name]: value
+            }));
+        }
     };
-
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
     
-        // Crear el objeto con solo el campo `productionCycleStage`
+        console.log("Datos antes del envío:", formData);
+    
         const data = {
-            productionTracking: {
-                productionCycleStage: formData.trackingConfig.productionCycleStage,
+            trackingConfig: {
+                trackingStartDate: "", // Se manda vacío
+                trackingFrequency: "", // Se manda vacío
+                productionCycleStage: formData.trackingConfig.productionCycleStage, // Solo este tiene valor
             },
         };
     
+        console.log("Datos enviados:", data);
+    
         try {
-            // Realizar el PUT con el ID del lote y los datos mínimos
-            await LoteService.updateLots(lote.id, data);
+            await LoteService.updateLots(lote, data);
             showErrorAlert("con cambio de etapa");
-
-            onUpdate(); // Notificar la actualización
-            closeModal(); // Cerrar el modal
+    
+            onUpdate(); 
+            closeModal();
         } catch (error) {
             console.error("Error al actualizar la etapa de producción:", error);
         }
     };
     
+
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -176,22 +193,22 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert  }) => {
             </div>
 
             <div className="mt-4">
-    <label className="block text-sm font-medium">Etapa de producción</label>
-    <select
-        name="cycleStage"
-        value={formData.cycleStage}
-        onChange={handleChange}
-        className="mt-1 block w-full border rounded-md p-2"
-        required
-    >
-        <option value="">Seleccione una opción</option>
-        {etapas.map(etapa => (
-            <option key={etapa.id} value={etapa.id}>
-                {etapa.name} 
-            </option>
-        ))}
-    </select>
-</div>
+                <label className="block text-sm font-medium">Etapa de producción</label>
+                <select
+                    name="productionCycleStage"
+                    value={formData.productionCycleStage}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border rounded-md p-2"
+                    required
+                >
+                    <option value="">Seleccione una opción</option>
+                    {etapas.map(etapa => (
+                        <option key={etapa.id} value={etapa.id}>
+                            {etapa.name}
+                        </option>
+                    ))}
+                </select>
+            </div>
 
 
             <div className="flex justify-end space-x-4 mt-6">
