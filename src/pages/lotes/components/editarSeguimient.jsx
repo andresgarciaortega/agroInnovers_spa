@@ -9,7 +9,7 @@ import GenericModal from '../../../components/genericModal';
 import SpeciesService from '../../../services/SpeciesService';
 import VariableType from '../../../services/VariableType';
 
-const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAlert }) => {
+const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAlert ,mode}) => {
     const [step, setStep] = useState(1);
     const [espacios, setEspacios] = useState([]);
     const [species, setEspecies] = useState([]);
@@ -20,12 +20,8 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
     const [variableContainers, setVariableContainers] = useState([]);
     const [selectedSpeciesId, setSelectedSpeciesId] = useState("");
     const [selectedVariableId, setSelectedVariableId] = useState("");
+    const today = new Date().toISOString().split('T')[0];
 
-    const [selectedVariables, setSelectedVariables] = useState({
-        main: [],
-        subspaces: {}
-    });
-    const [variables, setVariables] = useState([]);
     const [mainVariables, setMainVariables] = useState([]);
     const [espacioDetalles, setEspacioDetalles] = useState(null);
     const [formData, setFormData] = useState({
@@ -33,7 +29,7 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
         typeVariable: '',
         variableTrackingReports: [
             {
-                variableId: '',
+                variable: '',
                 updateDate: '',
                 updateTime: '',
                 weightOrQuantity: ''
@@ -43,67 +39,30 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
         specie: '',
         speciesData: false
     });
-    const [variableTrackingReports, setVariableTrackingReports] = useState(
-        {
-            variableId: '',
-            updateDate: '',
-            updateTime: '',
-            weightOrQuantity: ''
-        })
 
     const [viewMode, setViewMode] = useState('general');
 
-    // useEffect(() => {
-    //     if (lote) {
-    //         console.log("Lote recibido:", lote);
-
-    //         setFormData({
-    //             productionLotId: lote.id || '',
-    //             startDate: lote.startDate || '',
-
-    //             estimatedEndDate: lote.estimatedEndDate || '',
-    //             productionSpaceId: lote.productionSpace?.id || '',
-    //             reportFrequency: lote.reportFrequency || '',
-    //             company_id: lote.company_id || '',
-    //             status: lote.status || '',
-    //             trackingConfig: lote.trackingConfig || {
-    //                 trackingStartDate: '',
-    //                 trackingFrequency: '',
-    //                 productionCycleStage: ''
-    //             }
-    //         });
-
-    //         if (lote.productionSpace?.id) {
-    //             fetchEspacioDetalles(lote.productionSpace.id);
-    //         }
-    //         console.log('lote traido', lote)
-
-
-    //         setLoteConEspecies(lote);
-    //     }
-    //     fetchEspacios();
-    //     fetchEspecies(0, {});
-    //     fetchVariablesType()
-    // }, [lote]);
-
     useEffect(() => {
+  
         if (reporte) {
             console.log("Reporte recibido para edición:", reporte);
-            setFormData({
-                productionLotId: reporte.productionLotId || '',
-                typeVariable: reporte.typeVariable?.id || 0,
-                company_id: reporte.company_id || '',
-                specie: reporte.specie?.id || 0,
-                speciesData: reporte.speciesData || false,
-                variableTrackingReports: reporte.variableTrackingReports || [{
-                    variable: '',
-                    updateDate: '',
-                    updateTime: '',
-                    weightOrQuantity: ''
-                }]
-            });
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                productionLotId: reporte.productionLot?.id || prevFormData.productionLotId,
+                typeVariable: reporte.typeVariable?.id || prevFormData.typeVariable,
+                company_id: reporte.company_id || prevFormData.company_id,
+                specie: reporte.specie?.id || prevFormData.specie,
+                speciesData: reporte.speciesData ?? prevFormData.speciesData,
+                variableTrackingReports: reporte.variableTrackingReports.length > 0
+                    ? reporte.variableTrackingReports
+                    : prevFormData.variableTrackingReports
+            }));
+
             console.log('tipo de variable', reporte.typeVariable?.id)
+            console.log('lote de producción', reporte.productionLot
+                ?.id)
             console.log('especie', reporte.specie?.id)
+            console.log('variable', reporte.variableTrackingReports?.variable)
 
 
             // Si hay variables en el reporte, cargarlas en `variableContainers`
@@ -127,7 +86,7 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
 
     const fetchEspecies = async () => {
         try {
-            const especiesData = await EspeciesService.getAllSpecie(0,{});
+            const especiesData = await EspeciesService.getAllSpecie(0, {});
             setEspecies(especiesData);
         } catch (error) {
             console.error("Error al obtener las especies:", error);
@@ -155,17 +114,6 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
         }
     };
 
-    // useEffect(() => {
-    //     const fetchEspecies = async () => {
-    //         try {
-    //             const data = await SpeciesService.getAllSpecie(0, {});
-    //             setTipoEspecies(data);
-    //         } catch (error) {
-    //             console.error('Error fetching species:', error);
-    //         }
-    //     };
-    //     // fetchEspecies();
-    // }, [{}]);
 
     useEffect(() => {
         const fetchVariables = async () => {
@@ -195,17 +143,10 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prevFormData => ({ ...prevFormData, [name]: value }));
+        setFormData(prevFormData => ({ ...prevFormData, [name]: value || prevFormData[name] }));
         setFormData(prevFormData => ({ ...prevFormData, typeVariable: value }));
     };
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setFormData(prevFormData => ({ ...prevFormData, [name]: value }));
-    // };
-
-
-
-
+ 
     const handleModeChange = (e) => {
         const mode = e.target.value;
         setViewMode(mode);
@@ -220,89 +161,80 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
         }
     };
 
-
-    const handleSpeciesChange = (e) => {
-        const value = e.target.value;
-        setSelectedSpeciesId(value);
-        setFormData({ ...formData, specie: value });
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         if (!formData.typeVariable || isNaN(parseInt(formData.typeVariable, 10))) {
             alert("El campo Tipo de variable es obligatorio y debe ser un número.");
             return;
         }
-    
+
         try {
             const preparedData = {
-                productionLotId: formData.productionLotId ? parseInt(formData.productionLotId, 10) : null,
+                productionLotId: parseInt(formData.productionLotId, 10),
                 speciesData: formData.speciesData,
-                specie: formData.speciesData ? parseInt(formData.specie, 10) : null,
+                specie: formData.speciesData
+                    ? (parseInt(formData.specie, 10) || reporte.specie?.id)
+                    : null,
                 typeVariable: parseInt(formData.typeVariable, 10),
                 company_id: parseInt(formData.company_id, 10),
                 variableTrackingReports: variableContainers.map(varItem => ({
-                    variableId: parseInt(varItem.variableId, 10),
-                    updateDate: varItem.updateDate,
-                    updateTime: varItem.updateTime,
-                    weightOrQuantity: varItem.weightOrQuantity
+                   
+                    variableId: varItem.variable && !isNaN(Number(varItem.variable))
+                        ? Number(varItem.variable?.id)
+                        : varItem.variable?.id || 0,
+
+                    updateDate: varItem.updateDate || reporte.variableTrackingReports?.updateDate,
+                    updateTime: varItem.updateTime || reporte.variableTrackingReports?.updateTime,
+                    weightAmount: varItem.weightOrQuantity
+                        ? String(varItem.weightOrQuantity)
+                        : String(reporte.variableTrackingReports?.weightAmount || "0")
                 }))
             };
-    
+console.log('arreglo', preparedData),
+console.log('datos de  la variable', variableContainers)
+
             const response = await ReporteService.updateReporte(reporte.id, preparedData);
             console.log('Reporte editado:', response);
-            showErrorAlert("Reporte de seguimiento editado correctamente");
-    
+            showErrorAlert(" editado ");
+
             onUpdate();
             closeModal();
         } catch (error) {
             console.error('Error al editar el reporte:', error);
         }
     };
-    
-    
-
-    const handleVariableTypeChange = (e) => {
-        const value = e.target.value;
-        setFormData(prevFormData => ({ ...prevFormData, typeVariable: value }));
-    };
-
-
-
-
-
-    // const validateForm = (data) => {
-    //     const errors = [];
-    //     // if (!data.productionLotId) errors.push("productionLotId es requerido");
-    //     // if (!data.typeVariable) errors.push("typeVariable es requerido");
-    //     // if (!data.company_id) errors.push("company_id es requerido");
-    //     data.variableTrackingReports.forEach((report, index) => {
-    //         // if (!report.variableId) errors.push(`variableId en el índice ${index} es requerido`);
-    //         if (!report.updateDate) errors.push(`updateDate en el índice ${index} es requerido`);
-    //         if (!report.updateTime) errors.push(`updateTime en el índice ${index} es requerido`);
-    //         if (!report.weightOrQuantity) errors.push(`weightOrQuantity en el índice ${index} es requerido`);
-    //     });
-    //     if (errors.length > 0) {
-    //         console.error("Errores en el formulario:", errors);
-    //         return false;
-    //     }
-    //     return true;
-    // };
 
     const addVariable = () => {
-        const newVariable = {
-            variableId: selectedVariableId,
-            updateDate: new Date().toLocaleDateString(),
-            updateTime: new Date().toLocaleTimeString(),
-            weightOrQuantity: ""
+      
+        if (!selectedVariableId) return;
+
+        // Buscar la variable seleccionada en la lista de variables disponibles
+        const variableSeleccionada = mainVariables.find(v => v.id === parseInt(selectedVariableId));
+
+        if (!variableSeleccionada) {
+            console.error("No se encontró la variable seleccionada");
+            return;
+        }
+
+        const nuevaVariable = {
+            variable: variableSeleccionada, // Aquí guardamos toda la información de la variable
+            updateDate: '',
+            updateTime: '',
+            weightOrQuantity: ''
         };
 
-        setVariableContainers([...variableContainers, newVariable]);
-        setSelectedVariableId("");
+        setVariableContainers(prevVariables => [...prevVariables, nuevaVariable]);
+        setSelectedVariableId(""); // Restablece el ID de la variable seleccionada
     };
-    
-    
+
+    const handleAddVariable = (selectedVariable) => {
+        setVariableContainers(prevVariables => {
+            const updatedVariables = [...prevVariables, selectedVariable];
+            console.log("Variables actualizadas:", updatedVariables);
+            return updatedVariables;
+        });
+    };
 
     const handleContainerChange = (index, field, value) => {
         setVariableContainers(prevContainers =>
@@ -313,7 +245,8 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
     };
 
     const handleVariableChange = (e) => {
-        setSelectedVariableId(e.target.value);
+        const value = e.target.value;
+        setSelectedVariableId(value); // Actualiza el ID de la variable seleccionada
     };
 
     const removeVariable = (index) => {
@@ -352,6 +285,7 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
                             checked={formData.speciesData === false}
                             onChange={handleModeChange}
                             className="accent-blue-500"
+                            disabled ={mode === 'view'}
                         />
                         <span>General</span>
                     </label>
@@ -362,6 +296,8 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
                             value="species"
                             checked={formData.speciesData === true}
                             onChange={handleModeChange}
+                            disabled ={mode === 'view'}
+
                             className="accent-green-500"
                         />
                         <span>Por especie</span>
@@ -370,29 +306,32 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
             </div>
 
             {formData.speciesData && (
-                 <div>
-                 <label htmlFor="specieId" className="block text-sm font-medium">
-                     Especie:
-                 </label>
-                 <select
-                     id="specieId"
-                     name="specieId"
-                     value={formData.specie}
-                     onChange={(e) => {
-                         const value = e.target.value;
-                         setSelectedSpeciesId(value);
-                         setFormData({ ...formData, specieId: value });
-                     }}
-                     className="w-full p-2 border rounded"
-                 >
-                     <option value="">Seleccione una especie</option>
-                     {species.map((specie) => (
-                         <option key={specie.id} value={specie.id}>
-                             {specie.common_name}
-                         </option>
-                     ))}
-                 </select>
-             </div>
+                <div>
+                    <label htmlFor="specieId" className="block text-sm font-medium">
+                        Especie:
+                    </label>
+                    <select
+                                                    disabled ={mode === 'view'}
+
+
+                        id="specieId"
+                        name="specieId"
+                        value={formData.specie}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setSelectedSpeciesId(value);
+                            setFormData({ ...formData, specieId: value });
+                        }}
+                        className="w-full p-2 border rounded"
+                    >
+                        <option value="">Seleccione una especie</option>
+                        {species.map((specie) => (
+                            <option key={specie.id} value={specie.id}>
+                                {specie.common_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             )}
 
 
@@ -415,49 +354,51 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
                 </select>
             </div>
 
-            <div>
-                <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">
-                    Variables
-                </label>
-                <select
-                    id="variable"
-                    name="variable"
-                    onChange={handleVariableChange}
-                    value={formData.variableId}
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
-                >
-                    <option value="" className="text-gray-500">Selecciona una variable</option>
-                    {mainVariables.length > 0 &&
-                        mainVariables.map((variable) => (
-                            <option key={variable.id} value={variable.id}>
-                                {variable.name}
-                            </option>
-                        ))}
-                </select>
+            {mode !== 'view' && (
+                <div>
+                    <label htmlFor="variable" className="block text-sm font-medium text-gray-700 mb-1">
+                        Variables
+                    </label>
+                    <select
+                        id="variable"
+                        name="variable"
+                        onChange={handleVariableChange}
+                        value={selectedVariableId}
+                        className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
+                    >
+                        <option value="" className="text-gray-500">Selecciona una variable</option>
+                        {mainVariables.length > 0 &&
+                            mainVariables.map((variable) => (
+                                <option key={variable.id} value={variable.id}>
+                                    {variable.name}
+                                </option>
+                            ))}
+                    </select>
 
-                {selectedVariableId && (
-                    <div className="flex justify-end space-x-4 ">
-                        <button
-                            type="button"
-                            onClick={addVariable}
-                            className="mt-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md"
-                        >
-                            Añadir variable
-                        </button>
-                    </div>
-
-                )}
-
-            </div>
+                    {selectedVariableId && (
+                        <div className="flex justify-end space-x-4 ">
+                            <button
+                                type="button"
+                                onClick={addVariable}
+                                className="mt-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md"
+                            >
+                                Añadir variable
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
 
             <div>
                 {variableContainers.map((container, index) => (
                     <div key={index} className="border p-3 my-2 rounded-md">
-                        <p><strong>Variable:</strong> {container.variable?.name}</p>
+                        <p><strong>Variable:</strong> {container.variable?.name || "Nombre no disponible"}</p>
                         <div className="grid grid-cols-3 gap-4">
                             <div>
                                 <label className="block text-sm font-medium">Fecha Actualización</label>
                                 <input
+                                    max={today}
+                                    disabled={mode === 'view'}
                                     type="date"
                                     name="updateDate"
                                     value={container.updateDate}
@@ -468,6 +409,7 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
                             <div>
                                 <label className="block text-sm font-medium">Hora Actualización</label>
                                 <input
+                                disabled={mode === 'view'}
                                     type="time"
                                     name="updateTime"
                                     value={container.updateTime}
@@ -478,6 +420,7 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
                             <div>
                                 <label className="block text-sm font-medium">Cantidad/Peso</label>
                                 <input
+                                disabled={mode === 'view'}
                                     type="number"
                                     name="weightOrQuantity"
                                     value={container.weightOrQuantity}
@@ -485,15 +428,17 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
                                     className="mt-1 block w-full border rounded-md p-2"
                                 />
                             </div>
-                            <div>
-                                <button
-                                    type="button"
-                                    onClick={() => removeVariable(index)}
-                                    className="text-red-500 hover:text-red-700"
-                                >
-                                    <FaTrash />
-                                </button>
-                            </div>
+                            {mode !== 'view' && (
+                                <div>
+                                    <button
+                                        type="button"
+                                        onClick={() => removeVariable(index)}
+                                        className="text-red-500 hover:text-red-700"
+                                    >
+                                        <FaTrash />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))}
@@ -502,17 +447,19 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
             <div className="flex justify-end space-x-4 mt-6">
                 <button
                     type="button"
-                    onClick={() => setStep(1)}
+                    onClick={ closeModal}
                     className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
                 >
                     Volver
                 </button>
-                <button
-                    type="submit"
-                    className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-                >
-                    Editar
-                </button>
+                {mode === 'edit' && (
+        <button
+            type="submit"
+            className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+        >
+            Editar
+        </button>
+    )}
             </div>
         </form>
     );

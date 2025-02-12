@@ -153,8 +153,8 @@ const VisualizarEmpresa = ({ }) => {
         const spacesType = await tipoEspacio.getAlltipoEspacio(companyId);
         setSpaceTypeCount(spacesType.length);
 
-        const species = await SpeciesService.getAllSpecie(companyId);
-        setSpeciesCount(species.length);
+        const species = await SpeciesService.getAllSpecie(companyId, {});
+        setSpeciesCount(species.length, {});
 
         const categories = await CategoryService.getAllCategory(companyId);
         setCategoryCount(categories.length);
@@ -311,7 +311,9 @@ const VisualizarEmpresa = ({ }) => {
               </div>
               <br />
               <div className="space-y-2">
-                <span className='py-2 font-medium justify-between'>{spaceCount}</span>
+                <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">{spaceCount} </span>
+                <span className="text-sm text-muted-foreground">Espacios </span>
+
                 {/* <div className="flex items-center ">
                   <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">2</span>
                   <span className="text-sm text-muted-foreground">En producción</span>
@@ -322,7 +324,7 @@ const VisualizarEmpresa = ({ }) => {
                 </div> */}
               </div>
               <div className="space-y-2 py-5">
-                <span className='font-medium justify-between '>8 lagos de conencionales</span>
+                <span className='font-medium justify-between '>8 lagos de convencionales</span>
                 <div className="flex items-center ">
                   <span className="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-md">6</span>
                   <span className="text-sm text-muted-foreground">En producción</span>

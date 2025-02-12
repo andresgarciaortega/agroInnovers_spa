@@ -30,7 +30,7 @@ import { GoArrowSwitch } from "react-icons/go";
 const Lotes = () => {
   const { companyId } = useParams();
   const navigate = useNavigate();
- const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
   const [selectedLote, setSelectedLote] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -95,9 +95,9 @@ const Lotes = () => {
     const fetchReportesSeguimiento = async () => {
       try {
         // Obtener reportes de seguimiento
-        const reportes = await ReporteService.getAllReporte(0,{});
-  
-        console.log ('reportes', reportes)
+        const reportes = await ReporteService.getAllReporte(0, {});
+
+        console.log('reportes', reportes)
         const reportesPorEspecie = reportes.reduce((acc, reporte) => {
           const especieId = reporte.specieId;
           if (!acc[especieId]) {
@@ -110,7 +110,7 @@ const Lotes = () => {
           });
           return acc;
         }, {});
-  
+
         // Asignar los reportes a cada especie
         setEspecies((prevEspecies) =>
           prevEspecies.map((especie) => ({
@@ -122,10 +122,10 @@ const Lotes = () => {
         console.error("Error al obtener reportes de seguimiento:", error);
       }
     };
-  
+
     fetchReportesSeguimiento();
-  }, [0,{}]);
-  
+  }, [0, {}]);
+
 
   const getRemainingDays = (endDate) => {
     const currentDate = new Date();
@@ -243,7 +243,7 @@ const Lotes = () => {
     setIsDeleteModalOpen(false);
   };
 
-  
+
 
   const updateService = async () => {
     setShowErrorAlertTable(false);
@@ -354,221 +354,221 @@ const Lotes = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-  {currentCompanies.map((lote) => (
-    <div key={lote.id} className="border p-4 rounded-md shadow-lg border-gray-300">
-      <div className="text-lg flex items-center justify-between font-bold">
-        <span>{lote.lotCode}</span>
-        <div className="flex items-center gap-2 text-[#168C0DFF]">
-          <div className="relative group">
-            <GoArrowSwitch size={19}
-              className="cursor-pointer"
-              onClick={() => handleOpenModal(lote.id, 'etapa')}
-            />
-            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-              Cambiar etapa
-            </span>
-          </div>
-          <div className="relative group">
-            <Eye size={19} className="cursor-pointer"
-              onClick={() => handleViewLot(lote)} />
-            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-              Ver Lote
-            </span>
-          </div>
-          <div className="relative group">
-            <FaRegEdit
-              className="cursor-pointer"
-              onClick={() => handleOpenModal(lote, 'edit')}
-            />
-            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-              Editar Lote
-            </span>
-          </div>
-          <div className="relative group">
-            <FaRegTrashAlt
-              onClick={() => handleDelete(lote)}
-              className="cursor-pointer"
-            />
-            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-              Eliminar Lote
-            </span>
-          </div>
-          <div className="relative group">
-            <Ban size={19} className="cursor-pointer"
-              onClick={() => handleOpenModal(lote, 'rechazar')}
-            />
-            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-              Rechazar
-            </span>
-          </div>
-        </div>
-      </div>
-      <br />
-      <div className="space-y-2">
-        <div className="flex items-center">
-          <span className="text-sm text-muted-foreground">
-            Estado: {lote.status || "N/A"}
-          </span>
-        </div>
-        <div className="flex items-center">
-          <span className="text-sm text-muted-foreground">
-            Fecha de siembra: {lote.startDate}
-          </span>
-        </div>
-        <div className="flex items-center mt-5">
-          <span className="text-sm text-muted-foreground">
-            Fecha cosecha estimada: {lote.estimatedEndDate}
-          </span>
-        </div>
-        <div className="flex items-center mt-5">
-          {getRemainingDays(lote.estimatedEndDate)}
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 py-2">
-          {lote.productionLotSpecies.map((especie) => (
-            <div
-              key={especie.id}
-              className={`border p-2 rounded-md shadow-lg ${
-                especie.status === "Cosechado"
-                  ? "bg-green-200"
-                  : especie.rejected
-                  ? "bg-red-200"
-                  : "bg-white"
-              }`} // Cambia el color según el estado de la especie o si está rechazada
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <p><strong>{especie.specie.common_name}</strong></p>
-                  <p>{especie.status === "Cosechado" ? "Cosechado" : especie.rejected ? "Rechazado" : "En Producción"}</p>
+            {currentCompanies.map((lote) => (
+              <div key={lote.id} 
+              className="border p-4 rounded-md shadow-lg border-gray-300">
+                <div className="text-lg flex items-center justify-between font-bold">
+                  <span>{lote.lotCode}</span>
+                  <div className="flex items-center gap-2 text-[#168C0DFF]">
+                    <div className="relative group">
+                      <GoArrowSwitch size={19}
+                        className="cursor-pointer"
+                        onClick={() => handleOpenModal(lote.id, 'etapa')}
+                      />
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                        Cambiar etapa
+                      </span>
+                    </div>
+                    <div className="relative group">
+                      <Eye size={19} className="cursor-pointer"
+                        onClick={() => handleViewLot(lote)} />
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                        Ver Lote
+                      </span>
+                    </div>
+                    <div className="relative group">
+                      <FaRegEdit
+                        className="cursor-pointer"
+                        onClick={() => handleOpenModal(lote, 'edit')}
+                      />
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                        Editar Lote
+                      </span>
+                    </div>
+                    <div className="relative group">
+                      <FaRegTrashAlt
+                        onClick={() => handleDelete(lote)}
+                        className="cursor-pointer"
+                      />
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                        Eliminar Lote
+                      </span>
+                    </div>
+                    <div className="relative group">
+                      <Ban size={19} className="cursor-pointer"
+                        onClick={() => handleOpenModal(lote, 'rechazar')}
+                      />
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                        Rechazar
+                      </span>
+                    </div>
+                  </div>
                 </div>
+                <br />
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <span className="text-sm text-muted-foreground">
+                      Estado: {lote.status || "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-sm text-muted-foreground">
+                      Fecha de siembra: {lote.startDate}
+                    </span>
+                  </div>
+                  <div className="flex items-center mt-5">
+                    <span className="text-sm text-muted-foreground">
+                      Fecha cosecha estimada: {lote.estimatedEndDate}
+                    </span>
+                  </div>
+                  <div className="flex items-center mt-5">
+                    {getRemainingDays(lote.estimatedEndDate)}
+                  </div>
 
-                <div className="flex items-center space-x-2">
-                  <p>{especie.initialIndividuals} individuos</p>
-                  <button
-                    onClick={() => toggleExpand(especie.id)}
-                    className="text-gray-400"
-                    aria-label={`Expandir/Colapsar ${especie.specie.common_name}`}
-                  >
-                    {expanded === especie.id ? (
-                      <FaChevronUp className="transition-transform transform duration-800" />
-                    ) : (
-                      <FaChevronDown className="transition-transform delay-1000 duration-800" />
-                    )}
-                  </button>
+                  <div className="grid grid-cols-1 gap-4 py-2">
+                    {lote.productionLotSpecies.map((especie) => (
+                      <div
+                        key={especie.id}
+                        className={`border p-2 rounded-md shadow-lg ${especie.status === "Cosechado"
+                            ? "bg-green-200"
+                            : especie.rejected
+                              ? "bg-red-200"
+                              : "bg-white"
+                          }`} // Cambia el color según el estado de la especie o si está rechazada
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p><strong>{especie.specie.common_name}</strong></p>
+                            <p>{especie.status === "Cosechado" ? "Cosechado" : especie.rejected ? "Rechazado" : "En Producción"}</p>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <p>{especie.initialIndividuals} individuos</p>
+                            <button
+                              onClick={() => toggleExpand(especie.id)}
+                              className="text-gray-400"
+                              aria-label={`Expandir/Colapsar ${especie.specie.common_name}`}
+                            >
+                              {expanded === especie.id ? (
+                                <FaChevronUp className="transition-transform transform duration-800" />
+                              ) : (
+                                <FaChevronDown className="transition-transform delay-1000 duration-800" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div
+                          className={`mt-2 overflow-hidden transition-all duration-800 ease-in-out ${expanded === especie.id ? 'max-h-screen' : 'max-h-0'}`}
+                        >
+                          {expanded === especie.id && (
+                            <>
+                               <p>Etapa: {especie.trackingConfig?.[0]?.productionCycleStage?.name || "Etapa no disponible"}</p>
+                              <p>Peso inicial: {especie.initialWeight} kg</p>
+
+                              {/* Verifica si la especie fue rechazada */}
+                              {especie.rejected && (
+                                <p className="text-red-600 font-medium mt-2">
+                                  Razón de rechazo: {especie.rejectionReason}
+                                </p>
+                              )}
+
+                              {/* Verifica si hay reportes de seguimiento */}
+                              {especie.reportesSeguimiento && especie.reportesSeguimiento.length > 0 ? (
+                                <>
+                                  <h4 className="mt-2 font-bold">Reportes de seguimiento:</h4>
+                                  <ul>
+                                    {especie.reportesSeguimiento.map((reporte, index) => (
+                                      <li key={index} className="mt-1">
+                                        <strong>Variable:</strong> {reporte.variableName} <br />
+                                        <strong>Cantidad:</strong> {reporte.weightAmount} <br />
+                                        <strong>Última fecha:</strong> {new Date(reporte.updateDate).toLocaleDateString()}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </>
+                              ) : (
+                                <p>No hay reportes de seguimiento disponibles.</p>
+                              )}
+                            </>
+                          )}
+                        </div>
+
+
+                      </div>
+                    ))}
+                  </div>
+
+                  <div>
+                    <button
+                      className="bg-[#168C0DFF] text-white w-full px-6 py-2 rounded-lg items-center"
+                      onClick={() => handleOpenModal(lote, 'seguimiento')}
+                    >
+                      Crear reporte de seguimiento
+                    </button>
+                  </div>
+                  <div>
+                    <button
+                      className="bg-white text-[#168C0DFF] border border-[#168C0DFF] w-full px-6 py-2 rounded-lg items-center"
+                      onClick={() => handleOpenModal(lote, 'cosechar')}
+                    >
+                      Cierre y cosecha
+                    </button>
+                  </div>
+                  <br />
                 </div>
               </div>
-
-              <div
-  className={`mt-2 overflow-hidden transition-all duration-800 ease-in-out ${expanded === especie.id ? 'max-h-screen' : 'max-h-0'}`}
->
-  {expanded === especie.id && (
-    <>
-      <p>Etapa: {especie.initialWeight} </p>
-      <p>Peso inicial: {especie.initialWeight} kg</p>
-
-      {/* Verifica si la especie fue rechazada */}
-      {especie.rejected && (
-        <p className="text-red-600 font-medium mt-2">
-          Razón de rechazo: {especie.rejectionReason}
-        </p>
-      )}
-
-      {/* Verifica si hay reportes de seguimiento */}
-      {especie.reportesSeguimiento && especie.reportesSeguimiento.length > 0 ? (
-        <>
-          <h4 className="mt-2 font-bold">Reportes de seguimiento:</h4>
-          <ul>
-            {especie.reportesSeguimiento.map((reporte, index) => (
-              <li key={index} className="mt-1">
-                <strong>Variable:</strong> {reporte.variableName} <br />
-                <strong>Cantidad:</strong> {reporte.weightAmount} <br />
-                <strong>Última fecha:</strong> {new Date(reporte.updateDate).toLocaleDateString()}
-              </li>
             ))}
-          </ul>
-        </>
-      ) : (
-        <p>No hay reportes de seguimiento disponibles.</p>
-      )}
-    </>
-  )}
-</div>
 
 
+            {isDeleteModalOpen && (
+              <Delete
+                message={`¿Seguro que desea eliminar este lote de producción ${selectedLote?.lotCode}?`}
+                onCancel={handleCancelDelete}
+                onConfirm={handleConfirmDelete}
+              />
+            )}
+            {showErrorAlert && (
+              <SuccessAlert
+                message={messageAlert}
+                onCancel={handleCloseAlert}
+              />
+            )}
+          </div>
+          <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+
+            <div className="pagination-info text-sm flex items-center space-x-2">
+              <span>Cantidad de filas</span>
+              <select
+                className="border border-gray-200 rounded py-2 text-sm m-2"
+                value={itemsPerPage}
+                onChange={handleItemsPerPageChange}
+              >
+                <option value={6}>6</option>
+                <option value={12}>12</option>
+                <option value={21}>21</option>
+              </select>
             </div>
-          ))}
-        </div>
 
-        <div>
-          <button
-            className="bg-[#168C0DFF] text-white w-full px-6 py-2 rounded-lg items-center"
-            onClick={() => handleOpenModal(lote, 'seguimiento')}
-          >
-            Crear reporte de seguimiento
-          </button>
-        </div>
-        <div>
-          <button
-            className="bg-white text-[#168C0DFF] border border-[#168C0DFF] w-full px-6 py-2 rounded-lg items-center"
-            onClick={() => handleOpenModal(lote, 'cosechar')}
-          >
-            Cierre y cosecha
-          </button>
-        </div>
-        <br />
-      </div>
-    </div>
-  ))}
-   
 
-  {isDeleteModalOpen && (
-    <Delete
-      message={`¿Seguro que desea eliminar este lote de producción ${selectedLote?.lotCode}?`}
-      onCancel={handleCancelDelete}
-      onConfirm={handleConfirmDelete}
-    />
-  )}
-  {showErrorAlert && (
-    <SuccessAlert
-      message={messageAlert}
-      onCancel={handleCloseAlert}
-    />
-  )}
-</div>
-<div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
-  
-          <div className="pagination-info text-sm flex items-center space-x-2">
-            <span>Cantidad de filas</span>
-            <select
-              className="border border-gray-200 rounded py-2 text-sm m-2"
-              value={itemsPerPage}
-              onChange={handleItemsPerPageChange}
-            >
-              <option value={6}>6</option>
-              <option value={12}>12</option>
-              <option value={21}>21</option>
-            </select>
+            <div className="pagination-controls text-xs flex items-center space-x-2">
+              <span>{currentPage} de {Math.ceil(lotesList.length / itemsPerPage)}</span>
+              <button
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+              >
+                <IoIosArrowBack size={20} />
+              </button>
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === Math.ceil(lotesList.length / itemsPerPage)}
+                className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+              >
+                <IoIosArrowForward size={20} />
+              </button>
+            </div>
           </div>
-  
-  
-          <div className="pagination-controls text-xs flex items-center space-x-2">
-            <span>{currentPage} de {Math.ceil(lotesList.length / itemsPerPage)}</span>
-            <button
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-              className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-            >
-              <IoIosArrowBack size={20} />
-            </button>
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === Math.ceil(lotesList.length / itemsPerPage)}
-              className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-            >
-              <IoIosArrowForward size={20} />
-            </button>
-          </div>
-        </div>
 
 
 
@@ -693,7 +693,7 @@ const Lotes = () => {
 
         {isModalOpenSeguimiento && (
           <GenericModal
-            title={ 'Crear Reporte de seguimiento'}
+            title={'Crear Reporte de seguimiento'}
             onClose={closeModal}
             companyId={selectedCompany} >
 

@@ -311,8 +311,9 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
                                         required
                                     >
                                         <option value="">Seleccione si o no </option>
-                                        <option value="Si">Si</option>
-                                        <option value="No">No</option>
+                                        <option value="Control por limite maximo">Control por limite maximo</option>
+                                        <option value="Control por limite mínimo">Control por limite mínimo</option>
+                                        <option value="No Aplica">No Aplica</option>
                                     </select>
                                 </div>
 
