@@ -9,7 +9,7 @@ const CompanyService = {
     // LISTAR TODAS LAS COMPAÑIAS
     async getAllCompany() {
         try {
-            const response = await api.get('/companies/');
+            const response = await api.get('/companies?page=1&limit=100&');
             return response.data;
         } catch (error) {
             console.error('Error al obtener las compañías:', error);

@@ -591,7 +591,7 @@ const EditarLista = () => {
                         console.log('id stage', IdStage)
                         return {
                             id: stageId,
-                            time_to_production: stageItem.time_to_production || 0,
+                            time_to_production: stageItem.time_to_production ? parseInt(stageItem.time_to_production , 10) : 0,
                             description: stageItem.description || '',
                             parameters: Array.isArray(stageItem.parameters)
                                 ? stageItem.parameters.map((param) => ({
