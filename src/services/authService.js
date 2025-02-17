@@ -8,7 +8,7 @@ const AccesUser = {
     async accesUsersLoguin(data) {
         try {
             const response = await api.post('/auth/login/', data);
-            return { error: true, response: response.access_token};
+            return { error: true, response: response.access_token };
         } catch (error) {
             // Revisa si el error tiene una respuesta y el mensaje de error está en la respuesta
             if (error.response && error.response.data && error.response.data.message) {
@@ -21,7 +21,23 @@ const AccesUser = {
         }
     },
 
-
+    // FORGOT PASSWORD - 
+    async recoveryPassword(data) {
+        try {
+            const response = await api.post('/auth/forgot-password', data);
+            return { success: true, message: response.message };
+        } catch (error) {
+            // Revisa si el error tiene una respuesta y el mensaje de error está en la respuesta
+            if (error.response && error.response.data) {
+                const { statusCode, message, error: errorType } = error.response.data;
+                // Devuelve el mensaje de error como una respuesta
+                return { success: false, statusCode, message, error: errorType };
+            } else {
+                // Si no hay una respuesta específica, devuelve un mensaje genérico
+                return { success: false, message: 'Lo sentimos! credenciales incorrectas, intente nuevamente' };
+            }
+        }
+    },
 
 };
 
