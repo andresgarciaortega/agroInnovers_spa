@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 
 import { FaCheckCircle } from 'react-icons/fa';
@@ -47,7 +48,7 @@ const CrearEspacio = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editVariable, setEditVariable] = useState(null); // Variable para editar
 
- 
+
   const [inheritSensors, setInheritSensors] = useState(false);
   const [variablesBySubspace, setVariablesBySubspace] = useState({});
 
@@ -188,6 +189,7 @@ const CrearEspacio = () => {
   const [especiesSubspacio, setEspecieSubspasios] = useState({ species: [], });
 
   const [VariablesSelected, setVariablesSelected] = useState([]);
+  const [FlagSubspaces, setFlagSubspaces] = useState([]);
 
   const handleNextStep = () => {
     if (step < 2) setStep((prev) => prev + 1);
@@ -198,6 +200,7 @@ const CrearEspacio = () => {
   const handlePrevStep = () => {
     if (step > 0) setStep((prev) => prev - 1);
     console.log("devicesList : ", devicesList)
+    setVariablesSelected("");
   };
 
 
@@ -295,7 +298,7 @@ const CrearEspacio = () => {
 
   const handleAddSubspaceClick = () => {
     setDisableSpecies(true);
-    // setSelectedSpecies([]); 
+    // setSelectedSpecies([]);
 
     setSubspaces((prevSubspaces) => [
       ...prevSubspaces,
@@ -389,6 +392,7 @@ const CrearEspacio = () => {
   };
 
   const handleDeviceTypeChange = (index, type) => {
+    console.log(index,type)
     const newDevicesList = [...devicesList];
     newDevicesList[index].deviceType = type;
     newDevicesList[index].selectedDevice = ""; // Limpiar dispositivo seleccionado
@@ -486,47 +490,59 @@ const CrearEspacio = () => {
   };
 
   let data = []
-  const handleAddVariable = (e,type, index) => {
+  const handleAddVariable = (e, type, index) => {
     e.preventDefault();
-    console.log("selectedVariableId :::::::::", selectedVariables.main)
-    data.push(selectedVariables.main)
-    console.log(data)
+    // console.log("mainVariables: ", mainVariables);
     if (type === 'main') {
       data.push(selectedVariables.main)
       setSelectedVariables((prev) => ({
         ...prev,
         main: data, // Agrega nuevaVariable al arreglo main
       }));
-      console.log("selectedVariables == ", selectedVariables);
-      if (selectedVariables.main[0] != undefined && selectedVariables.main[0] != null && selectedVariables.main[0].length > 0 && !Array.isArray(selectedVariables.main[0])){
-       setVariablesSelected((prev) => ({
-         ...prev,
-         datosVariables: [
-           ...(prev.datosVariables || []),
-           {id: selectedVariables.main[0]}
-         ].filter((value, index, self) =>
-         index === self.findIndex((t) => t.id === value.id)
-         )
-      }));
+      if (selectedVariables.main[0] != undefined && selectedVariables.main[0] != null && selectedVariables.main[0].length > 0 && !Array.isArray(selectedVariables.main[0])) {
+        setVariablesSelected((prev) => ({
+          ...prev,
+          datosVariables: [
+            ...(prev.datosVariables || []),
+            { id: selectedVariables.main[0] }
+          ].filter((value, index, self) =>
+            index === self.findIndex((t) => t.id === value.id)
+          )
+        }));
       }
     } else {
-      // Agregar variable al subespacio correspondiente
-      setSelectedVariables((prev) => {
-        const updatedSubspaces = [...prev.subspaces];
-        updatedSubspaces[index] = updatedSubspaces[index]
-          ? [...updatedSubspaces[index], selectedVariableId]
-          : [selectedVariableId];
-        return { ...prev, subspaces: updatedSubspaces };
-      });
-      setVariablesSelected((prev) => ({
-        ...prev,
-        datosVariables: [
-          ...(prev.datosVariables || []),
-          {id: selectedVariables.subspaces[0]}
-        ].filter((value, index, self) =>
-        index === self.findIndex((t) => t.id === value.id)
-        )
-     }));
+      if (selectedVariables.subspaces != undefined && selectedVariables.subspaces != null) {
+        console.log("selectedVariables: ", selectedVariables);
+        console.log("selectedVariables.main: ", selectedVariables.main);
+        console.log("selectedVariables.subspaces: ", selectedVariables.subspaces);
+        setVariablesSelected((prev) => {
+          const newDatosVariables = { ...prev.datosVariables };
+
+          Object.entries(selectedVariables.subspaces).forEach(([index, id]) => {
+            // Asegurar que el índice tenga un array
+            if (!Array.isArray(newDatosVariables[index])) {
+              newDatosVariables[index] = [];
+            }
+
+            // console.log(newDatosVariables[index])
+
+            // Evitar duplicados antes de agregar
+            if (!newDatosVariables[index].includes(id)) {
+              if (id == "") { return; }
+              // console.log(id)
+              newDatosVariables[index].push(id);
+            }
+          });
+
+          // console.log(newDatosVariables)
+
+          return {
+            ...prev,
+            datosVariables: newDatosVariables
+          };
+        });
+      }
+      // console.log(VariablesSelected)
     }
   };
 
@@ -534,7 +550,7 @@ const CrearEspacio = () => {
 
 
 
-  
+
   const handleVariableChangeForSubspace = (index, variable) => {
   };
 
@@ -656,12 +672,12 @@ const CrearEspacio = () => {
   let datosVariables = []
   const handleVariableChange = (e, space, variableId) => {
     e.preventDefault()
-
+    console.log(variableId)
     if (space === "main") {
       datosVariables.push(variableId)
-       setSelectedVariables((prev) => ({
-         ...prev,
-         main: datosVariables,
+      setSelectedVariables((prev) => ({
+        ...prev,
+        main: datosVariables,
       }));
     } else {
       setSelectedVariables((prev) => ({
@@ -673,7 +689,7 @@ const CrearEspacio = () => {
       }));
     }
   };
-  
+
   const handleChange = async (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -691,16 +707,104 @@ const CrearEspacio = () => {
 
   };
   const handleSubmit = async (e) => {
+    e.preventDefault();
 
+    const parseNumber = (value) => {
+      return value !== undefined && value !== null && !isNaN(value) ? parseInt(value, 10) : null;
+    };
+
+    const data = {
+      name: formData.name,
+      gpsPosition: formData.gpsPosition,
+      climateConditions: formData.climateConditions,
+      dimensionUnit: formData.dimensionUnit,
+      shape: formData.shape,
+      length: Math.max(formData.length || 0, 0),
+      width: Math.max(formData.width || 0, 0),
+      depth: Math.max(formData.depth || 0, 0),
+      area: Math.max(formData.area || 0, 0),
+      volume: Math.max(formData.volume || 0, 0),
+      specificFeatures: formData.specificFeatures,
+      monitoringSystemId: parseNumber(formData.monitoringSystemId),
+      spaceTypeId: parseNumber(formData.spaceTypeId),
+      species: Array.isArray(formData.species) ? formData.species : [],
+      subProductionSpaces: formData.subProductionSpaces.map(subSpace => ({
+        name: subSpace.name,
+        gpsPosition: subSpace.gpsPosition,
+        dimensionUnit: subSpace.dimensionUnit,
+        shape: subSpace.shape,
+        length: Math.max(subSpace.length || 0, 0),
+        width: Math.max(subSpace.width || 0, 0),
+        depth: Math.max(subSpace.depth || 0, 0),
+        area: Math.max(subSpace.area || 0, 0),
+        volume: Math.max(subSpace.volume || 0, 0),
+        species: Array.isArray(subSpace.species) ? subSpace.species : [],
+        monitoringSystemId: parseNumber(subSpace.monitoringSystemId),
+        assignDevices: Array.isArray(subSpace.assignDevices) ? subSpace.assignDevices : [],
+        configureMeasurementControls: Array.isArray(subSpace.configureMeasurementControls)
+          ? subSpace.configureMeasurementControls.map(control => ({
+            measurementType: control.measurementType,
+            sensorId: parseNumber(control.sensorId),
+            actuatorId: parseNumber(control.actuatorId),
+            samplingTimeUnit: control.samplingTimeUnit,
+            samplingFrequency: parseNumber(control.samplingFrequency),
+            numberOfSamples: parseNumber(control.numberOfSamples),
+            controlType: control.controlType,
+            actuationTimeUnit: control.actuationTimeUnit,
+            activationParameterRange: control.activationParameterRange,
+            activationFrequency: parseNumber(control.activationFrequency),
+            alertMessage: control.alertMessage,
+            productionParameterId: parseNumber(control.productionParameterId)
+          }))
+          : [],
+      })),
+      assignDevices: Array.isArray(formData.assignDevices) ? formData.assignDevices : [],
+      configureMeasurementControls: Array.isArray(formData.configureMeasurementControls)
+        ? formData.configureMeasurementControls.map(control => ({
+          measurementType: control.measurementType,
+          sensorId: parseNumber(control.sensorId),
+          actuatorId: parseNumber(control.actuatorId),
+          samplingTimeUnit: control.samplingTimeUnit,
+          samplingFrequency: parseNumber(control.samplingFrequency),
+          numberOfSamples: parseNumber(control.numberOfSamples),
+          controlType: control.controlType,
+          actuationTimeUnit: control.actuationTimeUnit,
+          activationParameterRange: control.activationParameterRange,
+          activationFrequency: parseNumber(control.activationFrequency),
+          alertMessage: control.alertMessage,
+          productionParameterId: parseNumber(control.productionParameterId)
+        }))
+        : []
+    };
+    console.log(devicesList);
+    console.log(data);
+    try {
+      const response = await EspacioService.createEspacio(data);
+      console.log('Espacio creado con éxito', response);
+      navigate('../espacio');
+    } catch (error) {
+      console.error('Error al crear el espacio:', error);
+    }
   };
 
 
-  const handleMedicionControl = (variable) => {
-    setIsModalOpen(true)
+  const handleMedicionControl = (variable, type = "main") => {
+    console.log(type)
+    console.log(
+      
+      
+      
+      variable)
+    if (type === "main") {
+      setIsModalOpen(true)
+    }
+
+
   };
 
   return (
-    <form className="">
+    <>
+    <form  onSubmit={handleSubmit} className="">
       <div className="container mx-auto p-2">
         <div className="bg-white rounded-lg shadow-xl p-6">
           <h2 className="text-2xl font-semibold mb-6">Crear Espacios</h2>
@@ -1080,7 +1184,7 @@ const CrearEspacio = () => {
                               <label htmlFor={`species-${index}`} className="block text-sm font-medium text-gray-700 mb-1">
                                 Especies para el Subespacio {index + 1}
                               </label>
-                              <FormControl fullWidth> 
+                              <FormControl fullWidth>
                                 <Select
                                   multiple
                                   id={`species-${index}`}
@@ -1346,236 +1450,232 @@ const CrearEspacio = () => {
                   null
                 ) : (
                   <div className="border border-gray-400 p-3 rounded-lg">
-                  <div>
-                    <h2 className="font-bold p-1">Espacio</h2>
-                  </div>
-                  <div className="py-3 px-3">
-                    <label
-                      htmlFor="species"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Especies
-                    </label>
-                    <select
-                      id="species"
-                      name="species"
-                      onChange={(e) => handleSpeciesChange("main", e.target.value)}
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
-                    >
-                      <option value="" className="text-gray-500">
-                        Selecciona una opción
-                      </option>
-                      {species
-                        ?.filter((sub) => (especiesEspacio.flat()).includes(sub.id)) // Convertir en array plano
-                        .map((sub) => (
-                          <option key={sub.id} value={sub.id}>
-                            {sub.common_name}
-                          </option>
-                        ))}
-                    </select>
-
-
-                    {/* Selector de variables para especie principal */}
-                    <div className="mt-4">
+                    <div>
+                      <h2 className="font-bold p-1">Espacio</h2>
+                    </div>
+                    <div className="py-3 px-3">
                       <label
-                        htmlFor="variable"
+                        htmlFor="species"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Variables Asociadas espacios
+                        Especies
                       </label>
                       <select
-                        id="variable"
-                        name="variable"
-                        onChange={(e) => handleVariableChange(e, "main", e.target.value)}
-                        value={selectedVariables["main"] || ""}
+                        id="species"
+                        name="species"
+                        onChange={(e) => handleSpeciesChange("main", e.target.value)}
                         className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
                       >
                         <option value="" className="text-gray-500">
-                          Selecciona una variable
+                          Selecciona una opción
                         </option>
-                        {mainVariables.length > 0 &&
-                          mainVariables.map((variable, index) => (
-                            <option key={index} value={variable.name}>
-                              {variable.name}
+                        {species
+                          ?.filter((sub) => (especiesEspacio.flat()).includes(sub.id)) // Convertir en array plano
+                          .map((sub) => (
+                            <option key={sub.id} value={sub.id}>
+                              {sub.common_name}
                             </option>
                           ))}
                       </select>
-                    </div>
-                  </div>
-                  {selectedVariables['main'] && (
-                    <div>
-                      <button
-                        type="button"
-                        onClick={(e) => handleAddVariable(e, 'main')} // Pasar 'main' como tipo
-                        className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
-                      >
-                        <FiPlusCircle />
-                        Añadir Variable
-                      </button>
-                    </div>
-                  )}
-                  {VariablesSelected.datosVariables && VariablesSelected.datosVariables.length > 0 && (
-                    <div className="mt-4">
-                      <h3 className="text-lg font-medium">Variables del Espacio:</h3>
-                      <div className="mt-2 grid grid-cols-1 gap-2">
-                        {Array.isArray(VariablesSelected.datosVariables) &&
-                          VariablesSelected.datosVariables.map((datosVariables, index) => (
-                            <div
-                              key={index}
-                              className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
-                            >
-                              <div className="flex justify-between items-center">
-                                <span>{datosVariables.id}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => handleMedicionControl(variable)}
-                                  className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
-                                >
-                                  Medición y Control
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {isModalOpen && (
-                    <GenericModal
-                      title={
-                        modalMode === 'edit'
-                          ? 'Editar Medición y Control'
-                          : modalMode === 'view'
-                            ? 'Ver Medición y Control'
-                            : 'Añadir Medición y Control'
-                      }
-                      onClose={closeModal}
-                    >
-                      <FormMedicion
-                        selectedVariableId={selectedVariableId}
-                        onClose={() => setIsModalOpen(false)}
-                      />
-                    </GenericModal>
-                  )}
 
 
-
-                </div>
-                )}
-
-                <div className='p-3'>
-                  {subspaces.map((subspace, index) => (
-                    <div
-                      key={index}
-                      className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4 mb-4"
-                    >
-                      <h3>Subespacio {index + 1}</h3>
-                      {/* Selección de especie */}
-                      <div className="py-3 px-3">
+                      {/* Selector de variables para especie principal */}
+                      <div className="mt-4">
                         <label
-                          htmlFor={`species-${index}`}
+                          htmlFor="variable"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          Especies
+                          Variables Asociadas
                         </label>
                         <select
-                          id={`species-${index}`}
-                          name={`species-${index}`}
-                          onChange={(e) => handleSpeciesChange(index, e.target.value)}
-                          value={selectedSpecies[index] || ""}
+                          id="variable"
+                          name="variable"
+                          onChange={(e) => handleVariableChange(e, "main", e.target.value)}
+                          value={selectedVariables["main"] || ""}
                           className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
                         >
                           <option value="" className="text-gray-500">
-                            Selecciona una opción
+                            Selecciona una variable
                           </option>
-                          {console.log(species)}
-                          {console.log(species.map((e) => (console.log(e?.id))))}
-                          {console.log(especiesEspacio)}
-                          {console.log(species.map((e) => (console.log(e?.id))))}
-                          {console.log(subspaces)}
-                          {console.log(subspaces.map((e) => (e?.species.map((s) => console.log(Array.isArray(s) ? s : [s])))))}
-                          {species
-                            ?.filter((sub) => (subspaces.species.flat()).includes(sub.id)) // Convertir en array plano
-                            .map((sub) => (
-                              <option key={sub.id} value={sub.id}>
-                                {sub.common_name}
-                              </option>
-                          ))}
-                        </select>
-
-                        {/* Selección de variables */}
-                        <div className="mt-4">
-                          <label
-                            htmlFor={`variable-${index}`}
-                            className="block text-sm font-medium text-gray-700 mb-1"
-                          >
-                            Variables Asociadas
-                          </label>
-                          <select
-                            id={`variable-${index}`}
-                            name={`variable-${index}`}
-                            onChange={(e) => handleVariableChange(e, index, e.target.value)}
-                            value={selectedVariables.subspaces[index] || ""}
-                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
-                          >
-                            <option value="" className="text-gray-500">
-                              Selecciona una variable
-                            </option>
-                            {(variablesBySubspace[index] || []).map((variable, varIndex) => (
-                              <option key={varIndex} value={variable.id}>
+                          {mainVariables.length > 0 &&
+                            mainVariables.map((variable, index) => (
+                              <option key={index} value={variable.name}>
                                 {variable.name}
                               </option>
                             ))}
-                          </select>
-                        </div>
-
-                        {/* Botón para añadir la variable seleccionada */}
-                        
-                        {selectedVariables['main'] && (
-                          <div>
-                            <button
-                              type="button"
-                              onClick={(e) => handleAddVariable(e, 'main')} // Pasar 'main' como tipo
-                              className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
-                            >
-                              <FiPlusCircle />
-                              Añadir Variable
-                            </button>
-                          </div>
-                        )}
-                        {VariablesSelected.datosVariables && VariablesSelected.datosVariables.length > 0 && (
-                          <div className="mt-4">
-                            <h3 className="text-lg font-medium">Variables del Espacio:</h3>
-                            <div className="mt-2 grid grid-cols-1 gap-2">
-                              {Array.isArray(VariablesSelected.datosVariables) &&
-                                VariablesSelected.datosVariables.map((datosVariables, index) => (
-                                  <div
-                                    key={index}
-                                    className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
-                                  >
-                                    <div className="flex justify-between items-center">
-                                      <span>{datosVariables.id}</span>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleMedicionControl(variable)}
-                                        className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
-                                      >
-                                        Medición y Control
-                                      </button>
-                                    </div>
-                                  </div>
-                                ))}
-                            </div>
-                          </div>
-                        )}
-
-
-
-
+                        </select>
                       </div>
                     </div>
-                  ))}
-                </div>
+                    {selectedVariables['main'] && (
+                      <div>
+                        <button
+                          type="button"
+                          onClick={(e) => handleAddVariable(e, 'main')} // Pasar 'main' como tipo
+                          className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
+                        >
+                          <FiPlusCircle />
+                          Añadir Variable
+                        </button>
+                      </div>
+                    )}
+                    {VariablesSelected.datosVariables && VariablesSelected.datosVariables.length > 0 && (
+                      <div className="mt-4">
+                        <h3 className="text-lg font-medium">Variables del Espacio:</h3>
+                        <div className="mt-2 grid grid-cols-1 gap-2">
+                          {Array.isArray(VariablesSelected.datosVariables) &&
+                            VariablesSelected.datosVariables.map((datosVariables, index) => (
+                              <div
+                                key={index}
+                                className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
+                              >
+                                <div className="flex justify-between items-center">
+                                  <span>{datosVariables.id}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleMedicionControl(variable)}
+                                    className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
+                                  >
+                                    Medición y Control
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                  </div>
+                )}
+
+                {subspaces.length > 0 ? (
+                  <div className='p-3'>
+                    {subspaces.map((subspace, index) => (
+                      <div
+                        key={index}
+                        className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4 mb-4"
+                      >
+                        <h3>Subespacio {index + 1}</h3>
+                        {/* Selección de especie */}
+                        <div className="py-3 px-3">
+                          <label
+                            htmlFor={`species-${index}`}
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            Especies
+                          </label>
+                          <select
+                            id={`species-${index}`}
+                            name={`species-${index}`}
+                            onChange={(e) => handleSpeciesChange(index, e.target.value)}
+                            value={selectedSpecies[index] || ""}
+                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
+                          >
+                            <option value="" className="text-gray-500">
+                              Selecciona una opción
+                            </option>
+                            {species
+                              ?.filter((s) => subspaces.flat()[index]?.species.includes(s.id))
+                              .map((sub) => (
+                                <option key={sub.id} value={sub.id}>
+                                  {sub.common_name}
+                                </option>
+                              ))}
+                          </select>
+
+                          {/* Selección de variables */}
+                          <div className="mt-4">
+                            <label
+                              htmlFor={`variable-${index}`}
+                              className="block text-sm font-medium text-gray-700 mb-1"
+                            >
+                              Variables Asociadas
+                            </label>
+                            <select
+                              id={`variable-${index}`}
+                              name={`variable-${index}`}
+                              onChange={(e) => handleVariableChange(e, index, e.target.value)}
+                              value={selectedVariables.subspaces[index] || ""}
+                              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
+                            >
+                              <option value="" className="text-gray-500">
+                                Selecciona una variable
+                              </option>
+                              {(variablesBySubspace[index] || []).map((variable, varIndex) => (
+                                // console.log(variable),
+                                <option key={varIndex} value={variable.name}>
+                                  {variable.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Botón para añadir la variable seleccionada */}
+                          {selectedVariables["main"] && (
+                            <div>
+                              <button
+                                type="button"
+                                onClick={(e) => handleAddVariable(e, "sub")}
+                                className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
+                              >
+                                <FiPlusCircle />
+                                Añadir Variable
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Renderizado de Variables del Espacio por Subespacio */}
+                          {VariablesSelected.datosVariables &&
+                            Array.isArray(VariablesSelected.datosVariables[index]) && // Asegura que sea un array
+                            VariablesSelected.datosVariables[index].length > 0 && ( // Evita renderizar si está vacío
+                              <div className="mt-4">
+                                <h3 className="text-lg font-medium">Variables del Espacio:</h3>
+                                <div className="mt-2 grid grid-cols-1 gap-2">
+                                  <div className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md">
+                                    {/* <h3 className="font-semibold">Subespacio {index + 1}</h3> */}
+                                    <div className="mt-2 space-y-1">
+                                      {VariablesSelected.datosVariables[index].map((variable, varIndex) => (
+                                        <div
+                                          key={`${index}-${varIndex}`}
+                                          className="flex justify-between items-center bg-white p-2 border rounded-md"
+                                        >
+                                          <span>{variable}</span>
+                                          <button
+                                            type="button"
+                                            onClick={() => handleMedicionControl(variable)}
+                                            className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
+                                          >
+                                            Medición y Control
+                                          </button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                        </div>
+                      </div>
+                    ))}
+                    {/* {isModalOpen && (
+                      <GenericModal
+                        title={
+                          modalMode === 'edit'
+                            ? 'Editar Medición y Control'
+                            : modalMode === 'view'
+                              ? 'Ver Medición y Control'
+                              : 'Añadir Medición y Control'
+                        }
+                        onClose={closeModal}
+                      >
+                        <FormMedicion
+                          selectedVariableId={selectedVariableId}
+                          onClose={() => setIsModalOpen(false)}
+                        />
+                      </GenericModal>
+                    )} */}
+                  </div>
+                ) : (null)}
 
               </div>
             )}
@@ -1601,7 +1701,7 @@ const CrearEspacio = () => {
               )}
               {step === 2 && (
                 <button
-                  type="button"
+                  // type="submit"
                   onClick={handleSubmit}
                   className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
                 >
@@ -1614,7 +1714,27 @@ const CrearEspacio = () => {
 
         </div>
       </div>
-    </form>
+    </form >
+    
+{isModalOpen && (
+  <GenericModal
+    title={
+      modalMode === 'edit'
+        ? 'Editar Medición y Control'
+        : modalMode === 'view'
+          ? 'Ver Medición y Control'
+          : 'Añadir Medición y Control'
+    }
+    onClose={closeModal}
+  >
+    <FormMedicion
+      selectedVariableId={selectedVariableId}
+      onClose={() => setIsModalOpen(false)}
+    />
+  </GenericModal>
+)}
+    </>
+    
   );
 };
 
