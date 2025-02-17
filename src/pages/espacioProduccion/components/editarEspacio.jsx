@@ -140,7 +140,9 @@ const EditarEspacio = ({ }) => {
                 ...prevState,
                 variables,
             }));
+            
         }
+
     }, [formData.configureMeasurementControls]);
     const showSuccessAlertSuccess = (message) => {
         setShowSuccessAlert(true)
