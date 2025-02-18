@@ -8,7 +8,7 @@ const ActuadorService = {
     // LISTAR TODAS LAS varibles
     async getAllActuador(idcompany = 0, searchParameter) {
         try {
-            const response = await api.get(`/actuators?company=${idcompany}&search=${encodeURIComponent(JSON.stringify(searchParameter))}`);
+            const response = await api.get(`/actuators?page=1&limit=1000&company=${idcompany}&search=${encodeURIComponent(JSON.stringify(searchParameter))}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener las actuators:', error);

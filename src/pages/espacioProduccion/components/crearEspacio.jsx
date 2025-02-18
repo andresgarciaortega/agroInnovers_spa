@@ -204,6 +204,7 @@ const CrearEspacio = () => {
   };
 
 
+
   useEffect(() => {
     hiddenSelect(true)
     const fetchMonitoreo = async () => {
@@ -256,6 +257,7 @@ const CrearEspacio = () => {
       }
     };
     fetchEspecies(0, {});
+
   }, []);
 
 
@@ -392,16 +394,18 @@ const CrearEspacio = () => {
   };
 
   const handleDeviceTypeChange = (index, type) => {
-    console.log(index,type)
+    console.log('paso 2 ',index,type)
     const newDevicesList = [...devicesList];
     newDevicesList[index].deviceType = type;
     newDevicesList[index].selectedDevice = ""; // Limpiar dispositivo seleccionado
     setDevicesList(newDevicesList);
   };
+
   const handleDeviceSelectionChange = (index, selectedDevice) => {
     const newDevicesList = [...devicesList];
     newDevicesList[index].selectedDevice = selectedDevice;
     setDevicesList(newDevicesList);
+    console.log('sensores y actuafores, pso 2', devicesList)
   };
 
 
@@ -441,6 +445,8 @@ const CrearEspacio = () => {
     updatedSubspaces[index].deviceType = type;
     updatedSubspaces[index].selectedDevice = "";
     setSubspaces(updatedSubspaces);
+    console.log('tipo paso 2 en subespacio', subspaces)
+
   };
 
 
@@ -448,6 +454,8 @@ const CrearEspacio = () => {
     const updatedSubspaces = [...subspaces];
     updatedSubspaces[index].selectedDevice = deviceId;
     setSubspaces(updatedSubspaces);
+    // console.log('paso 2 en subespacio', subspaces)
+    console.log('paso 2 en subespacio2', updatedSubspaces)
   };
 
   const handleSubspaceCheckboxChange = (index, field) => {
@@ -798,6 +806,19 @@ const CrearEspacio = () => {
     if (type === "main") {
       setIsModalOpen(true)
     }
+
+
+  };
+
+
+  const finalizar  = () => {
+    console.log("paso 1 , datos del espacio : ", formData)
+    console.log("paso 1, primer dato del subespacio: ", subspaces)
+    console.log("-------------------------------------------------")
+
+    console.log('paso 2, sensores y actuadores del espacio', devicesList)
+    console.log('paso 2 ,en subespacio2', subspaces)
+
 
 
   };
@@ -1702,7 +1723,7 @@ const CrearEspacio = () => {
               {step === 2 && (
                 <button
                   // type="submit"
-                  onClick={handleSubmit}
+                  onClick={finalizar}
                   className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
                 >
                   Finalizar
