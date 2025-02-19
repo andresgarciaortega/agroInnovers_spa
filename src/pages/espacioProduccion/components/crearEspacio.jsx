@@ -204,6 +204,7 @@ const CrearEspacio = () => {
   };
 
 
+
   useEffect(() => {
     hiddenSelect(true)
     const fetchMonitoreo = async () => {
@@ -256,6 +257,7 @@ const CrearEspacio = () => {
       }
     };
     fetchEspecies(0, {});
+
   }, []);
 
 
@@ -381,6 +383,8 @@ const CrearEspacio = () => {
   };
 
 
+
+
   const handleNoSubCheckboxChange = (index) => {
     setIsYesSubSelected(false);
 
@@ -392,16 +396,18 @@ const CrearEspacio = () => {
   };
 
   const handleDeviceTypeChange = (index, type) => {
-    console.log(index,type)
+    console.log('paso 2 ',index,type)
     const newDevicesList = [...devicesList];
     newDevicesList[index].deviceType = type;
     newDevicesList[index].selectedDevice = ""; // Limpiar dispositivo seleccionado
     setDevicesList(newDevicesList);
   };
+
   const handleDeviceSelectionChange = (index, selectedDevice) => {
     const newDevicesList = [...devicesList];
     newDevicesList[index].selectedDevice = selectedDevice;
     setDevicesList(newDevicesList);
+    console.log('sensores y actuafores, pso 2', devicesList)
   };
 
 
@@ -441,6 +447,8 @@ const CrearEspacio = () => {
     updatedSubspaces[index].deviceType = type;
     updatedSubspaces[index].selectedDevice = "";
     setSubspaces(updatedSubspaces);
+    console.log('tipo paso 2 en subespacio', subspaces)
+
   };
 
 
@@ -448,6 +456,8 @@ const CrearEspacio = () => {
     const updatedSubspaces = [...subspaces];
     updatedSubspaces[index].selectedDevice = deviceId;
     setSubspaces(updatedSubspaces);
+    // console.log('paso 2 en subespacio', subspaces)
+    console.log('paso 2 en subespacio2', updatedSubspaces)
   };
 
   const handleSubspaceCheckboxChange = (index, field) => {
@@ -646,7 +656,7 @@ const CrearEspacio = () => {
     // Realizar la consulta para obtener las variables asociadas a la especie seleccionada
     const fetchVariablesForSubspace = async () => {
       try {
-        const data = await SpeciesService.getVariableBySpecie({ species: { id: specieId } });
+        const data = await SpeciesService.getVariableBySpecie({ species: { id: specieId }  });
         console.log(data)
         if (index !== 0) {
           setMainVariables(data);
@@ -801,6 +811,54 @@ const CrearEspacio = () => {
 
 
   };
+
+
+  const finalizar  = () => {
+    console.log("paso 1 , datos del espacio : ", formData)
+    console.log("paso 1, primer dato del subespacio: ", subspaces)
+    console.log("-------------------------------------------------")
+
+    console.log('paso 2, sensores y actuadores del espacio', devicesList)
+    console.log('paso 2 ,en subespacio2', subspaces)
+
+
+  };
+
+  const handleSaveData = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+      // Guardar los datos principales del espacio
+      ...formData, 
+  
+      // Guardar subespacios
+      subProductionSpaces: subspaces.map((subspace) => ({
+        ...subspace,
+        assignDevices: devicesList.filter((device) => device.subspaceId === subspace.id),
+        configureMeasurementControls: devicesList
+          .filter((device) => device.subspaceId === subspace.id)
+          .map((device) => ({
+            measurementType: device.measurementType || '',
+            sensorId: device.sensorId || null,
+            actuatorId: device.actuatorId || null,
+            samplingTimeUnit: device.samplingTimeUnit || '',
+            samplingFrequency: device.samplingFrequency || '',
+            numberOfSamples: device.numberOfSamples || '',
+            controlType: device.controlType || '',
+            actuationTimeUnit: device.actuationTimeUnit || '',
+            activationParameterRange: device.activationParameterRange || '',
+            activationFrequency: device.activationFrequency || '',
+            alertMessage: device.alertMessage || '',
+            productionParameterId: device.productionParameterId || null
+          }))
+      })),
+  
+      // Guardar dispositivos en el espacio principal
+      assignDevices: devicesList.filter((device) => device.subspaceId === null),
+    }));
+  
+    console.log("🚀 Datos guardados en formData:", formData);
+  };
+  
 
   return (
     <>
@@ -1702,7 +1760,7 @@ const CrearEspacio = () => {
               {step === 2 && (
                 <button
                   // type="submit"
-                  onClick={handleSubmit}
+                  onClick={finalizar}
                   className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
                 >
                   Finalizar

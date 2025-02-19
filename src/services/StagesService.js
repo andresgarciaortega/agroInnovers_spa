@@ -6,7 +6,7 @@ const StagesService = {
     // LISTAR TODAS LAS ETAPAS
     async getAllStages() {
         try {
-            const response = await api.get(`/stages`);
+            const response = await api.get(`/stages?page=1&limit=10000`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener las etapas:', error);

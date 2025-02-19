@@ -32,7 +32,11 @@ const Navbar = () => {
     fetchUserData();
   }, []);
 
-  const handleLogout = () => {
+  const 
+  
+  
+  
+  handleLogout = () => {
     Swal.fire({
       icon: 'question',
 
@@ -91,7 +95,7 @@ const Navbar = () => {
         <IoIosArrowDown className="text-gray-600 cursor-pointer " onClick={toggleDropdown} />
         {dropdownOpen && (
           <div className="absolute right-10 mt-36 w-[150px]  bg-white rounded-lg shadow-lg z-10 ">
-            <MenuItem onClick={handleProfileClick}>Perfil</MenuItem>
+            {/* <MenuItem onClick={handleProfileClick}>Perfil</MenuItem> */}
             <MenuItem onClick={handleLogout}>Salir</MenuItem>
           </div>
         )}

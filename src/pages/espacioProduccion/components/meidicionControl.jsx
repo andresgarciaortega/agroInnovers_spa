@@ -3,7 +3,7 @@ import SensorService from '../../../services/SensorService';
 import ActuadorService from '../../../services/ActuadorService';
 import EspacioService from '../../../services/espacios';
 
-const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
+const FormMedicion = ({ selectedVariableId, mode, onClose, control ,guardarDatos }) => {
     const [sensors, setSensors] = useState([]);
     const [actuators, setActuators] = useState([]);
     const [formData, setFormData] = useState({
@@ -102,9 +102,13 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control }) => {
             }
         }
     };
-
+    const handleChange = (e) => {
+        setFormulario({ ...formulario, [e.target.name]: e.target.value });
+      };
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
+        guardarDatos(formulario); // Enviar datos al componente principal
         console.log("preventDefault ejecutado");
         console.log(control);
     

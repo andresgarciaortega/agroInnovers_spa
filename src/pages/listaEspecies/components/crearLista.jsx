@@ -969,7 +969,7 @@ const CrearListas = () => {
                               />
 
                             </div>
-                            <h1>arreglo : {stage?.parameters?.length}</h1>
+                            {/* <h1>arreglo : {stage?.parameters?.length}</h1> */}
                           </div>
 
                           <ul className="space-y-2 mt-4">

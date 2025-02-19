@@ -8,7 +8,7 @@ const VariablesService = {
     // LISTAR TODAS LAS varibles
     async getAllVariable(idcompany = 0) {
         try {
-            const response = await api.get(`/variables?company=${idcompany}`);
+            const response = await api.get(`/variables?page=1&limit=10000&company=${idcompany}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener las variables:', error);

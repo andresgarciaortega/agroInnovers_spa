@@ -353,6 +353,8 @@ const FormActuador = ({ selectedCompany, showErrorAlert, onUpdate, actuador, mod
           name="installationDate"
           placeholder="Fecha de instalación"
           value={formData.installationDate.substr(0, 10)}
+          max={new Date().toISOString().split("T")[0]} // Restringe fechas futuras
+
           onChange={handleChange}
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           required
@@ -366,6 +368,8 @@ const FormActuador = ({ selectedCompany, showErrorAlert, onUpdate, actuador, mod
           id="estimatedChangeDate"
           name="estimatedChangeDate"
           placeholder="Fecha de cambio"
+          min={new Date(Date.now() + 86400000).toISOString().split("T")[0]} // Mínimo: mañana
+
           value={formData.estimatedChangeDate.substr(0, 10)}
           onChange={handleChange}
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"

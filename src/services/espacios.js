@@ -8,7 +8,7 @@ const EspacioService = {
     // LISTAR TODAS los s de espacio
     async getAllEspacio(idcompany = 0) {
         try {
-            const response = await api.get(`/production-space?page=1&limit=100&company=${idcompany}`);
+            const response = await api.get(`/production-space?page=1&limit=10000&company=${idcompany}`);
             console.log('response', response)
             return response.data;
         } catch (error) {

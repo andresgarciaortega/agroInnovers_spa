@@ -7,7 +7,7 @@ const LotsService = {
 
     async getAllLots(idcompany = 0) {
         try {
-            const response = await api.get(`/production-lots?page=1&limit=100&company=${idcompany}`);
+            const response = await api.get(`/production-lots?page=1&limit=10000&company=${idcompany}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener los tipos de lotes:', error);

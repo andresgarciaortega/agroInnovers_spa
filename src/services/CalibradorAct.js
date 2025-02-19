@@ -8,7 +8,7 @@ const ActuadorCalibradorService = {
     // LISTAR TODAS LAS varibles
     async getAllMantenimiento(idcompany = 0) {
         try {
-            const response = await api.get(`/actuator-calibration?company=${idcompany}`);
+            const response = await api.get(`/actuator-calibration?page=1&limit=1000&company=${idcompany}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener las actuator-calibration:', error);

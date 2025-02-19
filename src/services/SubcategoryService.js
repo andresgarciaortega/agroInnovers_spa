@@ -6,7 +6,7 @@ const SubcategoryService = {
     // LISTAR TODAS LAS SUBCATEGORÍAS
     async getAllSubcategory() {
         try {
-            const response = await api.get(`/subcategories`);
+            const response = await api.get(`/subcategories?page=1&limit=10000`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener las subcategorías:', error);

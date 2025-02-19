@@ -8,7 +8,7 @@ const SystemMonitory = {
     // LISTAR TODAS LAS tipo de variableS
     async getAllMonitories(idcompany = 0) {
         try {
-            const response = await api.get(`/sistemas?page=1&limit=100&company=${idcompany}`);
+            const response = await api.get(`/sistemas?page=1&limit=1000&company=${idcompany}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener los sistemas:', error);

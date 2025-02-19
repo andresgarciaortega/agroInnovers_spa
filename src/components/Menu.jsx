@@ -214,6 +214,7 @@ const menuItems = [
     icon: <RxDashboard />,
     label: "Dashboard",
     route: "/home/dashboard",
+    
     roles: ["SUPER-ADMINISTRADOR", "ADMINISTRADOR", "OPERARIO"]
   },
   // Solo accesible por SUPER-ADMINISTRADOR
