@@ -656,7 +656,7 @@ const CrearEspacio = () => {
     // Realizar la consulta para obtener las variables asociadas a la especie seleccionada
     const fetchVariablesForSubspace = async () => {
       try {
-        const data = await SpeciesService.getVariableBySpecie({ species: { id: specieId } });
+        const data = await SpeciesService.getVariableBySpecie({ species: { id: specieId }  });
         console.log(data)
         if (index !== 0) {
           setMainVariables(data);
@@ -1760,7 +1760,7 @@ const CrearEspacio = () => {
               {step === 2 && (
                 <button
                   // type="submit"
-                  onClick={handleSaveData}
+                  onClick={finalizar}
                   className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
                 >
                   Finalizar
