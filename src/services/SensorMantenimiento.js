@@ -8,7 +8,7 @@ const SensorMantenimientoService = {
     // LISTAR TODAS LAS varibles
     async getAllMantenimiento(idcompany = 0) {
         try {
-            const response = await api.get(`/maintenance?company=${idcompany}`);
+            const response = await api.get(`/maintenance?page=1&limit=10000&company=${idcompany}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener las maintenance:', error);

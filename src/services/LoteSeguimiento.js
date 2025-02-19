@@ -7,7 +7,7 @@ const ReporteService = {
 
     async getAllReporte(idcompany = 0, searchParameter) {
         try {
-            const response = await api.get(`/tracking-reports?page=1&limit=100&company=${idcompany}&search=${encodeURIComponent(JSON.stringify(searchParameter))}`);
+            const response = await api.get(`/tracking-reports?page=1&limit=10000&company=${idcompany}&search=${encodeURIComponent(JSON.stringify(searchParameter))}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener los tipos de reportes:', error);

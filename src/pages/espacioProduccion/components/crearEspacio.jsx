@@ -383,6 +383,8 @@ const CrearEspacio = () => {
   };
 
 
+
+
   const handleNoSubCheckboxChange = (index) => {
     setIsYesSubSelected(false);
 
@@ -820,8 +822,43 @@ const CrearEspacio = () => {
     console.log('paso 2 ,en subespacio2', subspaces)
 
 
-
   };
+
+  const handleSaveData = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+      // Guardar los datos principales del espacio
+      ...formData, 
+  
+      // Guardar subespacios
+      subProductionSpaces: subspaces.map((subspace) => ({
+        ...subspace,
+        assignDevices: devicesList.filter((device) => device.subspaceId === subspace.id),
+        configureMeasurementControls: devicesList
+          .filter((device) => device.subspaceId === subspace.id)
+          .map((device) => ({
+            measurementType: device.measurementType || '',
+            sensorId: device.sensorId || null,
+            actuatorId: device.actuatorId || null,
+            samplingTimeUnit: device.samplingTimeUnit || '',
+            samplingFrequency: device.samplingFrequency || '',
+            numberOfSamples: device.numberOfSamples || '',
+            controlType: device.controlType || '',
+            actuationTimeUnit: device.actuationTimeUnit || '',
+            activationParameterRange: device.activationParameterRange || '',
+            activationFrequency: device.activationFrequency || '',
+            alertMessage: device.alertMessage || '',
+            productionParameterId: device.productionParameterId || null
+          }))
+      })),
+  
+      // Guardar dispositivos en el espacio principal
+      assignDevices: devicesList.filter((device) => device.subspaceId === null),
+    }));
+  
+    console.log("🚀 Datos guardados en formData:", formData);
+  };
+  
 
   return (
     <>
@@ -1723,7 +1760,7 @@ const CrearEspacio = () => {
               {step === 2 && (
                 <button
                   // type="submit"
-                  onClick={finalizar}
+                  onClick={handleSaveData}
                   className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
                 >
                   Finalizar

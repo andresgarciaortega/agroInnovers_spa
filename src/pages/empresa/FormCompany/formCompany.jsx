@@ -161,6 +161,24 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     }
   }
 
+  
+  const handleEmilBlur1 = async () => {
+    if (mode !== 'edit') {
+      const emailExisting = await CompanyService.getFacturacionEmail(formData.email_billing);
+      if (emailExisting) {
+        setShowAlertError(true);
+        setMessageAlert("Los sentimos! el email de facturación ya esta registrado")
+        setFormData({
+          ...formData,
+          email_billing: '' 
+        });
+        setTimeout(() => {
+          setShowAlertError(false);
+        }, 1500);
+      }
+    }
+  }
+
 
   const handleCloseAlert = () => {
     setShowAlertError(false);
@@ -362,11 +380,12 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
         <div>
           <label className="block text-sm font-medium text-gray-700">Email de facturación</label>
           <input
-            type="text"
+            type="email"
             name="email_billing"
             placeholder="Email de facturación"
             value={formData.email_billing}
             onChange={handleChange}
+            onBlur={handleEmilBlur1}
             disabled={mode === 'view'}
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"

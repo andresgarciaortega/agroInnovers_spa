@@ -6,7 +6,7 @@ const TypeDispotivicosService = {
     // LISTAR TODAS LOS SENSORES
     async getAllSensor(idcompany = 0) {
         try {
-            const response = await api.get(`/sensor-types?page=1&limit=100&company=${idcompany}`);
+            const response = await api.get(`/sensor-types?page=1&limit=10000&company=${idcompany}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener los sensores:', error);

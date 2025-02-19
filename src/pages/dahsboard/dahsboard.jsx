@@ -19,6 +19,7 @@ import SpeciesService from "../../services/SpeciesService";
 import CategoryService from "../../services/CategoryService";
 import lotesService from "../../services/lotesService";
 import { useCompanyContext } from "../../context/CompanyContext";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [companyCount, setCompanyCount] = useState(0);
@@ -40,6 +41,8 @@ const Dashboard = () => {
   const [administrativos, setAdministrativos] = useState([]);
   const [superAdministrativos, setSuperAdministrativos] = useState([]);
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     hiddenSelect(false)
@@ -110,10 +113,12 @@ const Dashboard = () => {
     {
       title: "Empresas",
       icon: FaRegBuilding,
+       route: "/home/empresa",
       items: [{ label: "Empresas registradas", count: companyCount }],
     },
     {
       title: "Usuarios",
+      route: "/home/usuarios",
       icon: HiOutlineUserGroup,
       items: [{ label: "Super administradores", count: superAdministrativos },
       { label: "Administrativos de cuenta empresarial", count: administrativos },
@@ -126,40 +131,45 @@ const Dashboard = () => {
     {
       title: "Variables",
       icon: ImEqualizer2,
+      route: "/home/variables",
       items: [
-        { label: "Tipos de variables", count: variableTypeCount },
-        { label: "Variables", count: variableCount },
+        { label: "Tipos de variables", count: variableTypeCount, route: "/home/tipoVariables" },
+        { label: "Variables", count: variableCount, route: "/home/variables", },
       ],
     },
     {
       title: "Dispositivos",
       icon: Cpu,
+       route: "/home/tipos",
       items: [
-        { label: "Tipo de Actuadores", count: actuatorTypeCount },
-        { label: "Actuadores", count: actuatorCount },
-        { label: "Tipo de Sensores", count: sensorTypeCount },
-        { label: "Sensores", count: sensorCount },
+        { label: "Tipo de Actuadores", count: actuatorTypeCount,  route: "/home/tipos" },
+        { label: "Actuadores", count: actuatorCount , route: "/home/actuador" },
+        { label: "Tipo de Sensores", count: sensorTypeCount , route: "/home/tipos" },
+        { label: "Sensores", count: sensorCount , route: "/home/sensor" },
       ],
     },
     {
       title: "Espacios de producción",
       icon: BsBox,
+       route: "/home/espacio",
       items: [
-        { label: "Tipo de Espacios de producción ", count: spaceTypeCount },
-        { label: "Espacios de producción registrados", count: spaceCount },
+        { label: "Tipo de Espacios de producción ", count: spaceTypeCount , route: "/home/tipoEspacio"},
+        { label: "Espacios de producción registrados", count: spaceCount,  route: "/home/espacio" },
       ],
     },
     {
       title: "Especies",
       icon: GlobeAsiaAustraliaIcon,
+      route: "/home/especies", 
       items: [
-        { label: "Categorías de especie", count: categoryCount },
-        { label: "Especies", count: speciesCount },
+        { label: "Categorías de especie", count: categoryCount  ,  route: "/home/listaEspecie"},
+        { label: "Especies", count: speciesCount  , route: "/home/especies" },
       ],
     },
     {
       title: "Lotes de producción",
       icon: PiArrowsCounterClockwiseBold,
+      route: "/home/lotes",
       items: [
         { label: "En proceso", count: lotInProcessCount },
         { label: "Cosechados", count: harvestedLotCount },
@@ -178,6 +188,7 @@ const Dashboard = () => {
             <div
               key={index}
               className="border p-4 rounded-lg hover:bg-accent/50 transition-colors"
+              onClick={() => item.route && navigate(item.route)}
             >
               <div className="flex flex-row items-center space-x-4 pb-2">
                 <div className="p-2 bg-primary/10 rounded-lg  shadow-sm">
