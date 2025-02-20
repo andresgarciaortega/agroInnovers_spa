@@ -292,7 +292,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
             name="type_document_id"
             value={formData.type_document_id || ''}  // Asegúrate de que nunca sea undefined
             onChange={handleChange}
-            disabled={mode === 'view'}
+            disabled={mode === 'view' || mode === 'edit'}
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           >
@@ -316,7 +316,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
             disabled={mode === 'view'}
             onChange={handleChange}
             onBlur={handleDocumentBlur}
-          
+            disabled={mode === 'view' || mode === 'edit'}
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
@@ -332,7 +332,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
             value={formData.email_user_admin}
             onChange={handleChange}
             onBlur={handleEmilBlur}
-            disabled={mode === 'view'}
+            disabled={mode === 'view' || mode === 'edit'}
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
@@ -386,7 +386,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
             value={formData.email_billing}
             onChange={handleChange}
             onBlur={handleEmilBlur1}
-            disabled={mode === 'view'}
+            disabled={mode === 'view' || mode === 'edit'}
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
