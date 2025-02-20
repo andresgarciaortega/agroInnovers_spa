@@ -22,18 +22,13 @@ const ResetPassword = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (email) {
-            setIsSubmitted(true);
 
-            const response = await AccesUser.recoveryPassword({ email })
-            console.log(response)
-            showErrorAlert(response)
-            setTimeout(() => setShowErrorAlert(false), 1200);
-        } else {
-            setErrorMessage("Por favor, ingresa un correo electrónico válido.");
-            setShowErrorAlert(true);
-            setTimeout(() => setShowErrorAlert(false), 1200);
-        }
+        const response = await AccesUser.ResetPasswordUser({  "newPassword": newPassword })
+        console.log(response)
+        showErrorAlert("Contraseña actualizada correctamente")
+        setTimeout(() => setShowErrorAlert(false), 1000);
+      navigate('/', { replace: true });
+
     };
 
     const handleCloseAlert = () => {
@@ -46,8 +41,8 @@ const ResetPassword = () => {
         setShowPassword((prevShowPassword) => !prevShowPassword);
     };
 
-    const validatePassword = () =>{
-        if(newPassword !== confirmPassword){
+    const validatePassword = () => {
+        if (newPassword !== confirmPassword) {
             setEmailError(true)
             setPasswordError(true)
         }
@@ -128,12 +123,7 @@ const ResetPassword = () => {
                         <img src={logoSena} alt="Innovers Sena" className="h-14" />
                         <img src={logoMin} alt="Innovers Min Ciencia" className="h-14 min" />
                     </div>
-
-
-
                 </form>
-
-
             </div>
 
             {showErrorAlert && (
