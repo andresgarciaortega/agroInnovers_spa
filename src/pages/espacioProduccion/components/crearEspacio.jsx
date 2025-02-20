@@ -399,7 +399,7 @@ const CrearEspacio = () => {
     console.log('paso 2 ',index,type)
     const newDevicesList = [...devicesList];
     newDevicesList[index].deviceType = type;
-    newDevicesList[index].selectedDevice = ""; // Limpiar dispositivo seleccionado
+    newDevicesList[index].selectedDevice = ""; 
     setDevicesList(newDevicesList);
   };
 
@@ -460,6 +460,29 @@ const CrearEspacio = () => {
     console.log('paso 2 en subespacio2', updatedSubspaces)
   };
 
+  const transformSubspaceData = (subspace) => {
+    const assignDevices = {
+      deviceType: subspace.deviceType,
+      sensorId: subspace.deviceType === "sensor" ? Number(subspace.selectedDevice) : null,
+      actuatorId: subspace.deviceType === "actuador" ? Number(subspace.selectedDevice) : null
+    };
+    return {
+      name: subspace.name,
+      gpsPosition: subspace.gpsPosition,
+      dimensionUnit: subspace.dimensionUnit,
+      shape: subspace.shape,
+      length: Number(subspace.length),
+      width: Number(subspace.width),
+      depth: Number(subspace.depth),
+      area: Number(subspace.area),
+      volume: Number(subspace.volume),
+      species: subspace.species,
+      monitoringSystemId:Number(subspace.monitoringSystemId), // Asegúrate de obtener este valor correctamente
+      assignDevices: [
+        assignDevices
+      ]
+    };
+  };
   const handleSubspaceCheckboxChange = (index, field) => {
     setSubspaces((prevSubspaces) =>
       prevSubspaces.map((sub, i) => {
@@ -716,9 +739,27 @@ const CrearEspacio = () => {
     }
 
   };
+
+  const transformDevicesList = (devicesList) => {
+    return devicesList.map(device => ({
+      deviceType: device.deviceType,
+      sensorId: device.deviceType === "sensor" ? Number(device.selectedDevice) : null,
+      actuatorId: device.deviceType === "actuador" ? Number(device.selectedDevice) : null
+    }));
+  };
+
+  // const transformmediicion= (guardarMedicion) => {
+  //   return guardarMedicion.map(control => ({
+  //     productionParameterId: control.productionParameterId,
+
+  //   }));
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const transformedSubspaces = subspaces.map(transformSubspaceData);
+    const transformedDevices = transformDevicesList(devicesList);
+    const transformedMeasurementControls = transformMeasurementControls(measurementControls);
     const parseNumber = (value) => {
       return value !== undefined && value !== null && !isNaN(value) ? parseInt(value, 10) : null;
     };
@@ -738,64 +779,64 @@ const CrearEspacio = () => {
       monitoringSystemId: parseNumber(formData.monitoringSystemId),
       spaceTypeId: parseNumber(formData.spaceTypeId),
       species: Array.isArray(formData.species) ? formData.species : [],
-      subProductionSpaces: formData.subProductionSpaces.map(subSpace => ({
-        name: subSpace.name,
-        gpsPosition: subSpace.gpsPosition,
-        dimensionUnit: subSpace.dimensionUnit,
-        shape: subSpace.shape,
-        length: Math.max(subSpace.length || 0, 0),
-        width: Math.max(subSpace.width || 0, 0),
-        depth: Math.max(subSpace.depth || 0, 0),
-        area: Math.max(subSpace.area || 0, 0),
-        volume: Math.max(subSpace.volume || 0, 0),
-        species: Array.isArray(subSpace.species) ? subSpace.species : [],
-        monitoringSystemId: parseNumber(subSpace.monitoringSystemId),
-        assignDevices: Array.isArray(subSpace.assignDevices) ? subSpace.assignDevices : [],
-        configureMeasurementControls: Array.isArray(subSpace.configureMeasurementControls)
-          ? subSpace.configureMeasurementControls.map(control => ({
-            measurementType: control.measurementType,
-            sensorId: parseNumber(control.sensorId),
-            actuatorId: parseNumber(control.actuatorId),
-            samplingTimeUnit: control.samplingTimeUnit,
-            samplingFrequency: parseNumber(control.samplingFrequency),
-            numberOfSamples: parseNumber(control.numberOfSamples),
-            controlType: control.controlType,
-            actuationTimeUnit: control.actuationTimeUnit,
-            activationParameterRange: control.activationParameterRange,
-            activationFrequency: parseNumber(control.activationFrequency),
-            alertMessage: control.alertMessage,
-            productionParameterId: parseNumber(control.productionParameterId)
-          }))
-          : [],
-      })),
-      assignDevices: Array.isArray(formData.assignDevices) ? formData.assignDevices : [],
-      configureMeasurementControls: Array.isArray(formData.configureMeasurementControls)
-        ? formData.configureMeasurementControls.map(control => ({
-          measurementType: control.measurementType,
-          sensorId: parseNumber(control.sensorId),
-          actuatorId: parseNumber(control.actuatorId),
-          samplingTimeUnit: control.samplingTimeUnit,
-          samplingFrequency: parseNumber(control.samplingFrequency),
-          numberOfSamples: parseNumber(control.numberOfSamples),
-          controlType: control.controlType,
-          actuationTimeUnit: control.actuationTimeUnit,
-          activationParameterRange: control.activationParameterRange,
-          activationFrequency: parseNumber(control.activationFrequency),
-          alertMessage: control.alertMessage,
-          productionParameterId: parseNumber(control.productionParameterId)
-        }))
-        : []
+      subProductionSpaces:  transformedSubspaces,
+      assignDevices:transformedDevices ,
+      configureMeasurementControls:transformedMeasurementControls
+      //  Array.isArray(formData.configureMeasurementControls)
+      //   ? formData.configureMeasurementControls.map(control => ({
+      //     measurementType: control.measurementType,
+      //     sensorId: parseNumber(control.sensorId),
+      //     actuatorId: parseNumber(control.actuatorId),
+      //     samplingTimeUnit: control.samplingTimeUnit,
+      //     samplingFrequency: parseNumber(control.samplingFrequency),
+      //     numberOfSamples: parseNumber(control.numberOfSamples),
+      //     controlType: control.controlType,
+      //     actuationTimeUnit: control.actuationTimeUnit,
+      //     activationParameterRange: control.activationParameterRange,
+      //     activationFrequency: parseNumber(control.activationFrequency),
+      //     alertMessage: control.alertMessage,
+      //     productionVariableId: parseNumber(control.productionVariableId)
+      //   }))
+      //   : []
     };
-    console.log(devicesList);
-    console.log(data);
-    try {
-      const response = await EspacioService.createEspacio(data);
-      console.log('Espacio creado con éxito', response);
-      navigate('../espacio');
-    } catch (error) {
-      console.error('Error al crear el espacio:', error);
-    }
+    // console.log(devicesList);
+    // console.log('satos de subespacios', transformedSubspaces);
+    console.log ('datos enviados',data)
+    // try {
+    //   const response = await EspacioService.createEspacio(data);
+    //   console.log('Espacio creado con éxito', response);
+    //   navigate('../espacio');
+    // } catch (error) {
+    //   console.error('Error al crear el espacio:', error);
+    // }
   };
+
+
+
+  const [measurementControls, setMeasurementControls] = useState([]);
+
+  const guardarMedicion = (dato) => {
+    console.log('datos de medicion y control', dato);
+    setMeasurementControls([...measurementControls, dato]);
+  };
+
+  const transformMeasurementControls = (controls,VariablesSelected) => {
+    return controls.map(control => ({
+      measurementType: control.measurementType,
+      sensorId: Number(control.sensorId),
+      actuatorId: Number(control.actuatorId),
+      samplingTimeUnit: control.samplingTimeUnit,
+      samplingFrequency: Number(control.samplingFrequency),
+      numberOfSamples: Number(control.numberOfSamples),
+      controlType: control.controlType,
+      actuationTimeUnit: control.actuationTimeUnit,
+      activationParameterRange: control.activationParameterRange,
+      activationFrequency: Number(control.activationFrequency),
+      alertMessage: control.alertMessage,
+      productionVariableId: Number(control.VariablesSelected) 
+    }));
+  };
+
 
 
   const handleMedicionControl = (variable, type = "main") => {
@@ -1759,8 +1800,8 @@ const CrearEspacio = () => {
               )}
               {step === 2 && (
                 <button
-                  // type="submit"
-                  onClick={finalizar}
+                  type="submit"
+                  // onClick={handleSubmit}
                   className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
                 >
                   Finalizar
@@ -1786,7 +1827,7 @@ const CrearEspacio = () => {
     onClose={closeModal}
   >
     <FormMedicion
-      selectedVariableId={selectedVariableId}
+      selectedVariableId={guardarMedicion}
       onClose={() => setIsModalOpen(false)}
     />
   </GenericModal>
