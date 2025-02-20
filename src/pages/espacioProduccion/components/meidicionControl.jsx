@@ -9,12 +9,10 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,guardarDatos
     const [formData, setFormData] = useState({
         measurementType: 'automatico',
         controlType: 'automatico',
-        // measurementType: '',
         sensorId: '',
         samplingTimeUnit: '',
         samplingFrequency: '',
         numberOfSamples: '',
-        // controlType: '',
         actuatorId: '',
         actuationTimeUnit: '',
         activationParameterRange: '',
@@ -108,7 +106,7 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,guardarDatos
     
     const handleSubmit = async (e) => {
         e.preventDefault();
-        guardarDatos(formulario); // Enviar datos al componente principal
+        
         console.log("preventDefault ejecutado");
         console.log(control);
     
@@ -134,6 +132,8 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,guardarDatos
         } catch (error) {
             console.error('Error al guardar la control:', error);
         }
+        selectedVariableId(formDataToSubmit);
+
         console.log('Datos enviados', formDataToSubmit);
     };
     

@@ -418,7 +418,7 @@ console.log('datos de  la variable', variableContainers)
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium">Cantidad/Peso</label>
+                                <label className="block text-sm font-medium">{container.variable?.unit_of_measurement}</label>
                                 <input
                                 disabled={mode === 'view'}
                                     type="number"

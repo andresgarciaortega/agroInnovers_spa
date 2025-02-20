@@ -259,12 +259,15 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
         const variableName = mainVariables.find((v) => v.id === Number(selectedVariableId))?.name;
 
+        const selectedVariable = mainVariables.find((v) => v.id === Number(selectedVariableId));
         if (!variableName) {
             console.warn("No se encontró una variable con el ID seleccionado.");
             return;
         }
         const newVariable = {
             id: selectedVariableId,
+            name: selectedVariable.name, 
+            unit_of_measurement: selectedVariable.unit_of_measurement, 
             variableId: selectedVariableId,
             updateDate: new Date().toLocaleDateString(),
             updateTime: new Date().toLocaleTimeString(),
@@ -280,24 +283,34 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
         lote?.productionLotSpecies?.some(lotSpecie => lotSpecie.specie.id === specie.id)
     );
     
-
-
-    const handleContainerChange = (id, name, value) => {
-        console.log('container', id)
-        // setVariableContainers(prevContainers =>
-        //     prevContainers.map(container =>
-        //         container.id === id ? { ...container, [field]: value } : container
-        //     )
-        // );
-        // const { name, value } = e.target;
-
+    const handleContainerChange = (index, field, value) => {
+        setVariableContainers(prevContainers =>
+            prevContainers.map((container, i) =>
+                i === index ? { ...container, [field]: value } : container
+            )
+        );
+    
         setVariableTrackingReports((prevFormDataAcces) => ({
             ...prevFormDataAcces,
-            variableId: Number(id),
-            [name]: value,
+            variableId: Number(index),
+            [field]: value,
         }));
-        console.log('prueba v', variableTrackingReports)
     };
+
+    // const handleContainerChange = (id, name, value) => {
+    //     console.log('container', id)
+    //     setVariableContainers(prevContainers =>
+    //         prevContainers.map((container, i) =>
+    //             i === id ? { ...container, [field]: value } : container
+    //         )
+    //     );
+    //     setVariableTrackingReports((prevFormDataAcces) => ({
+    //         ...prevFormDataAcces,
+    //         variableId: Number(id),
+    //         [name]: value,
+    //     }));
+    //     console.log('prueba v', variableTrackingReports)
+    // };
 
     const handleVariableChange = (e) => {
         setSelectedVariableId(e.target.value);
@@ -439,8 +452,8 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                 {variableContainers.length === 0 ? (
                     <p>No se han añadido variables.</p>
                 ) : (
-                    variableContainers.map((container) => (
-                        <div key={container.id} className="border p-3 my-2 rounded-md">
+                    variableContainers.map((container, index) => (
+                        <div key={index} className="border p-3 my-2 rounded-md">
                             <p><strong>Variable:</strong> {container.name}</p>
                             <div className="grid grid-cols-3 gap-4"> {/* Aquí se especifica el diseño en 3 columnas */}
                                 <div>
@@ -466,7 +479,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium">Cantidad/Peso</label>
+                                    <label className="block text-sm font-medium">{container.unit_of_measurement}</label>
                                     <input
                                         type="number"
                                         name="weightAmount"
