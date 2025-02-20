@@ -313,7 +313,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
             name="nit"
             placeholder="Documento"
             value={formData.nit}
-            disabled={mode === 'view'}
+            // disabled={mode === 'view'}
             onChange={handleChange}
             onBlur={handleDocumentBlur}
             disabled={mode === 'view' || mode === 'edit'}
