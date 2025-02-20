@@ -7,7 +7,7 @@ const TypeDocumentsService = {
     // LISTAR TODAS LAS COMPAÑIAS
     async getAllTypeDocuments() {
         try {
-            const response = await api.get('/users/typeDocuments/');
+            const response = await api.get('/users/typeDocuments?page=1&limit=10000');
             return response;
         } catch (error) {
             console.error('Error al obtener las compañías:', error);
@@ -19,7 +19,7 @@ const TypeDocumentsService = {
     // LISTAR TODAS LAS COMPAÑIAS
     async getAllTypeUsers() {
         try {
-            const response = await api.get('/roles/');
+            const response = await api.get('/roles?page=1&limit=10000');
             return response.data;
         } catch (error) {
             console.error('Error al obtener las compañías:', error);
