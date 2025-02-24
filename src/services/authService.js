@@ -8,15 +8,18 @@ const AccesUser = {
     async accesUsersLoguin(data) {
         try {
             const response = await api.post('/auth/login/', data);
-            return { error: true, response: response.access_token };
+            console.log(" ::::", response.access_token)
+            return { error: true, response: response.access_token }; // Asegúrate de acceder a response.data
         } catch (error) {
-            // Revisa si el error tiene una respuesta y el mensaje de error está en la respuesta
-            if (error.response && error.response.data && error.response.data.message) {
-                // console.error('Error al ingresar:', error.response.data.message);
-                return { error: false, message: error.response.data.message.message };
+            // Captura el error 401 Unauthorized
+            if (error.response && error.response.status === 401) {
+                return { error: false, message: 'Credenciales incorrectas. Por favor, inténtalo de nuevo.' };
+            }
+            // Captura otros errores
+            else if (error.response && error.response.data && error.response.data.message) {
+                return { error: false, message: error.response.data.message };
             } else {
-                // console.error('Lo sentimos! credenciales incorrectas, intente nuevamente');
-                return { error: false, message: 'Lo sentimos! credenciales incorrectas, intente nuevamente' };
+                return { error: false, message: 'Credenciales incorrectas. Por favor, inténtalo de nuevo.' };
             }
         }
     },

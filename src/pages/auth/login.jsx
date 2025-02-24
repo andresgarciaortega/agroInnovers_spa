@@ -26,32 +26,30 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const accesUser = await AccesUser.accesUsersLoguin({ email, password })
-    console.log(accesUser)
+    const accesUser = await AccesUser.accesUsersLoguin({ email, password });
+    console.log("accesUser : ", accesUser);
+
     if (accesUser.error) {
-      // exito
-      localStorage.setItem('authToken', accesUser?.response)
-
-      const decodedToken = await getDecodedToken();
-
-      localStorage.setItem("selectedCompany", JSON.stringify(
-        {
-          "value": decodedToken?.company.id,
-          "label": decodedToken?.company.name,
-        }
-      ))
-      navigate('/home/dashboard', { replace: true });
-
+        localStorage.setItem('authToken', accesUser.response);
+        const decodedToken = await getDecodedToken();
+        localStorage.setItem("selectedCompany", JSON.stringify(
+            {
+                "value": decodedToken?.company.id,
+                "label": decodedToken?.company.name,
+            }
+        ));
+        navigate('/home/dashboard', { replace: true });
     } else {
-      setEmailError(true);
-      setPasswordError(true);
-      setErrorMessage('Credenciales incorrectas. Por favor, inténtalo de nuevo.');
-      setShowErrorAlert(true);
-      setTimeout(() => {
-        setShowErrorAlert(false);
-      }, 1200);
+        // Error: muestra la alerta
+        setEmailError(true);
+        setPasswordError(true);
+        setErrorMessage(accesUser.message); // Usa el mensaje devuelto por accesUsersLoguin
+        setShowErrorAlert(true);
+        setTimeout(() => {
+            setShowErrorAlert(false);
+        }, 1200);
     }
-  };
+};
 
   const handleCloseAlert = () => {
     setShowErrorAlert(false);

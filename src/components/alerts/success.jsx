@@ -15,9 +15,9 @@ const SuccessAlert = ({ message, onCancel, onConfirm, confirmText = 'Aceptar' })
           <h3 className="text-lg font-semibold text-black mb-2">{message}</h3>
         </div>
         <div className="flex justify-end gap-2">
-          <button onClick={onCancel} className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">
+          {/* <button onClick={onCancel} className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">
             Cancelar
-          </button>
+          </button> */}
           {onConfirm && (
             <button onClick={onConfirm} className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
               {confirmText}
