@@ -235,20 +235,24 @@ const CrearEspacio = () => {
   useEffect(() => {
     const fetchTipoSensor = async () => {
       try {
-        const data = await SensorService.getAllSensor(0, {});
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
+        const data = await SensorService.getAllSensor(companyId, {});
         setTipoSensor(data);
         console.log('sensores', data)
       } catch (error) {
         console.error('Error fetching tipo sensor:', error);
       }
     };
-    fetchTipoSensor(0, {});
+    fetchTipoSensor(companyId, {});
   }, []);
 
   useEffect(() => {
     const fetchTipoActuador = async () => {
       try {
-        const data = await Actuadorervice.getAllActuador(0, {});
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
+        const data = await Actuadorervice.getAllActuador(companyId, {});
         setTipoActuador(data);
         console.log('actuadores', data)
 
@@ -256,20 +260,22 @@ const CrearEspacio = () => {
         console.error('Error fetching tio actuador:', error);
       }
     };
-    fetchTipoActuador(0, {});
+    fetchTipoActuador(companyId, {});
   }, []);
 
   useEffect(() => {
     const fetchEspecies = async () => {
       try {
-        const data = await SpeciesService.getAllSpecie(0, {});
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+
+        const data = await SpeciesService.getAllSpecie(companyId, {});
         setTipoEspecies(data);
         console.log('especies traidas', data);
       } catch (error) {
         console.error('Error fetching species:', error);
       }
     };
-    fetchEspecies(0, {});
+    fetchEspecies(companyId, {});
 
   }, []);
 
