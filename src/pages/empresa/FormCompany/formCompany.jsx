@@ -147,6 +147,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   const handleEmilBlur = async () => {
     if (mode !== 'edit') {
       const emailExisting = await CompanyService.getFacturacionEmail(formData.email_user_admin);
+      console.log('correo',emailExisting )
       if (emailExisting) {
         setShowAlertError(true);
         setMessageAlert("Los sentimos! el email ya esta registrado")
@@ -313,7 +314,6 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
             name="nit"
             placeholder="Documento"
             value={formData.nit}
-            disabled={mode === 'view'}
             onChange={handleChange}
             onBlur={handleDocumentBlur}
             disabled={mode === 'view' || mode === 'edit'}

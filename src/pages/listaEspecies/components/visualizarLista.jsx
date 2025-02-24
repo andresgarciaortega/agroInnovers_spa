@@ -406,7 +406,7 @@ const VisualizarLista = () => {
                             <div key={index} className="mt-4 rounded-md p-4 border border-gray-300">
                                 <div className="flex justify-between items-center mb-2">
                                     <h3 className="text-lg font-semibold text-gray-800">
-                                        {`Etapa ${index + 1}`}
+                                        {stage.name}
                                     </h3>
 
                                 </div>

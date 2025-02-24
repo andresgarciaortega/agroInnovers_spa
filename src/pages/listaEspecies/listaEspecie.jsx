@@ -265,7 +265,7 @@ const ListaEspecies = () => {
         return;
       }
 
-      const data = await SpeciesService.getAllSpecie(companyId);
+      const data = await SpeciesService.getAllSpecie(companyId, {});
 
       setSpeciesList(data);
     } catch (error) {

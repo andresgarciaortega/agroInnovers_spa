@@ -523,29 +523,42 @@ const CrearEspacio = () => {
   };
 
   let data = []
+
+
   const handleAddVariable = (e, type, index) => {
     e.preventDefault();
     // console.log("mainVariables: ", mainVariables);
     if (type === 'main') {
       data.push(selectedVariables.main)
+      console.log("selectedVariables1: ", selectedVariables);
+
       setSelectedVariables((prev) => ({
         ...prev,
         main: data, // Agrega nuevaVariable al arreglo main
-      }));
-      if (selectedVariables.main[0] != undefined && selectedVariables.main[0] != null && selectedVariables.main[0].length > 0 && !Array.isArray(selectedVariables.main[0])) {
+      })
+  );
+
+      if (selectedVariables.main[0] 
+        != undefined && selectedVariables.main[0] 
+        != null && selectedVariables.main[0].length > 0 && 
+        !Array.isArray(selectedVariables.main[0])) {
         setVariablesSelected((prev) => ({
           ...prev,
           datosVariables: [
             ...(prev.datosVariables || []),
-            { id: selectedVariables.main[0] }
+            { id: selectedVariables.main[0],
+              nombre: selectedVariables.main[0].id
+             }
           ].filter((value, index, self) =>
             index === self.findIndex((t) => t.id === value.id)
           )
         }));
       }
+
+
     } else {
       if (selectedVariables.subspaces != undefined && selectedVariables.subspaces != null) {
-        console.log("selectedVariables: ", selectedVariables);
+        console.log("selectedVariables1: ", selectedVariables);
         console.log("selectedVariables.main: ", selectedVariables.main);
         console.log("selectedVariables.subspaces: ", selectedVariables.subspaces);
         setVariablesSelected((prev) => {
@@ -642,13 +655,6 @@ const CrearEspacio = () => {
   };
 
 
-
-
-
-
-
-
-
   const handleAddSpecies = () => {
     setSelectedSpecies((prev) => [...prev, ...formData.species]);
     setFormData((prevState) => ({
@@ -660,7 +666,6 @@ const CrearEspacio = () => {
   const handleCheckboxChange = (e) => {
 
   };
-
 
   const handleSpeciesChange = (index, specieId) => {
     console.log(selectedSpecies)
@@ -705,13 +710,16 @@ const CrearEspacio = () => {
   let datosVariables = []
   const handleVariableChange = (e, space, variableId) => {
     e.preventDefault()
-    console.log(variableId)
+    console.log('variable seleccionada',variableId)
+    // console.log('variable seleccionada2',variableId.datosVariables)
     if (space === "main") {
       datosVariables.push(variableId)
       setSelectedVariables((prev) => ({
         ...prev,
         main: datosVariables,
       }));
+    console.log('variable seleccionada2',datosVariables)
+
     } else {
       setSelectedVariables((prev) => ({
         ...prev,
@@ -839,13 +847,13 @@ const CrearEspacio = () => {
 
 
 
-  const handleMedicionControl = (variable, type = "main") => {
+  const handleMedicionControl = (VariablesSelected, type = "main") => {
     console.log(type)
-    console.log(
+    console.log('VariablesSelected en medicion',
       
       
       
-      variable)
+      VariablesSelected)
     if (type === "main") {
       setIsModalOpen(true)
     }
@@ -1618,6 +1626,7 @@ const CrearEspacio = () => {
                       </div>
                     )}
                     {VariablesSelected.datosVariables && VariablesSelected.datosVariables.length > 0 && (
+
                       <div className="mt-4">
                         <h3 className="text-lg font-medium">Variables del Espacio:</h3>
                         <div className="mt-2 grid grid-cols-1 gap-2">
@@ -1631,7 +1640,7 @@ const CrearEspacio = () => {
                                   <span>{datosVariables.id}</span>
                                   <button
                                     type="button"
-                                    onClick={() => handleMedicionControl(variable)}
+                                    onClick={() => handleMedicionControl(datosVariables)}
                                     className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
                                   >
                                     Medición y Control
