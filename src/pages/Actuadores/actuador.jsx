@@ -290,7 +290,7 @@ const Actuador = () => {
         return;
       }
 
-      const data = await ActuadorService.getAllActuador(companyId);
+      const data = await ActuadorService.getAllActuador(companyId, {});
 
       setVariableList(data);
     } catch (error) {

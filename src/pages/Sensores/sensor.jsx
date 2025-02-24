@@ -264,7 +264,7 @@ const Sensor = () => {
         return;
       }
 
-      const data = await SensorService.getAllSensor(companyId);
+      const data = await SensorService.getAllSensor(companyId, {});
 
       setVariableList(data);
     } catch (error) {
