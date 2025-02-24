@@ -913,15 +913,15 @@ const CrearEspacio = () => {
             <div className="flex flex-col mb-6">
               <div className="flex items-center justify-between mb-2">
                 <div className={`${step === 0 ? 'text-black font-bold' : 'text-gray-500'} flex items-center`}>
-                  1. Creación de Parámetros de Producción
+                  1. Creación de Espacios y Subespacios
                   {step > 0 && <FaCheckCircle className="text-[#168C0DFF] ml-2" />}
                 </div>
                 <div className={`${step === 1 ? 'text-black font-bold' : 'text-gray-500'} flex items-center`}>
-                  2. Parámetros por Etapa
+                  2. Asignar dispositivos
                   {step > 1 && <FaCheckCircle className="text-[#168C0DFF] ml-2" />}
                 </div>
                 <div className={`${step === 2 ? 'text-black font-bold' : 'text-gray-500'}`}>
-                  3. Revisión y Confirmación
+                  3. Creación de monitoreo y control
                 </div>
               </div>
 
