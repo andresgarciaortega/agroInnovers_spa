@@ -37,12 +37,15 @@ import LayoutHome from "../pages/Layouts/layout";
 import AuthLogin from "../pages/auth/login";
 import PasswordRecovery from "../pages/auth/passwordRecovery";
 import PrivateRoute from "../utils/privateRoute";
+import ResetPassword from "../pages/auth/reset-password";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/passwordRecovery" element={<PasswordRecovery />} />
       <Route path="/" element={<AuthLogin />} />
+      <Route path="/auth/reset-password" element={<ResetPassword />} />
+
       <Route path="/home" element={<PrivateRoute ><LayoutHome /></PrivateRoute>}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="perfil" element={<Perfil />} />
@@ -72,6 +75,7 @@ const AppRoutes = () => {
         <Route path="lotes" element={<Lotes />} />
         <Route path="visualizarLote/:id" element={<VisualizarLote />} />
         <Route path="seguimiento" element={<Seguimiento />} />
+
       </Route>
     </Routes>
   );

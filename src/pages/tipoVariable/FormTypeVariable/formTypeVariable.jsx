@@ -29,6 +29,26 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
     fetchCompany();
   }, []);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   useEffect(() => {
     if (mode === 'edit' || mode === 'view') {
       setFormData({
@@ -48,6 +68,29 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
     }
   }, [typevariable, mode, companySeleector.value]);
   
+
+
+  useEffect(() => {
+   
+  }, [])
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;

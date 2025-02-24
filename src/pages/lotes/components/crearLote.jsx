@@ -618,7 +618,6 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                     </div>
                 </>
             )}
-
             {showAlertError && (
                 <ErrorAlert
                     message={messageAlert}

@@ -3,7 +3,7 @@ import SensorService from '../../../services/SensorService';
 import ActuadorService from '../../../services/ActuadorService';
 import EspacioService from '../../../services/espacios';
 
-const FormMedicion = ({ selectedVariableId, mode, onClose, control ,guardarDatos }) => {
+const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }) => {
     const [sensors, setSensors] = useState([]);
     const [actuators, setActuators] = useState([]);
     const [formData, setFormData] = useState({
@@ -18,9 +18,11 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,guardarDatos
         activationParameterRange: '',
         activationFrequency: '',
         alertMessage: '',
+        productionVariableId: variableId,
     });
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
- 
+ console.log('id de la variable', variableId)
+ console.log('datos de la variable desde contenedor padre', selectedVariableId)
 
 
     useEffect(() => {
@@ -66,6 +68,7 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,guardarDatos
                 activationParameterRange: control.activationParameterRange || '',
                 activationFrequency: control.activationFrequency || '',
                 alertMessage: control.alertMessage || '',
+                productionVariableId: control.productionVariableId || '',
             });
         }
     }, [control]);
@@ -114,6 +117,7 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,guardarDatos
         try {
             formDataToSubmit = {
                 ...formData,
+                productionVariableId: parseInt(formData.productionVariableId, 10),  
                 actuatorId: parseInt(formData.actuatorId, 10),  
                 activationFrequency: parseInt(formData.activationFrequency, 10) ,
                 numberOfSamples: parseInt(formData.numberOfSamples,10),

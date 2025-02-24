@@ -9,6 +9,9 @@ import SensorService from '../../../services/SensorService';
 import Actuadorervice from '../../../services/ActuadorService';
 import GenericModal from '../../../components/genericModal';
 import FormMedicion from './meidicionControl';
+import CompanyService from '../../../services/CompanyService';
+import SuccessAlert from "../../../components/alerts/success";
+import { useNavigate } from 'react-router-dom';
 
 import SpeciesService from '../../../services/SpeciesService';
 import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } from '@mui/material';
@@ -17,6 +20,8 @@ import { FiPlusCircle } from "react-icons/fi";
 import { useCompanyContext } from '../../../context/CompanyContext';
 
 const CrearEspacio = () => {
+    const navigate = useNavigate();
+  
   const [selectedVariables, setSelectedVariables] = useState({
     main: [],
     subspaces: []
@@ -28,9 +33,14 @@ const CrearEspacio = () => {
     // { assignDevices: false, inheritDevices: false}
     // , deviceType: "", selectedDevice: "" }
   ]);
+  const [companyId, setCompanies] = useState(null);
+    const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const [messageAlert, setMessageAlert] = useState('');
+
   const [selectedVariableId, setSelectedVariableId] = useState(null);
   const [modalMode, setModalMode] = useState("create");
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
   const [expandedSubspace, setExpandedSubspace] = useState(null);
   const [subspaceCount, setSubspaceCount] = useState(1);
@@ -72,6 +82,8 @@ const CrearEspacio = () => {
     climateConditions: '',
     dimensionUnit: '',
     shape: '',
+    company_id: 0,
+
     length: '',
     width: '',
     depth: '',
@@ -101,20 +113,20 @@ const CrearEspacio = () => {
           }
         ],
         configureMeasurementControls: [
-          {
-            measurementType: '',
-            sensorId: null,
-            actuatorId: null,
-            samplingTimeUnit: '',
-            samplingFrequency: '',
-            numberOfSamples: '',
-            controlType: '',
-            actuationTimeUnit: '',
-            activationParameterRange: '',
-            activationFrequency: '',
-            alertMessage: '',
-            productionParameterId: null
-          }
+          // {
+          //   measurementType: '',
+          //   sensorId: null,
+          //   actuatorId: null,
+          //   samplingTimeUnit: '',
+          //   samplingFrequency: '',
+          //   numberOfSamples: '',
+          //   controlType: '',
+          //   actuationTimeUnit: '',
+          //   activationParameterRange: '',
+          //   activationFrequency: '',
+          //   alertMessage: '',
+          //   productionParameterId: null
+          // }
         ]
       }
     ],
@@ -126,20 +138,20 @@ const CrearEspacio = () => {
       }
     ],
     configureMeasurementControls: [
-      {
-        measurementType: '',
-        sensorId: null,
-        actuatorId: null,
-        samplingTimeUnit: '',
-        samplingFrequency: '',
-        numberOfSamples: '',
-        controlType: '',
-        actuationTimeUnit: '',
-        activationParameterRange: '',
-        activationFrequency: '',
-        alertMessage: '',
-        productionParameterId: null
-      }
+      // {
+      //   measurementType: '',
+      //   sensorId: null,
+      //   actuatorId: null,
+      //   samplingTimeUnit: '',
+      //   samplingFrequency: '',
+      //   numberOfSamples: '',
+      //   controlType: '',
+      //   actuationTimeUnit: '',
+      //   activationParameterRange: '',
+      //   activationFrequency: '',
+      //   alertMessage: '',
+      //   productionParameterId: null
+      // }
     ]
   });
 
@@ -167,18 +179,7 @@ const CrearEspacio = () => {
           ],
           configureMeasurementControls: [
             {
-              measurementType: '',
-              sensorId: null,
-              actuatorId: null,
-              samplingTimeUnit: '',
-              samplingFrequency: '',
-              numberOfSamples: '',
-              controlType: '',
-              actuationTimeUnit: '',
-              activationParameterRange: '',
-              activationFrequency: '',
-              alertMessage: '',
-              productionParameterId: null
+            
             }
           ]
         }
@@ -203,6 +204,18 @@ const CrearEspacio = () => {
     setVariablesSelected("");
   };
 
+  useEffect(() => {
+    hiddenSelect(true)
+    const fetchCompany = async () => {
+      try {
+        const data = await CompanyService.getAllCompany();
+        setCompanies(data);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
+    fetchCompany();
+  }, []);
 
 
   useEffect(() => {
@@ -279,7 +292,7 @@ const CrearEspacio = () => {
         setVariables([]);
       }
     };
-
+    console.log('variabes', variables.name)
     fetchVariable();
   }, [selectedSpeciesId]);
 
@@ -396,10 +409,10 @@ const CrearEspacio = () => {
   };
 
   const handleDeviceTypeChange = (index, type) => {
-    console.log('paso 2 ',index,type)
+    console.log('paso 2 ', index, type)
     const newDevicesList = [...devicesList];
     newDevicesList[index].deviceType = type;
-    newDevicesList[index].selectedDevice = ""; 
+    newDevicesList[index].selectedDevice = "";
     setDevicesList(newDevicesList);
   };
 
@@ -466,6 +479,8 @@ const CrearEspacio = () => {
       sensorId: subspace.deviceType === "sensor" ? Number(subspace.selectedDevice) : null,
       actuatorId: subspace.deviceType === "actuador" ? Number(subspace.selectedDevice) : null
     };
+    const transformedMeasurementControls = transformMeasurementControls(measurementControls);
+
     return {
       name: subspace.name,
       gpsPosition: subspace.gpsPosition,
@@ -477,10 +492,13 @@ const CrearEspacio = () => {
       area: Number(subspace.area),
       volume: Number(subspace.volume),
       species: subspace.species,
-      monitoringSystemId:Number(subspace.monitoringSystemId), // Asegúrate de obtener este valor correctamente
+      monitoringSystemId: Number(subspace.monitoringSystemId), // Asegúrate de obtener este valor correctamente
       assignDevices: [
         assignDevices
-      ]
+      ],
+      configureMeasurementControls: 
+        transformedMeasurementControls
+      
     };
   };
   const handleSubspaceCheckboxChange = (index, field) => {
@@ -527,60 +545,59 @@ const CrearEspacio = () => {
 
   const handleAddVariable = (e, type, index) => {
     e.preventDefault();
-    // console.log("mainVariables: ", mainVariables);
+
     if (type === 'main') {
-      data.push(selectedVariables.main)
+      console.log("selectedVariables3421: ", selectedVariables);
+      console.log("-------------selectedVariables122: ", VariablesSelected);
+
+      data.push(selectedVariables.main);
       console.log("selectedVariables1: ", selectedVariables);
 
       setSelectedVariables((prev) => ({
         ...prev,
         main: data, // Agrega nuevaVariable al arreglo main
-      })
-  );
+      }));
+      const idVariable = variables.filter((e) => e.name === selectedVariables.main[0])
 
-      if (selectedVariables.main[0] 
-        != undefined && selectedVariables.main[0] 
-        != null && selectedVariables.main[0].length > 0 && 
+      if (selectedVariables.main[0] != undefined &&
+        selectedVariables.main[0] != null &&
+        selectedVariables.main[0].length > 0 &&
         !Array.isArray(selectedVariables.main[0])) {
         setVariablesSelected((prev) => ({
           ...prev,
           datosVariables: [
             ...(prev.datosVariables || []),
-            { id: selectedVariables.main[0],
-              nombre: selectedVariables.main[0].id
-             }
+            {
+              id: selectedVariables.main[0],
+              nombre: idVariable[0].id
+            }
           ].filter((value, index, self) =>
             index === self.findIndex((t) => t.id === value.id)
           )
         }));
+        // idVariable[0].id
+        console.log('posicion', idVariable[0].id)
+        console.log('nombre', variables.filter((e) => e.name === selectedVariables.main[0]));
       }
-
-
     } else {
       if (selectedVariables.subspaces != undefined && selectedVariables.subspaces != null) {
         console.log("selectedVariables1: ", selectedVariables);
+        console.log("-------------selectedVariables122: ", VariablesSelected);
         console.log("selectedVariables.main: ", selectedVariables.main);
         console.log("selectedVariables.subspaces: ", selectedVariables.subspaces);
         setVariablesSelected((prev) => {
           const newDatosVariables = { ...prev.datosVariables };
 
           Object.entries(selectedVariables.subspaces).forEach(([index, id]) => {
-            // Asegurar que el índice tenga un array
             if (!Array.isArray(newDatosVariables[index])) {
               newDatosVariables[index] = [];
             }
 
-            // console.log(newDatosVariables[index])
-
-            // Evitar duplicados antes de agregar
             if (!newDatosVariables[index].includes(id)) {
               if (id == "") { return; }
-              // console.log(id)
               newDatosVariables[index].push(id);
             }
           });
-
-          // console.log(newDatosVariables)
 
           return {
             ...prev,
@@ -588,13 +605,8 @@ const CrearEspacio = () => {
           };
         });
       }
-      // console.log(VariablesSelected)
     }
   };
-
-
-
-
 
 
   const handleVariableChangeForSubspace = (index, variable) => {
@@ -684,16 +696,19 @@ const CrearEspacio = () => {
     // Realizar la consulta para obtener las variables asociadas a la especie seleccionada
     const fetchVariablesForSubspace = async () => {
       try {
-        const data = await SpeciesService.getVariableBySpecie({ species: { id: specieId }  });
-        console.log(data)
+        const data = await SpeciesService.getVariableBySpecie({ species: { id: specieId } });
+        console.log('data', data)
         if (index !== 0) {
           setMainVariables(data);
         }
 
         setVariablesBySubspace((prev) => ({
           ...prev,
-          [index]: data.statusCode === 404 ? [] : data,  // Si no hay datos, usar arreglo vacío
+          [index]: data.statusCode === 404 ? [] : data,
+          // Si no hay datos, usar arreglo vacío
         }));
+        console.log("data1: ", data);
+
       } catch (error) {
         console.error(`Error fetching variables for subspace ${index}:`, error);
         setVariablesBySubspace((prev) => ({
@@ -710,7 +725,7 @@ const CrearEspacio = () => {
   let datosVariables = []
   const handleVariableChange = (e, space, variableId) => {
     e.preventDefault()
-    console.log('variable seleccionada',variableId)
+    console.log('variable seleccionada', variableId)
     // console.log('variable seleccionada2',variableId.datosVariables)
     if (space === "main") {
       datosVariables.push(variableId)
@@ -718,7 +733,7 @@ const CrearEspacio = () => {
         ...prev,
         main: datosVariables,
       }));
-    console.log('variable seleccionada2',datosVariables)
+      console.log('variable seleccionada2', datosVariables)
 
     } else {
       setSelectedVariables((prev) => ({
@@ -786,10 +801,11 @@ const CrearEspacio = () => {
       specificFeatures: formData.specificFeatures,
       monitoringSystemId: parseNumber(formData.monitoringSystemId),
       spaceTypeId: parseNumber(formData.spaceTypeId),
+      company_id: parseNumber(formData.company_id),
       species: Array.isArray(formData.species) ? formData.species : [],
-      subProductionSpaces:  transformedSubspaces,
-      assignDevices:transformedDevices ,
-      configureMeasurementControls:transformedMeasurementControls
+      subProductionSpaces: transformedSubspaces,
+      assignDevices: transformedDevices,
+      configureMeasurementControls: transformedMeasurementControls
       //  Array.isArray(formData.configureMeasurementControls)
       //   ? formData.configureMeasurementControls.map(control => ({
       //     measurementType: control.measurementType,
@@ -809,17 +825,30 @@ const CrearEspacio = () => {
     };
     // console.log(devicesList);
     // console.log('satos de subespacios', transformedSubspaces);
-    console.log ('datos enviados',data)
-    // try {
-    //   const response = await EspacioService.createEspacio(data);
-    //   console.log('Espacio creado con éxito', response);
-    //   navigate('../espacio');
-    // } catch (error) {
-    //   console.error('Error al crear el espacio:', error);
-    // }
+    console.log('datos enviados', data)
+    try {
+      const response = await EspacioService.createEspacio(data);
+      showErrorAlertSuccess("Creada");
+      setShowSuccessAlert(true);
+      setTimeout(() => {
+          setShowSuccessAlert(false);
+      }, 2500);
+      setTimeout(() => {
+        navigate('../espacio');
+    }, 3000);
+    } catch (error) {
+      console.error('Error al crear el espacio:', error);
+    }
   };
 
-
+  const showErrorAlertSuccess = (message) => {
+    setShowErrorAlert(true);
+    setMessageAlert(`Espacio ${message} exitosamente`);
+  
+    setTimeout(() => {
+      setShowErrorAlert(false);
+    }, 2500);
+  };
 
   const [measurementControls, setMeasurementControls] = useState([]);
 
@@ -828,7 +857,9 @@ const CrearEspacio = () => {
     setMeasurementControls([...measurementControls, dato]);
   };
 
-  const transformMeasurementControls = (controls,VariablesSelected) => {
+  const transformMeasurementControls = (controls, datosVariables) => {
+    const idVariable = variables.filter((e) => e.name === selectedVariables.main[0])
+    console
     return controls.map(control => ({
       measurementType: control.measurementType,
       sensorId: Number(control.sensorId),
@@ -841,19 +872,16 @@ const CrearEspacio = () => {
       activationParameterRange: control.activationParameterRange,
       activationFrequency: Number(control.activationFrequency),
       alertMessage: control.alertMessage,
-      productionVariableId: Number(control.VariablesSelected) 
+      productionVariableId: Number(control.productionVariableId)
     }));
   };
 
-
+  const [variableModal, setVariableModal] = useState([]);
 
   const handleMedicionControl = (VariablesSelected, type = "main") => {
     console.log(type)
-    console.log('VariablesSelected en medicion',
-      
-      
-      
-      VariablesSelected)
+    setVariableModal(VariablesSelected)
+    console.log('VariablesSelected en medicion', VariablesSelected)
     if (type === "main") {
       setIsModalOpen(true)
     }
@@ -862,7 +890,7 @@ const CrearEspacio = () => {
   };
 
 
-  const finalizar  = () => {
+  const finalizar = () => {
     console.log("paso 1 , datos del espacio : ", formData)
     console.log("paso 1, primer dato del subespacio: ", subspaces)
     console.log("-------------------------------------------------")
@@ -873,899 +901,887 @@ const CrearEspacio = () => {
 
   };
 
-  const handleSaveData = () => {
-    setFormData((prevData) => ({
-      ...prevData,
-      // Guardar los datos principales del espacio
-      ...formData, 
-  
-      // Guardar subespacios
-      subProductionSpaces: subspaces.map((subspace) => ({
-        ...subspace,
-        assignDevices: devicesList.filter((device) => device.subspaceId === subspace.id),
-        configureMeasurementControls: devicesList
-          .filter((device) => device.subspaceId === subspace.id)
-          .map((device) => ({
-            measurementType: device.measurementType || '',
-            sensorId: device.sensorId || null,
-            actuatorId: device.actuatorId || null,
-            samplingTimeUnit: device.samplingTimeUnit || '',
-            samplingFrequency: device.samplingFrequency || '',
-            numberOfSamples: device.numberOfSamples || '',
-            controlType: device.controlType || '',
-            actuationTimeUnit: device.actuationTimeUnit || '',
-            activationParameterRange: device.activationParameterRange || '',
-            activationFrequency: device.activationFrequency || '',
-            alertMessage: device.alertMessage || '',
-            productionParameterId: device.productionParameterId || null
-          }))
-      })),
-  
-      // Guardar dispositivos en el espacio principal
-      assignDevices: devicesList.filter((device) => device.subspaceId === null),
-    }));
-  
-    console.log("🚀 Datos guardados en formData:", formData);
-  };
-  
+
 
   return (
     <>
-    <form  onSubmit={handleSubmit} className="">
-      <div className="container mx-auto p-2">
-        <div className="bg-white rounded-lg shadow-xl p-6">
-          <h2 className="text-2xl font-semibold mb-6">Crear Espacios</h2>
+      <form onSubmit={handleSubmit} className="">
+        <div className="container mx-auto p-2">
+          <div className="bg-white rounded-lg shadow-xl p-6">
+            <h2 className="text-2xl font-semibold mb-6">Crear Espacios</h2>
 
-          <div className="flex flex-col mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <div className={`${step === 0 ? 'text-black font-bold' : 'text-gray-500'} flex items-center`}>
-                1. Creación de Parámetros de Producción
-                {step > 0 && <FaCheckCircle className="text-[#168C0DFF] ml-2" />}
-              </div>
-              <div className={`${step === 1 ? 'text-black font-bold' : 'text-gray-500'} flex items-center`}>
-                2. Parámetros por Etapa
-                {step > 1 && <FaCheckCircle className="text-[#168C0DFF] ml-2" />}
-              </div>
-              <div className={`${step === 2 ? 'text-black font-bold' : 'text-gray-500'}`}>
-                3. Revisión y Confirmación
-              </div>
-            </div>
-
-            <div className="flex items-center mb-6">
-              <div className="flex-grow h-1 bg-gray-300 relative">
-                <div
-                  className={`h-1 bg-[#168C0DFF]`}
-                  style={{ width: `${(step + 1) * (100 / 3)}%` }}
-                ></div>
-                <div className="absolute inset-0 flex justify-between">
-                  {[...Array(3)].map((_, index) => (
-                    <div
-                      key={index}
-                      className={`w-1 h-1 bg-white rounded-full border ${step >= index ? 'border-[#168C0DFF]' : 'border-gray-300'
-                        }`}
-                    ></div>
-                  ))}
+            <div className="flex flex-col mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <div className={`${step === 0 ? 'text-black font-bold' : 'text-gray-500'} flex items-center`}>
+                  1. Creación de Parámetros de Producción
+                  {step > 0 && <FaCheckCircle className="text-[#168C0DFF] ml-2" />}
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Step Content */}
-          <div className="space-y-6">
-            {step === 0 && (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                    Nombre espacio
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name || ''}
-                    onChange={handleChange}
-                    placeholder="Nombre espacio"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
-                  />
+                <div className={`${step === 1 ? 'text-black font-bold' : 'text-gray-500'} flex items-center`}>
+                  2. Parámetros por Etapa
+                  {step > 1 && <FaCheckCircle className="text-[#168C0DFF] ml-2" />}
                 </div>
-                <div>
-                  <label htmlFor="gpsPosition" className="block text-sm font-medium text-gray-700 mb-1">
-                    Posición GPS
-                  </label>
-                  <input
-                    type="numtextber"
-                    id="gpsPosition"
-                    name="gpsPosition"
-                    value={formData.gpsPosition || ''}
-                    onChange={handleChange}
-                    placeholder="Link de posición GPS"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="monitoringSystemId" className="block text-sm font-medium text-gray-700 mb-1">
-                    Sistema de monitoreo y control
-                  </label>
-                  <select
-                    id="monitoringSystemId"
-                    name="monitoringSystemId"
-                    value={formData.monitoringSystemId || ''}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer"
-                  >
-                    <option value="" className="text-gray-300">Selecciona una opción</option>
-                    {monitoreo?.length > 0 && monitoreo.map((sub) => (
-                      <option key={sub.id} value={sub.id}>
-                        {sub.nombreId}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="spaceTypeId" className="block text-sm font-medium text-gray-700 mb-1">
-                    Tipo de espacio
-                  </label>
-                  <select
-                    id="spaceTypeId"
-                    name="spaceTypeId"
-                    value={formData.spaceTypeId || ''}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer"
-                  >
-                    <option value="" className="text-gray-500">Selecciona una opción</option>
-                    {tipoEspacio?.length > 0 && tipoEspacio.map((sub) => (
-                      <option key={sub.id} value={sub.id}>
-                        {sub.spaceTypeName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="climateConditions" className="block text-sm font-medium text-gray-700 mb-1">
-                    Condiciones de clima
-                  </label>
-                  <input
-                    type="text"
-                    id="climateConditions"
-                    name="climateConditions"
-                    value={formData.climateConditions || ''}
-                    onChange={handleChange}
-                    placeholder="Condiciones de clima"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="dimensionUnit" className="block text-sm font-medium text-gray-700 mb-1">
-                    Unidad de dimensionamiento
-                  </label>
-                  <input
-                    type="text"
-                    id="dimensionUnit"
-                    name="dimensionUnit"
-                    value={formData.dimensionUnit || ''}
-                    onChange={handleChange}
-                    placeholder="Unidad de dimensionamiento"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="shape" className="block text-sm font-medium text-gray-700 mb-1">
-                    Forma
-                  </label>
-                  <input
-                    type="text"
-                    id="shape"
-                    name="shape"
-                    value={formData.shape || ''}
-                    onChange={handleChange}
-                    placeholder="Forma"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="length" className="block text-sm font-medium text-gray-700 mb-1">
-                    Largo
-                  </label>
-                  <input
-                    type="number"
-                    id="length"
-                    name="length"
-                    value={formData.length || ''}
-                    onChange={handleChange}
-                    placeholder="Largo"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="width" className="block text-sm font-medium text-gray-700 mb-1">
-                    Ancho
-                  </label>
-                  <input
-                    type="number"
-                    id="width"
-                    name="width"
-                    value={formData.width || ''}
-                    onChange={handleChange}
-                    placeholder="Ancho"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="depth" className="block text-sm font-medium text-gray-700 mb-1">
-                    Profundo
-                  </label>
-                  <input
-                    type="number"
-                    id="depth"
-                    name="depth"
-                    value={formData.depth || ''}
-                    onChange={handleChange}
-                    placeholder="Profundo"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="area" className="block text-sm font-medium text-gray-700 mb-1">
-                    Área
-                  </label>
-                  <input
-                    type="number"
-                    id="area"
-                    name="area"
-                    value={formData.area || ''}
-                    onChange={handleChange}
-                    placeholder="Área"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="volume" className="block text-sm font-medium text-gray-700 mb-1">
-                    Volumen
-                  </label>
-                  <input
-                    type="number"
-                    id="volume"
-                    name="volume"
-                    value={formData.volume || ''}
-                    onChange={handleChange}
-                    placeholder="Volumen"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="specificFeatures" className="block text-sm font-medium text-gray-700 mb-1">
-                    Características específicas
-                  </label>
-                  <input
-                    type="text"
-                    id="specificFeatures"
-                    name="specificFeatures"
-                    value={formData.specificFeatures || ''}
-                    onChange={handleChange}
-                    placeholder="Características específicas"
-                    className="w-full px-3 py-4 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="species" className="block text-sm font-medium text-gray-700 mb-1">
-                    Especies
-                  </label>
-                  <FormControl fullWidth disabled={disableSpecies}>
-                    <Select
-                      multiple
-                      value={formData.species || []}
-                      onChange={handleChangeCategoryEspace}
-                      renderValue={(selectedIds) =>
-                        species
-                          .filter((option) => selectedIds.includes(option.id))
-                          .map((option) => option.common_name)
-                          .join(', ')
-                      }
-                    >
-                      {species.map((option) => (
-                        <MenuItem key={option.id} value={option.id}>
-                          <Checkbox checked={formData.species?.includes(option.id)} />
-                          <ListItemText primary={option.common_name} />
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-                <div className="w-full">
-                  <div className="mb-4 justify justify-end">
-                    <button
-                      type="button"
-                      onClick={handleAddSubspaceClick}
-                      // disabled={disableSpecies}
-                      className="inline-flex justify-end rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]">
-                      Añadir Subespacio
-                    </button>
-                  </div>
-
-                  <div className="w-full grid grid-cols-1 gap-4 ">
-                    {subspaces.length > 0 && subspaces.map((subspace, index) => (
-                      <div key={subspace.id} className="w-full border rounded-md p-4 mb-2">
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-semibold text-lg">{`Subespacio ${index + 1}`}</h3>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => handleExpandSubspace(subspace.id)}
-                              className="text-gray-300"
-                            >
-                              {expandedSubspace === subspace.id ? <FaChevronUp /> : <FaChevronDown />}
-                            </button>
-                            <button
-                              onClick={() => handleRemoveSubspace(subspace.id)}
-                              className="text-red-300"
-                            >
-                              <FaTimes />
-                            </button>
-                          </div>
-                        </div>
-                        {expandedSubspace === subspace.id && (
-                          <div className="w-full grid grid-cols-2 gap-4 mt-5">
-                            <div className="mb-2 w-full">
-                              <label className="block text-sm font-medium">Nombre espacio</label>
-                              <input
-                                type="text"
-                                value={subspace.name}
-                                onChange={(e) => handleInputChange(subspace.id, 'name', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md"
-                              />
-                            </div>
-                            <div className="mb-2 w-full">
-                              <label className="block text-sm font-medium">Posición GPS:</label>
-                              <input
-                                type="text"
-                                value={subspace.gpsPosition}
-                                onChange={(e) => handleInputChange(subspace.id, 'gpsPosition', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md"
-                              />
-                            </div>
-                            <div className="mb-2 w-full">
-                              <label className="block text-sm font-medium">Unidad de Dimensión:</label>
-                              <input
-                                type="text"
-                                value={subspace.dimensionUnit}
-                                onChange={(e) => handleInputChange(subspace.id, 'dimensionUnit', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md"
-                              />
-                            </div>
-                            <div className="mb-2 w-full">
-                              <label className="block text-sm font-medium">Forma:</label>
-                              <input
-                                type="text"
-                                value={subspace.shape}
-                                onChange={(e) => handleInputChange(subspace.id, 'shape', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md"
-                              />
-                            </div>
-                            <div className="mb-2 w-full">
-                              <label className="block text-sm font-medium">Longitud:</label>
-                              <input
-                                type="number"
-                                value={subspace.length}
-                                onChange={(e) => handleInputChange(subspace.id, 'length', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md"
-                              />
-                            </div>
-                            <div className="mb-2 w-full">
-                              <label className="block text-sm font-medium">Anchura:</label>
-                              <input
-                                type="number"
-                                value={subspace.width}
-                                onChange={(e) => handleInputChange(subspace.id, 'width', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md"
-                              />
-                            </div>
-                            <div className="mb-2 w-full">
-                              <label className="block text-sm font-medium">Profundidad:</label>
-                              <input
-                                type="number"
-                                value={subspace.depth}
-                                onChange={(e) => handleInputChange(subspace.id, 'depth', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md"
-                              />
-                            </div>
-                            <div className="mb-2 w-full">
-                              <label className="block text-sm font-medium">Área:</label>
-                              <input
-                                type="number"
-                                value={subspace.area}
-                                onChange={(e) => handleInputChange(subspace.id, 'area', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md"
-                              />
-                            </div>
-                            <div className="mb-2 w-full">
-                              <label className="block text-sm font-medium">Volumen:</label>
-                              <input
-                                type="number"
-                                value={subspace.volume}
-                                onChange={(e) => handleInputChange(subspace.id, 'volume', e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md"
-                              />
-                            </div>
-
-                            <div className="mb-2 w-full">
-                              <label htmlFor={`species-${index}`} className="block text-sm font-medium text-gray-700 mb-1">
-                                Especies para el Subespacio {index + 1}
-                              </label>
-                              <FormControl fullWidth>
-                                <Select
-                                  multiple
-                                  id={`species-${index}`}
-                                  value={subspaces[index]?.species || []} // Usar el estado `subspaces`
-                                  onChange={(event) => handleChangeCategory(event, index)}
-                                  renderValue={(selectedIds) =>
-                                    species
-                                      .filter((option) => selectedIds.includes(option.id))
-                                      .map((option) => option.common_name)
-                                      .join(", ")
-                                  }
-                                >
-                                  {species.map((option) => (
-                                    <MenuItem key={option.id} value={option.id}>
-                                      <Checkbox checked={subspaces[index]?.species?.includes(option.id)} />
-                                      <ListItemText primary={option.common_name} />
-                                    </MenuItem>
-                                  ))}
-                                </Select>
-                              </FormControl>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-            {step === 1 && (
-
-              <div className="grid grid-cols-1 gap-4  ">
-                <div className='border border-gray-400 rounded-md shadow shadow-gray-400 p-4'>
-                  <h2>Espacio</h2>
-
-                  <label>¿Necesitas asignar dispositivos?</label>
-                  <div className="flex items-center justify-between mt-4">
-                    {/* Contenedor de los botones de radio a la izquierda */}
-                    <div className="flex items-center space-x-4">
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={isYesSelected}
-                          onChange={handleYesCheckboxChange}
-                          className="hidden"
-                        />
-                        <span
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isYesSelected ? "bg-white border-[#168C0DFF]" : "border-gray-400"}`}
-                        >
-                          {isYesSelected && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
-                        </span>
-                        <span className="text-sm font-medium">Sí</span>
-                      </label>
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={!isYesSelected}
-                          onChange={handleNoCheckboxChange}
-                          className="hidden"
-                        />
-                        <span
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${!isYesSelected ? "bg-white border-[#168C0DFF]" : "border-gray-400"}`}
-                        >
-                          {!isYesSelected && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
-                        </span>
-                        <span className="text-sm font-medium">No</span>
-                      </label>
-                    </div>
-
-                    {/* Botón a la derecha */}
-                    {isYesSelected && (
-                      <div className="ml-auto flex justify-end p-2">
-                        <button
-                          type="button"
-                          onClick={handleAddDevice}
-                          className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
-                        >
-                          <FiPlusCircle />
-                          Añadir más
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-
-                  <div>
-                    {devicesList.map((device, index) => (
-                      <div key={index} className="flex space-x-4 mt-6 ">
-                        <div className="w-1/2 mb-2">
-                          <label className="block text-sm font-medium">Tipo de dispositivo:</label>
-                          <select
-                            value={device.deviceType}
-                            onChange={(e) => handleDeviceTypeChange(index, e.target.value)}
-                            className="w-full px-3 py-2 border rounded-md"
-                            disabled={!isYesSelected}
-                          >
-                            <option value="">Seleccione un tipo</option>
-                            <option value="actuador">Actuador</option>
-                            <option value="sensor">Sensor</option>
-                          </select>
-                        </div>
-
-                        <div className="mb-2">
-                          <label className="block text-sm font-medium">Nombre dispositivo:</label>
-                          <select
-                            value={device.selectedDevice}
-                            onChange={(e) => handleDeviceSelectionChange(index, e.target.value)}
-                            className="w-full px-3 py-2 border rounded-md"
-                            disabled={!isYesSelected || !device.deviceType}
-                          >
-                            <option value="">Seleccione un dispositivo</option>
-                            {getDevicesByType(device.deviceType).map((dev) => (
-                              <option key={dev.id} value={dev.id}>
-                                {dev.code}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-
-
-                <div>
-
-                  {subspaces.length > 0 && (
-                    <div>
-                      <div className="grid grid-cols-2 gap-4">
-                        {subspaces.map((subspace, index) => (
-                          <div key={index} className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4">
-                            <h3>Subespacio {index + 1}</h3>
-
-                            {/* Opción para asignar dispositivos */}
-                            <div className="mb-4">
-                              <label>¿Necesitas asignar dispositivos?</label>
-                              <div className="flex items-center space-x-4 mt-2">
-                                <label className="flex items-center space-x-2 cursor-pointer">
-                                  <input
-                                    type="radio"
-                                    name={`assignDevices-${index}`} // Agrupar radio buttons por subespacio
-                                    checked={subspace.assignDevices}
-                                    onChange={() => handleSubspaceCheckboxChange(index, "assignDevices")}
-                                    className="hidden"
-                                  />
-                                  <span
-                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${subspace.assignDevices ? "bg-green-500 border-green-500" : "border-gray-400"
-                                      }`}
-                                  >
-                                    {subspace.assignDevices && <span className="w-3 h-3 bg-white rounded-full"></span>}
-                                  </span>
-                                  <span className="text-sm font-medium">Sí</span>
-                                </label>
-
-                                <label className="flex items-center space-x-2 cursor-pointer">
-                                  <input
-                                    type="radio"
-                                    name={`assignDevices-${index}`} // Mismo name para que solo se seleccione uno
-                                    checked={!subspace.assignDevices}
-                                    onChange={() => handleSubspaceCheckboxChange(index, "assignDevices")}
-                                    className="hidden"
-                                  />
-                                  <span
-                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${!subspace.assignDevices ? "bg-white border-[#168C0DFF]" : "border-gray-400"
-                                      }`}
-                                  >
-                                    {!subspace.assignDevices && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
-                                  </span>
-                                  <span className="text-sm font-medium">No</span>
-                                </label>
-                              </div>
-                            </div>
-
-                            {/* Opción para heredar dispositivos */}
-                            <div className="mb-4">
-                              <label>Heredar dispositivos</label>
-                              <div className="flex items-center space-x-4 mt-2">
-                                <label className="flex items-center space-x-2 cursor-pointer">
-                                  <input
-                                    type="radio"
-                                    name={`inheritDevices-${index}`} // Agrupar radio buttons por subespacio
-                                    checked={subspace.inheritDevices}
-                                    onChange={() => handleSubspaceCheckboxChange(index, "inheritDevices")}
-                                    className="hidden"
-                                  />
-                                  <span
-                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${subspace.inheritDevices ? "bg-green-500 border-green-500" : "border-gray-400"
-                                      }`}
-                                  >
-                                    {subspace.inheritDevices && <span className="w-3 h-3 bg-white rounded-full"></span>}
-                                  </span>
-                                  <span className="text-sm font-medium">Sí</span>
-                                </label>
-
-                                <label className="flex items-center space-x-2 cursor-pointer">
-                                  <input
-                                    type="radio"
-                                    name={`inheritDevices-${index}`} // Mismo name para que solo se seleccione uno
-                                    checked={!subspace.inheritDevices}
-                                    onChange={() => handleSubspaceCheckboxChange(index, "noInheritDevices")}
-                                    className="hidden"
-                                  />
-                                  <span
-                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${!subspace.inheritDevices ? "bg-white border-[#168C0DFF]" : "border-gray-400"
-                                      }`}
-                                  >
-                                    {!subspace.inheritDevices && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
-                                  </span>
-                                  <span className="text-sm font-medium">No</span>
-                                </label>
-                              </div>
-                            </div>
-
-                            {/* Tipo de dispositivo */}
-                            <div className="mb-2">
-                              <label className="block text-sm font-medium">Tipo de dispositivo:</label>
-                              <select
-                                value={subspace.deviceType}
-                                onChange={(e) => handleSubspaceDeviceTypeChange(index, e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md"
-                                disabled={!subspace.assignDevices || subspace.inheritDevices}
-                              >
-                                <option value="">Seleccione un tipo</option>
-                                <option value="actuador">Actuador</option>
-                                <option value="sensor">Sensor</option>
-                              </select>
-                            </div>
-
-                            {/* Nombre del dispositivo */}
-                            <div className="mb-2">
-                              <label className="block text-sm font-medium">Nombre del dispositivo:</label>
-                              <select
-                                value={subspace.selectedDevice}
-                                onChange={(e) => handleSubspaceDeviceChange(index, e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md"
-                                disabled={!subspace.assignDevices || subspace.inheritDevices || !subspace.deviceType}
-                              >
-                                <option value="">Seleccione un dispositivo</option>
-                                {getDevicesByType(subspace.deviceType).map((device) => (
-                                  <option key={device.id} value={device.id}>
-                                    {device.code}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-
+                <div className={`${step === 2 ? 'text-black font-bold' : 'text-gray-500'}`}>
+                  3. Revisión y Confirmación
                 </div>
               </div>
 
-
-            )}
-
-            {step === 2 && (
-              <div>
-                {subspaces.length > 0 ? (
-                  null
-                ) : (
-                  <div className="border border-gray-400 p-3 rounded-lg">
-                    <div>
-                      <h2 className="font-bold p-1">Espacio</h2>
-                    </div>
-                    <div className="py-3 px-3">
-                      <label
-                        htmlFor="species"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Especies
-                      </label>
-                      <select
-                        id="species"
-                        name="species"
-                        onChange={(e) => handleSpeciesChange("main", e.target.value)}
-                        className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
-                      >
-                        <option value="" className="text-gray-500">
-                          Selecciona una opción
-                        </option>
-                        {species
-                          ?.filter((sub) => (especiesEspacio.flat()).includes(sub.id)) // Convertir en array plano
-                          .map((sub) => (
-                            <option key={sub.id} value={sub.id}>
-                              {sub.common_name}
-                            </option>
-                          ))}
-                      </select>
-
-
-                      {/* Selector de variables para especie principal */}
-                      <div className="mt-4">
-                        <label
-                          htmlFor="variable"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Variables Asociadas
-                        </label>
-                        <select
-                          id="variable"
-                          name="variable"
-                          onChange={(e) => handleVariableChange(e, "main", e.target.value)}
-                          value={selectedVariables["main"] || ""}
-                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
-                        >
-                          <option value="" className="text-gray-500">
-                            Selecciona una variable
-                          </option>
-                          {mainVariables.length > 0 &&
-                            mainVariables.map((variable, index) => (
-                              <option key={index} value={variable.name}>
-                                {variable.name}
-                              </option>
-                            ))}
-                        </select>
-                      </div>
-                    </div>
-                    {selectedVariables['main'] && (
-                      <div>
-                        <button
-                          type="button"
-                          onClick={(e) => handleAddVariable(e, 'main')} // Pasar 'main' como tipo
-                          className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
-                        >
-                          <FiPlusCircle />
-                          Añadir Variable
-                        </button>
-                      </div>
-                    )}
-                    {VariablesSelected.datosVariables && VariablesSelected.datosVariables.length > 0 && (
-
-                      <div className="mt-4">
-                        <h3 className="text-lg font-medium">Variables del Espacio:</h3>
-                        <div className="mt-2 grid grid-cols-1 gap-2">
-                          {Array.isArray(VariablesSelected.datosVariables) &&
-                            VariablesSelected.datosVariables.map((datosVariables, index) => (
-                              <div
-                                key={index}
-                                className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
-                              >
-                                <div className="flex justify-between items-center">
-                                  <span>{datosVariables.id}</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleMedicionControl(datosVariables)}
-                                    className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
-                                  >
-                                    Medición y Control
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                  </div>
-                )}
-
-                {subspaces.length > 0 ? (
-                  <div className='p-3'>
-                    {subspaces.map((subspace, index) => (
+              <div className="flex items-center mb-6">
+                <div className="flex-grow h-1 bg-gray-300 relative">
+                  <div
+                    className={`h-1 bg-[#168C0DFF]`}
+                    style={{ width: `${(step + 1) * (100 / 3)}%` }}
+                  ></div>
+                  <div className="absolute inset-0 flex justify-between">
+                    {[...Array(3)].map((_, index) => (
                       <div
                         key={index}
-                        className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4 mb-4"
-                      >
-                        <h3>Subespacio {index + 1}</h3>
-                        {/* Selección de especie */}
-                        <div className="py-3 px-3">
-                          <label
-                            htmlFor={`species-${index}`}
-                            className="block text-sm font-medium text-gray-700 mb-1"
-                          >
-                            Especies
-                          </label>
-                          <select
-                            id={`species-${index}`}
-                            name={`species-${index}`}
-                            onChange={(e) => handleSpeciesChange(index, e.target.value)}
-                            value={selectedSpecies[index] || ""}
-                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
-                          >
-                            <option value="" className="text-gray-500">
-                              Selecciona una opción
-                            </option>
-                            {species
-                              ?.filter((s) => subspaces.flat()[index]?.species.includes(s.id))
-                              .map((sub) => (
-                                <option key={sub.id} value={sub.id}>
-                                  {sub.common_name}
-                                </option>
-                              ))}
-                          </select>
+                        className={`w-1 h-1 bg-white rounded-full border ${step >= index ? 'border-[#168C0DFF]' : 'border-gray-300'
+                          }`}
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                          {/* Selección de variables */}
-                          <div className="mt-4">
-                            <label
-                              htmlFor={`variable-${index}`}
-                              className="block text-sm font-medium text-gray-700 mb-1"
-                            >
-                              Variables Asociadas
-                            </label>
+            {/* Step Content */}
+            <div className="space-y-6">
+              {step === 0 && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre espacio
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name || ''}
+                      onChange={handleChange}
+                      placeholder="Nombre espacio"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="gpsPosition" className="block text-sm font-medium text-gray-700 mb-1">
+                      Posición GPS
+                    </label>
+                    <input
+                      type="numtextber"
+                      id="gpsPosition"
+                      name="gpsPosition"
+                      value={formData.gpsPosition || ''}
+                      onChange={handleChange}
+                      placeholder="Link de posición GPS"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="monitoringSystemId" className="block text-sm font-medium text-gray-700 mb-1">
+                      Sistema de monitoreo y control
+                    </label>
+                    <select
+                      id="monitoringSystemId"
+                      name="monitoringSystemId"
+                      value={formData.monitoringSystemId || ''}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer"
+                    >
+                      <option value="" className="text-gray-300">Selecciona una opción</option>
+                      {monitoreo?.length > 0 && monitoreo.map((sub) => (
+                        <option key={sub.id} value={sub.id}>
+                          {sub.nombreId}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="spaceTypeId" className="block text-sm font-medium text-gray-700 mb-1">
+                      Tipo de espacio
+                    </label>
+                    <select
+                      id="spaceTypeId"
+                      name="spaceTypeId"
+                      value={formData.spaceTypeId || ''}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer"
+                    >
+                      <option value="" className="text-gray-500">Selecciona una opción</option>
+                      {tipoEspacio?.length > 0 && tipoEspacio.map((sub) => (
+                        <option key={sub.id} value={sub.id}>
+                          {sub.spaceTypeName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="climateConditions" className="block text-sm font-medium text-gray-700 mb-1">
+                      Condiciones de clima
+                    </label>
+                    <input
+                      type="text"
+                      id="climateConditions"
+                      name="climateConditions"
+                      value={formData.climateConditions || ''}
+                      onChange={handleChange}
+                      placeholder="Condiciones de clima"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="dimensionUnit" className="block text-sm font-medium text-gray-700 mb-1">
+                      Unidad de dimensionamiento
+                    </label>
+                    <input
+                      type="text"
+                      id="dimensionUnit"
+                      name="dimensionUnit"
+                      value={formData.dimensionUnit || ''}
+                      onChange={handleChange}
+                      placeholder="Unidad de dimensionamiento"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="shape" className="block text-sm font-medium text-gray-700 mb-1">
+                      Forma
+                    </label>
+                    <input
+                      type="text"
+                      id="shape"
+                      name="shape"
+                      value={formData.shape || ''}
+                      onChange={handleChange}
+                      placeholder="Forma"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="length" className="block text-sm font-medium text-gray-700 mb-1">
+                      Largo
+                    </label>
+                    <input
+                      type="number"
+                      id="length"
+                      name="length"
+                      value={formData.length || ''}
+                      onChange={handleChange}
+                      placeholder="Largo"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="width" className="block text-sm font-medium text-gray-700 mb-1">
+                      Ancho
+                    </label>
+                    <input
+                      type="number"
+                      id="width"
+                      name="width"
+                      value={formData.width || ''}
+                      onChange={handleChange}
+                      placeholder="Ancho"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="depth" className="block text-sm font-medium text-gray-700 mb-1">
+                      Profundo
+                    </label>
+                    <input
+                      type="number"
+                      id="depth"
+                      name="depth"
+                      value={formData.depth || ''}
+                      onChange={handleChange}
+                      placeholder="Profundo"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="area" className="block text-sm font-medium text-gray-700 mb-1">
+                      Área
+                    </label>
+                    <input
+                      type="number"
+                      id="area"
+                      name="area"
+                      value={formData.area || ''}
+                      onChange={handleChange}
+                      placeholder="Área"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="volume" className="block text-sm font-medium text-gray-700 mb-1">
+                      Volumen
+                    </label>
+                    <input
+                      type="number"
+                      id="volume"
+                      name="volume"
+                      value={formData.volume || ''}
+                      onChange={handleChange}
+                      placeholder="Volumen"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
+                    />
+                  </div>
+
+                  <div className="col-span-2">
+                    <label htmlFor="company_id" className="block text-sm font-medium text-gray-700 mb-1">
+                      Empresa
+                    </label>
+                    <select
+                      id="company_id"
+                      name="company_id"
+                      value={formData.company_id}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
+
+                    >
+                      <option value="" className="text-gray-500">Selecciona una opción</option>
+                      {companyId?.map((company_id) => (
+                        <option key={company_id.id} value={company_id.id}>
+                          {company_id.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="specificFeatures" className="block text-sm font-medium text-gray-700 mb-1">
+                      Características específicas
+                    </label>
+                    <input
+                      type="text"
+                      id="specificFeatures"
+                      name="specificFeatures"
+                      value={formData.specificFeatures || ''}
+                      onChange={handleChange}
+                      placeholder="Características específicas"
+                      className="w-full px-3 py-4 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF]"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="species" className="block text-sm font-medium text-gray-700 mb-1">
+                      Especies
+                    </label>
+                    <FormControl fullWidth disabled={disableSpecies}>
+                      <Select
+                        multiple
+                        value={formData.species || []}
+                        onChange={handleChangeCategoryEspace}
+                        renderValue={(selectedIds) =>
+                          species
+                            .filter((option) => selectedIds.includes(option.id))
+                            .map((option) => option.common_name)
+                            .join(', ')
+                        }
+                      >
+                        {species.map((option) => (
+                          <MenuItem key={option.id} value={option.id}>
+                            <Checkbox checked={formData.species?.includes(option.id)} />
+                            <ListItemText primary={option.common_name} />
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </div>
+                  <div className="w-full">
+                    <div className="mb-4 justify justify-end">
+                      <button
+                        type="button"
+                        onClick={handleAddSubspaceClick}
+                        // disabled={disableSpecies}
+                        className="inline-flex justify-end rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]">
+                        Añadir Subespacio
+                      </button>
+                    </div>
+
+                    <div className="w-full grid grid-cols-1 gap-4 ">
+                      {subspaces.length > 0 && subspaces.map((subspace, index) => (
+                        <div key={subspace.id} className="w-full border rounded-md p-4 mb-2">
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-semibold text-lg">{`Subespacio ${index + 1}`}</h3>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleExpandSubspace(subspace.id)}
+                                className="text-gray-300"
+                              >
+                                {expandedSubspace === subspace.id ? <FaChevronUp /> : <FaChevronDown />}
+                              </button>
+                              <button
+                                onClick={() => handleRemoveSubspace(subspace.id)}
+                                className="text-red-300"
+                              >
+                                <FaTimes />
+                              </button>
+                            </div>
+                          </div>
+                          {expandedSubspace === subspace.id && (
+                            <div className="w-full grid grid-cols-2 gap-4 mt-5">
+                              <div className="mb-2 w-full">
+                                <label className="block text-sm font-medium">Nombre espacio</label>
+                                <input
+                                  type="text"
+                                  value={subspace.name}
+                                  onChange={(e) => handleInputChange(subspace.id, 'name', e.target.value)}
+                                  className="w-full px-3 py-2 border rounded-md"
+                                />
+                              </div>
+                              <div className="mb-2 w-full">
+                                <label className="block text-sm font-medium">Posición GPS:</label>
+                                <input
+                                  type="text"
+                                  value={subspace.gpsPosition}
+                                  onChange={(e) => handleInputChange(subspace.id, 'gpsPosition', e.target.value)}
+                                  className="w-full px-3 py-2 border rounded-md"
+                                />
+                              </div>
+                              <div className="mb-2 w-full">
+                                <label className="block text-sm font-medium">Unidad de Dimensión:</label>
+                                <input
+                                  type="text"
+                                  value={subspace.dimensionUnit}
+                                  onChange={(e) => handleInputChange(subspace.id, 'dimensionUnit', e.target.value)}
+                                  className="w-full px-3 py-2 border rounded-md"
+                                />
+                              </div>
+                              <div className="mb-2 w-full">
+                                <label className="block text-sm font-medium">Forma:</label>
+                                <input
+                                  type="text"
+                                  value={subspace.shape}
+                                  onChange={(e) => handleInputChange(subspace.id, 'shape', e.target.value)}
+                                  className="w-full px-3 py-2 border rounded-md"
+                                />
+                              </div>
+                              <div className="mb-2 w-full">
+                                <label className="block text-sm font-medium">Longitud:</label>
+                                <input
+                                  type="number"
+                                  value={subspace.length}
+                                  onChange={(e) => handleInputChange(subspace.id, 'length', e.target.value)}
+                                  className="w-full px-3 py-2 border rounded-md"
+                                />
+                              </div>
+                              <div className="mb-2 w-full">
+                                <label className="block text-sm font-medium">Anchura:</label>
+                                <input
+                                  type="number"
+                                  value={subspace.width}
+                                  onChange={(e) => handleInputChange(subspace.id, 'width', e.target.value)}
+                                  className="w-full px-3 py-2 border rounded-md"
+                                />
+                              </div>
+                              <div className="mb-2 w-full">
+                                <label className="block text-sm font-medium">Profundidad:</label>
+                                <input
+                                  type="number"
+                                  value={subspace.depth}
+                                  onChange={(e) => handleInputChange(subspace.id, 'depth', e.target.value)}
+                                  className="w-full px-3 py-2 border rounded-md"
+                                />
+                              </div>
+                              <div className="mb-2 w-full">
+                                <label className="block text-sm font-medium">Área:</label>
+                                <input
+                                  type="number"
+                                  value={subspace.area}
+                                  onChange={(e) => handleInputChange(subspace.id, 'area', e.target.value)}
+                                  className="w-full px-3 py-2 border rounded-md"
+                                />
+                              </div>
+                              <div className="mb-2 w-full">
+                                <label className="block text-sm font-medium">Volumen:</label>
+                                <input
+                                  type="number"
+                                  value={subspace.volume}
+                                  onChange={(e) => handleInputChange(subspace.id, 'volume', e.target.value)}
+                                  className="w-full px-3 py-2 border rounded-md"
+                                />
+                              </div>
+
+                              <div className="mb-2 w-full">
+                                <label htmlFor={`species-${index}`} className="block text-sm font-medium text-gray-700 mb-1">
+                                  Especies para el Subespacio {index + 1}
+                                </label>
+                                <FormControl fullWidth>
+                                  <Select
+                                    multiple
+                                    id={`species-${index}`}
+                                    value={subspaces[index]?.species || []} // Usar el estado `subspaces`
+                                    onChange={(event) => handleChangeCategory(event, index)}
+                                    renderValue={(selectedIds) =>
+                                      species
+                                        .filter((option) => selectedIds.includes(option.id))
+                                        .map((option) => option.common_name)
+                                        .join(", ")
+                                    }
+                                  >
+                                    {species.map((option) => (
+                                      <MenuItem key={option.id} value={option.id}>
+                                        <Checkbox checked={subspaces[index]?.species?.includes(option.id)} />
+                                        <ListItemText primary={option.common_name} />
+                                      </MenuItem>
+                                    ))}
+                                  </Select>
+                                </FormControl>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {step === 1 && (
+
+                <div className="grid grid-cols-1 gap-4  ">
+                  <div className='border border-gray-400 rounded-md shadow shadow-gray-400 p-4'>
+                    <h2>Espacio</h2>
+
+                    <label>¿Necesitas asignar dispositivos?</label>
+                    <div className="flex items-center justify-between mt-4">
+                      {/* Contenedor de los botones de radio a la izquierda */}
+                      <div className="flex items-center space-x-4">
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={isYesSelected}
+                            onChange={handleYesCheckboxChange}
+                            className="hidden"
+                          />
+                          <span
+                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isYesSelected ? "bg-white border-[#168C0DFF]" : "border-gray-400"}`}
+                          >
+                            {isYesSelected && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
+                          </span>
+                          <span className="text-sm font-medium">Sí</span>
+                        </label>
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={!isYesSelected}
+                            onChange={handleNoCheckboxChange}
+                            className="hidden"
+                          />
+                          <span
+                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${!isYesSelected ? "bg-white border-[#168C0DFF]" : "border-gray-400"}`}
+                          >
+                            {!isYesSelected && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
+                          </span>
+                          <span className="text-sm font-medium">No</span>
+                        </label>
+                      </div>
+
+                      {/* Botón a la derecha */}
+                      {isYesSelected && (
+                        <div className="ml-auto flex justify-end p-2">
+                          <button
+                            type="button"
+                            onClick={handleAddDevice}
+                            className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
+                          >
+                            <FiPlusCircle />
+                            Añadir más
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+
+                    <div>
+                      {devicesList.map((device, index) => (
+                        <div key={index} className="flex space-x-4 mt-6 ">
+                          <div className="w-1/2 mb-2">
+                            <label className="block text-sm font-medium">Tipo de dispositivo:</label>
                             <select
-                              id={`variable-${index}`}
-                              name={`variable-${index}`}
-                              onChange={(e) => handleVariableChange(e, index, e.target.value)}
-                              value={selectedVariables.subspaces[index] || ""}
-                              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
+                              value={device.deviceType}
+                              onChange={(e) => handleDeviceTypeChange(index, e.target.value)}
+                              className="w-full px-3 py-2 border rounded-md"
+                              disabled={!isYesSelected}
                             >
-                              <option value="" className="text-gray-500">
-                                Selecciona una variable
-                              </option>
-                              {(variablesBySubspace[index] || []).map((variable, varIndex) => (
-                                // console.log(variable),
-                                <option key={varIndex} value={variable.name}>
-                                  {variable.name}
+                              <option value="">Seleccione un tipo</option>
+                              <option value="actuador">Actuador</option>
+                              <option value="sensor">Sensor</option>
+                            </select>
+                          </div>
+
+                          <div className="mb-2">
+                            <label className="block text-sm font-medium">Nombre dispositivo:</label>
+                            <select
+                              value={device.selectedDevice}
+                              onChange={(e) => handleDeviceSelectionChange(index, e.target.value)}
+                              className="w-full px-3 py-2 border rounded-md"
+                              disabled={!isYesSelected || !device.deviceType}
+                            >
+                              <option value="">Seleccione un dispositivo</option>
+                              {getDevicesByType(device.deviceType).map((dev) => (
+                                <option key={dev.id} value={dev.id}>
+                                  {dev.code}
                                 </option>
                               ))}
                             </select>
                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-                          {/* Botón para añadir la variable seleccionada */}
-                          {selectedVariables["main"] && (
-                            <div>
-                              <button
-                                type="button"
-                                onClick={(e) => handleAddVariable(e, "sub")}
-                                className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
-                              >
-                                <FiPlusCircle />
-                                Añadir Variable
-                              </button>
+
+
+                  <div>
+
+                    {subspaces.length > 0 && (
+                      <div>
+                        <div className="grid grid-cols-2 gap-4">
+                          {subspaces.map((subspace, index) => (
+                            <div key={index} className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4">
+                              <h3>Subespacio {index + 1}</h3>
+
+                              {/* Opción para asignar dispositivos */}
+                              <div className="mb-4">
+                                <label>¿Necesitas asignar dispositivos?</label>
+                                <div className="flex items-center space-x-4 mt-2">
+                                  <label className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                      type="radio"
+                                      name={`assignDevices-${index}`} // Agrupar radio buttons por subespacio
+                                      checked={subspace.assignDevices}
+                                      onChange={() => handleSubspaceCheckboxChange(index, "assignDevices")}
+                                      className="hidden"
+                                    />
+                                    <span
+                                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${subspace.assignDevices ? "bg-green-500 border-green-500" : "border-gray-400"
+                                        }`}
+                                    >
+                                      {subspace.assignDevices && <span className="w-3 h-3 bg-white rounded-full"></span>}
+                                    </span>
+                                    <span className="text-sm font-medium">Sí</span>
+                                  </label>
+
+                                  <label className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                      type="radio"
+                                      name={`assignDevices-${index}`} // Mismo name para que solo se seleccione uno
+                                      checked={!subspace.assignDevices}
+                                      onChange={() => handleSubspaceCheckboxChange(index, "assignDevices")}
+                                      className="hidden"
+                                    />
+                                    <span
+                                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${!subspace.assignDevices ? "bg-white border-[#168C0DFF]" : "border-gray-400"
+                                        }`}
+                                    >
+                                      {!subspace.assignDevices && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
+                                    </span>
+                                    <span className="text-sm font-medium">No</span>
+                                  </label>
+                                </div>
+                              </div>
+
+                              {/* Opción para heredar dispositivos */}
+                              <div className="mb-4">
+                                <label>Heredar dispositivos</label>
+                                <div className="flex items-center space-x-4 mt-2">
+                                  <label className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                      type="radio"
+                                      name={`inheritDevices-${index}`} // Agrupar radio buttons por subespacio
+                                      checked={subspace.inheritDevices}
+                                      onChange={() => handleSubspaceCheckboxChange(index, "inheritDevices")}
+                                      className="hidden"
+                                    />
+                                    <span
+                                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${subspace.inheritDevices ? "bg-green-500 border-green-500" : "border-gray-400"
+                                        }`}
+                                    >
+                                      {subspace.inheritDevices && <span className="w-3 h-3 bg-white rounded-full"></span>}
+                                    </span>
+                                    <span className="text-sm font-medium">Sí</span>
+                                  </label>
+
+                                  <label className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                      type="radio"
+                                      name={`inheritDevices-${index}`} // Mismo name para que solo se seleccione uno
+                                      checked={!subspace.inheritDevices}
+                                      onChange={() => handleSubspaceCheckboxChange(index, "noInheritDevices")}
+                                      className="hidden"
+                                    />
+                                    <span
+                                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${!subspace.inheritDevices ? "bg-white border-[#168C0DFF]" : "border-gray-400"
+                                        }`}
+                                    >
+                                      {!subspace.inheritDevices && <span className="w-3 h-3 bg-[#168C0DFF] rounded-full"></span>}
+                                    </span>
+                                    <span className="text-sm font-medium">No</span>
+                                  </label>
+                                </div>
+                              </div>
+
+                              {/* Tipo de dispositivo */}
+                              <div className="mb-2">
+                                <label className="block text-sm font-medium">Tipo de dispositivo:</label>
+                                <select
+                                  value={subspace.deviceType}
+                                  onChange={(e) => handleSubspaceDeviceTypeChange(index, e.target.value)}
+                                  className="w-full px-3 py-2 border rounded-md"
+                                  disabled={!subspace.assignDevices || subspace.inheritDevices}
+                                >
+                                  <option value="">Seleccione un tipo</option>
+                                  <option value="actuador">Actuador</option>
+                                  <option value="sensor">Sensor</option>
+                                </select>
+                              </div>
+
+                              {/* Nombre del dispositivo */}
+                              <div className="mb-2">
+                                <label className="block text-sm font-medium">Nombre del dispositivo:</label>
+                                <select
+                                  value={subspace.selectedDevice}
+                                  onChange={(e) => handleSubspaceDeviceChange(index, e.target.value)}
+                                  className="w-full px-3 py-2 border rounded-md"
+                                  disabled={!subspace.assignDevices || subspace.inheritDevices || !subspace.deviceType}
+                                >
+                                  <option value="">Seleccione un dispositivo</option>
+                                  {getDevicesByType(subspace.deviceType).map((device) => (
+                                    <option key={device.id} value={device.id}>
+                                      {device.code}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
                             </div>
-                          )}
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                          {/* Renderizado de Variables del Espacio por Subespacio */}
-                          {VariablesSelected.datosVariables &&
-                            Array.isArray(VariablesSelected.datosVariables[index]) && // Asegura que sea un array
-                            VariablesSelected.datosVariables[index].length > 0 && ( // Evita renderizar si está vacío
-                              <div className="mt-4">
-                                <h3 className="text-lg font-medium">Variables del Espacio:</h3>
-                                <div className="mt-2 grid grid-cols-1 gap-2">
-                                  <div className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md">
-                                    {/* <h3 className="font-semibold">Subespacio {index + 1}</h3> */}
-                                    <div className="mt-2 space-y-1">
-                                      {VariablesSelected.datosVariables[index].map((variable, varIndex) => (
-                                        <div
-                                          key={`${index}-${varIndex}`}
-                                          className="flex justify-between items-center bg-white p-2 border rounded-md"
-                                        >
-                                          <span>{variable}</span>
-                                          <button
-                                            type="button"
-                                            onClick={() => handleMedicionControl(variable)}
-                                            className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
-                                          >
-                                            Medición y Control
-                                          </button>
-                                        </div>
-                                      ))}
-                                    </div>
+
+                  </div>
+                </div>
+
+
+              )}
+
+              {step === 2 && (
+                <div>
+                  {subspaces.length > 0 ? (
+                    null
+                  ) : (
+                    <div className="border border-gray-400 p-3 rounded-lg">
+                      <div>
+                        <h2 className="font-bold p-1">Espacio</h2>
+                      </div>
+                      <div className="py-3 px-3">
+                        <label
+                          htmlFor="species"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Especies
+                        </label>
+                        <select
+                          id="species"
+                          name="species"
+                          onChange={(e) => handleSpeciesChange("main", e.target.value)}
+                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
+                        >
+                          <option value="" className="text-gray-500">
+                            Selecciona una opción
+                          </option>
+                          {species
+                            ?.filter((sub) => (especiesEspacio.flat()).includes(sub.id)) // Convertir en array plano
+                            .map((sub) => (
+                              <option key={sub.id} value={sub.id}>
+                                {sub.common_name}
+                              </option>
+                            ))}
+                        </select>
+
+
+                        {/* Selector de variables para especie principal */}
+                        <div className="mt-4">
+                          <label
+                            htmlFor="variable"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            Variables Asociadas
+                          </label>
+                          <select
+                            id="variable"
+                            name="variable"
+                            onChange={(e) => handleVariableChange(e, "main", e.target.value)}
+                            value={selectedVariables["main"] || ""}
+                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
+                          >
+                            <option value="" className="text-gray-500">
+                              Selecciona una variable
+                            </option>
+                            {mainVariables.length > 0 &&
+                              mainVariables.map((variable, index) => (
+                                <option key={index} value={variable.name}>
+                                  {variable.name}
+                                </option>
+                              ))}
+                          </select>
+                        </div>
+                      </div>
+                      {selectedVariables['main'] && (
+                        <div>
+                          <button
+                            type="button"
+                            onClick={(e) => handleAddVariable(e, 'main')} // Pasar 'main' como tipo
+                            className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
+                          >
+                            <FiPlusCircle />
+                            Añadir Variable
+                          </button>
+                        </div>
+                      )}
+                      {VariablesSelected.datosVariables && VariablesSelected.datosVariables.length > 0 && (
+
+                        <div className="mt-4">
+                          <h3 className="text-lg font-medium">Variables del Espacio:</h3>
+                          <div className="mt-2 grid grid-cols-1 gap-2">
+                            {Array.isArray(VariablesSelected.datosVariables) &&
+                              VariablesSelected.datosVariables.map((datosVariables, index) => (
+                                <div
+                                  key={index}
+                                  className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
+                                >
+                                  <div className="flex justify-between items-center">
+                                    <span>{datosVariables.id}</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMedicionControl(datosVariables.nombre)}
+                                      className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
+                                    >
+                                      Medición y Control
+                                    </button>
                                   </div>
                                 </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+
+                    </div>
+                  )}
+
+                  {subspaces.length > 0 ? (
+                    <div className='p-3'>
+                      {subspaces.map((subspace, index) => (
+                        <div
+                          key={index}
+                          className="border border-gray-400 rounded-md shadow shadow-gray-400 p-4 mb-4"
+                        >
+                          <h3>Subespacio {index + 1}</h3>
+                          {/* Selección de especie */}
+                          <div className="py-3 px-3">
+                            <label
+                              htmlFor={`species-${index}`}
+                              className="block text-sm font-medium text-gray-700 mb-1"
+                            >
+                              Especies
+                            </label>
+                            <select
+                              id={`species-${index}`}
+                              name={`species-${index}`}
+                              onChange={(e) => handleSpeciesChange(index, e.target.value)}
+                              value={selectedSpecies[index] || ""}
+                              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
+                            >
+                              <option value="" className="text-gray-500">
+                                Selecciona una opción
+                              </option>
+                              {species
+                                ?.filter((s) => subspaces.flat()[index]?.species.includes(s.id))
+                                .map((sub) => (
+                                  <option key={sub.id} value={sub.id}>
+                                    {sub.common_name}
+                                  </option>
+                                ))}
+                            </select>
+
+                            {/* Selección de variables */}
+                            <div className="mt-4">
+                              <label
+                                htmlFor={`variable-${index}`}
+                                className="block text-sm font-medium text-gray-700 mb-1"
+                              >
+                                Variables Asociadas
+                              </label>
+                              <select
+                                id={`variable-${index}`}
+                                name={`variable-${index}`}
+                                onChange={(e) => handleVariableChange(e, index, e.target.value)}
+                                value={selectedVariables.subspaces[index] || ""}
+                                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm"
+                              >
+                                <option value="" className="text-gray-500">
+                                  Selecciona una variable
+                                </option>
+                                {(variablesBySubspace[index] || []).map((variable, varIndex) => (
+                                  // console.log(variable),
+                                  <option key={varIndex} value={variable.name}>
+                                    {variable.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Botón para añadir la variable seleccionada */}
+                            {selectedVariables["main"] && (
+                              <div>
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleAddVariable(e, "sub")}
+                                  className="mt-4 bg-white border border-[#168C0DFF] text-[#168C0DFF] px-4 py-2 rounded flex items-center gap-2"
+                                >
+                                  <FiPlusCircle />
+                                  Añadir Variable
+                                </button>
                               </div>
                             )}
 
+                            {/* Renderizado de Variables del Espacio por Subespacio */}
+                            {VariablesSelected.datosVariables &&
+                              Array.isArray(VariablesSelected.datosVariables[index]) && // Asegura que sea un array
+                              VariablesSelected.datosVariables[index].length > 0 && ( // Evita renderizar si está vacío
+                                <div className="mt-4">
+                                  <h3 className="text-lg font-medium">Variables del Espacio:</h3>
+                                  <div className="mt-2 grid grid-cols-1 gap-2">
+                                    <div className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md">
+                                      {/* <h3 className="font-semibold">Subespacio {index + 1}</h3> */}
+                                      <div className="mt-2 space-y-1">
+                                        {VariablesSelected.datosVariables[index].map((variable, varIndex) => (
+                                          <div
+                                            key={`${index}-${varIndex}`}
+                                            className="flex justify-between items-center bg-white p-2 border rounded-md"
+                                          >
+                                            <span>{variable}</span>
+                                            <button
+                                              type="button"
+                                              onClick={() => handleMedicionControl(variable)}
+                                              className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
+                                            >
+                                              Medición y Control
+                                            </button>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                    {/* {isModalOpen && (
+                      ))}
+                      {/* {isModalOpen && (
                       <GenericModal
                         title={
                           modalMode === 'edit'
@@ -1782,67 +1798,76 @@ const CrearEspacio = () => {
                         />
                       </GenericModal>
                     )} */}
-                  </div>
-                ) : (null)}
+                    </div>
+                  ) : (null)}
 
+                </div>
+              )}
+
+              <div className="mt-6 flex justify-end space-x-4">
+                {step > 0 && (
+                  <button
+                    type="button"
+                    onClick={handlePrevStep}
+                    className="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
+                  >
+                    Anterior
+                  </button>
+                )}
+                {step < 2 && (
+                  <button
+                    type="button"
+                    onClick={handleNextStep}
+                    className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
+                  >
+                    Siguiente
+                  </button>
+                )}
+                {step === 2 && (
+                  <button
+                    type="submit"
+                    // onClick={handleSubmit}
+                    className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
+                  >
+                    Finalizar
+                  </button>
+                )}
               </div>
-            )}
 
-            <div className="mt-6 flex justify-end space-x-4">
-              {step > 0 && (
-                <button
-                  type="button"
-                  onClick={handlePrevStep}
-                  className="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
-                >
-                  Anterior
-                </button>
-              )}
-              {step < 2 && (
-                <button
-                  type="button"
-                  onClick={handleNextStep}
-                  className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
-                >
-                  Siguiente
-                </button>
-              )}
-              {step === 2 && (
-                <button
-                  type="submit"
-                  // onClick={handleSubmit}
-                  className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
-                >
-                  Finalizar
-                </button>
-              )}
             </div>
 
           </div>
-
-        </div>
+          {showErrorAlert && (
+          <div className="alert alert-danger p-4 rounded-md text-red-600">
+          {messageAlert}
       </div>
-    </form >
-    
-{isModalOpen && (
-  <GenericModal
-    title={
-      modalMode === 'edit'
-        ? 'Editar Medición y Control'
-        : modalMode === 'view'
-          ? 'Ver Medición y Control'
-          : 'Añadir Medición y Control'
-    }
-    onClose={closeModal}
-  >
-    <FormMedicion
-      selectedVariableId={guardarMedicion}
-      onClose={() => setIsModalOpen(false)}
-    />
-  </GenericModal>
-)}
+  )}
+          {showSuccessAlert && (
+      <SuccessAlert message="Espacio creada exitosamente" />
+  )}
+        </div>
+      </form >
+
+      {isModalOpen && (
+        <GenericModal
+          title={
+            modalMode === 'edit'
+              ? 'Editar Medición y Control'
+              : modalMode === 'view'
+                ? 'Ver Medición y Control'
+                : 'Añadir Medición y Control'
+          }
+          onClose={closeModal}
+        >
+          <FormMedicion
+            selectedVariableId={guardarMedicion}
+            variableId={variableModal}
+            onClose={() => setIsModalOpen(false)}
+          />
+        </GenericModal>
+      )}
     </>
-    
+
   );
 };
 

@@ -4,6 +4,7 @@ import { ArrowLeft, Mail } from "lucide-react";
 import logo from "../../assets/imagenes/logoBlanco.jpg";
 import "./auth.css";
 import ErrorAlert from "../../components/alerts/error";
+import AccesUser from "../../services/authService";
 
 const PasswordRecovery = () => {
   const [email, setEmail] = useState("");
@@ -12,11 +13,15 @@ const PasswordRecovery = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault(); 
     if (email) {
       setIsSubmitted(true);
-      // Agrega aquí la lógica para enviar el correo de recuperación
+
+      const response = await AccesUser.ResetPasswordUser({email })
+      console.log(response)
+      showErrorAlert(response)
+      setTimeout(() => setShowErrorAlert(false), 1200);
     } else {
       setErrorMessage("Por favor, ingresa un correo electrónico válido.");
       setShowErrorAlert(true);

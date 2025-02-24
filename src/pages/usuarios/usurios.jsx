@@ -73,6 +73,33 @@ const Usuario = () => {
     fetchCompanies();
   }, []);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
   useEffect(() => {
     const fetchUsersList = async () => {
 
