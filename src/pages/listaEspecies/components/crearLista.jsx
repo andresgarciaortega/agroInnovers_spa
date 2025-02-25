@@ -269,7 +269,7 @@ const CrearListas = () => {
   
  
   const handleSaveParameter = () => {
-    // Validaciones (tu código actual)
+    // Limpiar errores previos
     setFieldErrors({
       min_normal_value: '',
       max_normal_value: '',
@@ -277,9 +277,9 @@ const CrearListas = () => {
       max_limit: '',
       variable: '',
     });
-    
+  
     let hasError = false;
-    
+  
     // Validar si los campos están vacíos
     if (!newParameter.variable) {
       setFieldErrors((prevErrors) => ({
@@ -288,7 +288,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-    
+  
     if (!newParameter.min_normal_value) {
       setFieldErrors((prevErrors) => ({
         ...prevErrors,
@@ -296,7 +296,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-    
+  
     if (!newParameter.max_normal_value) {
       setFieldErrors((prevErrors) => ({
         ...prevErrors,
@@ -304,7 +304,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-    
+  
     if (!newParameter.min_limit) {
       setFieldErrors((prevErrors) => ({
         ...prevErrors,
@@ -312,7 +312,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-    
+  
     if (!newParameter.max_limit) {
       setFieldErrors((prevErrors) => ({
         ...prevErrors,
@@ -320,41 +320,33 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-    
+  
     // Convertir valores a número para evitar problemas con comparaciones
     const minNormalValue = Number(newParameter.min_normal_value);
     const maxNormalValue = Number(newParameter.max_normal_value);
     const minLimit = Number(newParameter.min_limit);
     const maxLimit = Number(newParameter.max_limit);
-    
-    if (minNormalValue === maxNormalValue) {
+  
+    // Validar que el valor mínimo normal no sea mayor que el valor máximo normal
+    if (minNormalValue > maxNormalValue) {
       setFieldErrors((prevErrors) => ({
         ...prevErrors,
-        min_normal_value: 'El valor mínimo normal no puede ser igual al valor máximo normal.',
-        max_normal_value: 'El valor mínimo normal no puede ser igual al valor máximo normal.',
+        min_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
+        max_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
       }));
       hasError = true;
     }
-    
-    // 2️⃣ min_limit NO puede ser igual a max_limit
-    if (minLimit === maxLimit) {
+  
+    // Validar que el límite mínimo no sea mayor que el límite máximo
+    if (minLimit > maxLimit) {
       setFieldErrors((prevErrors) => ({
         ...prevErrors,
-        min_limit: 'El límite mínimo no puede ser igual al límite máximo.',
-        max_limit: 'El límite mínimo no puede ser igual al límite máximo.',
+        min_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
+        max_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
       }));
       hasError = true;
     }
-    // Validar que el valor mínimo normal y el límite mínimo no sean iguales
-    if (minNormalValue === minLimit) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        min_normal_value: 'El valor mínimo normal no puede ser igual al límite mínimo.',
-        min_limit: 'El valor mínimo normal no puede ser igual al límite mínimo.',
-      }));
-      hasError = true;
-    }
-    
+  
     // Validar que el valor mínimo normal sea mayor que el límite mínimo
     if (minNormalValue < minLimit) {
       setFieldErrors((prevErrors) => ({
@@ -364,17 +356,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-    
-    // Validar que el valor máximo normal y el límite máximo no sean iguales
-    if (maxNormalValue === maxLimit) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        max_normal_value: 'El valor máximo normal no puede ser igual al límite máximo.',
-        max_limit: 'El valor máximo normal no puede ser igual al límite máximo.',
-      }));
-      hasError = true;
-    }
-    
+  
     // Validar que el valor máximo normal sea menor que el límite máximo
     if (maxNormalValue > maxLimit) {
       setFieldErrors((prevErrors) => ({
@@ -384,75 +366,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-    
-    // Si hay un error, evitar continuar
-    if (hasError) {
-      return;
-    }
-    
-    // let hasError = false;
-
-    // Validar si los campos están vacíos
-    if (!newParameter.variable) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        variable: 'El campo Variable no puede estar vacío.',
-      }));
-      hasError = true;
-    }
-
-    if (!newParameter.min_normal_value) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        min_normal_value: 'El campo Valor mínimo normal no puede estar vacío.',
-      }));
-      hasError = true;
-    }
-
-    if (!newParameter.max_normal_value) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        max_normal_value: 'El campo Valor máximo normal no puede estar vacío.',
-      }));
-      hasError = true;
-    }
-
-    if (!newParameter.min_limit) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        min_limit: 'El campo Límite mínimo no puede estar vacío.',
-      }));
-      hasError = true;
-    }
-
-    if (!newParameter.max_limit) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        max_limit: 'El campo Límite máximo no puede estar vacío.',
-      }));
-      hasError = true;
-    }
-
-    // Validar que el valor mínimo no sea mayor que el valor máximo
-    if (newParameter.min_normal_value > newParameter.max_normal_value) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        min_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
-        max_normal_value: 'El valor mínimo normal no puede ser mayor que el valor máximo normal.',
-      }));
-      hasError = true;
-    }
-
-    // Validar que el límite mínimo no sea mayor que el límite máximo
-    if (newParameter.min_limit > newParameter.max_limit) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        min_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
-        max_limit: 'El límite mínimo no puede ser mayor que el límite máximo.',
-      }));
-      hasError = true;
-    }
-
+  
     // Si hay un error, evitar continuar
     if (hasError) {
       return;
@@ -463,6 +377,19 @@ const CrearListas = () => {
     if (!selectedVariable) {
       setErrorMessage("Variable seleccionada no encontrada.");
       return;
+    }
+  
+    // Verificar si la variable ya tiene parámetros creados
+    const variableHasParameters = stages.some((stage) => {
+      return stage.parameters?.some((param) => param.variable.id === selectedVariable.id);
+    });
+  
+    if (variableHasParameters) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        variable: 'Ya hay parámetros creados con esta variable.',
+      }));
+      return; // Evitar continuar si ya hay parámetros
     }
   
     // Crear el nuevo parámetro

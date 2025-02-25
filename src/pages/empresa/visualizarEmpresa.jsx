@@ -203,6 +203,26 @@ const VisualizarEmpresa = ({ }) => {
     navigate("../empresa");  // Redirige a la vista de 'empresa'
   };
 
+  const handleEspecie = () => {
+    navigate("../listaEspecie");  // Redirige a la vista de 'empresa'
+  };
+
+  const handleusuarios = () => {
+    navigate("../usuarios");  // Redirige a la vista de 'empresa'
+  };
+  const handledispositivos = () => {
+    navigate("../sensor");  // Redirige a la vista de 'empresa'
+  };
+  const handlevariables = () => {
+    navigate("../variables");  // Redirige a la vista de 'empresa'
+  };
+  const handleespacios = () => {
+    navigate("../espacio");  // Redirige a la vista de 'empresa'
+  };
+  const handlemonitoreo = () => {
+    navigate("../monitoreo");  // Redirige a la vista de 'empresa'
+  };
+
 
   return (
     <div className="flex">
@@ -268,7 +288,7 @@ const VisualizarEmpresa = ({ }) => {
           
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="border p-4 rounded-md  shadow-lg ">
+            <div className="border p-4 rounded-md  shadow-lg " onClick={handleEspecie}>
               <div className="text-lg flex items-center gap-2 font-bold ">
                 Lotes de producción 2024
               </div>
@@ -290,10 +310,10 @@ const VisualizarEmpresa = ({ }) => {
                 </div>
                 <br />
 
-                <span className='font-semibold py-4'> Especies</span>
+                <span className='font-semibold py-4' > Especies</span
+                >
                 <br />
                 <span className='py-2'> Tilapia roja</span>
-
                 <div className="text-sm text-muted-foreground px-3">
 
                   • 300.000 sembrados
@@ -305,7 +325,7 @@ const VisualizarEmpresa = ({ }) => {
               </div>
             </div>
 
-            <div className="border p-4 rounded-md shadow-lg ">
+            <div className="border p-4 rounded-md shadow-lg " onClick={handleespacios}>
               <div className="text-lg flex items-center gap-2 font-bold ">
                 Espacio de producción
               </div>
@@ -336,7 +356,7 @@ const VisualizarEmpresa = ({ }) => {
               </div>
             </div>
 
-            <div className="border p-4 rounded-md shadow-lg ">
+            <div className="border p-4 rounded-md shadow-lg " onClick={handlevariables}>
               <div className="text-lg flex items-center gap-2 font-bold">
                 Variables
               </div>
@@ -361,7 +381,7 @@ const VisualizarEmpresa = ({ }) => {
               </div>
             </div>
 
-            <div className="border p-4 rounded-md shadow-lg">
+            <div className="border p-4 rounded-md shadow-lg" onClick={handlemonitoreo}>
               <div className="text-lg flex items-center gap-2 font-bold">
                 Sistema de monitoreo
               </div>
@@ -374,7 +394,7 @@ const VisualizarEmpresa = ({ }) => {
               </div>
             </div>
 
-            <div className="border p-4 rounded-md shadow-lg">
+            <div className="border p-4 rounded-md shadow-lg" onClick={handledispositivos}>
               <div className="text-lg flex items-center gap-2  font-bold">
                 Dispositivos
               </div>
@@ -391,7 +411,7 @@ const VisualizarEmpresa = ({ }) => {
               </div>
             </div>
 
-            <div className="border p-4 rounded-md shadow-lg ">
+            <div className="border p-4 rounded-md shadow-lg " onClick={handleusuarios}>
               <div className="text-lg flex items-center gap-2 font-bold">
                 Usuarios
               </div>
