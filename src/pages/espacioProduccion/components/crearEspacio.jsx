@@ -20,8 +20,8 @@ import { FiPlusCircle } from "react-icons/fi";
 import { useCompanyContext } from '../../../context/CompanyContext';
 
 const CrearEspacio = () => {
-    const navigate = useNavigate();
-  
+  const navigate = useNavigate();
+
   const [selectedVariables, setSelectedVariables] = useState({
     main: [],
     subspaces: []
@@ -34,8 +34,8 @@ const CrearEspacio = () => {
     // , deviceType: "", selectedDevice: "" }
   ]);
   const [companyId, setCompanies] = useState(null);
-    const [showErrorAlert, setShowErrorAlert] = useState(false);
-    const [messageAlert, setMessageAlert] = useState('');
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [messageAlert, setMessageAlert] = useState('');
 
   const [selectedVariableId, setSelectedVariableId] = useState(null);
   const [modalMode, setModalMode] = useState("create");
@@ -179,7 +179,7 @@ const CrearEspacio = () => {
           ],
           configureMeasurementControls: [
             {
-            
+
             }
           ]
         }
@@ -502,9 +502,9 @@ const CrearEspacio = () => {
       assignDevices: [
         assignDevices
       ],
-      configureMeasurementControls: 
+      configureMeasurementControls:
         transformedMeasurementControls
-      
+
     };
   };
   const handleSubspaceCheckboxChange = (index, field) => {
@@ -837,11 +837,11 @@ const CrearEspacio = () => {
       showErrorAlertSuccess("Creada");
       setShowSuccessAlert(true);
       setTimeout(() => {
-          setShowSuccessAlert(false);
+        setShowSuccessAlert(false);
       }, 2500);
       setTimeout(() => {
         navigate('../espacio');
-    }, 3000);
+      }, 3000);
     } catch (error) {
       console.error('Error al crear el espacio:', error);
     }
@@ -850,7 +850,7 @@ const CrearEspacio = () => {
   const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true);
     setMessageAlert(`Espacio ${message} exitosamente`);
-  
+
     setTimeout(() => {
       setShowErrorAlert(false);
     }, 2500);
@@ -860,6 +860,7 @@ const CrearEspacio = () => {
 
   const guardarMedicion = (dato) => {
     console.log('datos de medicion y control', dato);
+    console.log('datos de medicion y control2', measurementControls);
     setMeasurementControls([...measurementControls, dato]);
   };
 
@@ -1668,6 +1669,13 @@ const CrearEspacio = () => {
                                       Medición y Control
                                     </button>
                                   </div>
+                                  <div>
+                                    {/* {datosVariables.nombre.filter((e) => e.nombre === measurementControls.productionVariableId )} */}
+                                    {measurementControls.filter((e) => e.productionVariableId === datosVariables.nombre) ? measurementControls.measurementType : '' }
+                                    {/* {datosVariables.nombre === measurementControls.productionVariableId  ? measurementControls.measurementType : ''}
+                                    {measurementControls.measurementType} */}
+                                  </div>
+
                                 </div>
                               ))}
                           </div>
@@ -1777,6 +1785,7 @@ const CrearEspacio = () => {
                                               Medición y Control
                                             </button>
                                           </div>
+
                                         ))}
                                       </div>
                                     </div>
@@ -1844,13 +1853,13 @@ const CrearEspacio = () => {
 
           </div>
           {showErrorAlert && (
-          <div className="alert alert-danger p-4 rounded-md text-red-600">
-          {messageAlert}
-      </div>
-  )}
+            <div className="alert alert-danger p-4 rounded-md text-red-600">
+              {messageAlert}
+            </div>
+          )}
           {showSuccessAlert && (
-      <SuccessAlert message="Espacio creada exitosamente" />
-  )}
+            <SuccessAlert message="Espacio creada exitosamente" />
+          )}
         </div>
       </form >
 
