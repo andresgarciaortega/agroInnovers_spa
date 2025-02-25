@@ -318,7 +318,7 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }
                                         className="w-full p-2 border rounded"
                                         required
                                     >
-                                        <option value="">Seleccione si o no </option>
+                                        <option value="">Seleccione una opción </option>
                                         <option value="Control por limite maximo">Control por limite maximo</option>
                                         <option value="Control por limite mínimo">Control por limite mínimo</option>
                                         <option value="No Aplica">No Aplica</option>
