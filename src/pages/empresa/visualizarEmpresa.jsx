@@ -200,27 +200,27 @@ const VisualizarEmpresa = ({ }) => {
     }
   };
  const handleGoBack = () => {
-    navigate("../empresa");  // Redirige a la vista de 'empresa'
+    navigate("../empresa");  
   };
 
   const handleEspecie = () => {
-    navigate("../listaEspecie");  // Redirige a la vista de 'empresa'
+    navigate("../listaEspecie");  
   };
 
   const handleusuarios = () => {
-    navigate("../usuarios");  // Redirige a la vista de 'empresa'
+    navigate("../usuarios");  
   };
   const handledispositivos = () => {
-    navigate("../sensor");  // Redirige a la vista de 'empresa'
+    navigate("../sensor");  
   };
   const handlevariables = () => {
-    navigate("../variables");  // Redirige a la vista de 'empresa'
+    navigate("../variables");  
   };
   const handleespacios = () => {
-    navigate("../espacio");  // Redirige a la vista de 'empresa'
+    navigate("../espacio");  
   };
   const handlemonitoreo = () => {
-    navigate("../monitoreo");  // Redirige a la vista de 'empresa'
+    navigate("../monitoreo");  
   };
 
 

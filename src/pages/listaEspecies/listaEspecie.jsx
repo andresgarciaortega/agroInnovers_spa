@@ -255,22 +255,28 @@ const ListaEspecies = () => {
   const updateService = async () => {
     setShowErrorAlertTable(false);
     // setSpeciesList([]);
+    if (!companyId) {
+      setSpeciesList([]);
+      return;
+    } else {
+      setNameCompany(selectedCompanyUniversal.label)
+    }
 
     try {
-
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
-
-      if (!companyId) {
-        setSpeciesList([]);
-        return;
-      }
-
       const data = await SpeciesService.getAllSpecie(companyId, {});
-
-      setSpeciesList(data);
+      if (data.statusCode === 404) {
+        setSpeciesList([]);
+      } else {
+        setShowErrorAlertTable(false)
+        setSpeciesList(Array.isArray(data) ? data : []);
+      }
     } catch (error) {
-      console.error('Error al actualizar las variables:', error);
+      setSpeciesList([])
+      console.error('Error fetching especies:', error);
+      setMessageAlert('Esta empresa no tiene especies registradas, Intentalo con otra empresa');
+      setShowErrorAlertTable(true);
     }
+  
   };
 
   const handleEditSpecie = (species) => {

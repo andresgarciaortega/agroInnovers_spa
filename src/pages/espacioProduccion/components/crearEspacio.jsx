@@ -1671,7 +1671,7 @@ const CrearEspacio = () => {
                                   </div>
                                   <div>
                                     {/* {datosVariables.nombre.filter((e) => e.nombre === measurementControls.productionVariableId )} */}
-                                    {measurementControls.filter((e) => e.productionVariableId === datosVariables.nombre) ? measurementControls.measurementType : '' }
+                                    {measurementControls.filter((e) => e.productionVariableId === datosVariables.nombre) ? 'sno yetdgfhg' : 'nsiiio' }
                                     {/* {datosVariables.nombre === measurementControls.productionVariableId  ? measurementControls.measurementType : ''}
                                     {measurementControls.measurementType} */}
                                   </div>
