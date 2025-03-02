@@ -6,6 +6,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import TypeService from "../../services/TypeDispositivosService";
 import Delete from '../../components/delete';
 import SuccessAlert from "../../components/alerts/success";
+import ErrorAlert from "../../components/alerts/error";
 
 import GenericModal from '../../components/genericModal';
 import FormSensor from './componets/FormSensor';
@@ -299,22 +300,34 @@ const Tipos = () => {
     }, 2500);
   }
 
+  const [alertSelecte, setAlertSelecte] = useState(false);
+
   const handleConfirmDeleteSensor = async () => {
     setIsDeleteModalOpen(false);
     try {
       setSelectedSensor(null);
       const data = await TypeService.deleteSensor(selectedSensor.id);
-      setMessageAlert("Sensor eliminada exitosamente");
-      showErrorAlertSuccess("eliminado");
+      console.log("data ::::::::", data)
+      if(data.success){
+        setMessageAlert(data.message);
+        showErrorAlertSuccess("eliminado");
+        updateServiceSensor();
+        setAlertSelecte(true);
+      }else{
+        setMessageAlert(data.message);
+        setShowErrorAlert(true);
+        setAlertSelecte(false);
+      }
 
-      updateServiceSensor();
     } catch (error) {
+
+      let errorMessage;
       if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
-        setMessageAlert(`${message} exitosamente`);
+        setMessageAlert(`No se puede eliminar el tipo de sensor porque está asociado a otros registros`);
         (error.message);
         setShowErrorVariableAlert(true);
       } else {
-        setMessageAlert(`${message} exitosamente`);
+        setMessageAlert(`No se puede eliminar el tipo de sensor porque está asociado a otros registros`);
         ("No se puede eliminar el tipo de sensor  porque está asociada a uno o más sensores");
         setShowErrorAlert(true);
       }
@@ -501,10 +514,14 @@ const Tipos = () => {
       )}
 
       {showErrorAlert && (
-        <SuccessAlert
-          message={messageAlert}
-          onCancel={handleCloseAlert}
-        />
+         <div className="alert-container">
+         {alertSelecte ? (
+           <SuccessAlert message={messageAlert} />
+         ) : (
+           <ErrorAlert message={messageAlert}
+             onCancel={handleCloseAlert} />
+         )}
+       </div>
       )}
 
     </div>
@@ -792,13 +809,22 @@ const Tipos = () => {
           <FormViewActuador showErrorAlert={showErrorAlertSuccess} onUpdate={updateServiceActuador} actuador={newActuador} mode={modalModeActuador} closeModal={closeModalActuador} />
         </GenericModal>
       )}
-
-      {showErrorAlert && (
+  {showErrorAlert && (
+        <div className="alert-container">
+          {alertSelecte ? (
+            <SuccessAlert message={alertSelecte} />
+          ) : (
+            <ErrorAlert message={alertSelecte}
+              onCancel={handleCloseAlert} />
+          )}
+        </div>
+      )}
+      {/* {showErrorAlert && (
         <SuccessAlert
           message={messageAlert}
           onCancel={handleCloseAlert}
         />
-      )}
+      )} */}
 
     </div>
   );
