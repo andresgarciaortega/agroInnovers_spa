@@ -18,7 +18,7 @@ const PasswordRecovery = () => {
     if (email) {
       setIsSubmitted(true);
 
-      const response = await AccesUser.ResetPasswordUser({email })
+      const response = await AccesUser.recoveryPassword({email })
       console.log(response)
       showErrorAlert(response)
       setTimeout(() => setShowErrorAlert(false), 1200);
