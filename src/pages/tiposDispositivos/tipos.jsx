@@ -310,7 +310,7 @@ const Tipos = () => {
       updateServiceSensor();
     } catch (error) {
       if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
-        setMessageAlert(`${message} exitosamente`);
+        setMessageAlert(`Este sensor ya esta asociado `);
         (error.message);
         setShowErrorVariableAlert(true);
       } else {
