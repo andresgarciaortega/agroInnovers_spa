@@ -343,11 +343,56 @@ const CrearEspacio = () => {
     ]);
   };
 
-
-
-  const handleOpenModal = (lote = null, mode = 'create') => {
-
+  const handleOpenModal = (dato, mode) => {
+    console.log("dato antes de editar : ", dato);
+  
+    if (mode === "edit") {
+      // Busca la medición y control existente para esta variable
+      const existingControl = measurementControls.find(
+        (control) => control.productionVariableId === dato.nombre
+      );
+  
+      // Si existe, establece los valores en el estado
+      if (existingControl) {
+        setMeasurementControls({
+          measurementType: existingControl.measurementType,
+          sensorId: existingControl.sensor?.id || '',
+          actuatorId: existingControl.actuator?.id || '',
+          samplingTimeUnit: existingControl.samplingTimeUnit,
+          samplingFrequency: existingControl.samplingFrequency,
+          numberOfSamples: existingControl.numberOfSamples,
+          controlType: existingControl.controlType,
+          actuationTimeUnit: existingControl.actuationTimeUnit,
+          activationParameterRange: existingControl.activationParameterRange,
+          alertMessage: existingControl.alertMessage,
+          productionVariableId: existingControl.productionVariableId,
+          id: existingControl.id,
+          activationFrequency: existingControl.activationFrequency,
+        });
+      }
+    } else {
+      // Modo "create": establece valores por defecto
+      setMeasurementControls({
+        measurementType: '',
+        sensorId: '',
+        actuatorId: '',
+        samplingTimeUnit: '',
+        samplingFrequency: '',
+        numberOfSamples: '',
+        controlType: '',
+        actuationTimeUnit: '',
+        activationParameterRange: '',
+        alertMessage: '',
+        productionVariableId: dato.nombre,
+        id: null, // No hay ID en modo creación
+        activationFrequency: '',
+      });
+    }
+  
+    setModalMode(mode);
+    setIsModalOpen(true);
   };
+
 
   // Cerrar el modal
   const closeModal = async () => {
@@ -1650,36 +1695,43 @@ const CrearEspacio = () => {
                       )}
                       {VariablesSelected.datosVariables && VariablesSelected.datosVariables.length > 0 && (
 
-                        <div className="mt-4">
-                          <h3 className="text-lg font-medium">Variables del Espacio:</h3>
-                          <div className="mt-2 grid grid-cols-1 gap-2">
-                            {Array.isArray(VariablesSelected.datosVariables) &&
-                              VariablesSelected.datosVariables.map((datosVariables, index) => (
-                                <div
-                                  key={index}
-                                  className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
-                                >
-                                  <div className="flex justify-between items-center">
-                                    <span>{datosVariables.id}</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleMedicionControl(datosVariables.nombre)}
-                                      className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
-                                    >
-                                      Medición y Control
-                                    </button>
-                                  </div>
-                                  <div>
-                                    {/* {datosVariables.nombre.filter((e) => e.nombre === measurementControls.productionVariableId )} */}
-                                    {measurementControls.filter((e) => e.productionVariableId === datosVariables.nombre) ? 'sno yetdgfhg' : 'nsiiio' }
-                                    {/* {datosVariables.nombre === measurementControls.productionVariableId  ? measurementControls.measurementType : ''}
-                                    {measurementControls.measurementType} */}
-                                  </div>
+<div className="mt-4">
+  <h3 className="text-lg font-medium">Variables del Espacio:</h3>
+  <div className="mt-2 grid grid-cols-1 gap-2">
+    {Array.isArray(VariablesSelected.datosVariables) &&
+      VariablesSelected.datosVariables.map((datosVariables, index) => {
+        // Verifica si measurementControls es un array antes de usar .some()
+        const hasMeasurementControl = Array.isArray(measurementControls)
+          ? measurementControls.some(
+              (control) => control.productionVariableId === datosVariables.nombre
+            )
+          : false;
 
-                                </div>
-                              ))}
-                          </div>
-                        </div>
+        return (
+          <div
+            key={index}
+            className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
+          >
+            <div className="flex justify-between items-center">
+              <span>{datosVariables.id}</span>
+              <button
+                type="button"
+                onClick={() =>
+                  handleOpenModal(
+                    datosVariables,
+                    hasMeasurementControl ? "edit" : "create"
+                  )
+                }
+                className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
+              >
+                {hasMeasurementControl ? "Editar" : "Medición y Control"}
+              </button>
+            </div>
+          </div>
+        );
+      })}
+  </div>
+</div>
                       )}
 
                     </div>
