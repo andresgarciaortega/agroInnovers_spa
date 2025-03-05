@@ -21,28 +21,33 @@ const ResetPassword = () => {
     const [passwordError, setPasswordError] = useState(false);
 
     const handleSubmit = async (e) => {
+        console.log("response 1")
+
         e.preventDefault();
-    
+
         // Obtener el token desde la URL
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get("token");
-    
+
         if (!token) {
             showErrorAlert("Token no encontrado en la URL");
             return;
         }
-    
-        const response = await AccesUser.ResetPasswordUser(newPassword, token);
-    
-        if (response.success) {
+        console.log("response")
+        try {
             showErrorAlert("Contraseña actualizada correctamente");
             setTimeout(() => setShowErrorAlert(false), 1000);
             navigate('/', { replace: true });
-        } else {
-            showErrorAlert(response.message || "Error al actualizar la contraseña");
+            const response = await AccesUser.ResetPasswordUser(newPassword, token);
+        } catch (error) {
+            console.log("error : ", error)
         }
+
+        // } else {
+        //     showErrorAlert(response.message || "Error al actualizar la contraseña");
+        // }
     };
-    
+
 
     const handleCloseAlert = () => {
         setShowErrorAlert(false);

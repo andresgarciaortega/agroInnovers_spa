@@ -28,7 +28,7 @@ const AccesUser = {
     async recoveryPassword(data) {
         try {
             const response = await api.post('/auth/forgot-password', data);
-            return { success: true, message: response.message };
+            return response;
         } catch (error) {
             // Revisa si el error tiene una respuesta y el mensaje de error está en la respuesta
             if (error.response && error.response.data) {
@@ -46,7 +46,7 @@ const AccesUser = {
     async ResetPasswordUser(newPassword, token) {
         try {
             const response = await api.post(`/auth/reset-password?token=${token}`, { newPassword });
-            return { success: true, message: response.message };
+            return { success: true, data: response.success };
         } catch (error) {
             if (error.response && error.response.data) {
                 const { statusCode, message, error: errorType } = error.response.data;
@@ -56,6 +56,7 @@ const AccesUser = {
             }
         }
     }
+    
 
 
 };
