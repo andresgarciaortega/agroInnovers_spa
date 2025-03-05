@@ -323,7 +323,7 @@ const Tipos = () => {
 
       let errorMessage;
       if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
-        setMessageAlert(`No se puede eliminar el tipo de sensor porque está asociado a otros registros`);
+        setMessageAlert(`${message} exitosamente`);
         (error.message);
         setShowErrorVariableAlert(true);
       } else {
