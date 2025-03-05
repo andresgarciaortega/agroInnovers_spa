@@ -127,7 +127,7 @@ const Tipos = () => {
 
   });
   useEffect(() => {
-    hiddenSelect(false)
+    hiddenSelect(true)
     const fetchSensor = async () => {
       try {
         // Verifica si selectedCompanyUniversal es nulo o si no tiene valor
@@ -280,6 +280,7 @@ const Tipos = () => {
   const closeModalSensor = async () => {
     setIsModalOpenSensor(false);
     setIsModalOpenSensorView(false);
+    setAlertSelecte(true);
 
     setSelectedSensor(null);
     setModalModeSensor('create');
@@ -307,7 +308,6 @@ const Tipos = () => {
     try {
       setSelectedSensor(null);
       const data = await TypeService.deleteSensor(selectedSensor.id);
-      console.log("data ::::::::", data)
       if(data.success){
         setMessageAlert(data.message);
         showErrorAlertSuccess("eliminado");
@@ -609,6 +609,7 @@ const Tipos = () => {
   const closeModalActuador = async () => {
     setIsModalOpenActuador(false);
     setIsModalOpenActuadorView(false);
+    setAlertSelecte(true);
 
     setSelectedActuador(null);
     setModalModeActuador('create');
@@ -634,10 +635,16 @@ const Tipos = () => {
     try {
       setSelectedActuador(null);
       const data = await TypeService.deleteActuador(selectedActuador.id);
-      setMessageAlert("Actuador eliminada exitosamente");
-      showErrorAlertSuccess("eliminado");
-
-      updateServiceActuador();
+      if(data.success){
+        setMessageAlert(data.message);
+        showErrorAlertSuccess("eliminado");
+        updateServiceActuador();
+        setAlertSelecte(true);
+      }else{
+        setMessageAlert(data.message);
+        setShowErrorAlert(true);
+        setAlertSelecte(false);
+      }
     } catch (error) {
       if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
         setMessageAlert(`${message} exitosamente`);
@@ -812,9 +819,9 @@ const Tipos = () => {
   {showErrorAlert && (
         <div className="alert-container">
           {alertSelecte ? (
-            <SuccessAlert message={alertSelecte} />
+            <SuccessAlert message={messageAlert} />
           ) : (
-            <ErrorAlert message={alertSelecte}
+            <ErrorAlert message={messageAlert}
               onCancel={handleCloseAlert} />
           )}
         </div>
