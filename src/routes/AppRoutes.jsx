@@ -44,7 +44,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/passwordRecovery" element={<PasswordRecovery />} />
       <Route path="/" element={<AuthLogin />} />
-      <Route path="/auth/reset-password" element={<ResetPassword />} />
+      <Route path="/auth/resetPassword" element={<ResetPassword />} />
 
       <Route path="/home" element={<PrivateRoute ><LayoutHome /></PrivateRoute>}>
         <Route path="dashboard" element={<Dashboard />} />

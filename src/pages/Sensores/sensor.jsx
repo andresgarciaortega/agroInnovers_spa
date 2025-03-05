@@ -24,13 +24,14 @@ import Select from "react-select";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
+import ErrorAlert from "../../components/alerts/error";
 
 const Sensor = () => {
   const [companyList, setCompanyList] = useState([]);
   const [sensorId, setSensorId] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
-    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
   const [variableList, setVariableList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -59,6 +60,7 @@ const Sensor = () => {
     estimatedChangeDate: '',
     sensorTypeId: 0,
   });
+  const [alertSelecte, setAlertSelecte] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -208,6 +210,8 @@ const Sensor = () => {
 
   // Cerrar el modal
   const closeModal = async () => {
+    setAlertSelecte(true);
+
     setIsModalOpen(false);
     setSelectedVariable(null);
     setModalMode('create');
@@ -233,13 +237,26 @@ const Sensor = () => {
     }, 2500);
   }
 
+
+
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
     setSelectedVariable(null);
     const data = await SensorService.deleteSensor(selectedVariable.id);
-    setMessageAlert("Sensor eliminada exitosamente");
-    showErrorAlertSuccess("eliminado");
-    updateService();
+    if (data.success) {
+      setMessageAlert(data.message);
+      showErrorAlertSuccess("eliminado");
+      updateService();
+      setAlertSelecte(true);
+    } else {
+      setMessageAlert(data.message);
+      setShowErrorAlert(true);
+      setAlertSelecte(false);
+    }
+
+    // setMessageAlert("Sensor eliminada exitosamente");
+    // showErrorAlertSuccess("eliminado");
+    // updateService();
   };
 
 
@@ -500,11 +517,20 @@ const Sensor = () => {
       )}
 
       {showErrorAlert && (
-        <SuccessAlert
-          message={messageAlert}
-          onCancel={handleCloseAlert}
-        />
+        // <SuccessAlert
+        //   message={messageAlert}
+        //   onCancel={handleCloseAlert}
+        // />
+        <div className="alert-container">
+          {alertSelecte ? (
+            <SuccessAlert message={messageAlert} />
+          ) : (
+            <ErrorAlert message={messageAlert}
+              onCancel={handleCloseAlert} />
+          )}
+        </div>
       )}
+
       {showErrorAlertTable && (
         <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
           <div className="flex items-center space-x-2">
