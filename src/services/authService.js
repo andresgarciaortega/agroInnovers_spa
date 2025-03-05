@@ -42,23 +42,21 @@ const AccesUser = {
         }
     },
 
-     // FORGOT PASSWORD - 
-     async ResetPasswordUser(data) {
+    // FORGOT PASSWORD - 
+    async ResetPasswordUser(newPassword, token) {
         try {
-            const response = await api.post('/auth/reset-password', data);
+            const response = await api.post(`/auth/reset-password?token=${token}`, { newPassword });
             return { success: true, message: response.message };
         } catch (error) {
-            // Revisa si el error tiene una respuesta y el mensaje de error está en la respuesta
             if (error.response && error.response.data) {
                 const { statusCode, message, error: errorType } = error.response.data;
-                // Devuelve el mensaje de error como una respuesta
                 return { success: false, statusCode, message, error: errorType };
             } else {
-                // Si no hay una respuesta específica, devuelve un mensaje genérico
                 return { success: false, message: 'Lo sentimos! credenciales incorrectas, intente nuevamente' };
             }
         }
-    },
+    }
+
 
 };
 
