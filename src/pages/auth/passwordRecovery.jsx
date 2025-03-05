@@ -5,7 +5,6 @@ import logo from "../../assets/imagenes/logoBlanco.jpg";
 import "./auth.css";
 import ErrorAlert from "../../components/alerts/error";
 import AccesUser from "../../services/authService";
-import LoadingView from "../../components/Loading/loadingView";
 
 const PasswordRecovery = () => {
   const [email, setEmail] = useState("");
@@ -20,7 +19,6 @@ const PasswordRecovery = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
     if (email) {
       const response = await AccesUser.recoveryPassword({ email })
       setIsSubmitted(true);
