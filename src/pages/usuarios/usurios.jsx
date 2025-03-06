@@ -75,31 +75,6 @@ const Usuario = () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
   useEffect(() => {
     const fetchUsersList = async () => {
 

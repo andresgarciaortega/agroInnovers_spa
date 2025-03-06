@@ -443,7 +443,7 @@ const VisualizarLista = () => {
                                                 <tbody>
                                                     {stage.parameters.map((param, paramIndex) => (
                                                         <tr key={paramIndex}>
-                                                            <td className="border px-4 py-2">{`Variable ${param.id}`}</td>
+                                                            <td className="border px-4 py-2">{param.variable?.name || 'N/A'}</td>
                                                             <td className="border px-4 py-2">{param.min_normal_value}</td>
                                                             <td className="border px-4 py-2">{param.max_normal_value}</td>
                                                             <td className="border px-4 py-2">{param.min_limit}</td>

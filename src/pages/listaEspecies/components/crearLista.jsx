@@ -112,7 +112,7 @@ const CrearListas = () => {
         const categories = await CategoryService.getAllCategory(companyId);
         setCategories(categories);
 
-        const variables = await VaiableService.getAllVariable();
+        const variables = await VaiableService.getAllVariable(companyId);
         setVariables(variables);
       } catch (error) {
         console.error("Error fetching initial data:", error);
