@@ -26,6 +26,7 @@ import Select from "react-select";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
+import ErrorAlert from "../../components/alerts/error";
 
 const Actuador = () => {
   const [companyList, setCompanyList] = useState([]);
@@ -235,6 +236,7 @@ const Actuador = () => {
 
   // Cerrar el modal
   const closeModal = async () => {
+    setAlertSelecte(true);
     setIsModalOpen(false);
     setSelectedVariable(null);
     setModalMode('create');
@@ -242,6 +244,7 @@ const Actuador = () => {
     setIdModalOpenMante(false);
     setIsModalOpenCali(false)
     updateService();
+
   };
 
   //eliminar
@@ -252,20 +255,30 @@ const Actuador = () => {
 
   const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true)
-    setMessageAlert(`Actuador ${message} exitosamente`);
+    setMessageAlert(`${message} exitosamente`);
 
     setTimeout(() => {
       setShowErrorAlert(false)
     }, 2500);
   }
 
+
+    const [alertSelecte, setAlertSelecte] = useState(false);
+  
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
     setSelectedVariable(null);
     const data = await ActuadorService.deleteActuador(selectedVariable.id);
-    setMessageAlert("Actuador eliminada exitosamente");
-    showErrorAlertSuccess("eliminado");
-    updateService();
+    if (data.success) {
+      setMessageAlert(data.message);
+      showErrorAlertSuccess("eliminado");
+      updateService();
+      setAlertSelecte(true);
+    } else {
+      setMessageAlert(data.message);
+      setShowErrorAlert(true);
+      setAlertSelecte(false);
+    }
   };
 
 
@@ -495,10 +508,18 @@ const Actuador = () => {
       )}
 
       {showErrorAlert && (
-        <SuccessAlert
-          message={messageAlert}
-          onCancel={handleCloseAlert}
-        />
+        // <SuccessAlert
+        //   message={messageAlert}
+        //   onCancel={handleCloseAlert}
+        // />
+        <div className="alert-container">
+        {alertSelecte ? (
+          <SuccessAlert message={messageAlert} />
+        ) : (
+          <ErrorAlert message={messageAlert}
+            onCancel={handleCloseAlert} />
+        )}
+      </div>
       )}
       {showErrorAlertTable && (
         <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
