@@ -402,7 +402,9 @@ const VisualizarLista = () => {
 
 
                     <div className="mt-6">
-                        {formData.stage.map((stage, index) => (
+                        {formData.stage
+                        .sort((a, b) => a.id - b.id) 
+                        .map((stage, index) => (
                             <div key={index} className="mt-4 rounded-md p-4 border border-gray-300">
                                 <div className="flex justify-between items-center mb-2">
                                     <h3 className="text-lg font-semibold text-gray-800">
