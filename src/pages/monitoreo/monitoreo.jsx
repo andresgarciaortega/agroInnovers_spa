@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import GenericModal from '../../components/genericModal';
 import FormMonitoreo from './components/formMoni';
 // import MonitoreoService from '../../../services/monitoreo';
+import ErrorAlert from "../../components/alerts/error";
 
 
 // Icons
@@ -141,26 +142,39 @@ const Monitoreo = () => {
     setSelectedDevice(monitoreo);
     setIsDeleteModalOpen(true);
   };
+  const [alertSelecte, setAlertSelecte] = useState(false);
 
   const handleConfirmDelete = async () => {
+    setIsDeleteModalOpen(false);
+
     try {
-      setIsDeleteModalOpen(false);
       setSelectedDevice(null);
-      await SystemMonitory.deleteMonitories(selectedDevice.id);
+     const data = await SystemMonitory.deleteMonitories(selectedDevice.id);
       console.log(SystemMonitory)
-      setMessageAlertDelete("Monitoreo de dispositivos eliminada exitosamente");
-      showErrorAlertSuccess("Eliminado");
-      updateListMonitories();
+      if(data.success){
+        setMessageAlert(data.message);
+        showErrorAlertSuccess("eliminado");
+        updateService();
+        setAlertSelecte(true);
+      }else{
+        setMessageAlert(data.message);
+        setShowErrorAlert(true);
+        setAlertSelecte(false);
+      }
+
     } catch (error) {
 
+      let errorMessage;
       if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
-        setMessageAlertDelete(error.message);
+        setMessageAlert(`${message} exitosamente`);
+        (error.message);
         setShowErrorVariableAlert(true);
       } else {
-        setMessageAlertDelete("No se puede eliminar el Monitoreo de dispositivos porque está asociada a uno o más Monitoreo");
+        setMessageAlert(`No se puede eliminar el sistema de monitoreo porque está asociado a otros registros`);
+        ("No se puede eliminar el sistema de monitoreo  porque está asociada a uno o más espacios");
         setShowErrorAlert(true);
       }
-      console.error("Error al eliminar el Monitoreo de dispositivos:", error);
+      console.error("Error al eliminar el sistema de monitoreo :", error);
     }
   };
 
@@ -225,6 +239,7 @@ const Monitoreo = () => {
   const closeModal = async () => {
     setIsModalOpen(false);
     setSelectedVariable(null);
+    setShowErrorAlert(false)
     setModalMode('create');
     // updateService();
   };
@@ -403,12 +418,15 @@ const Monitoreo = () => {
         </div>
       </div>
 
-      {showSuccessAlert && (
-        <SuccessAlert
-          message={messageAlert}
-          onCancel={closeModal}
-
-        />
+      {showErrorAlert && (
+         <div className="alert-container">
+         {alertSelecte ? (
+           <SuccessAlert message={messageAlert} />
+         ) : (
+           <ErrorAlert message={messageAlert}
+             onCancel={closeModal} />
+         )}
+       </div>
       )}
       {showSuccessAlert && (
         <SuccessAlert

@@ -10,6 +10,7 @@ import CompanyService from "../../services/CompanyService";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
 
+import ErrorAlert from "../../components/alerts/error";
 
 import { ImEqualizer2 } from "react-icons/im";
 
@@ -173,15 +174,42 @@ const TipoEspacio = () => {
     }, 2500);
   }
 
+
+  const [alertSelecte, setAlertSelecte] = useState(false);
+
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
-    setSelectedVariable(null);
-    const data = await TipoEspacioService.deletetipoEspacio(selectedVariable.id);
-    setMessageAlert("Tipo de espacio eliminado exitosamente");
-    showErrorAlertSuccess("eliminado");
-    updateService();
-  };
 
+    try {
+      setSelectedVariable(null);
+      const data = await TipoEspacioService.deletetipoEspacio(selectedVariable.id);
+
+      if(data.success){
+        setMessageAlert(data.message);
+        showErrorAlertSuccess("eliminado");
+        updateService();
+        setAlertSelecte(true);
+      }else{
+        setMessageAlert(data.message);
+        setShowErrorAlert(true);
+        setAlertSelecte(false);
+      }
+
+    } catch (error) {
+
+      let errorMessage;
+      if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
+        setMessageAlert(`${message} exitosamente`);
+        (error.message);
+        setShowErrorVariableAlert(true);
+      } else {
+        setMessageAlert(`No se puede eliminar el Tipo de espacio porque está asociado a otros registros`);
+        ("No se puede eliminar el Tipo de espacio  porque está asociada a uno o más espacios");
+        setShowErrorAlert(true);
+      }
+      console.error("Error al eliminar el Tipo de espacio :", error);
+    }
+  };
 
   const handleCancelDelete = () => {
     setSelectedVariable(null);
@@ -334,11 +362,16 @@ const TipoEspacio = () => {
           <FormTipo showErrorAlert={showErrorAlertSuccess} onUpdate={updateService} variable={newVariable} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
       )}
-      {showErrorAlert && (
-        <SuccessAlert
-          message={messageAlert}
-          onCancel={handleCloseAlert}
-        />
+     
+        {showErrorAlert && (
+         <div className="alert-container">
+         {alertSelecte ? (
+           <SuccessAlert message={messageAlert} />
+         ) : (
+           <ErrorAlert message={messageAlert}
+             onCancel={handleCloseAlert} />
+         )}
+       </div>
       )}
       {showErrorAlertTable && (
         <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
