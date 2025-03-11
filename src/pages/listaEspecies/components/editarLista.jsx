@@ -21,6 +21,7 @@ const EditarLista = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
     const [imagePreview, setImagePreview] = useState(null);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
@@ -95,10 +96,12 @@ const EditarLista = () => {
         try {
             const subcategory = await CategoryService.getCategoryById(categoryId);
             setSubcategories(subcategory.subcategories);
+            const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
-            const variables = await VaiableService.getAllVariable(formData.company_id);
+            const variables = await VaiableService.getAllVariable(companyId);
             setVariables(variables);
-
+console.log('--', variables )
+console.log('-++-', variables )
         } catch (error) {
             console.error('Error fetching subcategories:', error);
         }
