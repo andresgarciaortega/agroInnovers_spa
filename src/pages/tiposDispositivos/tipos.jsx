@@ -668,6 +668,7 @@ const Tipos = () => {
     setShowErrorAlert(false);
   };
 
+  
   const updateServiceActuador = async () => {
     setShowErrorAlertTable(false);
     const fetchActuador = async () => {
