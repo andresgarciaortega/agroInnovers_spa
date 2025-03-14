@@ -407,7 +407,7 @@ const FormActuador = ({ selectedCompany, showErrorAlert, onUpdate, actuador, mod
               type="submit"
               className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
             >
-              {mode === 'create' ? 'Crear Sensor' : 'Guardar Cambios'}
+              {mode === 'create' ? 'Crear Actuador' : 'Guardar Cambios'}
 
             </button>
           </>

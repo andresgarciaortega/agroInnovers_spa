@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import GenericModal from '../../components/genericModal';
 import FormMonitoreo from './components/formMoni';
 // import MonitoreoService from '../../../services/monitoreo';
+import ErrorAlert from "../../components/alerts/error";
 
 
 // Icons
@@ -141,28 +142,48 @@ const Monitoreo = () => {
     setSelectedDevice(monitoreo);
     setIsDeleteModalOpen(true);
   };
+  const [alertSelecte, setAlertSelecte] = useState(false);
 
   const handleConfirmDelete = async () => {
+    setIsDeleteModalOpen(false); // Cierra el modal de confirmación
+  
     try {
-      setIsDeleteModalOpen(false);
       setSelectedDevice(null);
-      await SystemMonitory.deleteMonitories(selectedDevice.id);
-      console.log(SystemMonitory)
-      setMessageAlertDelete("Monitoreo de dispositivos eliminada exitosamente");
-      showErrorAlertSuccess("Eliminado");
-      updateListMonitories();
-    } catch (error) {
-
-      if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
-        setMessageAlertDelete(error.message);
-        setShowErrorVariableAlert(true);
+      const data = await SystemMonitory.deleteMonitories(selectedDevice.id);
+  
+      if (data.success) {
+        // Si la eliminación fue exitosa
+        setMessageAlert(data.message);
+        showErrorAlertSuccess("eliminado"); // Establece el mensaje de éxito
+        setAlertSelecte(true); // Indica que la alerta es de éxito
+     
+        updateListMonitories(); // Actualiza la lista de monitoreos
       } else {
-        setMessageAlertDelete("No se puede eliminar el Monitoreo de dispositivos porque está asociada a uno o más Monitoreo");
-        setShowErrorAlert(true);
+        // Si la eliminación no fue exitosa
+        setMessageAlert(data.message); // Establece el mensaje de error
+        setAlertSelecte(false); // Indica que la alerta es de error
+        setShowErrorAlert(true); // Muestra la alerta
+        updateListMonitories(); // Actualiza la lista de monitoreos
       }
-      console.error("Error al eliminar el Monitoreo de dispositivos:", error);
+    } catch (error) {
+      // Manejo de errores
+      let errorMessage;
+  
+      if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
+        errorMessage = `${message} exitosamente`;
+     (error.message);
+     setShowErrorVariableAlert(true);
+      } else {
+        errorMessage = "No se puede eliminar el sistema de monitoreo porque está asociado a otros registros";
+        setMessageAlert(errorMessage); // Establece el mensaje de error
+        setShowErrorAlert(true); // Muestra la alerta
+        
+      }
+  
+      console.error("Error al eliminar el sistema de monitoreo:", error);
     }
   };
+  
 
   const showErrorAlertSuccess = (message) => {
     setShowSuccessAlert(true)
@@ -225,6 +246,7 @@ const Monitoreo = () => {
   const closeModal = async () => {
     setIsModalOpen(false);
     setSelectedVariable(null);
+    setShowErrorAlert(false)
     setModalMode('create');
     // updateService();
   };
@@ -403,20 +425,16 @@ const Monitoreo = () => {
         </div>
       </div>
 
-      {showSuccessAlert && (
-        <SuccessAlert
-          message={messageAlert}
-          onCancel={closeModal}
-
-        />
-      )}
-      {showSuccessAlert && (
-        <SuccessAlert
-          message={messageAlertDelete}
-          onCancel={closeModal}
-
-        />
-      )}
+      {showErrorAlert && (
+  <div className="alert-container">
+    {alertSelecte ? (
+      <SuccessAlert message={messageAlert} /> // Muestra la alerta de éxito
+    ) : (
+      <ErrorAlert message={messageAlert} onCancel={closeModal} /> // Muestra la alerta de error
+    )}
+  </div>
+)}
+     
 
 
       {showErrorAlertTable && (
