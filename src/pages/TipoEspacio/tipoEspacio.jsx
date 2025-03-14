@@ -191,6 +191,8 @@ const TipoEspacio = () => {
         setAlertSelecte(true);
       }else{
         setMessageAlert(data.message);
+        updateService();
+
         setShowErrorAlert(true);
         setAlertSelecte(false);
       }
@@ -373,6 +375,8 @@ const TipoEspacio = () => {
          )}
        </div>
       )}
+
+
       {showErrorAlertTable && (
         <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
           <div className="flex items-center space-x-2">

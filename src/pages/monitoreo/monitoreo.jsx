@@ -145,38 +145,45 @@ const Monitoreo = () => {
   const [alertSelecte, setAlertSelecte] = useState(false);
 
   const handleConfirmDelete = async () => {
-    setIsDeleteModalOpen(false);
-
+    setIsDeleteModalOpen(false); // Cierra el modal de confirmación
+  
     try {
       setSelectedDevice(null);
-     const data = await SystemMonitory.deleteMonitories(selectedDevice.id);
-      console.log(SystemMonitory)
-      if(data.success){
+      const data = await SystemMonitory.deleteMonitories(selectedDevice.id);
+  
+      if (data.success) {
+        // Si la eliminación fue exitosa
         setMessageAlert(data.message);
-        showErrorAlertSuccess("eliminado");
-        updateService();
-        setAlertSelecte(true);
-      }else{
-        setMessageAlert(data.message);
-        setShowErrorAlert(true);
-        setAlertSelecte(false);
-      }
-
-    } catch (error) {
-
-      let errorMessage;
-      if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
-        setMessageAlert(`${message} exitosamente`);
-        (error.message);
-        setShowErrorVariableAlert(true);
+        showErrorAlertSuccess("eliminado"); // Establece el mensaje de éxito
+        setAlertSelecte(true); // Indica que la alerta es de éxito
+     
+        updateListMonitories(); // Actualiza la lista de monitoreos
       } else {
-        setMessageAlert(`No se puede eliminar el sistema de monitoreo porque está asociado a otros registros`);
-        ("No se puede eliminar el sistema de monitoreo  porque está asociada a uno o más espacios");
-        setShowErrorAlert(true);
+        // Si la eliminación no fue exitosa
+        setMessageAlert(data.message); // Establece el mensaje de error
+        setAlertSelecte(false); // Indica que la alerta es de error
+        setShowErrorAlert(true); // Muestra la alerta
+        updateListMonitories(); // Actualiza la lista de monitoreos
       }
-      console.error("Error al eliminar el sistema de monitoreo :", error);
+    } catch (error) {
+      // Manejo de errores
+      let errorMessage;
+  
+      if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
+        errorMessage = `${message} exitosamente`;
+     (error.message);
+     setShowErrorVariableAlert(true);
+      } else {
+        errorMessage = "No se puede eliminar el sistema de monitoreo porque está asociado a otros registros";
+        setMessageAlert(errorMessage); // Establece el mensaje de error
+        setShowErrorAlert(true); // Muestra la alerta
+        
+      }
+  
+      console.error("Error al eliminar el sistema de monitoreo:", error);
     }
   };
+  
 
   const showErrorAlertSuccess = (message) => {
     setShowSuccessAlert(true)
@@ -419,22 +426,15 @@ const Monitoreo = () => {
       </div>
 
       {showErrorAlert && (
-         <div className="alert-container">
-         {alertSelecte ? (
-           <SuccessAlert message={messageAlert} />
-         ) : (
-           <ErrorAlert message={messageAlert}
-             onCancel={closeModal} />
-         )}
-       </div>
-      )}
-      {showSuccessAlert && (
-        <SuccessAlert
-          message={messageAlertDelete}
-          onCancel={closeModal}
-
-        />
-      )}
+  <div className="alert-container">
+    {alertSelecte ? (
+      <SuccessAlert message={messageAlert} /> // Muestra la alerta de éxito
+    ) : (
+      <ErrorAlert message={messageAlert} onCancel={closeModal} /> // Muestra la alerta de error
+    )}
+  </div>
+)}
+     
 
 
       {showErrorAlertTable && (
