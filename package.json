@@ -19,22 +19,7 @@
     "node": ">=20.0.0"
   },
   "build": {
-    "appId": "com.innovers.dashboard",
-    "productName": "Innovers",
-    "asar": {
-      "unpack": "**/*.node"
-    },
-    "files": [
-      "!node_modules/**/*",
-      "!dist/**/*",
-      "!src/**/*",
-      "!test/**/*",
-      "!.*",
-      "!*.md"
-    ],
-    "directories": {
-      "output": "release-builds"
-    }
+    "asar": true
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.758.0",
