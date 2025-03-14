@@ -35,10 +35,11 @@ const ResetPassword = () => {
         }
         console.log("response")
         try {
-            showErrorAlert("Contraseña actualizada correctamente");
+            const response = await AccesUser.ResetPasswordUser(newPassword, token);
+
+            alert("Contraseña actualizada correctamente");
             setTimeout(() => setShowErrorAlert(false), 1000);
             navigate('/', { replace: true });
-            const response = await AccesUser.ResetPasswordUser(newPassword, token);
         } catch (error) {
             console.log("error : ", error)
         }
@@ -89,7 +90,7 @@ const ResetPassword = () => {
                             type={showPassword ? 'text' : 'password'}
                             id="email"
                             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${emailError ? 'border-red-500' : ''}`}
-                            placeholder="Correo electrónico"
+                            placeholder="Contraseña"
                             value={newPassword}
                             onChange={(e) => {
                                 setnewPassword(e.target.value);
@@ -108,7 +109,7 @@ const ResetPassword = () => {
                             type={showPassword ? 'text' : 'password'}
                             id="password"
                             className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${emailError ? 'border-red-500' : ''}`}
-                            placeholder="Contraseña"
+                            placeholder="Confirmar Contraseña"
                             value={confirmPassword}
                             onBlur={validatePassword}
                             onChange={(e) => {

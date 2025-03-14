@@ -127,7 +127,7 @@ const Tipos = () => {
 
   });
   useEffect(() => {
-    hiddenSelect(true)
+    hiddenSelect(false)
     const fetchSensor = async () => {
       try {
         // Verifica si selectedCompanyUniversal es nulo o si no tiene valor

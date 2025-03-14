@@ -20,8 +20,9 @@ import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } fro
 const EditarLista = () => {
     const navigate = useNavigate();
     const { id } = useParams();
-        const [showErrorAlert, setShowErrorAlert] = useState(false);
-    
+    const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
+
     const [imagePreview, setImagePreview] = useState(null);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -95,10 +96,12 @@ const EditarLista = () => {
         try {
             const subcategory = await CategoryService.getCategoryById(categoryId);
             setSubcategories(subcategory.subcategories);
+            const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
-            const variables = await VaiableService.getAllVariable();
+            const variables = await VaiableService.getAllVariable(companyId);
             setVariables(variables);
-
+console.log('--', variables )
+console.log('-++-', variables )
         } catch (error) {
             console.error('Error fetching subcategories:', error);
         }
@@ -591,7 +594,7 @@ const EditarLista = () => {
                         console.log('id stage', IdStage)
                         return {
                             id: stageId,
-                            time_to_production: stageItem.time_to_production ? parseInt(stageItem.time_to_production , 10) : 0,
+                            time_to_production: stageItem.time_to_production ? parseInt(stageItem.time_to_production, 10) : 0,
                             description: stageItem.description || '',
                             parameters: Array.isArray(stageItem.parameters)
                                 ? stageItem.parameters.map((param) => ({
@@ -615,14 +618,15 @@ const EditarLista = () => {
 
             console.log('datos de la etapa:', formDataToSubmit);
             await SpeciesService.updateSpecie(id, formDataToSubmit);
-      showErrorAlertSuccess("Editada");
+            showErrorAlertSuccess("Editada");
 
             setShowSuccessAlert(true);
-            setTimeout(() =>{ 
-                setShowSuccessAlert(false)}, 2000);
-                setTimeout(() => {
-                    navigate('../ListaEspecie');
-                }, 2010);
+            setTimeout(() => {
+                setShowSuccessAlert(false)
+            }, 2000);
+            setTimeout(() => {
+                navigate('../ListaEspecie');
+            }, 2010);
         } catch (error) {
             console.error("Error al actualizar especie:", error);
             setShowAlertError(true);
@@ -633,11 +637,12 @@ const EditarLista = () => {
     const showErrorAlertSuccess = (message) => {
         setShowErrorAlert(true);
         setMessageAlert(`Especie ${message} exitosamente`);
-      
+
         setTimeout(() => {
-          setShowErrorAlert(false);
+            setShowErrorAlert(false);
         }, 2500);
-      };
+    };
+    console.log ('--------------------',formData.variable_id)
 
 
     const handleCancel = () => navigate('../Listaespecie');
@@ -794,116 +799,113 @@ const EditarLista = () => {
                     </div>
 
                     <div className="mt-6">
-                        {formData.stage.map((stage, stageIndex) => (
-                            <div key={stage.id} className="mt-4 rounded-md p-4 border border-gray-300">
-                                <div className="flex justify-between items-center mb-2">
-                                    <h3 className="text-lg font-semibold text-gray-800">
-                                        {`Etapa ${stage.stage.name}`}
-                                    </h3>
-                                    <button
-                                        type='button'
-                                        onClick={() => handleOpenModal(stage.id)}
-                                        className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                                    >
-                                        Añadir Parámetro
-                                    </button>
-                                </div>
+                        {formData.stage
+                            .sort((a, b) => a.id - b.id) 
+                            .map((stage, stageIndex) => (
+                                <div key={stage.id} className="mt-4 rounded-md p-4 border border-gray-300">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h3 className="text-lg font-semibold text-gray-800">
+                                            {`Etapa ${stage.stage.name}`}
+                                        </h3>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenModal(stage.id)}
+                                            className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                        >
+                                            Añadir Parámetro
+                                        </button>
+                                    </div>
 
-                                <div className="flex flex-col text-sm">
-                                <label htmlFor="scientificName" className="block text-sm font-medium text-gray-700">
-                                    Descripción de la etapa
-                                </label>
-                                <input
-                                    type="text"
-                                    id="scientificName"
-                                    name="scientificName"
-                                    value={stage.description}
-                                    onChange={(e) => {
-                                        const updatedStages = formData.stage.map((s, idx) =>
-                                            idx === stageIndex ? { ...s, description: e.target.value } : s
-                                        );
-                                        setFormData({ ...formData, stage: updatedStages });
-                                    }}
-                                    className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+                                    <div className="flex flex-col text-sm">
+                                        <label htmlFor="scientificName" className="block text-sm font-medium text-gray-700">
+                                            Descripción de la etapa
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="scientificName"
+                                            name="scientificName"
+                                            value={stage.description}
+                                            onChange={(e) => {
+                                                const updatedStages = formData.stage.map((s, idx) =>
+                                                    idx === stageIndex ? { ...s, description: e.target.value } : s
+                                                );
+                                                setFormData({ ...formData, stage: updatedStages });
+                                            }}
+                                            className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+                                            required
+                                        />
+                                        <label htmlFor="scientificName" className="block text-sm font-medium text-gray-700 mt-3">
+                                            Tiempo de producción (en días)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="scientificName"
+                                            name="scientificName"
+                                            value={stage.time_to_production}
+                                            onChange={(e) => {
+                                                const updatedStages = formData.stage.map((s, idx) =>
+                                                    idx === stageIndex ? { ...s, time_to_production: e.target.value } : s
+                                                );
+                                                setFormData({ ...formData, stage: updatedStages });
+                                            }}
+                                            className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
+                                            required
+                                        />
 
-                                    required
-                                />
-                                    <label htmlFor="scientificName" className="block text-sm font-medium text-gray-700 mt-3">
-                                    Tiempo de producción (en días)	
-                                </label>
-                                <input
-                                    type="text"
-                                    id="scientificName"
-                                    name="scientificName"
-                                    value={stage.time_to_production}
-                                    onChange={(e) => {
-                                        const updatedStages = formData.stage.map((s, idx) =>
-                                            idx === stageIndex ? { ...s, time_to_production: e.target.value } : s
-                                        );
-                                        setFormData({ ...formData, stage: updatedStages });
-                                    }}
-                                    className={`w-full px-3 py-2 pr-10 border border-gray- selectorMultipleVariables rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer`}
-
-                                    required
-                                />
-                                  
-
-                                    {stage.parameters.length > 0 && (
-                                        <div className="mt-4">
-                                            <div className="flex justify-between space-x-">
-                                                <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
-                                                    Condiciones operación normal
-                                                </h4>
-                                                <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 py- w-full">
-                                                    Condiciones operación Criticas
-                                                </h4>
-                                            </div>
-                                            <table className="min-w-full table-auto border-collapse">
-                                                <thead>
-                                                    <tr className="bg-gray-200">
-                                                        <th className="border px-4 py-2 font-bold">Variable</th>
-                                                        <th className="border px-4 py-2 font-semibold">Mínimo</th>
-                                                        <th className="border px-4 py-2 font-semibold">Máximo</th>
-                                                        <th className="border px-4 py-2 font-semibold">Límite Mín</th>
-                                                        <th className="border px-4 py-2 font-semibold">Límite Máx</th>
-                                                        <th className="border px-4 py-2 font-semibold">Acciones</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {stage.parameters.map((param, paramIndex) => (
-                                                        <tr key={paramIndex}>
-                                                            <td className="border px-4 py-2">{param.variable?.name || 'N/A'}</td>
-
-                                                            <td className="border px-4 py-2">{param.min_normal_value}</td>
-                                                            <td className="border px-4 py-2">{param.max_normal_value}</td>
-                                                            <td className="border px-4 py-2">{param.min_limit}</td>
-                                                            <td className="border px-4 py-2">{param.max_limit}</td>
-                                                            <td className="border px-4 py-2">
-                                                                <button
-                                                                    type='button'
-                                                                    onClick={() => handleEditClick(stageIndex, paramIndex)}
-                                                                    className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
-                                                                >
-                                                                    <Edit size={20} />
-                                                                </button>
-                                                                <button
-                                                                    type='button'
-                                                                    onClick={() => handleDeleteClick(param.id)}
-                                                                    className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
-                                                                >
-                                                                    <Trash size={20} />
-                                                                </button>
-                                                            </td>
+                                        {stage.parameters.length > 0 && (
+                                            <div className="mt-4">
+                                                <div className="flex justify-between space-x-">
+                                                    <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
+                                                        Condiciones operación normal
+                                                    </h4>
+                                                    <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 py- w-full">
+                                                        Condiciones operación Criticas
+                                                    </h4>
+                                                </div>
+                                                <table className="min-w-full table-auto border-collapse">
+                                                    <thead>
+                                                        <tr className="bg-gray-200">
+                                                            <th className="border px-4 py-2 font-bold">Variable</th>
+                                                            <th className="border px-4 py-2 font-semibold">Mínimo</th>
+                                                            <th className="border px-4 py-2 font-semibold">Máximo</th>
+                                                            <th className="border px-4 py-2 font-semibold">Límite Mín</th>
+                                                            <th className="border px-4 py-2 font-semibold">Límite Máx</th>
+                                                            <th className="border px-4 py-2 font-semibold">Acciones</th>
                                                         </tr>
-                                                    ))}
-                                                </tbody>
-
-                                            </table>
-                                        </div>
-                                    )}
+                                                    </thead>
+                                                    <tbody>
+                                                        {stage.parameters.map((param, paramIndex) => (
+                                                            <tr key={paramIndex}>
+                                                                <td className="border px-4 py-2">{param.variable?.name || 'N/A'}</td>
+                                                                <td className="border px-4 py-2">{param.min_normal_value}</td>
+                                                                <td className="border px-4 py-2">{param.max_normal_value}</td>
+                                                                <td className="border px-4 py-2">{param.min_limit}</td>
+                                                                <td className="border px-4 py-2">{param.max_limit}</td>
+                                                                <td className="border px-4 py-2">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleEditClick(stageIndex, paramIndex)}
+                                                                        className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
+                                                                    >
+                                                                        <Edit size={20} />
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleDeleteClick(param.id)}
+                                                                        className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
+                                                                    >
+                                                                        <Trash size={20} />
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
 
 
@@ -946,9 +948,13 @@ const EditarLista = () => {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
                             >
                                 <option value="">Selecciona una opción</option>
-                                {variables?.map((variable) => (
-                                    <option key={variable.id} value={variable.id}>{variable.name}</option>
-                                ))}
+                                {variables
+                    ?.filter((variable) => formData.variable_id.includes(variable.id)) // Filtrar seleccionados
+                    .map((variable) => (
+                      <option key={variable.id} value={variable.id}>
+                        {variable.name}
+                      </option>
+                    ))}
                             </select>
                             {fieldErrors.variable && (
                                 <p className="text-red-500 text-sm mt-1">{fieldErrors.variable}</p>
@@ -995,18 +1001,18 @@ const EditarLista = () => {
                             </button>
                         </div>
                     </div>
-                    
+
                 </div>
 
             )}
- {showErrorAlert && (
-          <div className="alert alert-danger p-4 rounded-md text-red-600">
-          {messageAlert}
-      </div>
-  )}
-  {showSuccessAlert && (
-                        <SuccessAlert message="Especie Editada exitosamente" />
-                    )}
+            {showErrorAlert && (
+                <div className="alert alert-danger p-4 rounded-md text-red-600">
+                    {messageAlert}
+                </div>
+            )}
+            {showSuccessAlert && (
+                <SuccessAlert message="Especie Editada exitosamente" />
+            )}
 
 
         </form>
