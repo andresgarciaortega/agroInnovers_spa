@@ -14,9 +14,7 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html')
-      },
+      input: './src/index.jsx', // Ajusta la ruta si es necesario
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
