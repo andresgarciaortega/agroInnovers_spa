@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import logo from "../assets/imagenes/logo.jpeg";
-import logoUser from "../assets/icons/user2.png";
 import { FaRegBuilding, FaTv, FaBars } from 'react-icons/fa';
 import { IoMdClose } from "react-icons/io";
 import { RxDashboard } from "react-icons/rx";
