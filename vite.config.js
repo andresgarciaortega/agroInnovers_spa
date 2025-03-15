@@ -4,6 +4,7 @@ import { resolve } from 'path';
 
 export default defineConfig({
   root: './',
+  base: '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -14,9 +15,7 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html')
-      },
+      input: resolve(__dirname, 'index.html'),
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
@@ -24,8 +23,5 @@ export default defineConfig({
         }
       }
     }
-  },
-  css: {
-    postcss: './postcss.config.js',
   }
 });
