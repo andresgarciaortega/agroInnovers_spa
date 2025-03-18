@@ -71,7 +71,7 @@ const TipoEspacio = () => {
       }
 
       try {
-        const data = await TipoEspacioService.getAlltipoEspacio();
+        const data = await TipoEspacioService.getAlltipoEspacio(companyId);
         if (data.statusCode === 404) {
           setVariableList([]);
         } else {
@@ -183,9 +183,9 @@ const TipoEspacio = () => {
     try {
       setSelectedVariable(null);
       const data = await TipoEspacioService.deletetipoEspacio(selectedVariable.id);
-
-      if(data.success){
-        setMessageAlert(data.message);
+      console.log(" :::::::::::::::::::   ",data)
+      if(data){
+        setMessageAlert("Tipo de dispositivo eliminado");
         showErrorAlertSuccess("eliminado");
         updateService();
         setAlertSelecte(true);
@@ -198,6 +198,7 @@ const TipoEspacio = () => {
       }
 
     } catch (error) {
+      setAlertSelecte(false);
 
       let errorMessage;
       if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
@@ -224,6 +225,7 @@ const TipoEspacio = () => {
   const updateService = async () => {
     setShowErrorAlertTable(false);
     setVariableList([]);
+    setAlertSelecte(true);
 
     try {
 
