@@ -859,7 +859,9 @@ const CrearListas = () => {
                       Etapas
                     </label>
                     <div className="space-y-4">
-                      {stages.map((stage, stageIndex) => (
+                      {stages
+                       .sort((a, b) => a.id - b.id) 
+                       .map((stage, stageIndex) => (
                         <div key={stageIndex} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
                           <div className="flex justify-between items-center mb-2">
                             <h3 className="text-sm font-semibold text-gray-800">
