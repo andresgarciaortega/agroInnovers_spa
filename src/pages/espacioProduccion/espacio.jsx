@@ -299,7 +299,7 @@ const Espacio = () => {
         {/* Input de búsqueda */}
         <input
           type="text"
-          placeholder="Buscar tipo de espacio"
+          placeholder="Buscar espacio"
           className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
