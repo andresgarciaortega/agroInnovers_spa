@@ -9,6 +9,7 @@ import VariableService from "../../services/variableService";
 import CompanyService from "../../services/CompanyService";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
+import ErrorAlert from "../../components/alerts/error";
 
 
 import { ImEqualizer2 } from "react-icons/im";
@@ -182,15 +183,39 @@ const Variable = () => {
       setShowErrorAlert(false)
     }, 2500);
   }
+  const [alertSelecte, setAlertSelecte] = useState(false);
+
 
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
+    try {
     setSelectedVariable(null);
     const data = await VariableService.deleteVariable(selectedVariable.id);
-    setMessageAlert("Variable eliminada exitosamente");
+    if(data.success){
+    setMessageAlert(data.message);
     showErrorAlertSuccess("eliminado");
     updateService();
-  };
+    setAlertSelecte(true);
+  }else{
+    setMessageAlert(data.message);
+    setShowErrorAlert(true);
+    setAlertSelecte(false);
+  }
+  } catch (error) {
+
+    let errorMessage;
+    if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
+      setMessageAlert(`${message} exitosamente`);
+      (error.message);
+      // setShowErrorVariableAlert(true);
+    } else {
+      setMessageAlert(`No se puede eliminar la variable porque está asociado a otros registros`);
+      ("No se puede eliminar la variable  porque está asociada a uno o más sensores");
+      setShowErrorAlert(true);
+    }
+    console.error("Error al eliminar la variable :", error);
+  }
+};
 
 
   const handleCancelDelete = () => {
@@ -361,11 +386,15 @@ const Variable = () => {
           <FormVariable showErrorAlert={showErrorAlertSuccess} onUpdate={updateService} variable={newVariable} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
       )}
-      {showErrorAlert && (
-        <SuccessAlert
-          message={messageAlert}
-          onCancel={handleCloseAlert}
-        />
+       {showErrorAlert && (
+         <div className="alert-container">
+         {alertSelecte ? (
+           <SuccessAlert message={messageAlert} />
+         ) : (
+           <ErrorAlert message={messageAlert}
+             onCancel={handleCloseAlert} />
+         )}
+       </div>
       )}
       {showErrorAlertTable && (
         <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">

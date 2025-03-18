@@ -148,7 +148,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     if (mode !== 'edit') {
       const emailExisting = await CompanyService.getFacturacionEmail(formData.email_user_admin);
       console.log('correo',emailExisting )
-      if (emailExisting) {
+      if (emailExisting.success) {
         setShowAlertError(true);
         setMessageAlert("Los sentimos! el email ya esta registrado")
         setFormData({
