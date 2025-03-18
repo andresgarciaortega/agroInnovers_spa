@@ -164,6 +164,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   const handleEmailBlur = async () => {
     if (mode !== 'edit') {
       const emailExisting = await UsersService.getUserEmail(formData.email);
+      console.log(emailExisting)
       if (emailExisting) {
         setShowAlertError(true);
         setMessageAlert("Los sentimos! el email ya esta registrado")

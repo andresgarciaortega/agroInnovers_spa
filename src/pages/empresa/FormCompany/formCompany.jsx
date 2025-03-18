@@ -166,6 +166,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   const handleEmilBlur1 = async () => {
     if (mode !== 'edit') {
       const emailExisting = await CompanyService.getFacturacionEmail(formData.email_billing);
+      console.log("email existente : ", emailExisting)
       if (emailExisting) {
         setShowAlertError(true);
         setMessageAlert("Los sentimos! el email de facturación ya esta registrado")

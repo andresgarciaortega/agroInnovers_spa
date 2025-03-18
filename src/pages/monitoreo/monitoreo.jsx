@@ -155,7 +155,7 @@ const Monitoreo = () => {
         // Si la eliminación fue exitosa
         setMessageAlert(data.message);
         showErrorAlertSuccess("eliminado"); // Establece el mensaje de éxito
-        setAlertSelecte(true); // Indica que la alerta es de éxito
+        setAlertSelecte(false); // Indica que la alerta es de éxito
      
         updateListMonitories(); // Actualiza la lista de monitoreos
       } else {

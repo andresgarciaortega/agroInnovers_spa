@@ -241,12 +241,12 @@ const TipoVariable = () => {
           <span>Gestión de variables</span>
           <span>/</span>
           <span>Tipo de variables</span>
-          <span>/</span>
+          {/* <span>/</span>
           <span className="text-black font-bold"> {nameCompany ? nameCompany : ''} </span>
           <span className="text-black font-bold"> </span>
           {selectedCompany && (
             <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
-          )}
+          )} */}
         </div>
       </div>
 
