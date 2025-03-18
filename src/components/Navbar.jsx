@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { getDecodedToken } from './../utils/auseAuth'; // Ajusta la ruta según tu proyecto
 import CompanySelector from './shared/companySelect';
-import GenericModal from './GenericModal'; // Importa GenericModal
 import FormUser from '../pages/usuarios/FormUser/formUser'; // Importa FormUser
 
 const Navbar = () => {
@@ -100,7 +99,7 @@ const Navbar = () => {
       </div>
 
       {/* Modal de edición de usuario */}
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <GenericModal
           title={modalMode === 'edit' ? 'Editar Usuario' : 'Ver Usuario'}
           onClose={closeModal}
@@ -113,7 +112,7 @@ const Navbar = () => {
             closeModal={closeModal}
           />
         </GenericModal>
-      )}
+      )} */}
     </div>
   );
 };
