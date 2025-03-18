@@ -1,7 +1,7 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 
 .select__single-value,
 .select__option {
@@ -11,6 +11,7 @@
 .buscadorMovile {
   display: none;
 }
+/* estyilos */
 
 select {
   text-transform: capitalize;
