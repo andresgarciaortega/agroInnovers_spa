@@ -33,7 +33,16 @@
       "!docs",
       "!**/*.md",
       "!**/*.log"
-    ]
+    ],
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "arch": [
+        "arm64",
+        "x64"
+      ]
+    }
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.758.0",
