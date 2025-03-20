@@ -10,3 +10,37 @@
 .seccionNombreUser{
     cursor: pointer;
 }
+
+
+
+/* Estilo para el contenedor con scroll */
+.overflow-y-auto {
+    scrollbar-width: thin;
+    scrollbar-color: #168C0D #345246;
+  }
+  
+  /* Estilos para navegadores WebKit (Chrome, Safari, Edge) */
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .overflow-y-auto::-webkit-scrollbar-track {
+    background: #345246;
+    border-radius: 10px;
+  }
+  
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: #168C0D;
+    border-radius: 10px;
+    border: 2px solid #345246;
+  }
+  
+  /* Efecto hover en la barra de desplazamiento */
+  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background-color: #1ab310;
+  }
+  
+  /* Asegura scroll suave */
+  .overflow-y-auto {
+    scroll-behavior: smooth;
+  }

@@ -12,7 +12,7 @@ const UploadToS3 = async (file) => {
     });
 
     const params = {
-        Bucket: 'huila-storage',
+        Bucket: 'tag-storage-documents',
         Key: `${Date.now()}_${file.name}`, // Nombre único del archivo
         Body: file,
         ContentType: file.type,
@@ -21,7 +21,7 @@ const UploadToS3 = async (file) => {
     try {
         const command = new PutObjectCommand(params);
         await s3Client.send(command);
-        return `https://${params.Bucket}.s3.amazonaws.com/${params.Key}`;
+        return `https://${params.Bucket}.s3.us-east-1.amazonaws.com/${params.Key}`;
     } catch (error) {
         console.error('Error subiendo el archivo:', error);
         throw new Error('Error al cargar el archivo a S3');

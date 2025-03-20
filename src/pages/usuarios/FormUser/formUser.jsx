@@ -320,10 +320,10 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             name="document"
             placeholder="Documento"
             value={formData.document}
+            disabled={mode === 'edit' || mode === 'view'} // Deshabilitar si mode es 'edit' o 'view'
             onChange={handleChange}
             onBlur={handleDocumentBlur}
 
-            disabled={mode === 'edit'}
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           />
@@ -335,7 +335,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             name="company"
             value={formData.company} 
             onChange={handleChange}
-            disabled={mode === 'edit'}
+            disabled={mode === 'edit' || mode === 'view'} // Deshabilitar si mode es 'edit' o 'view'
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           >
@@ -354,7 +354,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             name="roles"
             value={formData.roles}
             onChange={handleChange}
-            disabled={mode === 'edit'}
+            disabled={mode === 'edit' || mode === 'view'} // Deshabilitar si mode es 'edit' o 'view'
             required
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           >
