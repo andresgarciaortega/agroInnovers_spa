@@ -10,9 +10,8 @@
     "serve": "vite preview",
     "start:electron": "concurrently \"npm run dev\" \"npm run electron\"",
     "electron": "electron .",
-    "dist": "electron-builder",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "package-linux": "electron-packager . innovers --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --prune=true --out=release-builds"
+    "dist": "electron-builder --win",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
@@ -21,27 +20,21 @@
     "npm": ">=10.0.0"
   },
   "build": {
-    "asar": {
-      "smartUnpack": true
+    "appId": "com.innovers.app",
+    "productName": "Innovers",
+    "win": {
+      "target": "nsis",
+      "asar": true,
+      "asarUnpack": "**\\*.{node,dll}",
+      "icon": "assets/icons/win/icon.ico"
     },
     "files": [
-      "!node_modules/.cache",
-      "!**/*.map",
-      "!dist/**/*.map",
-      "!src",
-      "!tests",
-      "!docs",
-      "!**/*.md",
-      "!**/*.log"
+      "dist/**/*",
+      "electron-main.js"
     ],
-    "linux": {
-      "target": [
-        "AppImage"
-      ],
-      "arch": [
-        "arm64",
-        "x64"
-      ]
+    "directories": {
+      "output": "release-builds",
+      "buildResources": "assets"
     }
   },
   "dependencies": {
