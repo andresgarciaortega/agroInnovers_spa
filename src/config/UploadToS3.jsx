@@ -1,10 +1,8 @@
-
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
-// Función que carga el archivo a S3 y devuelve la URL
 const UploadToS3 = async (file) => {
     const s3Client = new S3Client({
-        region: 'us-east-1',
+        region: import.meta.env.VITE_AWS_REGION,
         credentials: {
             accessKeyId: import.meta.env.VITE_AWS_ACCESS_KEY_ID,
             secretAccessKey: import.meta.env.VITE_AWS_SECRET_ACCESS_KEY,
@@ -12,8 +10,8 @@ const UploadToS3 = async (file) => {
     });
 
     const params = {
-        Bucket: 'huila-storage',
-        Key: `${Date.now()}_${file.name}`, // Nombre único del archivo
+        Bucket: import.meta.env.VITE_AWS_BUCKET_NAME,
+        Key: `${Date.now()}_${file.name}`,
         Body: file,
         ContentType: file.type,
     };
@@ -27,6 +25,5 @@ const UploadToS3 = async (file) => {
         throw new Error('Error al cargar el archivo a S3');
     }
 };
-
 
 export default UploadToS3;
