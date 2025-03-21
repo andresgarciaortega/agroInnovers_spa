@@ -43,68 +43,74 @@ const Dashboard = () => {
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
   const navigate = useNavigate();
 
-
   useEffect(() => {
-    hiddenSelect(false)
+    hiddenSelect(false);
+  
     const fetchData = async () => {
       try {
         const companies = await CompanyService.getAllCompany();
         setCompanyCount(companies.length);
-
+        localStorage.setItem('companies', JSON.stringify(companies)); // Guardar en localStorage
+  
         const users = await UserService.getAllUser();
-        console.log("Usuarios obtenidos:", users);
-
         setOperarios(users.filter(user => user.roles.some(roles => roles.id === 3)).length);
         setAdministrativos(users.filter(user => user.roles.some(rol => rol.id === 2)).length);
         setSuperAdministrativos(users.filter(user => user.roles.some(rol => rol.id === 1)).length);
-
         setUserCount(users.length);
-
-        console.log("Usuarios operarios:", operarios);
-        console.log("Usuarios administrativos:", administrativos);
-        console.log("Usuarios superadministrativos:", superAdministrativos);
-        setUserCount(users.length);
-
+        localStorage.setItem('users', JSON.stringify(users)); // Guardar en localStorage
+  
         const variables = await variableService.getAllVariable();
         setVariableCount(variables.length);
-
+        localStorage.setItem('variables', JSON.stringify(variables)); // Guardar en localStorage
+  
         const variableTypes = await VariableType.getAllTypeVariable();
         setVariableTypeCount(variableTypes.length);
-
-        const actuators = await ActuadorService.getAllActuador(0,{});
+        localStorage.setItem('variableTypes', JSON.stringify(variableTypes)); // Guardar en localStorage
+  
+        const actuators = await ActuadorService.getAllActuador(0, {});
         setActuatorCount(actuators.length);
-
-        const actuatorsType = await TypeDispositivoService.getAllActuador(0,{});
+        localStorage.setItem('actuators', JSON.stringify(actuators)); // Guardar en localStorage
+  
+        const actuatorsType = await TypeDispositivoService.getAllActuador(0, {});
         setActuatorTypeCount(actuatorsType.length);
-
-        const sensors = await SensorService.getAllSensor(0,{});
+        localStorage.setItem('actuatorsType', JSON.stringify(actuatorsType)); // Guardar en localStorage
+  
+        const sensors = await SensorService.getAllSensor(0, {});
         setSensorCount(sensors.length);
-
-        const sensorsType = await TypeDispositivoService.getAllSensor(0,{});
+        localStorage.setItem('sensors', JSON.stringify(sensors)); // Guardar en localStorage
+  
+        const sensorsType = await TypeDispositivoService.getAllSensor(0, {});
         setSensorTypeCount(sensorsType.length);
-
+        localStorage.setItem('sensorsType', JSON.stringify(sensorsType)); // Guardar en localStorage
+  
         const spaces = await espacios.getAllEspacio();
         setSpaceCount(spaces.length);
-
+        localStorage.setItem('spaces', JSON.stringify(spaces)); // Guardar en localStorage
+  
         const spacesType = await tipoEspacio.getAlltipoEspacio();
         setSpaceTypeCount(spacesType.length);
-
-        const species = await SpeciesService.getAllSpecie(0,{});
+        localStorage.setItem('spacesType', JSON.stringify(spacesType)); // Guardar en localStorage
+  
+        const species = await SpeciesService.getAllSpecie(0, {});
         setSpeciesCount(species.length);
-
-        const categories = await CategoryService.getAllCategory(0,{});
+        localStorage.setItem('species', JSON.stringify(species)); // Guardar en localStorage
+  
+        const categories = await CategoryService.getAllCategory(0, {});
         setCategoryCount(categories.length);
-
+        localStorage.setItem('categories', JSON.stringify(categories)); // Guardar en localStorage
+  
         const lots = await lotesService.getAllLots();
         setLotInProcessCount(lots.filter(lote => lote.status === 'Producción').length);
         setHarvestedLotCount(lots.filter(lote => lote.status === 'Cosechado').length);
         setRejectedLotCount(lots.filter(lote => lote.status === 'Rechazado').length);
+        localStorage.setItem('lots', JSON.stringify(lots)); // Guardar en localStorage
+  
+        console.log("Datos guardados en localStorage.");
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-
-
+  
     fetchData();
   }, []);
 

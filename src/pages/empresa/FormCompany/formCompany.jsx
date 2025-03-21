@@ -167,7 +167,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     if (mode !== 'edit') {
       const emailExisting = await CompanyService.getFacturacionEmail(formData.email_billing);
       console.log("email existente : ", emailExisting)
-      if (emailExisting) {
+      if (emailExisting.success) {
         setShowAlertError(true);
         setMessageAlert("Los sentimos! el email de facturación ya esta registrado")
         setFormData({
@@ -187,11 +187,58 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   };
 
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   // Validación del celular
+  //   const phoneRegex = /^[0-9]{10}$/; 
+  //   if (!phoneRegex.test(formData.phone)) {
+  //     setShowAlertError(true);
+  //     setMessageAlert("El celular debe tener exactamente 10 dígitos.");
+  //     setTimeout(() => {
+  //       setShowAlertError(false);
+  //     }, 1500);
+  //     return;
+  //   }
+  //   try {
+  //     let logoUrl = '';
+      
+  //     if (formData.logo && formData.logo.name) {
+        
+  //       logoUrl = await UploadToS3(formData.logo);
+  //     } else {
+        
+  //       logoUrl = company.icon;
+  //     }
+
+
+  //     const formDataToSubmit = {
+  //       ...formData,
+  //       logo: logoUrl, 
+  //       email: formData.email_user_admin,
+  //       type_document_id: Number(formData.type_document_id)
+  //     };
+
+  //     if (mode === 'create') {
+  //       const createdCompany = await CompanyService.createCompany(formDataToSubmit);
+  //       showSuccessAlert("creada")
+  //     } else if (mode === 'edit') {
+  //       showSuccessAlert("Editada")
+  //       const updatedCompany = await CompanyService.updateCompany(company.id, formDataToSubmit);
+  //     }
+
+  //     onUpdate();
+  //     closeModal();
+  //   } catch (error) {
+  //     console.error('Error al guardar la empresa:', error);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     // Validación del celular
-    const phoneRegex = /^[0-9]{10}$/; 
+    const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(formData.phone)) {
       setShowAlertError(true);
       setMessageAlert("El celular debe tener exactamente 10 dígitos.");
@@ -200,39 +247,67 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
       }, 1500);
       return;
     }
+  
     try {
       let logoUrl = '';
-      
+  
+      // Subir el logo a S3 si se proporciona un archivo
       if (formData.logo && formData.logo.name) {
-        
         logoUrl = await UploadToS3(formData.logo);
       } else {
-        
-        logoUrl = company.icon;
+        logoUrl = company.icon; // Usar el logo existente si no se proporciona uno nuevo
       }
-
-
+  
+      // Preparar los datos para enviar
       const formDataToSubmit = {
         ...formData,
-        logo: logoUrl, 
+        logo: logoUrl,
         email: formData.email_user_admin,
-        type_document_id: Number(formData.type_document_id)
+        type_document_id: Number(formData.type_document_id),
       };
-
+  
       if (mode === 'create') {
+        // Crear una nueva empresa
         const createdCompany = await CompanyService.createCompany(formDataToSubmit);
-        showSuccessAlert("creada")
+  
+        // Obtener las empresas actuales del localStorage
+        const companiesFromLocalStorage = JSON.parse(localStorage.getItem('companies')) || [];
+  
+        // Agregar la nueva empresa a la lista
+        companiesFromLocalStorage.push(createdCompany.data);
+  
+        // Guardar la lista actualizada en el localStorage
+        localStorage.setItem('companies', JSON.stringify(companiesFromLocalStorage));
+  
+        showSuccessAlert("creada");
       } else if (mode === 'edit') {
-        showSuccessAlert("Editada")
+        // Actualizar una empresa existente
         const updatedCompany = await CompanyService.updateCompany(company.id, formDataToSubmit);
+  
+        // Obtener las empresas actuales del localStorage
+        const companiesFromLocalStorage = JSON.parse(localStorage.getItem('companies')) || [];
+  
+        // Buscar la empresa a actualizar
+        const companyIndex = companiesFromLocalStorage.findIndex(c => c.id === company.id);
+  
+        if (companyIndex !== -1) {
+          // Actualizar la empresa en la lista
+          companiesFromLocalStorage[companyIndex] = { ...companiesFromLocalStorage[companyIndex], ...updatedCompany };
+  
+          // Guardar la lista actualizada en el localStorage
+          localStorage.setItem('companies', JSON.stringify(companiesFromLocalStorage));
+        }
+  
+        showSuccessAlert("Editada");
       }
-
+  
       onUpdate();
       closeModal();
     } catch (error) {
       console.error('Error al guardar la empresa:', error);
     }
   };
+
 
 
   const [imagePreview, setImagePreview] = useState(null); 

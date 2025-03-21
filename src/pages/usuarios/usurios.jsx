@@ -183,15 +183,42 @@ const Usuario = () => {
     setIsDeleteModalOpen(true);
   };
 
+  // const handleConfirmDelete = async () => {
+  //   setIsDeleteModalOpen(false);
+  //   setSelectedUsers(null);
+  //   const data = await UsersService.deleteUser(selectedUsers.id);
+  //   setMessageAlert("Usuario eliminado exitosamente");
+  //   showErrorAlertSuccess("eliminado")
+  //   updateListUsers()
+  // };
+
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
     setSelectedUsers(null);
-    const data = await UsersService.deleteUser(selectedUsers.id);
-    setMessageAlert("Usuario eliminado exitosamente");
-    showErrorAlertSuccess("eliminado")
-    updateListUsers()
-
+  
+    try {
+      // Eliminar el usuario del servidor
+      const data = await UsersService.deleteUser(selectedUsers.id);
+      // Mostrar mensaje de éxito
+      setMessageAlert("Usuario eliminado exitosamente");
+      showErrorAlertSuccess("eliminado");
+      // Obtener los usuarios actuales del localStorage
+      const usersFromLocalStorage = JSON.parse(localStorage.getItem('users')) || [];
+      // Filtrar la lista para eliminar el usuario con el ID seleccionado
+      const updatedUsers = usersFromLocalStorage.filter(
+        (user) => user.id !== selectedUsers.id
+      );
+      // Guardar la lista actualizada en el localStorage
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      // Actualizar la lista de usuarios
+      updateListUsers();
+    } catch (error) {
+      console.error('Error al eliminar el usuario:', error);
+      setMessageAlert("Ocurrió un error al eliminar el usuario");
+      showErrorAlertSuccess("Ocurrió un error al eliminar el usuario");
+    }
   };
+
 
   const handleCancelDelete = () => {
     setSelectedUsers(null);
@@ -206,19 +233,19 @@ const Usuario = () => {
 
   const updateListUsers = async () => {
     try {
-
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
-
-
+  
       if (!companyId) {
         setUsersList([]);
+        localStorage.removeItem('users'); // Limpiar el localStorage si no hay companyId
         return;
       }
-
-
+      // Obtener los usuarios
       const data = await UsersService.getAllUser(companyId);
-
+      // Actualizar el estado
       setUsersList(data);
+      // Guardar o actualizar los usuarios en el localStorage
+      // localStorage.setItem('users', JSON.stringify(data)); // Convertir a JSON y guardar
     } catch (error) {
       console.error('Error al actualizar los usuarios:', error);
     }

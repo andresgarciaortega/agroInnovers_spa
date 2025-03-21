@@ -123,6 +123,48 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
 
 
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     // Verificar si se ha seleccionado una nueva imagen
+  //     let logoUrl = '';
+  //     if (formData.icon.name) {
+  //       logoUrl = await UploadToS3(formData.icon);
+  //     } else if (mode === 'edit' && variable.icon) {
+  //       logoUrl = variable.icon;
+  //     }
+  
+  //     // Crear el objeto de datos a enviar
+  //     const formDataToSubmit = {
+  //       ...formData,
+  //       icon: logoUrl || '',
+  //       informational_calculation: formData.informational_calculation,
+  //       type_variable_id: Number(formData.type_variable_id),
+  //       type_register_id: Number(formData.type_register_id),
+  //       is_incremental: isIncrement ? isIncrement : false, // Enviar nulo si no es incremental
+  //       visible_in_dashboard: isDashboard,
+  //       company_id: Number(companyId) || Number(formData.company_id),
+  //     };
+  
+  //     if (mode === 'create') {
+  //       await VariablesService.createVariable(formDataToSubmit);
+  //       showErrorAlert("creada");
+  //     } else if (mode === 'edit') {
+  //       await VariablesService.updateVariable(variable.id, formDataToSubmit);
+  //       showErrorAlert("editada");
+  //     }
+  
+  //     onUpdate();
+  //     closeModal();
+  //   } catch (error) {
+  //     console.error('Error al guardar la variable:', error);
+  //     showErrorAlert("Hubo un error al guardar la variable.");
+  //   }
+  // };
+
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -137,24 +179,59 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
       // Crear el objeto de datos a enviar
       const formDataToSubmit = {
         ...formData,
-        icon: logoUrl || '',
+        icon: logoUrl || 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg',
         informational_calculation: formData.informational_calculation,
         type_variable_id: Number(formData.type_variable_id),
         type_register_id: Number(formData.type_register_id),
         is_incremental: isIncrement ? isIncrement : false, // Enviar nulo si no es incremental
-        visible_in_dashboard: isDashboard,
+        visible_in_dashboard: isDashboard == 1 ? true : false,
         company_id: Number(companyId) || Number(formData.company_id),
       };
   
       if (mode === 'create') {
-        await VariablesService.createVariable(formDataToSubmit);
+        // Crear una nueva variable
+        const createdVariable = await VariablesService.createVariable(formDataToSubmit);
+  
+        // Obtener las variables actuales del localStorage
+        const variablesFromLocalStorage = JSON.parse(localStorage.getItem('variables')) || [];
+  
+        // Agregar la nueva variable a la lista
+        variablesFromLocalStorage.push(createdVariable);
+  
+        // Guardar la lista actualizada en el localStorage
+        localStorage.setItem('variables', JSON.stringify(variablesFromLocalStorage));
+  
         showErrorAlert("creada");
       } else if (mode === 'edit') {
-        await VariablesService.updateVariable(variable.id, formDataToSubmit);
+        // Actualizar una variable existente
+        const updatedVariable = await VariablesService.updateVariable(variable.id, formDataToSubmit);
+  
+        // Obtener las variables actuales del localStorage
+        const variablesFromLocalStorage = JSON.parse(localStorage.getItem('variables')) || [];
+  
+        // Buscar la variable a actualizar
+        const variableIndex = variablesFromLocalStorage.findIndex(
+          (v) => v.id === variable.id
+        );
+  
+        if (variableIndex !== -1) {
+          // Fusionar los campos actualizados con los campos existentes
+          variablesFromLocalStorage[variableIndex] = {
+            ...variablesFromLocalStorage[variableIndex], // Campos existentes
+            ...updatedVariable, // Campos actualizados
+          };
+  
+          // Guardar la lista actualizada en el localStorage
+          localStorage.setItem('variables', JSON.stringify(variablesFromLocalStorage));
+        }
+  
         showErrorAlert("editada");
       }
   
+      // Actualizar la lista de variables en la interfaz
       onUpdate();
+  
+      // Cerrar el modal
       closeModal();
     } catch (error) {
       console.error('Error al guardar la variable:', error);

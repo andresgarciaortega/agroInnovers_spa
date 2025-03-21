@@ -124,23 +124,58 @@ const Empresa = () => {
     setIsDeleteModalOpen(true);
   };
 
+  // const handleConfirmDelete = async () => {
+  //   setIsDeleteModalOpen(false);
+  //   setSelectedCompany(null);
+
+  //   // const data = await CompanyService.deleteCompany(selectedCompany.id);
+  //   const data = await CompanyService.deleteCompany(selectedCompany.id);
+  //   if (data.message) {
+  //     setMessageAlert(data.message);
+  //     showErrorAlertr(data.message)
+  //   } else {
+  //     setMessageAlert("Empresa eliminada exitosamente");
+  //     showSuccessAlertSuccess("Compañía eliminada correctamente")
+  //   }
+  //   updateCompanies()
+  // };
+
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
     setSelectedCompany(null);
-
-    // const data = await CompanyService.deleteCompany(selectedCompany.id);
-    const data = await CompanyService.deleteCompany(selectedCompany.id);
-    if (data.message) {
-      setMessageAlert(data.message);
-      showErrorAlertr(data.message)
-    } else {
-      setMessageAlert("Empresa eliminada exitosamente");
-      showSuccessAlertSuccess("Compañía eliminada correctamente")
+  
+    try {
+      // Eliminar la compañía del servidor
+      const data = await CompanyService.deleteCompany(selectedCompany.id);
+  
+      if (data.message) {
+        setMessageAlert(data.message);
+        showErrorAlertr(data.message);
+      } else {
+        setMessageAlert("Empresa eliminada exitosamente");
+        showSuccessAlertSuccess("Compañía eliminada correctamente");
+  
+        // Obtener las empresas actuales del localStorage
+        const companiesFromLocalStorage = JSON.parse(localStorage.getItem('companies')) || [];
+  
+        // Filtrar la lista para eliminar la compañía con el ID seleccionado
+        const updatedCompanies = companiesFromLocalStorage.filter(
+          (company) => company.id !== selectedCompany.id
+        );
+  
+        // Guardar la lista actualizada en el localStorage
+        localStorage.setItem('companies', JSON.stringify(updatedCompanies));
+      }
+  
+      // Actualizar la lista de empresas
+      updateCompanies();
+    } catch (error) {
+      console.error('Error al eliminar la compañía:', error);
+      setMessageAlert("Ocurrió un error al eliminar la compañía");
+      showErrorAlertr("Ocurrió un error al eliminar la compañía");
     }
-
-
-    updateCompanies()
   };
+
 
   const handleCancelDelete = () => {
     setSelectedCompany(null);
@@ -153,16 +188,18 @@ const Empresa = () => {
 
 
   // Función para actualizar la lista de empresas
-  const updateCompanies = async () => {
-    try {
-      const data = await CompanyService.getAllCompany();
-      handleUpdate();
-      setCompanyList(data); // Actualiza companyList con los datos más recientes
-
-    } catch (error) {
-      console.error('Error al actualizar las empresas:', error);
-    }
-  };
+const updateCompanies = async () => {
+  try {
+    // Obtener las empresas
+    const data = await CompanyService.getAllCompany();
+    // Actualizar el estado
+    setCompanyList(data);
+    // Guardar o actualizar las empresas en el localStorage
+    handleUpdate();
+  } catch (error) {
+    console.error('Error al actualizar las empresas:', error);
+  }
+};
 
 
   const handleUpdate = () => {

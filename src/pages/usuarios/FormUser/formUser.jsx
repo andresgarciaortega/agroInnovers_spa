@@ -165,7 +165,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     if (mode !== 'edit') {
       const emailExisting = await UsersService.getUserEmail(formData.email);
       console.log(emailExisting)
-      if (emailExisting) {
+      if (emailExisting.success) {
         setShowAlertError(true);
         setMessageAlert("Los sentimos! el email ya esta registrado")
         setFormData({
@@ -183,7 +183,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   const handleDocumentBlur = async () => {
     if (mode !== 'edit') {
       const emailExisting = await UsersService.getUserDocument(formData.document);
-      if (emailExisting) {
+      if (emailExisting.success) {
         setShowAlertError(true);
         setMessageAlert("Los sentimos! el documento ya esta registrado")
         setFormData({
@@ -199,7 +199,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const formattedData = {
       type_user_id: Number(formData.roles),
       type_document_id: Number(formData.typeDocument),
@@ -208,26 +208,56 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       phone: formData.phone.toString(),
       lastname: formData.lastname || " ",
       email: formData.email,
-      password: mode == 'create' ? formData.password : ( changePassword ? formData.password : user.password), 
+      password: mode == 'create' ? formData.password : (changePassword ? formData.password : user.password),
       document: formData.document,
-      photo: formData.photo || "https://example.com/photo.jpg", 
-      roles: [Number(formData.roles)] 
+      photo: formData.photo || "https://example.com/photo.jpg",
+      roles: [Number(formData.roles)]
     };
-
+  
+    console.log(formattedData);
+  
     try {
       if (mode === 'create') {
+        // Crear un nuevo usuario
         const response = await UsersService.createUser(formattedData);
-        showErrorAlert("creada")
+        console.log(response);
+  
+        // Obtener los usuarios actuales del localStorage
+        const usersFromLocalStorage = JSON.parse(localStorage.getItem('users')) || [];
+  
+        // Agregar el nuevo usuario a la lista
+        usersFromLocalStorage.push(response);
+  
+        // Guardar la lista actualizada en el localStorage
+        localStorage.setItem('users', JSON.stringify(usersFromLocalStorage));
+  
+        showErrorAlert("creada");
       } else if (mode === 'edit') {
-        showErrorAlert("Editada")
-        await UsersService.updateUser(user.id, formattedData); 
+        // Actualizar un usuario existente
+        await UsersService.updateUser(user.id, formattedData);
+  
+        // Obtener los usuarios actuales del localStorage
+        const usersFromLocalStorage = JSON.parse(localStorage.getItem('users')) || [];
+  
+        // Buscar el usuario a actualizar
+        const userIndex = usersFromLocalStorage.findIndex(u => u.id === user.id);
+  
+        if (userIndex !== -1) {
+          // Actualizar el usuario en la lista
+          usersFromLocalStorage[userIndex] = { ...usersFromLocalStorage[userIndex], ...formattedData };
+  
+          // Guardar la lista actualizada en el localStorage
+          localStorage.setItem('users', JSON.stringify(usersFromLocalStorage));
+        }
+  
+        showErrorAlert("Editada");
       }
-
+  
       onUpdate();
       closeModal();
     } catch (error) {
       const errorMessage = error.message || 'Ocurrió un error inesperado.';
-      setMessageAlert(error.message)
+      setMessageAlert(error.message);
     }
   };
 

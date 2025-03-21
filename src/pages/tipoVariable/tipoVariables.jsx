@@ -139,27 +139,67 @@ const TipoVariable = () => {
     setIsDeleteModalOpen(true);
   };
 
+  // const handleConfirmDelete = async () => {
+  //   try {
+  //     setIsDeleteModalOpen(false);
+  //     setSelectedTypeVariable(null);
+
+  //     await VariableType.deleteTypeVariable(selectedTypeVariable.id);
+
+  //     setMessageAlert("Tipo de variable eliminada exitosamente");
+  //     showErrorAlertSuccess("Eliminado");
+  //     updateTypeVariable();
+  //   } catch (error) {
+
+  //     if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
+  //       setMessageAlert(error.message);
+  //       setShowErrorVariableAlert(true);
+  //     } else {
+
+  //       setMessageAlert("No se puede eliminar el Tipo de variable porque está asociada a uno o más variables");
+  //       setShowErrorAlert(true);
+  //     }
+
+  //     console.error("Error al eliminar el tipo de variable:", error);
+  //   }
+  // };
+
   const handleConfirmDelete = async () => {
     try {
       setIsDeleteModalOpen(false);
       setSelectedTypeVariable(null);
-
+  
+      // Eliminar el tipo de variable del servidor
       await VariableType.deleteTypeVariable(selectedTypeVariable.id);
-
+  
+      // Obtener los tipos de variable actuales del localStorage
+      const variableTypesFromLocalStorage = JSON.parse(localStorage.getItem('variableTypes')) || [];
+  
+      // Filtrar la lista para eliminar el tipo de variable con el ID seleccionado
+      const updatedVariableTypes = variableTypesFromLocalStorage.filter(
+        (vt) => vt.id !== selectedTypeVariable.id
+      );
+  
+      // Guardar la lista actualizada en el localStorage
+      localStorage.setItem('variableTypes', JSON.stringify(updatedVariableTypes));
+  
+      console.log('Tipo de variable eliminado del localStorage:', selectedTypeVariable.id);
+  
+      // Mostrar mensaje de éxito
       setMessageAlert("Tipo de variable eliminada exitosamente");
       showErrorAlertSuccess("Eliminado");
+  
+      // Actualizar la lista de tipos de variable
       updateTypeVariable();
     } catch (error) {
-
       if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
         setMessageAlert(error.message);
         setShowErrorVariableAlert(true);
       } else {
-
         setMessageAlert("No se puede eliminar el Tipo de variable porque está asociada a uno o más variables");
         setShowErrorAlert(true);
       }
-
+  
       console.error("Error al eliminar el tipo de variable:", error);
     }
   };
