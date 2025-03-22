@@ -164,13 +164,12 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
 
 
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       // Verificar si se ha seleccionado una nueva imagen
       let logoUrl = '';
-      if (formData.icon.name) {
+      if (formData.icon?.name) {
         logoUrl = await UploadToS3(formData.icon);
       } else if (mode === 'edit' && variable.icon) {
         logoUrl = variable.icon;
@@ -183,50 +182,42 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
         informational_calculation: formData.informational_calculation,
         type_variable_id: Number(formData.type_variable_id),
         type_register_id: Number(formData.type_register_id),
-        is_incremental: isIncrement ? isIncrement : false, // Enviar nulo si no es incremental
+        is_incremental: isIncrement ? isIncrement : false, // Enviar false si no es incremental
         visible_in_dashboard: isDashboard == 1 ? true : false,
         company_id: Number(companyId) || Number(formData.company_id),
       };
+  
+      // Clave del localStorage
+      const cacheKey = 'cache_/variables?page=1&limit=10000&company=0';
+      let cacheData = JSON.parse(localStorage.getItem(cacheKey)) || { data: [] };
   
       if (mode === 'create') {
         // Crear una nueva variable
         const createdVariable = await VariablesService.createVariable(formDataToSubmit);
   
-        // Obtener las variables actuales del localStorage
-        const variablesFromLocalStorage = JSON.parse(localStorage.getItem('variables')) || [];
-  
         // Agregar la nueva variable a la lista
-        variablesFromLocalStorage.push(createdVariable);
+        cacheData.data.push(createdVariable);
   
-        // Guardar la lista actualizada en el localStorage
-        localStorage.setItem('variables', JSON.stringify(variablesFromLocalStorage));
-  
-        showErrorAlert("creada");
+        showErrorAlert("Variable creada");
       } else if (mode === 'edit') {
         // Actualizar una variable existente
         const updatedVariable = await VariablesService.updateVariable(variable.id, formDataToSubmit);
-  
-        // Obtener las variables actuales del localStorage
-        const variablesFromLocalStorage = JSON.parse(localStorage.getItem('variables')) || [];
-  
+        console.log(updatedVariable)
         // Buscar la variable a actualizar
-        const variableIndex = variablesFromLocalStorage.findIndex(
-          (v) => v.id === variable.id
-        );
-  
+        const variableIndex = cacheData.data.findIndex((v) => v.id === variable.id);
         if (variableIndex !== -1) {
           // Fusionar los campos actualizados con los campos existentes
-          variablesFromLocalStorage[variableIndex] = {
-            ...variablesFromLocalStorage[variableIndex], // Campos existentes
+          cacheData.data[variableIndex] = {
+            ...cacheData.data[variableIndex], // Campos existentes
             ...updatedVariable, // Campos actualizados
           };
-  
-          // Guardar la lista actualizada en el localStorage
-          localStorage.setItem('variables', JSON.stringify(variablesFromLocalStorage));
         }
   
-        showErrorAlert("editada");
+        showErrorAlert("Variable editada");
       }
+  
+      // Guardar la lista actualizada en el localStorage
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
   
       // Actualizar la lista de variables en la interfaz
       onUpdate();
@@ -234,10 +225,11 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
       // Cerrar el modal
       closeModal();
     } catch (error) {
-      console.error('Error al guardar la variable:', error);
+      console.error("Error al guardar la variable:", error.message, error);
       showErrorAlert("Hubo un error al guardar la variable.");
     }
   };
+  
   
 
 

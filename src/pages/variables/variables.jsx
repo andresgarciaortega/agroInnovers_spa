@@ -167,6 +167,7 @@ const Variable = () => {
     setSelectedVariable(null);
     setModalMode('create');
     updateService();
+    setAlertSelecte(true);
   };
 
   //eliminar
@@ -191,7 +192,7 @@ const Variable = () => {
     try {
     setSelectedVariable(null);
     const data = await VariableService.deleteVariable(selectedVariable.id);
-    if(data.success){
+    if(data){
     setMessageAlert(data.message);
     showErrorAlertSuccess("eliminado");
     updateService();
@@ -229,18 +230,13 @@ const Variable = () => {
   const updateService = async () => {
     setShowErrorAlertTable(false);
     setVariableList([]);
-
     try {
-
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
-
       if (!companyId) {
         setVariableList([]);
         return;
       }
-
       const data = await VariableService.getAllVariable(companyId);
-
       setVariableList(data);
     } catch (error) {
       console.error('Error al actualizar las variables:', error);

@@ -20,6 +20,7 @@ import CategoryService from "../../services/CategoryService";
 import lotesService from "../../services/lotesService";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { useNavigate } from "react-router-dom";
+import TypeDocumentsService from "../../services/fetchTypes";
 
 const Dashboard = () => {
   const [companyCount, setCompanyCount] = useState(0);
@@ -50,61 +51,67 @@ const Dashboard = () => {
       try {
         const companies = await CompanyService.getAllCompany();
         setCompanyCount(companies.length);
-        localStorage.setItem('companies', JSON.stringify(companies)); // Guardar en localStorage
+        // localStorage.setItem('companies', JSON.stringify(companies)); // Guardar en localStorage
   
         const users = await UserService.getAllUser();
         setOperarios(users.filter(user => user.roles.some(roles => roles.id === 3)).length);
         setAdministrativos(users.filter(user => user.roles.some(rol => rol.id === 2)).length);
         setSuperAdministrativos(users.filter(user => user.roles.some(rol => rol.id === 1)).length);
         setUserCount(users.length);
-        localStorage.setItem('users', JSON.stringify(users)); // Guardar en localStorage
+        // localStorage.setItem('users', JSON.stringify(users)); // Guardar en localStorage
   
         const variables = await variableService.getAllVariable();
         setVariableCount(variables.length);
-        localStorage.setItem('variables', JSON.stringify(variables)); // Guardar en localStorage
+        // localStorage.setItem('variables', JSON.stringify(variables)); // Guardar en localStorage
   
         const variableTypes = await VariableType.getAllTypeVariable();
         setVariableTypeCount(variableTypes.length);
-        localStorage.setItem('variableTypes', JSON.stringify(variableTypes)); // Guardar en localStorage
+        // localStorage.setItem('variableTypes', JSON.stringify(variableTypes)); // Guardar en localStorage
   
         const actuators = await ActuadorService.getAllActuador(0, {});
         setActuatorCount(actuators.length);
-        localStorage.setItem('actuators', JSON.stringify(actuators)); // Guardar en localStorage
+        // localStorage.setItem('actuators', JSON.stringify(actuators)); // Guardar en localStorage
   
         const actuatorsType = await TypeDispositivoService.getAllActuador(0, {});
         setActuatorTypeCount(actuatorsType.length);
-        localStorage.setItem('actuatorsType', JSON.stringify(actuatorsType)); // Guardar en localStorage
+        // localStorage.setItem('actuatorsType', JSON.stringify(actuatorsType)); // Guardar en localStorage
   
         const sensors = await SensorService.getAllSensor(0, {});
         setSensorCount(sensors.length);
-        localStorage.setItem('sensors', JSON.stringify(sensors)); // Guardar en localStorage
+        // localStorage.setItem('sensors', JSON.stringify(sensors)); // Guardar en localStorage
   
         const sensorsType = await TypeDispositivoService.getAllSensor(0, {});
         setSensorTypeCount(sensorsType.length);
-        localStorage.setItem('sensorsType', JSON.stringify(sensorsType)); // Guardar en localStorage
+        // localStorage.setItem('sensorsType', JSON.stringify(sensorsType)); // Guardar en localStorage
   
         const spaces = await espacios.getAllEspacio();
         setSpaceCount(spaces.length);
-        localStorage.setItem('spaces', JSON.stringify(spaces)); // Guardar en localStorage
+        // localStorage.setItem('spaces', JSON.stringify(spaces)); // Guardar en localStorage
   
         const spacesType = await tipoEspacio.getAlltipoEspacio();
         setSpaceTypeCount(spacesType.length);
-        localStorage.setItem('spacesType', JSON.stringify(spacesType)); // Guardar en localStorage
+        // localStorage.setItem('spacesType', JSON.stringify(spacesType)); // Guardar en localStorage
   
         const species = await SpeciesService.getAllSpecie(0, {});
         setSpeciesCount(species.length);
-        localStorage.setItem('species', JSON.stringify(species)); // Guardar en localStorage
+        // localStorage.setItem('species', JSON.stringify(species)); // Guardar en localStorage
   
         const categories = await CategoryService.getAllCategory(0, {});
         setCategoryCount(categories.length);
-        localStorage.setItem('categories', JSON.stringify(categories)); // Guardar en localStorage
+        // localStorage.setItem('categories', JSON.stringify(categories)); // Guardar en localStorage
   
         const lots = await lotesService.getAllLots();
         setLotInProcessCount(lots.filter(lote => lote.status === 'Producción').length);
         setHarvestedLotCount(lots.filter(lote => lote.status === 'Cosechado').length);
         setRejectedLotCount(lots.filter(lote => lote.status === 'Rechazado').length);
-        localStorage.setItem('lots', JSON.stringify(lots)); // Guardar en localStorage
+        // localStorage.setItem('lots', JSON.stringify(lots)); // Guardar en localStorage
   
+        const typeDocuments = await TypeDocumentsService.getAllTypeDocuments();
+        localStorage.setItem('typeDocuments', JSON.stringify(typeDocuments)); // Guardar en localStorage
+        
+        
+        
+        
         console.log("Datos guardados en localStorage.");
       } catch (error) {
         console.error('Error fetching data:', error);

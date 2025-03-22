@@ -156,17 +156,12 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
       console.log(formData.icon);
   
       // Si se ha seleccionado una nueva imagen
-      if (formData.icon.name) {
+      if (formData.icon?.name) {
         // Subir la nueva imagen a S3 y obtener la URL
         iconUrl = await UploadToS3(formData.icon);
       } else {
         // Si no se seleccionó una nueva imagen y estamos en modo edición, mantener la URL de la imagen existente
-        iconUrl = typevariable.icon;
-      }
-  
-      // Si no hay URL de ícono, asignar un valor por defecto
-      if (!iconUrl) {
-        iconUrl = 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg'; // Valor por defecto (puedes cambiarlo según tus necesidades)
+        iconUrl = typevariable.icon || 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg';
       }
   
       // Preparar los datos para enviar
@@ -179,45 +174,38 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
   
       console.log("Payload enviado al backend:", formDataToSubmit);
   
+      // Clave del localStorage
+      const cacheKey = 'cache_/type-variables?page=1&limit=10000&company=0';
+      let cacheData = JSON.parse(localStorage.getItem(cacheKey)) || { data: [] };
+  
       if (mode === 'create') {
         // Crear un nuevo tipo de variable
         const createdVariableType = await VariableTypeService.createTypeVariable(formDataToSubmit);
   
-        // Obtener los tipos de variable actuales del localStorage
-        const variableTypesFromLocalStorage = JSON.parse(localStorage.getItem('variableTypes')) || [];
-  
         // Agregar el nuevo tipo de variable a la lista
-        variableTypesFromLocalStorage.push(createdVariableType);
-  
-        // Guardar la lista actualizada en el localStorage
-        localStorage.setItem('variableTypes', JSON.stringify(variableTypesFromLocalStorage));
+        cacheData.data.push(createdVariableType.data);
   
         showErrorAlert("Variable creada");
       } else if (mode === 'edit') {
         // Actualizar un tipo de variable existente
         const updatedVariableType = await VariableTypeService.updateTypeVariable(typevariable.id, formDataToSubmit);
   
-        // Obtener los tipos de variable actuales del localStorage
-        const variableTypesFromLocalStorage = JSON.parse(localStorage.getItem('variableTypes')) || [];
-  
         // Buscar el tipo de variable a actualizar
-        const variableTypeIndex = variableTypesFromLocalStorage.findIndex(
-          (vt) => vt.id === typevariable.id
-        );
+        const variableTypeIndex = cacheData.data.findIndex((vt) => vt.id === typevariable.id);
   
         if (variableTypeIndex !== -1) {
           // Fusionar los campos actualizados con los campos existentes
-          variableTypesFromLocalStorage[variableTypeIndex] = {
-            ...variableTypesFromLocalStorage[variableTypeIndex], // Campos existentes
+          cacheData.data[variableTypeIndex] = {
+            ...cacheData.data[variableTypeIndex], // Campos existentes
             ...updatedVariableType, // Campos actualizados
           };
-  
-          // Guardar la lista actualizada en el localStorage
-          localStorage.setItem('variableTypes', JSON.stringify(variableTypesFromLocalStorage));
         }
   
         showErrorAlert("Variable actualizada");
       }
+  
+      // Guardar la lista actualizada en el localStorage
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
   
       // Actualizar la lista de tipos de variable en la interfaz
       onUpdate();
@@ -230,6 +218,7 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
       setShowAlertError(true);
     }
   };
+  
 
   
   

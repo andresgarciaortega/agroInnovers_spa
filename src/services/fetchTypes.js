@@ -13,7 +13,7 @@ const TypeDocumentsService = {
             console.error('Error al obtener las compañías:', error);
             throw error;
         }
-    },
+    },  
 
 
     // LISTAR TODAS LAS COMPAÑIAS

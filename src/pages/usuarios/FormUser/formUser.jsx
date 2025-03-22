@@ -221,38 +221,41 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         // Crear un nuevo usuario
         const response = await UsersService.createUser(formattedData);
         console.log(response);
-  
+      
+        // Clave del localStorage
+        const cacheKey = 'cache_/users?page=1&limit=10000&companyId=0';
+      
         // Obtener los usuarios actuales del localStorage
-        const usersFromLocalStorage = JSON.parse(localStorage.getItem('users')) || [];
-  
+        let cacheData = JSON.parse(localStorage.getItem(cacheKey)) || { data: [] };
+      
         // Agregar el nuevo usuario a la lista
-        usersFromLocalStorage.push(response);
-  
+        cacheData.data.push(response);
+      
         // Guardar la lista actualizada en el localStorage
-        localStorage.setItem('users', JSON.stringify(usersFromLocalStorage));
-  
-        showErrorAlert("creada");
+        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+      
+        showErrorAlert("Creado");
       } else if (mode === 'edit') {
         // Actualizar un usuario existente
-        await UsersService.updateUser(user.id, formattedData);
-  
+        const updatedUser = await UsersService.updateUser(user.id, formattedData);
+      
+        // Clave del localStorage
+        const cacheKey = 'cache_/users?page=1&limit=10000&companyId=0';
+      
         // Obtener los usuarios actuales del localStorage
-        const usersFromLocalStorage = JSON.parse(localStorage.getItem('users')) || [];
-  
+        let cacheData = JSON.parse(localStorage.getItem(cacheKey)) || { data: [] };
+      
         // Buscar el usuario a actualizar
-        const userIndex = usersFromLocalStorage.findIndex(u => u.id === user.id);
-  
+        const userIndex = cacheData.data.findIndex(u => u.id === user.id);
+      
         if (userIndex !== -1) {
           // Actualizar el usuario en la lista
-          usersFromLocalStorage[userIndex] = { ...usersFromLocalStorage[userIndex], ...formattedData };
-  
+          cacheData.data[userIndex] = { ...cacheData.data[userIndex], ...updatedUser };
           // Guardar la lista actualizada en el localStorage
-          localStorage.setItem('users', JSON.stringify(usersFromLocalStorage));
+          localStorage.setItem(cacheKey, JSON.stringify(cacheData));
         }
-  
-        showErrorAlert("Editada");
+        showErrorAlert("Editado");
       }
-  
       onUpdate();
       closeModal();
     } catch (error) {

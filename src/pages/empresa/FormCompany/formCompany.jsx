@@ -33,20 +33,20 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     if (company && Object.keys(company).length > 0) {
       setFormData({
         ...company,
-        type_document_id: company.typeDocument?.id || '' 
+        type_document_id: company.typeDocument?.id || ''
       });
     } else {
       console.warn("Prop 'company' está vacía o inválida:", company);
     }
   }, [company]);
-  
 
 
-  const [documentTypes, setDocumentTypes] = useState([]); 
+
+  const [documentTypes, setDocumentTypes] = useState([]);
   const [showAlertError, setShowAlertError] = useState(false);
   const [messageAlert, setMessageAlert] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  
+
   useEffect(() => {
     const fetchDocumentTypes = async () => {
       try {
@@ -57,13 +57,13 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
         console.error('Error al obtener tipos de documentos:', error);
       }
     };
-  
+
     fetchDocumentTypes();
-  
+
     if (mode === 'edit' || mode === 'view') {
       setFormData({
         ...company,
-        type_document_id: company.typeDocument?.id || '' 
+        type_document_id: company.typeDocument?.id || ''
       });
       setImagePreview(company.logo);
       setIsButtonDisabled(false);
@@ -81,7 +81,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
       });
     }
   }, [company, mode]);
-  
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -90,9 +90,9 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     if (name === 'phone') {
       if (!/^\d{10}$/.test(value)) {
         errorMessage = 'El celular debe tener diez dígitos numéricos';
-        e.target.style.borderColor = 'red'; 
+        e.target.style.borderColor = 'red';
       } else {
-        e.target.style.borderColor = ''; 
+        e.target.style.borderColor = '';
       }
     }
 
@@ -135,7 +135,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
         setMessageAlert("Los sentimos! el documento ya esta registrado")
         setFormData({
           ...formData,
-          nit: '' 
+          nit: ''
         });
         setTimeout(() => {
           setShowAlertError(false);
@@ -147,13 +147,13 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   const handleEmilBlur = async () => {
     if (mode !== 'edit') {
       const emailExisting = await CompanyService.getFacturacionEmail(formData.email_user_admin);
-      console.log('correo',emailExisting )
+      console.log('correo', emailExisting)
       if (emailExisting.success) {
         setShowAlertError(true);
         setMessageAlert("Los sentimos! el email ya esta registrado")
         setFormData({
           ...formData,
-          email_user_admin: '' 
+          email_user_admin: ''
         });
         setTimeout(() => {
           setShowAlertError(false);
@@ -162,7 +162,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     }
   }
 
-  
+
   const handleEmilBlur1 = async () => {
     if (mode !== 'edit') {
       const emailExisting = await CompanyService.getFacturacionEmail(formData.email_billing);
@@ -172,7 +172,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
         setMessageAlert("Los sentimos! el email de facturación ya esta registrado")
         setFormData({
           ...formData,
-          email_billing: '' 
+          email_billing: ''
         });
         setTimeout(() => {
           setShowAlertError(false);
@@ -202,12 +202,12 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   //   }
   //   try {
   //     let logoUrl = '';
-      
+
   //     if (formData.logo && formData.logo.name) {
-        
+
   //       logoUrl = await UploadToS3(formData.logo);
   //     } else {
-        
+
   //       logoUrl = company.icon;
   //     }
 
@@ -233,31 +233,28 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   //     console.error('Error al guardar la empresa:', error);
   //   }
   // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Validación del celular
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(formData.phone)) {
       setShowAlertError(true);
       setMessageAlert("El celular debe tener exactamente 10 dígitos.");
-      setTimeout(() => {
-        setShowAlertError(false);
-      }, 1500);
+      setTimeout(() => setShowAlertError(false), 1500);
       return;
     }
-  
+
     try {
       let logoUrl = '';
-  
+
       // Subir el logo a S3 si se proporciona un archivo
       if (formData.logo && formData.logo.name) {
         logoUrl = await UploadToS3(formData.logo);
       } else {
         logoUrl = company.icon; // Usar el logo existente si no se proporciona uno nuevo
       }
-  
+
       // Preparar los datos para enviar
       const formDataToSubmit = {
         ...formData,
@@ -265,42 +262,39 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
         email: formData.email_user_admin,
         type_document_id: Number(formData.type_document_id),
       };
-  
+      console.log(formDataToSubmit)
+
+      // Obtener las empresas actuales del localStorage
+      const cacheKey = 'cache_/companies?page=1&limit=10000';
+      let cacheData = JSON.parse(localStorage.getItem(cacheKey)) || { data: [] };
+
       if (mode === 'create') {
         // Crear una nueva empresa
         const createdCompany = await CompanyService.createCompany(formDataToSubmit);
-  
-        // Obtener las empresas actuales del localStorage
-        const companiesFromLocalStorage = JSON.parse(localStorage.getItem('companies')) || [];
-  
         // Agregar la nueva empresa a la lista
-        companiesFromLocalStorage.push(createdCompany.data);
-  
-        // Guardar la lista actualizada en el localStorage
-        localStorage.setItem('companies', JSON.stringify(companiesFromLocalStorage));
-  
-        showSuccessAlert("creada");
+        cacheData.data.push(createdCompany.data);
+        showSuccessAlert("Creada");
       } else if (mode === 'edit') {
-        // Actualizar una empresa existente
-        const updatedCompany = await CompanyService.updateCompany(company.id, formDataToSubmit);
-  
-        // Obtener las empresas actuales del localStorage
-        const companiesFromLocalStorage = JSON.parse(localStorage.getItem('companies')) || [];
-  
-        // Buscar la empresa a actualizar
-        const companyIndex = companiesFromLocalStorage.findIndex(c => c.id === company.id);
-  
+        const { typeDocument, created_at, updated_at, state, ...filteredData } = formDataToSubmit;
+        console.log(filteredData);
+        const updatedCompany = await CompanyService.updateCompany(company.id, filteredData);
+
+        // Buscar la empresa en localStorage
+        const companyIndex = cacheData.data.findIndex((c) => c.id === company.id);
         if (companyIndex !== -1) {
-          // Actualizar la empresa en la lista
-          companiesFromLocalStorage[companyIndex] = { ...companiesFromLocalStorage[companyIndex], ...updatedCompany };
-  
-          // Guardar la lista actualizada en el localStorage
-          localStorage.setItem('companies', JSON.stringify(companiesFromLocalStorage));
+          // Reemplazar solo los datos que la API devuelve
+          cacheData.data[companyIndex] = {
+            ...cacheData.data[companyIndex], // Mantener lo anterior
+            ...updatedCompany, // Reemplazar con los nuevos datos
+          };
         }
-  
+
         showSuccessAlert("Editada");
       }
-  
+
+      // Guardar la lista actualizada en el localStorage
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+
       onUpdate();
       closeModal();
     } catch (error) {
@@ -310,19 +304,19 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
 
 
 
-  const [imagePreview, setImagePreview] = useState(null); 
+  const [imagePreview, setImagePreview] = useState(null);
 
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setFormData({
         ...formData,
-        logo: file, 
+        logo: file,
       });
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result); 
+        setImagePreview(reader.result);
       };
 
       reader.readAsDataURL(file);
