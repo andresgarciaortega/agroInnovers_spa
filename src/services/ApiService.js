@@ -79,41 +79,38 @@
 //         });
 //     },
 // };
+const BASE_URL = 'https://agroinnovers-fdbf30f0b339.herokuapp.com/';
+const TIMEOUT = 5000;
 
-// export default api;
-
-
-
-// services/ApiService.js
-
-const BASE_URL = 'https://api-agroinnovers-bf0735da2c1c.herokuapp.com';
-const TIMEOUT = 5000; // Timeout en milisegundos
-
-// Función para verificar la conexión a Internet
+// 📌 Función para verificar conexión a Internet
 const isOnline = async () => {
     try {
-        const response = await fetch('https://www.google.com', { mode: 'no-cors' });
+        await fetch('https://www.google.com', { mode: 'no-cors' });
         return true;
-    } catch (error) {
+    } catch {
         return false;
     }
 };
 
-// Función de ayuda para realizar solicitudes con `fetch` y timeout
-const fetchWithTimeout = (url, options = {}, timeout = TIMEOUT) => {
+// 📌 Función para generar una clave de caché uniforme
+const generateCacheKey = (endpoint) => {
+    // 🔥 Asegurarse de que no tenga `/` al final y eliminar parámetros de query
+    return `cache_${endpoint.replace(/\/$/, '').split('?')[0]}`;
+};
+
+// 📌 Funciones auxiliares para `localStorage`
+const saveToLocalStorage = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+const getFromLocalStorage = (key) => JSON.parse(localStorage.getItem(key)) || { data: [] };
+
+// 📌 Función genérica para hacer solicitudes con timeout
+const fetchWithTimeout = (url, options, timeout = TIMEOUT) => {
     return new Promise((resolve, reject) => {
         const timer = setTimeout(() => reject(new Error('Request timed out')), timeout);
         fetch(url, options)
             .then(response => {
                 clearTimeout(timer);
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        // Manejo de errores 401 (no autorizado)
-                    }
-                    reject(new Error(`HTTP error! status: ${response.status}`));
-                } else {
-                    resolve(response.json());
-                }
+                if (!response.ok) reject(new Error(`HTTP error! status: ${response.status}`));
+                resolve(response.json());
             })
             .catch(error => {
                 clearTimeout(timer);
@@ -122,55 +119,19 @@ const fetchWithTimeout = (url, options = {}, timeout = TIMEOUT) => {
     });
 };
 
-// Función para agregar el token al encabezado de la solicitud
 const createAuthHeaders = () => {
     const token = localStorage.getItem('authToken');
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-// Función para guardar datos en el localStorage
-const saveToLocalStorage = (key, data) => {
-    localStorage.setItem(key, JSON.stringify(data));
-};
-
-// Función para obtener datos del localStorage
-const getFromLocalStorage = (key) => {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : null;
-};
-
-// Función para generar una clave de caché única basada en el endpoint y los parámetros
-const generateCacheKey = (endpoint, params = {}) => {
-    const paramsString = Object.keys(params)
-        .map(key => `${key}=${params[key]}`)
-        .join('&');
-    return `cache_${endpoint}${paramsString ? `?${paramsString}` : ''}`;
-};
-
-// Función genérica para hacer solicitudes
+// 📌 API Mejorada
 const api = {
     get: async (endpoint, params = {}) => {
-        const cacheKey = generateCacheKey(endpoint, params); // Generar clave de caché
-
-        // Excluir el endpoint de login de la lógica de caché
-        if (endpoint === '/login') {
-            // Forzar la solicitud a la API sin verificar conexión ni usar caché
-            const url = `${BASE_URL}${endpoint}${Object.keys(params).length ? `?${new URLSearchParams(params)}` : ''}`;
-            return fetchWithTimeout(url, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...createAuthHeaders(),
-                },
-            });
-        }
-
+        const cacheKey = generateCacheKey(endpoint); // 🔥 Clave uniforme
+        console.log("nombre arreglo localstorage  get : " , cacheKey)
         try {
-            // Verificar si hay conexión a Internet
             const online = await isOnline();
-
             if (online) {
-                // Si hay conexión, hacer la solicitud a la API
                 const url = `${BASE_URL}${endpoint}${Object.keys(params).length ? `?${new URLSearchParams(params)}` : ''}`;
                 const data = await fetchWithTimeout(url, {
                     method: 'GET',
@@ -180,40 +141,23 @@ const api = {
                     },
                 });
 
-                // Guardar los datos en el localStorage para uso futuro
                 saveToLocalStorage(cacheKey, data);
                 return data;
             } else {
-                // Si no hay conexión, intentar obtener los datos del localStorage
-                const cachedData = getFromLocalStorage(cacheKey);
-                if (cachedData) {
-                    return cachedData; // Devolver datos en caché
-                } else {
-                    throw new Error('No hay conexión a Internet y no hay datos en caché.');
-                }
+                return getFromLocalStorage(cacheKey);
             }
         } catch (error) {
-            console.error('Error en la solicitud GET:', error);
+            console.error('Error en GET:', error);
             throw error;
         }
     },
+
     post: async (endpoint, data) => {
-        // Excluir el endpoint de login de la lógica de caché
-        if (endpoint === '/login') {
-            // Forzar la solicitud a la API sin verificar conexión ni usar caché
-            return fetchWithTimeout(`${BASE_URL}${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...createAuthHeaders(),
-                },
-                body: JSON.stringify(data),
-            });
-        }
+        const cacheKey = generateCacheKey(endpoint); // 🔥 Clave uniforme
+        console.log("nombre arreglo localstorage  post: " , cacheKey)
 
         try {
             const online = await isOnline();
-
             if (online) {
                 const response = await fetchWithTimeout(`${BASE_URL}${endpoint}`, {
                     method: 'POST',
@@ -226,17 +170,34 @@ const api = {
 
                 return response;
             } else {
-                throw new Error('No hay conexión a Internet. No se puede realizar la solicitud POST.');
+                let cacheData = getFromLocalStorage(cacheKey);
+                if (!cacheData) {
+                    cacheData = { data: [] }; // Asegurar que cacheData existe
+                }
+                // Obtener el ID máximo existente en la caché
+                const maxId = cacheData.data.length > 0 ? Math.max(...cacheData.data.map(item => item.id)) : 10000;
+                // Extraer el company_id del último registro o usar 1 como fallback
+                const lastItem = cacheData.data.find(item => item.id === maxId);
+                const codigo_empresa = lastItem ? lastItem.company_id : 1;
+                // Generar el nuevo ID local basado en la empresa
+                const localId = codigo_empresa * 1000 + (cacheData.data.length + 1);
+                const newItem = { ...data, id: localId };
+                cacheData.data.push(newItem);
+                saveToLocalStorage(cacheKey, cacheData);
+                console.warn("🚨 No hay internet. Datos guardados en LocalStorage con ID:", localId);
+                return newItem;
             }
         } catch (error) {
-            console.error('Error en la solicitud POST:', error);
+            console.error('Error en POST:', error);
             throw error;
         }
     },
+
     put: async (endpoint, data) => {
+        const cacheKey = generateCacheKey(endpoint); // 🔥 Clave uniforme
+
         try {
             const online = await isOnline();
-
             if (online) {
                 const response = await fetchWithTimeout(`${BASE_URL}${endpoint}`, {
                     method: 'PUT',
@@ -249,19 +210,31 @@ const api = {
 
                 return response;
             } else {
-                throw new Error('No hay conexión a Internet. No se puede realizar la solicitud PUT.');
+                let cacheData = getFromLocalStorage(cacheKey);
+                const index = cacheData.data.findIndex(item => item.id === data.id);
+
+                if (index !== -1) {
+                    cacheData.data[index] = { ...cacheData.data[index], ...data };
+                    saveToLocalStorage(cacheKey, cacheData);
+                    console.warn("🚨 No hay internet. Datos actualizados en LocalStorage:", data.id);
+                    return cacheData.data[index];
+                } else {
+                    throw new Error("No se encontró el elemento en LocalStorage.");
+                }
             }
         } catch (error) {
-            console.error('Error en la solicitud PUT:', error);
+            console.error('Error en PUT:', error);
             throw error;
         }
     },
-    delete: async (endpoint) => {
+
+    delete: async (endpoint, id) => {
+        const cacheKey = generateCacheKey(endpoint); // 🔥 Clave uniforme
+
         try {
             const online = await isOnline();
-
             if (online) {
-                const response = await fetchWithTimeout(`${BASE_URL}${endpoint}`, {
+                const response = await fetchWithTimeout(`${BASE_URL}${endpoint}/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -271,10 +244,14 @@ const api = {
 
                 return response;
             } else {
-                throw new Error('No hay conexión a Internet. No se puede realizar la solicitud DELETE.');
+                let cacheData = getFromLocalStorage(cacheKey);
+                cacheData.data = cacheData.data.filter(item => item.id !== id);
+                saveToLocalStorage(cacheKey, cacheData);
+                console.warn("🚨 No hay internet. Datos eliminados en LocalStorage:", id);
+                return { message: "Eliminado localmente." };
             }
         } catch (error) {
-            console.error('Error en la solicitud DELETE:', error);
+            console.error('Error en DELETE:', error);
             throw error;
         }
     },

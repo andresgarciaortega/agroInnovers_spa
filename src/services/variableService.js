@@ -1,11 +1,10 @@
 // services/variables.js
-
 import api from './ApiService';
 
+const CACHE_KEY = 'cache_/variables?page=1&limit=10000&company=0';
+
 const VariablesService = {
-
-
-    // LISTAR TODAS LAS varibles
+    // 📌 LISTAR TODAS LAS VARIABLES
     async getAllVariable(idcompany = 0) {
         try {
             const response = await api.get(`/variables?page=1&limit=10000&company=${idcompany}`);
@@ -16,49 +15,59 @@ const VariablesService = {
         }
     },
 
-    // CREAR UNA variable
+    // 📌 CREAR UNA VARIABLE
     async createVariable(data) {
         try {
             const response = await api.post('/variables/', data);
+
+            // 🔥 Guardar en `localStorage`
+            let cacheData = JSON.parse(localStorage.getItem(CACHE_KEY)) || { data: [] };
+            cacheData.data.push(response);
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+
             return response;
         } catch (error) {
-            // Extraer el mensaje del error
-            const errorMessage = error.response?.data?.message?.message || 'Error desconocido al crear la variable.';
-
-            // Retornar un objeto que incluya el mensaje y el código de estado
-            throw {
-                statusCode: error.response?.status || 500, // Si no hay un estado, por defecto 500
-                message: errorMessage,
-            };
+            console.error('Error al crear la variable:', error);
+            throw error;
         }
     },
 
-
-
-    // ACTUALIZAR UNA variable
+    // 📌 ACTUALIZAR UNA VARIABLE
     async updateVariable(id, data) {
         try {
             const response = await api.put(`/variables/${id}`, data);
-            return response.data;
+
+            // 🔥 Actualizar `localStorage`
+            let cacheData = JSON.parse(localStorage.getItem(CACHE_KEY)) || { data: [] };
+            const index = cacheData.data.findIndex(variable => variable.id === id);
+            if (index !== -1) {
+                cacheData.data[index] = { ...cacheData.data[index], ...response };
+                localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+            }
+
+            return response;
         } catch (error) {
             console.error('Error al actualizar la variable:', error);
             throw error;
         }
     },
 
-
-
+    // 📌 ELIMINAR UNA VARIABLE
     async deleteVariable(id) {
         try {
             const response = await api.delete(`/variables/${id}`);
-            return response;
 
+            // 🔥 Eliminar del `localStorage`
+            let cacheData = JSON.parse(localStorage.getItem(CACHE_KEY)) || { data: [] };
+            cacheData.data = cacheData.data.filter(variable => variable.id !== id);
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+
+            return response;
         } catch (error) {
             console.error('Error al eliminar la variable:', error);
             throw error;
         }
     },
-
 };
 
 export default VariablesService;
