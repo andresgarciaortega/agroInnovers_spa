@@ -146,6 +146,7 @@ const Empresa = () => {
   
     try {
       // Eliminar la compañía del servidor
+      console.log(selectedCompany)
       const data = await CompanyService.deleteCompany(selectedCompany.id);
   
       if (data.message) {

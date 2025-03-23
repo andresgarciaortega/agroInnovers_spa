@@ -4,6 +4,7 @@ import CompanyService from '../../../services/CompanyService';
 import UsersService from '../../../services/UserService';
 import ErrorAlert from '../../../components/alerts/error';
 import { IoEye, IoEyeOff } from 'react-icons/io5';
+import LoadingView from '../../../components/Loading/loadingView';
 
 const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
 
@@ -32,20 +33,23 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   });
 
 
-  const [documentTypes, setDocumentTypes] = useState([]); 
-  const [usersTypes, setUsersTypes] = useState([]); 
-  const [companies, setCompanies] = useState([]); 
-  const [showAlertError, setShowAlertError] = useState(false); 
-  const [messageAlert, setMessageAlert] = useState(""); 
+  const [documentTypes, setDocumentTypes] = useState([]);
+  const [usersTypes, setUsersTypes] = useState([]);
+  const [companies, setCompanies] = useState([]);
+  const [showAlertError, setShowAlertError] = useState(false);
+  const [messageAlert, setMessageAlert] = useState("");
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [changePassword, setChangePassword] = useState(false); 
+  const [changePassword, setChangePassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
 
-  
+
 
   useEffect(() => {
+    setIsLoading(true);
+
     const fetchDocumentTypes = async () => {
       try {
         const types = await TypeDocumentsService.getAllTypeDocuments();
@@ -74,6 +78,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         password: user.password || '',
         confirmPass: user.password || ''
       });
+      setIsLoading(false);
+
     } else {
       setFormData({
         name: '',
@@ -88,10 +94,10 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         confirmPass: ''
       });
     }
-}, [user, mode]);
+  }, [user, mode]);
 
 
-  
+
 
 
   const handlePasswordToggle = () => {
@@ -120,7 +126,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         e.target.style.borderColor = '';
       }
     }
-    
+
 
     if (name === 'document') {
       if (!/^\d{8,12}$/.test(value)) {
@@ -134,7 +140,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     if (name === 'confirmPass' || name === 'password') {
       const updatedFormData = { ...formData, [name]: value };
       setFormData(updatedFormData);
-  
+
       if (updatedFormData.password && updatedFormData.confirmPass) {
         if (updatedFormData.password !== updatedFormData.confirmPass) {
           errorMessage = 'Las contraseñas deben coincidir';
@@ -159,7 +165,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       [name]: errorMessage
     });
   };
- 
+
 
   const handleEmailBlur = async () => {
     if (mode !== 'edit') {
@@ -199,7 +205,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const formattedData = {
       type_user_id: Number(formData.roles),
       type_document_id: Number(formData.typeDocument),
@@ -213,41 +219,41 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       photo: formData.photo || "https://example.com/photo.jpg",
       roles: [Number(formData.roles)]
     };
-  
+
     console.log(formattedData);
-  
+
     try {
       if (mode === 'create') {
         // Crear un nuevo usuario
         const response = await UsersService.createUser(formattedData);
         console.log(response);
-      
+
         // Clave del localStorage
         const cacheKey = 'cache_/users?page=1&limit=10000&companyId=0';
-      
+
         // Obtener los usuarios actuales del localStorage
         let cacheData = JSON.parse(localStorage.getItem(cacheKey)) || { data: [] };
-      
+
         // Agregar el nuevo usuario a la lista
         cacheData.data.push(response);
-      
+
         // Guardar la lista actualizada en el localStorage
         localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-      
+
         showErrorAlert("Creado");
       } else if (mode === 'edit') {
         // Actualizar un usuario existente
         const updatedUser = await UsersService.updateUser(user.id, formattedData);
-      
+
         // Clave del localStorage
         const cacheKey = 'cache_/users?page=1&limit=10000&companyId=0';
-      
+
         // Obtener los usuarios actuales del localStorage
         let cacheData = JSON.parse(localStorage.getItem(cacheKey)) || { data: [] };
-      
+
         // Buscar el usuario a actualizar
         const userIndex = cacheData.data.findIndex(u => u.id === user.id);
-      
+
         if (userIndex !== -1) {
           // Actualizar el usuario en la lista
           cacheData.data[userIndex] = { ...cacheData.data[userIndex], ...updatedUser };
@@ -272,9 +278,9 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     setFormData({
       ...formData,
       password: '',
-      confirmPass:''
+      confirmPass: ''
     });
-    setChangePassword(!changePassword); 
+    setChangePassword(!changePassword);
   };
 
 
@@ -282,6 +288,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 ">
+      {isLoading && <LoadingView />}
+
       <div className="border-gray-300 rounded-lg py-2   cursor-pointer mr-0">
         <label className="block text-sm font-medium text-gray-700 ">Nombre completo</label>
         <input
@@ -339,8 +347,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           >
             <option value="" disabled>Seleccione una opción</option>
             {documentTypes.map((type) => (
-              <option key={type.id} value={type.id}> 
-                {type.name} 
+              <option key={type.id} value={type.id}>
+                {type.name}
               </option>
             ))}
           </select>
@@ -366,7 +374,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
           <label className="block text-sm font-medium text-gray-700">Empresa</label>
           <select
             name="company"
-            value={formData.company} 
+            value={formData.company}
             onChange={handleChange}
             disabled={mode === 'edit' || mode === 'view'} // Deshabilitar si mode es 'edit' o 'view'
             required
@@ -399,70 +407,70 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             ))}
           </select>
         </div>
-        
-        </div>
-        
-        {mode === 'edit' && (
-     <div className="mt-5 flex items-center">
-     <span className="text-sm font-medium text-gray-700 mr-3">Cambiar contraseña</span>
-     <div
-       className={`relative inline-flex items-center h-6 w-11 rounded-full transition-colors duration-200 ease-in-out ${changePassword ? 'bg-[#168C0DFF]' : 'bg-gray-300'
-         } cursor-pointer`}
-       onClick={handleChangePasswordToggle} 
-     >
-       <span
-         className={`inline-block w-5 h-5 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${changePassword ? 'translate-x-6' : 'translate-x-1'
-           }`}
-       />
-     </div>
-   </div>
-   
-    )}
 
-    
-    {(mode === 'create' || changePassword) && (
-      <>
-        
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Contraseña</label>
-          <input
-            type={passwordVisible ? 'text' : 'password'}
-            name="password"
-            placeholder="Contraseña"
-            value={formData.password}
-            onChange={handleChange}
-            required={mode === 'create' || changePassword}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-          <span
-            onClick={handlePasswordToggle}
-            className="absolute right-3 m-5 mr-6 -mt-7 cursor-pointer text-gray-500"
+      </div>
+
+      {mode === 'edit' && (
+        <div className="mt-5 flex items-center">
+          <span className="text-sm font-medium text-gray-700 mr-3">Cambiar contraseña</span>
+          <div
+            className={`relative inline-flex items-center h-6 w-11 rounded-full transition-colors duration-200 ease-in-out ${changePassword ? 'bg-[#168C0DFF]' : 'bg-gray-300'
+              } cursor-pointer`}
+            onClick={handleChangePasswordToggle}
           >
-            {passwordVisible ? <IoEyeOff /> : <IoEye />}
-          </span>
-          {errorMessages.password && <p className="text-red-500 text-sm">{errorMessages.password}</p>}
+            <span
+              className={`inline-block w-5 h-5 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${changePassword ? 'translate-x-6' : 'translate-x-1'
+                }`}
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
-          <input
-            type={passwordVisible ? 'text' : 'password'}
-            name="confirmPass"
-            placeholder="Confirmar contraseña"
-            value={formData.confirmPass}
-            onChange={handleChange}
-            required={mode === 'create' || changePassword}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-          {errorMessages.confirmPass && <p className="text-red-500 text-sm">{errorMessages.confirmPass}</p>}
-        </div>
-        </div>
-        
-        
-      </>
-      
-    )}
+      )}
+
+
+      {(mode === 'create' || changePassword) && (
+        <>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+              <input
+                type={passwordVisible ? 'text' : 'password'}
+                name="password"
+                placeholder="Contraseña"
+                value={formData.password}
+                onChange={handleChange}
+                required={mode === 'create' || changePassword}
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              />
+              <span
+                onClick={handlePasswordToggle}
+                className="absolute right-3 m-5 mr-6 -mt-7 cursor-pointer text-gray-500"
+              >
+                {passwordVisible ? <IoEyeOff /> : <IoEye />}
+              </span>
+              {errorMessages.password && <p className="text-red-500 text-sm">{errorMessages.password}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
+              <input
+                type={passwordVisible ? 'text' : 'password'}
+                name="confirmPass"
+                placeholder="Confirmar contraseña"
+                value={formData.confirmPass}
+                onChange={handleChange}
+                required={mode === 'create' || changePassword}
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              />
+              {errorMessages.confirmPass && <p className="text-red-500 text-sm">{errorMessages.confirmPass}</p>}
+            </div>
+          </div>
+
+
+        </>
+
+      )}
 
 
       <div className="flex justify-end space-x-2">
@@ -497,7 +505,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
 
 
           </> */}
-              
+
             <button
               type="button"
               onClick={closeModal}
@@ -514,7 +522,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
             </button>
           </>
 
-          
+
         )}
       </div>
       {showAlertError && (

@@ -76,13 +76,13 @@ const Usuario = () => {
 
 
   useEffect(() => {
+    setIsLoading(true);
     const fetchUsersList = async () => {
-
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
-
       if (!companyId) {
         setUsersList([]);
         return;
+
       } else {
         setNameCompany(selectedCompanyUniversal.label)
       }
@@ -93,7 +93,15 @@ const Usuario = () => {
           setUsersList([]);
         } else {
           setShowErrorAlertTable(false)
+          setMessageAlert('Esta empresa no tiene usuarios registradas, Intentalo con otra empresa');
           setUsersList(Array.isArray(data) ? data : []);
+          setIsLoading(false);
+        }
+        if(data.length < 1){
+          setShowErrorAlertTable(true)
+          setMessageAlert('Esta empresa no tiene usuarios registradas, Intentalo con otra empresa');
+          setUsersList(Array.isArray(data) ? data : []);
+          setIsLoading(false);
         }
       } catch (error) {
         setUsersList([])
@@ -195,7 +203,7 @@ const Usuario = () => {
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
     setSelectedUsers(null);
-  
+
     try {
       // Eliminar el usuario del servidor
       const data = await UsersService.deleteUser(selectedUsers.id);
@@ -234,7 +242,7 @@ const Usuario = () => {
   const updateListUsers = async () => {
     try {
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
-  
+
       if (!companyId) {
         setUsersList([]);
         localStorage.removeItem('users'); // Limpiar el localStorage si no hay companyId
@@ -286,6 +294,7 @@ const Usuario = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
+      {isLoading && <LoadingView />}
 
       <div className="bg-white rounded-lg shadow">
         <div className="flex justify-between items-center p-6 border-b seccionNombreBtn">

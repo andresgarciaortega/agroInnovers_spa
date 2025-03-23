@@ -88,8 +88,9 @@ const CompanyService = {
     // 📌 ELIMINAR UNA COMPAÑÍA
     async deleteCompany(id) {
         try {
+            console.log("----------- ", id)
             const response = await api.delete(`/companies/${id}`);
-
+            console.log(response)
             // 🔥 Eliminar de `localStorage`
             let cacheData = JSON.parse(localStorage.getItem(CACHE_KEY)) || { data: [] };
             cacheData.data = cacheData.data.filter(company => company.id !== id);

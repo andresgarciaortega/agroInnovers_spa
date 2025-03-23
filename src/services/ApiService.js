@@ -79,7 +79,7 @@
 //         });
 //     },
 // };
-const BASE_URL = 'https://agroinnovers-fdbf30f0b339.herokuapp.com/';
+const BASE_URL = 'https://agroinnovers-fdbf30f0b339.herokuapp.com';
 const TIMEOUT = 5000;
 
 // 📌 Función para verificar conexión a Internet
@@ -234,7 +234,7 @@ const api = {
         try {
             const online = await isOnline();
             if (online) {
-                const response = await fetchWithTimeout(`${BASE_URL}${endpoint}/${id}`, {
+                const response = await fetchWithTimeout(`${BASE_URL}${endpoint}${id ? `/${id}` : ''}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
