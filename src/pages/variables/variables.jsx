@@ -19,6 +19,7 @@ import Select from "react-select";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
+import LoadingView from "../../components/Loading/loadingView";
 
 const Variable = () => {
   const [companyList, setCompanyList] = useState([]);
@@ -47,7 +48,7 @@ const Variable = () => {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     hiddenSelect(true)
@@ -65,6 +66,9 @@ const Variable = () => {
 
   useEffect(() => {
     const fetchVariables = async () => {
+      setIsLoading(true)
+      setShowErrorAlertTable(false);
+
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
 
@@ -84,11 +88,13 @@ const Variable = () => {
           setShowErrorAlertTable(false)
           setVariableList(Array.isArray(data) ? data : []);
         }
+        setIsLoading(false)
       } catch (error) {
         setVariableList([])
         console.error('Error fetching variables:', error);
         setMessageAlert('Esta empresa no tiene variables registradas, Intentalo con otra empresa');
         setShowErrorAlertTable(true);
+        setIsLoading(false)
       }
     };
 
@@ -190,33 +196,33 @@ const Variable = () => {
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
     try {
-    setSelectedVariable(null);
-    const data = await VariableService.deleteVariable(selectedVariable.id);
-    if(data){
-    setMessageAlert(data.message);
-    showErrorAlertSuccess("eliminado");
-    updateService();
-    setAlertSelecte(true);
-  }else{
-    setMessageAlert(data.message);
-    setShowErrorAlert(true);
-    setAlertSelecte(false);
-  }
-  } catch (error) {
+      setSelectedVariable(null);
+      const data = await VariableService.deleteVariable(selectedVariable.id);
+      if (data) {
+        setMessageAlert(data.message);
+        showErrorAlertSuccess("eliminado");
+        updateService();
+        setAlertSelecte(true);
+      } else {
+        setMessageAlert(data.message);
+        setShowErrorAlert(true);
+        setAlertSelecte(false);
+      }
+    } catch (error) {
 
-    let errorMessage;
-    if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
-      setMessageAlert(`${message} exitosamente`);
-      (error.message);
-      // setShowErrorVariableAlert(true);
-    } else {
-      setMessageAlert(`No se puede eliminar la variable porque está asociado a otros registros`);
-      ("No se puede eliminar la variable  porque está asociada a uno o más sensores");
-      setShowErrorAlert(true);
+      let errorMessage;
+      if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
+        setMessageAlert(`${message} exitosamente`);
+        (error.message);
+        // setShowErrorVariableAlert(true);
+      } else {
+        setMessageAlert(`No se puede eliminar la variable porque está asociado a otros registros`);
+        ("No se puede eliminar la variable  porque está asociada a uno o más sensores");
+        setShowErrorAlert(true);
+      }
+      console.error("Error al eliminar la variable :", error);
     }
-    console.error("Error al eliminar la variable :", error);
-  }
-};
+  };
 
 
   const handleCancelDelete = () => {
@@ -282,6 +288,12 @@ const Variable = () => {
             Crear Variable
           </button>
         </div>
+
+         
+      {isLoading ? (
+        <LoadingView />
+      ) : (
+        <>
         <div className="overflow-x-auto">
           <table className="w-full ">
             <thead className="bg-gray-300  ">
@@ -311,7 +323,7 @@ const Variable = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{variable.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     <span className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {variable.typeVariable && variable.typeVariable.length > 0 ? variable.typeVariable.name : variable.typeVariable.name}
+                      {variable.typeVariable && variable.typeVariable.length > 0 ? variable.typeVariable.name : variable?.typeVariable?.name ? variable.typeVariable.name : ''}
                     </span>
                   </td>
 
@@ -328,7 +340,7 @@ const Variable = () => {
                       <Eye size={18} />
                     </button>
                     <button className=" text-[#168C0DFF] px-2 py-2 rounded"
-                     onClick={() => handleOpenModal(variable, 'edit')}>
+                      onClick={() => handleOpenModal(variable, 'edit')}>
                       <Edit size={18} />
                     </button>
                     <button onClick={() => handleDelete(variable)} className=" text-[#168C0DFF] px-2 py-2 rounded">
@@ -348,6 +360,8 @@ const Variable = () => {
             />
           )}
         </div>
+        </>
+)}
       </div>
       <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
         <div className="border border-gray-200 rounded py-2 text-sm m-2">
@@ -382,15 +396,15 @@ const Variable = () => {
           <FormVariable showErrorAlert={showErrorAlertSuccess} onUpdate={updateService} variable={newVariable} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
       )}
-       {showErrorAlert && (
-         <div className="alert-container">
-         {alertSelecte ? (
-           <SuccessAlert message={messageAlert} />
-         ) : (
-           <ErrorAlert message={messageAlert}
-             onCancel={handleCloseAlert} />
-         )}
-       </div>
+      {showErrorAlert && (
+        <div className="alert-container">
+          {alertSelecte ? (
+            <SuccessAlert message={messageAlert} />
+          ) : (
+            <ErrorAlert message={messageAlert}
+              onCancel={handleCloseAlert} />
+          )}
+        </div>
       )}
       {showErrorAlertTable && (
         <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">

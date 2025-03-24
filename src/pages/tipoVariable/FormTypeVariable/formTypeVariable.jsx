@@ -151,10 +151,25 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
   //     setShowAlertError(true);
   //   }
   // };
+
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true)
-
+    // 📌 Obtener la fecha y hora actual en formato 'YYYY-MM-DD HH:mm:ss'
+    const now = getCurrentDateTime();
     try {
       let iconUrl = '';
 
@@ -173,6 +188,7 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
         description: formData.description,
         icon: iconUrl,
         company_id: parseInt(formData.idCompany, 10),
+        updated_at: now // 🔥 Agregar la fecha actual
       };
 
 
@@ -183,9 +199,8 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
       if (mode === 'create') {
         // Crear un nuevo tipo de variable
         const createdVariableType = await VariableTypeService.createTypeVariable(formDataToSubmit);
-
         // Agregar el nuevo tipo de variable a la lista
-        cacheData.data.push(createdVariableType.data);
+        cacheData.data.push(createdVariableType);
         setIsLoading(false)
         showErrorAlert("Variable creada");
       } else if (mode === 'edit') {

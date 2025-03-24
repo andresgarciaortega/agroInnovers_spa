@@ -13,7 +13,7 @@ const isOnline = async () => {
     }
 };
 
-const UsersService = {
+const UsersService = { 
     // 📌 LISTAR TODOS LOS USUARIOS
     async getAllUser(idcompany = 0) {
         try {

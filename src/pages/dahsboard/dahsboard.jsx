@@ -21,6 +21,7 @@ import lotesService from "../../services/lotesService";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { useNavigate } from "react-router-dom";
 import TypeDocumentsService from "../../services/fetchTypes";
+import RegistrerTypeServices from "../../services/RegistrerType";
 
 const Dashboard = () => {
   const [companyCount, setCompanyCount] = useState(0);
@@ -107,15 +108,8 @@ const Dashboard = () => {
         // localStorage.setItem('lots', JSON.stringify(lots)); // Guardar en localStorage
   
         const typeDocuments = await TypeDocumentsService.getAllTypeDocuments();
-        // localStorage.setItem('typeDocuments', JSON.stringify(typeDocuments)); // Guardar en localStorage
-        
-        
+        const typeRegisters = await RegistrerTypeServices.getAllRegistrerType();
         const roles = await TypeDocumentsService.getAllTypeUsers();
-        // localStorage.setItem('typeDocuments', JSON.stringify(typeDocuments)); // Guardar en localStorage
-        
-        
-        
-        
       } catch (error) {
         console.error('Error fetching data:', error);
       }

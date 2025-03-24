@@ -102,44 +102,44 @@ const generateCacheKey = (endpoint) => {
 };
 
 // 📌 Funciones auxiliares para `localStorage`
-// const saveToLocalStorage = (key, data) => localStorage.setItem(key, JSON.stringify(data));
-// const getFromLocalStorage = (key) => JSON.parse(localStorage.getItem(key)) || { data: [] };
+const saveToLocalStorage = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+const getFromLocalStorage = (key) => JSON.parse(localStorage.getItem(key)) || { data: [] };
 
 // 📌 Función para guardar en localStorage
-const saveToLocalStorage = (key, data) => {
-    console.log("🔹 Guardando en LocalStorage. Key:", key);
-    console.log("📦 Datos antes de guardar:", JSON.stringify(data, null, 2));
-    localStorage.setItem(key, JSON.stringify(data));
+// const saveToLocalStorage = (key, data) => {
+//     console.log("🔹 Guardando en LocalStorage. Key:", key);
+//     console.log("📦 Datos antes de guardar:", JSON.stringify(data, null, 2));
+//     localStorage.setItem(key, JSON.stringify(data));
 
-    // 🔍 Verificar que realmente se guardó correctamente
-    const checkSaved = localStorage.getItem(key);
-    console.log("✅ Verificación: Datos guardados en LocalStorage:", checkSaved);
-};
+//     // 🔍 Verificar que realmente se guardó correctamente
+//     const checkSaved = localStorage.getItem(key);
+//     console.log("✅ Verificación: Datos guardados en LocalStorage:", checkSaved);
+// };
 
-// 📌 Función para obtener de localStorage
-const getFromLocalStorage = (key) => {
-    console.log("🔍 Obteniendo datos de LocalStorage. Key:", key);
-    const data = localStorage.getItem(key);
+// // 📌 Función para obtener de localStorage
+// const getFromLocalStorage = (key) => {
+//     console.log("🔍 Obteniendo datos de LocalStorage. Key:", key);
+//     const data = localStorage.getItem(key);
 
-    if (!data) {
-        console.warn("⚠️ No hay datos en LocalStorage para esta clave:", key);
-        return { data: [] };
-    }
+//     if (!data) {
+//         console.warn("⚠️ No hay datos en LocalStorage para esta clave:", key);
+//         return { data: [] };
+//     }
 
-    try {
-        const parsedData = JSON.parse(data);
-        console.log("📥 Datos obtenidos de LocalStorage:", parsedData);
+//     try {
+//         const parsedData = JSON.parse(data);
+//         console.log("📥 Datos obtenidos de LocalStorage:", parsedData);
 
-        // 🔥 Verificar si hay `null` en el arreglo y eliminarlo
-        parsedData.data = parsedData.data.filter(item => item !== null && item !== undefined);
-        console.log("📥 Datos después de limpiar null:", parsedData);
+//         // 🔥 Verificar si hay `null` en el arreglo y eliminarlo
+//         parsedData.data = parsedData.data.filter(item => item !== null && item !== undefined);
+//         console.log("📥 Datos después de limpiar null:", parsedData);
 
-        return parsedData;
-    } catch (error) {
-        console.error("❌ Error al parsear los datos de LocalStorage:", error);
-        return { data: [] };
-    }
-};
+//         return parsedData;
+//     } catch (error) {
+//         console.error("❌ Error al parsear los datos de LocalStorage:", error);
+//         return { data: [] };
+//     }
+// };
 
 
 
@@ -171,9 +171,12 @@ const createAuthHeaders = () => {
 const api = {
     get: async (endpoint, params = {}) => {
         const cacheKey = generateCacheKey(endpoint); // 🔥 Clave uniforme
+        console.log("nombre local sin internet antes", cacheKey)
+
         try {
             const online = await isOnline();
             if (online) {
+                console.log("nombre local . ", cacheKey)
                 const url = `${BASE_URL}${endpoint}${Object.keys(params).length ? `?${new URLSearchParams(params)}` : ''}`;
                 const data = await fetchWithTimeout(url, {
                     method: 'GET',
@@ -186,18 +189,12 @@ const api = {
                 saveToLocalStorage(cacheKey, data);
                 return data;
             } else {
+                console.log("nombre local sin internet sin internet", cacheKey)
                 // 🔥 Obtener datos desde `localStorage`
                 let cachedData = getFromLocalStorage(cacheKey);
-                if (!cachedData || !cachedData.data) return { data: [] };
                 console.log("nombre arreglo : ", cachedData)
+                if (!cachedData || !cachedData.data) return { data: [] };
                 console.log("datos del arreglo : ", cachedData.data)
-                // ✅ Si se envió `companyId`, filtrar usuarios por empresa
-                // if (params.companyId) {
-                //     cachedData.data = cachedData.data.filter(user =>
-                //         user.company?.id === Number(params.companyId) || user.companies_id === Number(params.companyId)
-                //     );
-                // }
-
                 return cachedData;
             }
         } catch (error) {
@@ -252,7 +249,6 @@ const api = {
                 // 🛠 Verificar si realmente se guardó correctamente
                 const checkCache = getFromLocalStorage(cacheKey);
                 console.log("🔄 Verificación de LocalStorage después de guardar:", checkCache);
-
 
                 return newItem;
             }
