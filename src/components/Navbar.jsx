@@ -91,28 +91,12 @@ const Navbar = () => {
         </div>
         <IoIosArrowDown className="text-gray-600 cursor-pointer " onClick={toggleDropdown} />
         {dropdownOpen && (
-          <div className="absolute right-10 mt-36 w-[150px]  bg-white rounded-lg shadow-lg z-10 ">
-            <MenuItem onClick={handleProfileClick}>Perfil</MenuItem>
+          <div className="absolute right-20 mt-36 w-[150px]  bg-white rounded-lg shadow-lg z-10 ">
+            {/* <MenuItem onClick={handleProfileClick}>Perfil</MenuItem> */}
             <MenuItem onClick={handleLogout}>Salir</MenuItem>
           </div>
         )}
       </div>
-
-      {/* Modal de edición de usuario */}
-      {/* {isModalOpen && (
-        <GenericModal
-          title={modalMode === 'edit' ? 'Editar Usuario' : 'Ver Usuario'}
-          onClose={closeModal}
-        >
-          <FormUser
-            showErrorAlert={() => {}}
-            onUpdate={() => {}}
-            user={null} // Pasa el usuario si es necesario
-            mode={modalMode}
-            closeModal={closeModal}
-          />
-        </GenericModal>
-      )} */}
     </div>
   );
 };

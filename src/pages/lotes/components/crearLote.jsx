@@ -60,7 +60,6 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
     useEffect(() => {
         if (lote) {
-            console.log('Lote recibido:', lote);
             const trackingConfigData = lote.trackingConfig?.length > 0 ? lote.trackingConfig[0] : {};
             setFormData({
                 lotCode: lote.lotCode || '',
@@ -134,7 +133,6 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                     name: stageItem.stage.name
                 }));
                 setEtapas(etapasList);
-                console.log('etapas:', etapasList)
             } else {
                 setEtapas([]);
             }
@@ -145,7 +143,6 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
     useEffect(() => {
         if (lote) {
-            console.log('Lote recibido:', lote);
             const trackingConfigData = lote.trackingConfig?.length > 0 ? lote.trackingConfig[0] : {};
             setFormData({
                 lotCode: lote.lotCode || '',
@@ -173,7 +170,6 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
         try {
             const response = await EspacioService.getAllStage();
             const data = await response.json();
-            console.log("Etapas recibidas:", data);
             setEtapas(data);
         } catch (error) {
             console.error("Error al obtener las etapas:", error);
@@ -286,8 +282,6 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     };
 
     const handleAgregarEspecie = () => {
-        console.log('especies', especies)
-        console.log('specieId', formData.specieId)
 
         const especieSeleccionada = especies.find(especie => especie.id === parseInt(formData.specieId));
         if (especieSeleccionada) {

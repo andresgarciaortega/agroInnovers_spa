@@ -137,7 +137,6 @@ const VisualizarCategoria = () => {
                 })),
             };
 
-            console.log(formDataToSubmit)
             await CategoryService.updateCategory(id, formDataToSubmit);
             navigate('../especies');
         } catch (error) {

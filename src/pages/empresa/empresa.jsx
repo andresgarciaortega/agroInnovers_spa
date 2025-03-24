@@ -45,10 +45,12 @@ const Empresa = () => {
   useEffect(() => {
     hiddenSelect(false)
     const fetchCompanies = async () => {
+      console.log("empresas : ")
 
       setIsLoading(true);
       try {
         const data = await CompanyService.getAllCompany();
+        console.log("empresas : ", data)
         setCompanyList(data);
       } catch (error) {
         console.error('Error fetching companies:', error);
@@ -143,31 +145,30 @@ const Empresa = () => {
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
     setSelectedCompany(null);
-  
+
     try {
       // Eliminar la compañía del servidor
-      console.log(selectedCompany)
       const data = await CompanyService.deleteCompany(selectedCompany.id);
-  
+
       if (data.message) {
         setMessageAlert(data.message);
         showErrorAlertr(data.message);
       } else {
         setMessageAlert("Empresa eliminada exitosamente");
         showSuccessAlertSuccess("Compañía eliminada correctamente");
-  
+
         // Obtener las empresas actuales del localStorage
         const companiesFromLocalStorage = JSON.parse(localStorage.getItem('companies')) || [];
-  
+
         // Filtrar la lista para eliminar la compañía con el ID seleccionado
         const updatedCompanies = companiesFromLocalStorage.filter(
           (company) => company.id !== selectedCompany.id
         );
-  
+
         // Guardar la lista actualizada en el localStorage
         localStorage.setItem('companies', JSON.stringify(updatedCompanies));
       }
-  
+
       // Actualizar la lista de empresas
       updateCompanies();
     } catch (error) {
@@ -189,22 +190,22 @@ const Empresa = () => {
 
 
   // Función para actualizar la lista de empresas
-const updateCompanies = async () => {
-  try {
-    // Obtener las empresas
-    const data = await CompanyService.getAllCompany();
-    // Actualizar el estado
-    setCompanyList(data);
-    // Guardar o actualizar las empresas en el localStorage
-    handleUpdate();
-  } catch (error) {
-    console.error('Error al actualizar las empresas:', error);
-  }
-};
+  const updateCompanies = async () => {
+    try {
+      // Obtener las empresas
+      const data = await CompanyService.getAllCompany();
+      // Actualizar el estado
+      setCompanyList(data);
+      // Guardar o actualizar las empresas en el localStorage
+      handleUpdate();
+    } catch (error) {
+      console.error('Error al actualizar las empresas:', error);
+    }
+  };
 
 
   const handleUpdate = () => {
-      triggerUpdate(); // Esto forzará que `CompanySelector` se actualice
+    triggerUpdate(); // Esto forzará que `CompanySelector` se actualice
   };
 
   const showSuccessAlertSuccess = (message) => {
@@ -228,7 +229,6 @@ const updateCompanies = async () => {
   const handleViewCompany = (companyId) => {
     navigate(`../visualizarEmpresa/${companyId}`);
   };
-
   return (
     <div className="table-container containerEmporesa">
       <div className="mb-5">
@@ -242,110 +242,117 @@ const updateCompanies = async () => {
           )}
         </div>
       </div>
-
-      {isLoading && <LoadingView />}
-      {/* Barra de búsqueda */}
-      <div className="  mb-5 buscadorTable">
-        <input
-          type="text"
-          placeholder="Buscar empresa "
-          className="w-full border border-gray-300 p-2 pl-10 rounded-md"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-      <div className="bg-white rounded-lg shadow">
-        <div className="flex justify-between items-center p-6 border-b seccionNombreBtn">
-          <h2 className="text-xl font-semibold">Empresas</h2>
-          <div className="divisor"></div>
-          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => handleOpenModal()}>
-            <FiPlusCircle size={20} className="mr-2" />
-            Añadir empresa
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-300 ">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celular</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Día de registro</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {currentCompanies.map((company, index) => (
-                <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ textTransform: 'uppercase' }}>{company.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.email_billing}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.phone}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.created_at}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.location}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewCompany(company.id)} >
-                      <Eye size={18} />
-                    </button>
-                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(company, 'edit')}>
-                      <Edit size={18} />
-                    </button>
-                    <button onClick={() => handleDelete(company)} className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded">
-                      <Trash size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {/* Modal de eliminación */}
-          {isDeleteModalOpen && (
-            <Delete
-              message={`¿Seguro que desea eliminar la empresa ${selectedCompany?.name}?`}
-              onCancel={handleCancelDelete}
-              onConfirm={handleConfirmDelete}
+  
+      {isLoading ? (
+        <LoadingView />
+      ) : (
+        <>
+          {/* Barra de búsqueda */}
+          <div className="mb-5 buscadorTable">
+            <input
+              type="text"
+              placeholder="Buscar empresa "
+              className="w-full border border-gray-300 p-2 pl-10 rounded-md"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          )}
-        </div>
-      </div>
-      <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
-
-
-        <div className="pagination-info text-sm flex items-center space-x-2">
-          <span>Cantidad de filas</span>
-          <select
-            className="border border-gray-200 rounded py-2 text-sm m-2"
-            value={itemsPerPage}
-            onChange={handleItemsPerPageChange}
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-          </select>
-        </div>
-
-        <div className="pagination-controls text-xs flex items-center space-x-2">
-          <span>{currentPage} de {Math.ceil(companyList.length / itemsPerPage)}</span>
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-          >
-            <IoIosArrowBack size={20} />
-          </button>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === Math.ceil(companyList.length / itemsPerPage)}
-            className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-          >
-            <IoIosArrowForward size={20} />
-          </button>
-        </div>
-      </div>
-
-      {/* Modal crea,editar,visualizar*/}
+          </div>
+  
+          <div className="bg-white rounded-lg shadow">
+            <div className="flex justify-between items-center p-6 border-b seccionNombreBtn">
+              <h2 className="text-xl font-semibold">Empresas</h2>
+              <div className="divisor"></div>
+              <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => handleOpenModal()}>
+                <FiPlusCircle size={20} className="mr-2" />
+                Añadir empresa
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-300">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celular</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Día de registro</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {currentCompanies.map((company, index) => (
+                    <tr key={company.id || index}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ textTransform: 'uppercase' }}>{company.name}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.email_billing}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.phone}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.created_at}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.location}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewCompany(company.id)}>
+                          <Eye size={18} />
+                        </button>
+                        <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(company, 'edit')}>
+                          <Edit size={18} />
+                        </button>
+                        <button onClick={() => handleDelete(company)} className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded">
+                          <Trash size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+  
+              {/* Modal de eliminación */}
+              {isDeleteModalOpen && (
+                <Delete
+                  message={`¿Seguro que desea eliminar la empresa ${selectedCompany?.name}?`}
+                  onCancel={handleCancelDelete}
+                  onConfirm={handleConfirmDelete}
+                />
+              )}
+            </div>
+          </div>
+  
+          {/* Paginación */}
+          <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+            <div className="pagination-info text-sm flex items-center space-x-2">
+              <span>Cantidad de filas</span>
+              <select
+                className="border border-gray-200 rounded py-2 text-sm m-2"
+                value={itemsPerPage}
+                onChange={handleItemsPerPageChange}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+              </select>
+            </div>
+  
+            <div className="pagination-controls text-xs flex items-center space-x-2">
+              <span>{currentPage} de {Math.ceil(companyList.length / itemsPerPage)}</span>
+              <button
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+              >
+                <IoIosArrowBack size={20} />
+              </button>
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === Math.ceil(companyList.length / itemsPerPage)}
+                className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+              >
+                <IoIosArrowForward size={20} />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+  
+      {/* Modales */}
       {isModalOpen && (
         <GenericModal title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'} onClose={closeModal}>
           <FormCompany
@@ -353,26 +360,21 @@ const updateCompanies = async () => {
             onUpdate={updateCompanies}
             company={newCompany}
             mode={modalMode}
-            closeModal={closeModal} />
+            closeModal={closeModal}
+          />
         </GenericModal>
       )}
-
+  
+      {/* Alertas */}
       {showSuccessAlert && (
-        <SuccessAlert
-          message={messageAlert}
-          onCancel={handleCloseAlert}
-        />
+        <SuccessAlert message={messageAlert} onCancel={handleCloseAlert} />
       )}
-
       {showErrorAlert && (
-        <ErrorAlert
-          message={messageAlert}
-          onCancel={handleCloseAlert}
-        />
+        <ErrorAlert message={messageAlert} onCancel={handleCloseAlert} />
       )}
-
     </div>
   );
+  
 };
 
 export default Empresa;

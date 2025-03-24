@@ -39,7 +39,6 @@ const FormViewActuador = ({ actuador, closeModal }) => {
                 const typeSensor = await TypeService.getAllActuador();
                 setSensorType(typeSensor);
             } catch (error) {
-                console.log('Error al obtener los tipos de actuadores:', error);
             }
         };
 
@@ -62,7 +61,6 @@ const FormViewActuador = ({ actuador, closeModal }) => {
 
                 const data = await MantenimientoActuador.getAllMantenimiento();
 
-                console.log('manteminientos', data)
                 if (data.statusCode === 404) {
                     setMantenimiento([]);
                 } else {
@@ -87,7 +85,6 @@ const FormViewActuador = ({ actuador, closeModal }) => {
 
                 // Llama al servicio para obtener los mantenimientos asociados al actuador
                 const data = await MantenimientoActuador.getMantenimientoByActuador(actuador.id);
-                console.log("Datos de mantenimiento:", data);
                 // Maneja la respuesta y actualiza el estado
                 if (data.statusCode === 404) {
                     setMantenimiento([]);  // Si no se encuentran mantenimientos
@@ -110,7 +107,6 @@ const FormViewActuador = ({ actuador, closeModal }) => {
 
                 // Llama al servicio para obtener los mantenimientos asociados al actuador
                 const data = await CalibrarActuador.getMantenimientoByactuador(actuador.id);
-                console.log("Datos de mantenimiento:", data);
                 // Maneja la respuesta y actualiza el estado
                 if (data.statusCode === 404) {
                     setCalibracion([]);  // Si no se encuentran mantenimientos
@@ -147,13 +143,11 @@ const FormViewActuador = ({ actuador, closeModal }) => {
     }, [actuador]);
 
     const openModal = async (modalType,id= 0) => {
-        console.log('mantenimientos', mantenimiento)
         if (modalType === "mantenimiento"){
             try {
                 if (!actuador || !actuador.id) return;
 
                 const data = await MantenimientoActuador.getMantenimientoByActuador(actuador.id);
-                console.log("Datos de mantenimiento:", data);
                 if (data.statusCode === 404) {
                     setMantenimiento([]);  
                 } else {
@@ -164,7 +158,6 @@ const FormViewActuador = ({ actuador, closeModal }) => {
                 setMantenimiento([]); 
             }
         }
-        console.log('mantenimientos', mantenimiento)
         if (modalType === "calibrar"){
             try {
                 // Asegúrate de que el ID del actuador esté disponible
@@ -172,7 +165,6 @@ const FormViewActuador = ({ actuador, closeModal }) => {
 
                 // Llama al servicio para obtener los mantenimientos asociados al actuador
                 const data = await CalibrarActuador.getMantenimientoByactuador(actuador.id);
-                console.log("Datos de mantenimiento:", data);
                 // Maneja la respuesta y actualiza el estado
                 if (data.statusCode === 404) {
                     setCalibracion([]);  // Si no se encuentran mantenimientos

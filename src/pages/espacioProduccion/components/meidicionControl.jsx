@@ -21,8 +21,6 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }
         productionVariableId: variableId,
     });
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
- console.log('id de la variable', variableId)
- console.log('datos de la variable desde contenedor padre', selectedVariableId)
 
 
     useEffect(() => {
@@ -51,7 +49,6 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }
 
     useEffect(() => {
         if (control) {
-            console.log("control : ", control)
             // handleModeChange('measurementType', control.measurementType)
             handleModeChange('controlType', control.controlType,)
             setFormData({
@@ -80,7 +77,6 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }
 
     const handleModeChange = (modeType, value) => {
         setFormData({ ...formData, [modeType]: value });
-        console.log("modeType : ", value)
         if (value === 'automatico') {
             if (modeType === 'measurementType') {
                 setFormData({
@@ -110,8 +106,6 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        console.log("preventDefault ejecutado");
-        console.log(control);
     
         let formDataToSubmit;
         try {
@@ -126,7 +120,6 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }
             };
     
             if (mode === 'create') {
-                console.log('Capturar la información');
             } else if (mode === 'edit') {
                 setShowSuccessAlert("Editada");
                 await EspacioService.updateControl(control.id, formDataToSubmit);
@@ -138,7 +131,6 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }
         }
         selectedVariableId(formDataToSubmit);
 
-        console.log('Datos enviados', formDataToSubmit);
     };
     
 

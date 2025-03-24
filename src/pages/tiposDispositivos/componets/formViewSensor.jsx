@@ -46,7 +46,6 @@ const FormViewSensor = ({ sensor, closeModal }) => {
                 const typeSensor = await TypeService.getAllSensor();
                 setSensorType(typeSensor);
             } catch (error) {
-                console.log('Error al obtener los tipos de sensores:', error);
             }
         };
 

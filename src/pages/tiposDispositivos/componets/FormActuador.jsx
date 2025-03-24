@@ -288,7 +288,6 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
                 showErrorAlert("Actuador actualizado");
             }
 
-            console.log('Datos enviados:', formDataToSubmit);
             onClose();
             onUpdate();
         } catch (error) {

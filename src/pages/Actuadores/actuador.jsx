@@ -88,7 +88,6 @@ const Actuador = () => {
       try {
         const data = await TypeService.getAllActuador();
         setActuadorList(data);
-        console.log('tipos de actuadores', data);
       } catch (error) {
         console.error('Error fetching actuatorTypeId actuador:', error);
       }

@@ -21,7 +21,6 @@ const ResetPassword = () => {
     const [passwordError, setPasswordError] = useState(false);
 
     const handleSubmit = async (e) => {
-        console.log("response 1")
 
         e.preventDefault();
 
@@ -33,7 +32,6 @@ const ResetPassword = () => {
             showErrorAlert("Token no encontrado en la URL");
             return;
         }
-        console.log("response")
         try {
             const response = await AccesUser.ResetPasswordUser(newPassword, token);
 
@@ -41,7 +39,6 @@ const ResetPassword = () => {
             setTimeout(() => setShowErrorAlert(false), 1000);
             navigate('/', { replace: true });
         } catch (error) {
-            console.log("error : ", error)
         }
 
         // } else {

@@ -19,7 +19,6 @@ export const CompanyProvider = ({ children }) => {
     };
 
     const hiddenSelect = (tipo) => {
-        console.log("showHidden : ", showHidden)
         setSshowHidden(tipo); // Cambiará de `true` a `false` y viceversa
     };
 

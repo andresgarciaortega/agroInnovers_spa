@@ -202,7 +202,6 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
       } else if (mode === 'edit') {
         // Actualizar una variable existente
         const updatedVariable = await VariablesService.updateVariable(variable.id, formDataToSubmit);
-        console.log(updatedVariable)
         // Buscar la variable a actualizar
         const variableIndex = cacheData.data.findIndex((v) => v.id === variable.id);
         if (variableIndex !== -1) {

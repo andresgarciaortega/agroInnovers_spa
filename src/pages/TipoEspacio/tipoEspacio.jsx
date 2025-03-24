@@ -183,7 +183,6 @@ const TipoEspacio = () => {
     try {
       setSelectedVariable(null);
       const data = await TipoEspacioService.deletetipoEspacio(selectedVariable.id);
-      console.log(" :::::::::::::::::::   ",data)
       if(data){
         setMessageAlert("Tipo de dispositivo eliminado");
         showErrorAlertSuccess("eliminado");

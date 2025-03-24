@@ -107,12 +107,15 @@ const Dashboard = () => {
         // localStorage.setItem('lots', JSON.stringify(lots)); // Guardar en localStorage
   
         const typeDocuments = await TypeDocumentsService.getAllTypeDocuments();
-        localStorage.setItem('typeDocuments', JSON.stringify(typeDocuments)); // Guardar en localStorage
+        // localStorage.setItem('typeDocuments', JSON.stringify(typeDocuments)); // Guardar en localStorage
+        
+        
+        const roles = await TypeDocumentsService.getAllTypeUsers();
+        // localStorage.setItem('typeDocuments', JSON.stringify(typeDocuments)); // Guardar en localStorage
         
         
         
         
-        console.log("Datos guardados en localStorage.");
       } catch (error) {
         console.error('Error fetching data:', error);
       }

@@ -70,7 +70,6 @@ const VisualizarLote = () => {
             try {
                 const response = await LoteService.getAllLotsById(id);
                 setLote(response);
-                console.log('lote traido', lote)
 
                 // Asegúrate de traer las especies completas, no solo sus IDs
                 setEspecies(response.productionLotSpecies?.map((item) => ({
@@ -78,10 +77,7 @@ const VisualizarLote = () => {
                     name: item.specie?.common_name || "Sin nombre"
                 })) || []);
 
-                console.log('Especies:', response.productionLotSpecies?.map((item) => ({
-                    id: item.specie?.id,
-                    name: item.specie?.common_name || "Sin nombre"
-                })));
+              
             } catch (error) {
                 console.error("Error al cargar el lote:", error);
             }
@@ -96,7 +92,6 @@ const VisualizarLote = () => {
     const fetchSeguimiento = async (filters) => {
         try {
             const response = await ReporteService.getAllReporte(0, filters);
-            console.log("Respuesta de la API:", response);
             setSeguimiento(response);
         } catch (error) {
             console.error("Error al cargar el seguimiento:", error);
@@ -115,7 +110,6 @@ const VisualizarLote = () => {
                 : undefined,
         };
 
-        console.log("Filtros aplicados:", filters);
         fetchSeguimiento(filters);
     };
 
@@ -153,7 +147,6 @@ const VisualizarLote = () => {
             return acc + cantidad;
 
         }, 0);
-    console.log ('cantidad',sumaMortandad)
 
         return sumaMortandad;
     };
@@ -245,10 +238,7 @@ const VisualizarLote = () => {
                 name: item.specie?.common_name || "Sin nombre"
             })) || []);
 
-            console.log('Especies:', response.productionLotSpecies?.map((item) => ({
-                id: item.specie?.id,
-                name: item.specie?.common_name || "Sin nombre"
-            })));
+         
         } catch (error) {
             console.error("Error fetching lots:", error);
             setLotesList([]);
@@ -256,7 +246,6 @@ const VisualizarLote = () => {
             setMessageAlert("Error al cargar los lote. Intenta de nuevo más tarde.");
         }
     };
-    // console.log('cargar',updateService() )
     const showErrorAlertSuccess = (message) => {
         setShowErrorAlert(true)
         setMessageAlert(`Reporte de seguimiento ${message} exitosamente`);

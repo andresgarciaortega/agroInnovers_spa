@@ -78,20 +78,17 @@ const ViewEspacio = ({ }) => {
                 }
             );
 
-            console.log('Espacio cargado:', data);
         } catch (error) {
             console.error('Error al cargar el espacio:', error);
         }
     };
 
     const feychMonitoring = async () => {
-        console.log('id', id)
         try {
             const data = await SystemMonitory.getAllMonitories();
             setmonitoringSystems(data);
 
             // setNewCompany(data)
-            console.log('datos', data)
         } catch (error) {
             console.error('Error fetching companies:', error);
         }
@@ -155,7 +152,6 @@ const ViewEspacio = ({ }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log('Datos de configureMeasurementControls:', formData.subProductionSpaces.map(subSpace => subSpace.configureMeasurementControls));
 
         const data = {
             id: formData.id,
@@ -201,12 +197,10 @@ const ViewEspacio = ({ }) => {
 
         try {
             const response = await EspacioService.updateEspacio(formData.id, data);
-            console.log('Espacio actualizado con éxito', response);
             navigate('../espacio');
         } catch (error) {
             console.error('Error al actualizar el espacio:', error);
             if (error.response) {
-                console.log('Respuesta del servidor:', error.response.data);
             }
         }
     };
@@ -219,7 +213,6 @@ const ViewEspacio = ({ }) => {
         setFormData({ ...formData, subProductionSpaces: updatedSubSpaces });
     };
     const handleOpenModal = (control, mode) => {
-        console.log("control antes de editar : ", control)
         setNewControl({
             measurementType: control.measurementType,
             sensorId: control.sensor?.id || '',

@@ -84,45 +84,38 @@ const EditarEspacio = ({ }) => {
                     : [],
             });
 
-            console.log('Espacio cargado:', data);
         } catch (error) {
             console.error('Error al cargar el espacio:', error);
         }
     };
 
     const feychMonitoring = async () => {
-        console.log('id', id)
         try {
             const data = await SystemMonitory.getAllMonitories();
             setmonitoringSystems(data);
 
             // setNewCompany(data)
-            console.log('datos', data)
         } catch (error) {
             console.error('Error fetching companies:', error);
         }
     };
     const feychSensor = async () => {
-        console.log('id', id)
         try {
             const data = await SensorService.getAllSensor(0, {});
             setSensor(data);
 
             // setNewCompany(data)
-            console.log('datos', data)
         } catch (error) {
             console.error('Error fetching sensor:', error);
         }
     };
     const feychActuador = async () => {
-        console.log('id', id)
         try {
             const data = await ActuadorService.getAllActuador(0,{});
 
             setActuador(data);
 
             // setNewCompany(data)
-            console.log('datos', data)
         } catch (error) {
             console.error('Error fetching actuadores:', error);
         }
@@ -281,7 +274,6 @@ const EditarEspacio = ({ }) => {
         try {
             // Enviar los datos actualizados al backend
             const response = await EspacioService.updateEspacio(formData.id, data);
-            console.log('Espacio actualizado con éxito', response);
 
             // Redirigir a la vista de espacios (ajusta la ruta según sea necesario)
             navigate('../espacio');
@@ -293,7 +285,6 @@ const EditarEspacio = ({ }) => {
 
 
     const handleOpenModal = (control, mode) => {
-        console.log("control antes de editar : ", control)
         setNewControl({
             measurementType: control.measurementType,
             sensorId: control.sensor?.id || '',

@@ -101,7 +101,6 @@ const FromMantenimiento = ({selectedCompany,sensorId, showErrorAlert, onUpdate, 
 
   useEffect(() => {
     if (sensorId) {  
-      console.log('ID del sensor recibido:', sensorId); 
       setFormData((prevData) => ({
         ...prevData,
         sensor_id: sensorId  
@@ -255,13 +254,11 @@ const handleSubmit = async (e) => {
 
     if (mode === 'mantenimiento') {
       const createdMantenimiento = await SensorMantenimientoService.createMantenimiento(formDataToSubmit);
-      console.log('Mantenimiento creado:', formDataToSubmit);
       showErrorAlert("Mantenimiento creado correctamente.");
     } else if (mode === 'edit') {
       await SensorMantenimientoService.updateMantenimiento(sensorId, formDataToSubmit);
       showErrorAlert("Mantenimiento actualizado correctamente.");
     }
-    console.log('Datos enviados:', formDataToSubmit);
 
     // Actualizar y cerrar modal
     onUpdate();
@@ -278,10 +275,8 @@ const handleSubmit = async (e) => {
     const fetchSensorDetails = async () => {
       try {
         const sensorDetails = await SensorService.getSensorById(sensorId);
-        console.log('Detalles del sensor:', sensorDetails);
 
         setFormData((prevData) => {
-          console.log('Formulario actualizado:', { ...prevData, estimatedReplacementDate: sensorDetails.estimatedChangeDate });
           return {
             ...prevData,
             estimatedReplacementDate: sensorDetails.estimatedChangeDate || '',

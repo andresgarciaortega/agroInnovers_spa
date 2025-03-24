@@ -60,7 +60,6 @@ const ListaEspecies = () => {
     const fetchCompanies = async () => {
       try {
         const data = await CompanyService.getAllCompany();
-        console.log("comáñia:", data);
         setCompanyList(data);
       } catch (error) {
         console.error('Error fetching companies:', error);
@@ -75,7 +74,6 @@ const ListaEspecies = () => {
     const fetchCategory = async () => {
       try {
         const data = await CategoryService.getAllCategory();
-        console.log("categoria:", data);
         setCategoryList(data);
       } catch (error) {
         console.error('Error fetching Category:', error);
@@ -223,7 +221,6 @@ const ListaEspecies = () => {
     setSelectedEspecie(null);
 
     try {
-      console.log("Confirmando eliminación de especie con id:", selectedEspecie.id);
 
       const data = await SpeciesService.deleteSpecie(selectedEspecie.id);
 

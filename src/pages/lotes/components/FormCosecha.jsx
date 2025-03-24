@@ -41,7 +41,6 @@ const FormCosechar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             if (lote.productionSpace?.id) {
                 fetchEspacioDetalles(lote.productionSpace.id);
             }
-            console.log('lote traido', lote)
 
             setLoteConEspecies(lote);
         }

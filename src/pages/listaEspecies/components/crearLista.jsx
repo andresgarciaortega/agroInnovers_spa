@@ -85,7 +85,6 @@ const CrearListas = () => {
       variable: value, // Guarda los IDs seleccionados en el estado
     }));
 
-    console.log(formDataVariables)
   };
 
 
@@ -146,7 +145,6 @@ const CrearListas = () => {
 
    useEffect(() => {
         if (showSuccessAlert) {
-            console.log("Show success alert:", showSuccessAlert);
         }
     }, [showSuccessAlert]);
 
@@ -444,9 +442,6 @@ const CrearListas = () => {
   // };
 
   // const handleDeleteClick = (stageIndex, paramId) => {
-  //   console.log("stageIndex : ", stageIndex)
-  //   console.log("paramId : ", paramId)
-  //   console.log( "Data stage " , stages)
   //   setStages((prevStages) => {
   //     return prevStages.map((stage, index) => {
   //       if (index === stageIndex) {
@@ -461,7 +456,6 @@ const CrearListas = () => {
   // };
 
   const handleDeleteClick = (stageIndex, paramIndex, param) => {
-    console.log(param)
     setStages((prevStages) => {
       return prevStages.map((stage, index) => {
         if (index === stageIndex) {
@@ -568,7 +562,6 @@ const CrearListas = () => {
       description: stage.description,
       time_to_production: stage.time_to_production,
     }));
-    console.log(transformed)
     setFormattedStages(transformed);
   };
   // const handleParameterChange = (stageIndex, paramIndex, field, value) => {
@@ -585,8 +578,6 @@ const CrearListas = () => {
       [field]: field === 'variable' ? [value] : value,
     }));
 
-    console.log("newParameter 1: ", formData)
-    console.log("newParameter : ", newParameter)
   };
 
   const addParameterToStage = (stageIndex) => {
@@ -640,7 +631,6 @@ const CrearListas = () => {
       time_to_production: stage.time_to_production,
     }));
     setFormattedStages(transformed);
-    console.log(formattedStages)
   }
   return (
     <form onSubmit={handleSubmit} className="p-">

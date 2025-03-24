@@ -9,7 +9,6 @@ const EspacioService = {
     async getAllEspacio(idcompany = 0) {
         try {
             const response = await api.get(`/production-space?page=1&limit=10000&company=${idcompany}`);
-            console.log('response', response)
             return response.data;
         } catch (error) {
             console.error('Error al obtener los s de espacio:', error);
@@ -58,7 +57,6 @@ const EspacioService = {
     async updateEspacio(id, data) {
         try {
             const response = await api.put(`/production-space/${id}`, data);
-            console.log('datos de actualiacion estapios', response)
             return response.data;
         } catch (error) {
             console.error('Error al actualizar los s de espacio:', error);
@@ -69,7 +67,6 @@ const EspacioService = {
     async updateControl(id, data) {
         try {
             const response = await api.put(`/production-space/update_measure/${id}`, data);
-            console.log('datos de actualiacion control y medicion de la variable', response)
             return response.data;
         } catch (error) {
             console.error('Error al actualizar e control y medicion de la variable:', error);

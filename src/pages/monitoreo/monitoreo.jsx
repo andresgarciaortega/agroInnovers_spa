@@ -76,23 +76,19 @@ const Monitoreo = () => {
         }
         const data = await SystemMonitory.getAllMonitories(companyId);
 
-        console.log("Datos recibidos:", data);
         if (data.statusCode === 404) {
           setData([]);
         } else {
           setShowErrorAlertTable(false);
           setData(Array.isArray(data) ? data : []);
-          console.log('datos de monitoreo', data)
         }
       } catch (error) {
         console.error('Error fetching type Monitoreo:', error);
         setData([]);
-        console.log('datos de monitoreo', data)
         setMessageAlert('Esta empresa no tiene Monitoreo registradas, Intentalo con otra empresa');
         setShowErrorAlertTable(true);
       }
     };
-    console.log('datos de monitoreo', data)
     fetchMonitoreo();
   }, [selectedCompanyUniversal]);
 

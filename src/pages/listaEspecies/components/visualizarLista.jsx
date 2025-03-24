@@ -90,7 +90,6 @@ const VisualizarLista = () => {
     const fetchSpecie = async () => {
         try {
             const data = await SpeciesService.getSpecieById(id);
-            console.log("Datos de especie:", data);
             setFormData({
                 category_id: data.category?.id || 0,
                 company_id: data.company_id|| 0,
@@ -103,8 +102,6 @@ const VisualizarLista = () => {
                 stage: data.stages || [],
                 parameters: data.parameters || [],
             });
-            console.log('categoria', formData.category_id)
-            console.log('csubategoria', formData.subcategory_id)
             setImagePreview(data.photo);
 
             if (data.category) {

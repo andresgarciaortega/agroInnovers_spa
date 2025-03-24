@@ -94,7 +94,6 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
 
     useEffect(() => {
         if (sensorId) {
-            console.log('ID del sensor recibido:', sensorId);
             setFormData((prevData) => ({
                 ...prevData,
                 sensor_id: sensorId
@@ -241,13 +240,11 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
 
             if (mode === 'calibrar') {
                 const createdMantenimiento = await SensorCalibradorService.createMantenimiento(formDataToSubmit);
-                console.log('calibración creado:', formDataToSubmit);
                 showErrorAlert("calibración creado");
             } else if (mode === 'edit') {
                 await SensorCalibradorService.updateMantenimiento(sensorId, formDataToSubmit);
                 showErrorAlert("calibración actualizado correctamente.");
             }
-            console.log('Datos enviados:', formDataToSubmit);
 
             // Actualizar y cerrar modal
             onUpdate();
@@ -264,10 +261,8 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
             const fetchSensorDetails = async () => {
                 try {
                     const sensorDetails = await SensorService.getSensorById(sensorId);
-                    console.log('Detalles del sensor:', sensorDetails);
 
                     const sensorTypePoints = sensorDetails.sensorType?.calibrationPoints || [];
-                    console.log('Puntos de calibración:', sensorTypePoints);
 
                     setFormData((prevData) => ({
                         ...prevData,
@@ -287,7 +282,6 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
 
     // Usar un efecto para ver los cambios de formData
     useEffect(() => {
-        console.log('Estado actualizado de formData:', formData);
     }, [formData]);
 
 

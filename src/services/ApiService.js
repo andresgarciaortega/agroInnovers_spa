@@ -29,7 +29,7 @@
 //                 reject(error);
 //             });
 //     });
-    
+
 // };
 
 // // Función para agregar el token al encabezado de la solicitud
@@ -79,6 +79,9 @@
 //         });
 //     },
 // };
+
+
+
 const BASE_URL = 'https://agroinnovers-fdbf30f0b339.herokuapp.com';
 const TIMEOUT = 5000;
 
@@ -128,7 +131,6 @@ const createAuthHeaders = () => {
 const api = {
     get: async (endpoint, params = {}) => {
         const cacheKey = generateCacheKey(endpoint); // 🔥 Clave uniforme
-        console.log("nombre arreglo localstorage  get : " , cacheKey)
         try {
             const online = await isOnline();
             if (online) {
@@ -144,7 +146,18 @@ const api = {
                 saveToLocalStorage(cacheKey, data);
                 return data;
             } else {
-                return getFromLocalStorage(cacheKey);
+                // 🔥 Obtener datos desde `localStorage`
+                let cachedData = getFromLocalStorage(cacheKey);
+                if (!cachedData || !cachedData.data) return { data: [] };
+
+                // ✅ Si se envió `companyId`, filtrar usuarios por empresa
+                // if (params.companyId) {
+                //     cachedData.data = cachedData.data.filter(user =>
+                //         user.company?.id === Number(params.companyId) || user.companies_id === Number(params.companyId)
+                //     );
+                // }
+
+                return cachedData;
             }
         } catch (error) {
             console.error('Error en GET:', error);
@@ -154,7 +167,6 @@ const api = {
 
     post: async (endpoint, data) => {
         const cacheKey = generateCacheKey(endpoint); // 🔥 Clave uniforme
-        console.log("nombre arreglo localstorage  post: " , cacheKey)
 
         try {
             const online = await isOnline();
@@ -170,21 +182,29 @@ const api = {
 
                 return response;
             } else {
-                let cacheData = getFromLocalStorage(cacheKey);
-                if (!cacheData) {
-                    cacheData = { data: [] }; // Asegurar que cacheData existe
+                let cacheData = getFromLocalStorage(cacheKey) || { data: [] };
+
+                // Filtrar los registros que pertenezcan a la empresa actual
+                const companyRecords = cacheData.data.filter(item => item.company_id === data.company_id);
+
+                let newId;
+                if (companyRecords.length === 0) {
+                    // 📌 Si NO hay registros de la empresa, genera el primer ID basado en company_id
+                    newId = data.company_id * 1000 + 1;
+                } else {
+                    // 📌 Si YA existen registros, busca el ID más alto y súmale 1
+                    const maxId = Math.max(...companyRecords.map(item => item.id));
+                    newId = maxId + 1;
                 }
-                // Obtener el ID máximo existente en la caché
-                const maxId = cacheData.data.length > 0 ? Math.max(...cacheData.data.map(item => item.id)) : 10000;
-                // Extraer el company_id del último registro o usar 1 como fallback
-                const lastItem = cacheData.data.find(item => item.id === maxId);
-                const codigo_empresa = lastItem ? lastItem.company_id : 1;
-                // Generar el nuevo ID local basado en la empresa
-                const localId = codigo_empresa * 1000 + (cacheData.data.length + 1);
-                const newItem = { ...data, id: localId };
+
+                // 📌 Crear el nuevo objeto con el ID generado
+                const newItem = { ...data, id: newId };
                 cacheData.data.push(newItem);
+
+                // 📌 Guardar en localStorage
                 saveToLocalStorage(cacheKey, cacheData);
-                console.warn("🚨 No hay internet. Datos guardados en LocalStorage con ID:", localId);
+                console.warn("🚨 No hay internet. Datos guardados en LocalStorage con ID:", newId);
+
                 return newItem;
             }
         } catch (error) {

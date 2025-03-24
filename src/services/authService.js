@@ -8,7 +8,6 @@ const AccesUser = {
     async accesUsersLoguin(data) {
         try {
             const response = await api.post('/auth/login/', data);
-            console.log(" ::::", response.access_token)
             return { error: true, response: response.access_token }; // Asegúrate de acceder a response.data
         } catch (error) {
             // Captura el error 401 Unauthorized

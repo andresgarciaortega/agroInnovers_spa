@@ -27,7 +27,6 @@ const Login = () => {
     e.preventDefault();
 
     const accesUser = await AccesUser.accesUsersLoguin({ email, password });
-    console.log("accesUser : ", accesUser);
 
     if (accesUser.error) {
         localStorage.setItem('authToken', accesUser.response);

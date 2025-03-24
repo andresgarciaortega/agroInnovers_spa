@@ -143,7 +143,6 @@ useEffect(() => {
 
     // Enviar los datos de rechazo
     try {
-        console.log("Enviando rechazo:", rejectionData);
         await LoteService.updateRechazo(lote.id, rejectionData);
 showErrorAlert("Rechazado realizado ");
 

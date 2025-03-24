@@ -22,7 +22,6 @@ const VisualizarMonitoreo = () => {
     const fetchSistemas = async () => {
       try {
         const data = await SystemMonitory.getMotitoriesById(id);
-        console.log('datos', data);
         setMonitorName(data.nombreId); // Guardar el nombre del monitor
         const espaciosData = data.productionSpaces.map((espacio) => ({
           id: espacio.id,

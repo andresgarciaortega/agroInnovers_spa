@@ -63,7 +63,6 @@ const Usuario = () => {
     const fetchCompanies = async () => {
       try {
         const data = await CompanyService.getAllCompany();
-        console.log("Fetched companies:", data);
         setCompanyList(data);
       } catch (error) {
         console.error('Error fetching companies:', error);
@@ -82,11 +81,9 @@ const Usuario = () => {
       if (!companyId) {
         setUsersList([]);
         return;
-
       } else {
         setNameCompany(selectedCompanyUniversal.label)
       }
-
       try {
         const data = await UsersService.getAllUser(companyId);
         if (data.statusCode === 404) {
@@ -97,7 +94,7 @@ const Usuario = () => {
           setUsersList(Array.isArray(data) ? data : []);
           setIsLoading(false);
         }
-        if(data.length < 1){
+        if (data.length < 1) {
           setShowErrorAlertTable(true)
           setMessageAlert('Esta empresa no tiene usuarios registradas, Intentalo con otra empresa');
           setUsersList(Array.isArray(data) ? data : []);
@@ -117,7 +114,6 @@ const Usuario = () => {
 
   const handleCompanyChange = (selectedOption) => {
     setSelectedCompany(selectedOption ? selectedOption.value : null);
-    console.log("Selected company:", selectedOption ? selectedOption.value : null);
   };
 
 
@@ -137,7 +133,6 @@ const Usuario = () => {
   const indexOfLastCompany = currentPage * itemsPerPage;
   const indexOfFirstCompany = indexOfLastCompany - itemsPerPage;
   const currentCompanies = filteredUser.slice(indexOfFirstCompany, indexOfLastCompany);
-
 
   const handleNextPage = () => {
     if (currentPage < Math.ceil(filteredUser.length / itemsPerPage)) {
@@ -183,6 +178,7 @@ const Usuario = () => {
     setIsModalOpen(false);
     // setCurrentUser(null);
     setModalMode('create');
+    setShowErrorAlertTable(false);
   };
 
   // Eliminar
@@ -283,162 +279,124 @@ const Usuario = () => {
           )}
         </div>
       </div>
-
-      <div className="mb-5 buscadorTable">
-        {/* Input de búsqueda */}
-        <input
-          type="text"
-          placeholder="Buscar Usuario"
-          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-      {isLoading && <LoadingView />}
-
-      <div className="bg-white rounded-lg shadow">
-        <div className="flex justify-between items-center p-6 border-b seccionNombreBtn">
-          <h2 className="text-xl font-semibold">Usuarios</h2>
-          <div className="divisor"></div>
-          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => handleOpenModal()}>
-            <FiPlusCircle size={20} className="mr-2" />
-            Añadir usuario
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-300 ">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celular</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Día de registro</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de usuario</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {currentCompanies.map((user, index) => (
-                <tr key={user.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ textTransform: 'uppercase' }}>{user.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phone}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.created_at}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex justify-center text-sm leading-5 py-1 font-bold rounded-md ${user?.roles[0]?.name === 'SUPER-ADMINISTRADOR'
-                        ? 'text-blue-500 bg-cyan-100 font-bold '
-                        : user?.roles[0]?.name === 'ADMINISTRADOR'
-                          ? 'text-teal-500 bg-cyan-100 '
-                          : user?.roles[0]?.name === 'OPERARIO'
-                            ? 'text-[#168C0DFF] bg-cyan-100 '
-                            : 'text-gray-500'
-                        }`}
-                    >
-                      {user?.roles[0]?.name}
-                    </span>
-                  </td>
-                  <td className="bg-customGreen text-[#168C0DFF] px- py-2 rounded">
-                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(user, 'view')}>
-                      <Eye size={18} />
-                    </button>
-                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(user, 'edit')}>
-                      <Edit size={18} />
-                    </button>
-                    <button onClick={() => handleDelete(user)} className="px-2 py-4 whitespace-nowrap text-sm font-medium">
-                      <Trash size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {/* Modal de eliminación */}
-          {isDeleteModalOpen && (
-            <Delete
-              message={`¿Seguro que desea eliminar el usuario ${selectedUsers?.name}?`}
-              onCancel={handleCancelDelete}
-              onConfirm={handleConfirmDelete}
+      {isLoading ? (
+        <LoadingView />
+      ) : (
+        <>
+          <div className="mb-5 buscadorTable">
+            <input
+              type="text"
+              placeholder="Buscar Usuario"
+              className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          )}
-        </div>
-      </div>
-
-      <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
-
-        <div className="pagination-info text-sm flex items-center space-x-2">
-          <span>Cantidad de filas</span>
-          <select
-            className="border border-gray-200 rounded py-2 text-sm m-2"
-            value={itemsPerPage}
-            onChange={handleItemsPerPageChange}
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-          </select>
-        </div>
-
-
-        <div className="pagination-controls text-xs flex items-center space-x-2">
-          <span>{currentPage} de {Math.ceil(usersList.length / itemsPerPage)}</span>
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-          >
-            <IoIosArrowBack size={20} />
-          </button>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === Math.ceil(usersList.length / itemsPerPage)}
-            className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-          >
-            <IoIosArrowForward size={20} />
-          </button>
-        </div>
-      </div>
-
-      {/* Modal crea,editar,visualizar*/}
-      {isModalOpen && (
-        <GenericModal
-          title={modalMode === 'edit' ? 'Editar Usuario' : modalMode === 'view' ? 'Ver Usuario' : 'Añadir Usuario'}
-          onClose={closeModal}>
-          <FormUser
-            showErrorAlert={showErrorAlertSuccess}
-            onUpdate={updateListUsers}
-            user={newUser} mode={modalMode} closeModal={closeModal} />
-        </GenericModal>
-      )}
-
-      {showErrorAlert && (
-        <SuccessAlert
-          message={messageAlert}
-          onCancel={handleCloseAlert}
-        />
-      )}
-
-      {showErrorAlertTable && (
-        <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">
-          <div className="flex items-center space-x-2">
-            <IoIosWarning size={20} />
-            <p>{messageAlert}</p>
           </div>
-          <div className="flex justify-end w-full">
-            <button
-              onClick={handleCloseErrorAlert}
-              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
-              Cancelar
-            </button>
+
+
+          <div className="bg-white rounded-lg shadow">
+            <div className="flex justify-between items-center p-6 border-b seccionNombreBtn">
+              <h2 className="text-xl font-semibold">Usuarios</h2>
+              <div className="divisor"></div>
+              <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => handleOpenModal()}>
+                <FiPlusCircle size={20} className="mr-2" />
+                Añadir usuario
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-300">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celular</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Día de registro</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de usuario</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {usersList.map((user, index) => (
+                    <tr key={user.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ textTransform: 'uppercase' }}>
+                        {user.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phone}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.created_at}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 inline-flex justify-center text-sm leading-5 py-1 font-bold rounded-md ${user?.roles?.[0]?.id === 1 || user?.roles?.[0]?.name === 'SUPER-ADMINISTRADOR'
+                              ? 'text-blue-500 bg-cyan-100 font-bold'
+                              : user?.roles?.[0]?.id === 2 || user?.roles?.[0]?.name === 'ADMINISTRADOR'
+                                ? 'text-teal-500 bg-cyan-100'
+                                : user?.roles?.[0]?.id === 3 || user?.roles?.[0]?.name === 'OPERARIO'
+                                  ? 'text-[#168C0DFF] bg-cyan-100'
+                                  : 'text-gray-500'
+                            }`}
+                        >
+                          {typeof user?.roles?.[0] === 'object' ? user?.roles?.[0]?.name :
+                            user?.roles?.[0] === 1 ? 'SUPER-ADMINISTRADOR' :
+                              user?.roles?.[0] === 2 ? 'ADMINISTRADOR' :
+                                user?.roles?.[0] === 3 ? 'OPERARIO' : 'Desconocido'}
+                        </span>
+                      </td>
+                      <td className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded">
+                        <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(user, 'view')}>
+                          <Eye size={18} />
+                        </button>
+                        <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(user, 'edit')}>
+                          <Edit size={18} />
+                        </button>
+                        <button onClick={() => handleDelete(user)} className="px-2 py-2 text-sm font-medium">
+                          <Trash size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Modal de eliminación */}
+              {isDeleteModalOpen && (
+                <Delete
+                  message={`¿Seguro que desea eliminar el usuario ${selectedUser?.name}?`}
+                  onCancel={handleCancelDelete}
+                  onConfirm={handleConfirmDelete}
+                />
+              )}
+            </div>
           </div>
-        </div>
+
+          {/* Paginación */}
+          <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+            <div className="pagination-info text-sm flex items-center space-x-2">
+              <span>Cantidad de filas</span>
+              <select className="border border-gray-200 rounded py-2 text-sm m-2" value={itemsPerPage} onChange={handleItemsPerPageChange}>
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+              </select>
+            </div>
+
+            <div className="pagination-controls text-xs flex items-center space-x-2">
+              <span>{currentPage} de {Math.ceil(usersList.length / itemsPerPage)}</span>
+              <button onClick={handlePrevPage} disabled={currentPage === 1} className="border rounded-md px-2 py-1">
+                <IoIosArrowBack size={20} />
+              </button>
+              <button onClick={handleNextPage} disabled={currentPage === Math.ceil(usersList.length / itemsPerPage)} className="border rounded-md px-2 py-1">
+                <IoIosArrowForward size={20} />
+              </button>
+            </div>
+          </div>
+        </>
       )}
-
-
     </div>
   );
+
 };
 
 export default Usuario;

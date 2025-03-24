@@ -94,7 +94,6 @@ const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate
 
     useEffect(() => {
         if (actuadorId) {
-            console.log('ID del actuador recibido:', actuadorId);
             setFormData((prevData) => ({
                 ...prevData,
                 actuador_id: actuadorId
@@ -250,14 +249,12 @@ const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate
     
             if (mode === 'calibrar') {
                 const createdMantenimiento = await ActuadorCaliService.createMantenimiento(formDataToSubmit);
-                console.log('calibración creado:', formDataToSubmit);
                 showErrorAlert("calibración creado .");
             } else if (mode === 'edit') {
                 await ActuadorCaliService.updateMantenimiento(actuadorId, formDataToSubmit);
                 showErrorAlert("calibración actualizado correctamente.");
             }
     
-            console.log('Datos enviados:', formDataToSubmit);
     
             // Actualizar y cerrar modal
             onUpdate();
@@ -275,10 +272,8 @@ const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate
             const fetchActuadorDetails = async () => {
                 try {
                     const actuadorDetails = await ActuadorService.getActuadorById(actuadorId);
-                    console.log('Detalles del actuador:', actuadorDetails);
 
                     const sensorTypePoints = actuadorDetails.actuatorType?.calibrationPoints || [];
-                    console.log('Puntos de calibración:', sensorTypePoints);
     
                     setFormData((prevData) => ({
                         ...prevData,

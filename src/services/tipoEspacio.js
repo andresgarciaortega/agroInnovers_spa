@@ -9,7 +9,6 @@ const TipoEspacioService = {
     async getAlltipoEspacio(idcompany = 0) {
         try {
             const response = await api.get(`/production-space-types?page=1&limit=10000&company=${idcompany}`);
-            console.log('response', response)
             return response.data;
         } catch (error) {
             console.error('Error al obtener los tipos de espacio:', error);

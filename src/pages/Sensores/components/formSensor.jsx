@@ -35,7 +35,6 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
     const fetchSensorTypes = async () => {
       try {
         const typeSensor = await TypeService.getAllSensor();
-        console.log('Tipos de sensores:', typeSensor); // Verifica qué se está devolviendo
         setSensorType(Array.isArray(typeSensor) ? typeSensor : []); // Asegura que sea un array
       } catch (error) {
         console.error('Error al obtener los tipos de sensores:', error);

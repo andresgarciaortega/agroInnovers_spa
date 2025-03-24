@@ -18,7 +18,7 @@ export default function LoadingView({
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+    <div className=" flex flex-col items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-lg shadow-sm text-center">
         <div className="flex flex-col items-center justify-center">
           <img

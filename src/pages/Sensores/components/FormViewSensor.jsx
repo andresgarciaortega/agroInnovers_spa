@@ -40,7 +40,6 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                 const typeSensor = await TypeService.getAllSensor();
                 setSensorType(typeSensor);
             } catch (error) {
-                console.log('Error al obtener los tipos de sensores:', error);
             }
         };
 
@@ -61,7 +60,6 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
 
                 const data = await SensorMantenimientoService.getAllMantenimiento();
 
-                console.log('manteminientos', data)
                 if (data.statusCode === 404) {
                     setMantenimiento([]);
                 } else {
@@ -84,7 +82,6 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                 if (!sensor || !sensor.id) return;
 
                 const data = await SensorMantenimientoService.getMantenimientoBySensor(sensor.id);
-                console.log("Datos de mantenimiento:", data);
                 if (data.statusCode === 404) {
                     setMantenimiento([]);  
                 } else {
@@ -124,7 +121,6 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                 if (!sensor || !sensor.id) return;
 
                 const data = await CalibrarSensor.getMantenimientoBysensor(sensor.id);
-                console.log("Datos de mantenimiento:", data);
                 if (data.statusCode === 404) {
                     setCalibracion([]);  
                 } else {
@@ -142,14 +138,12 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
     const openModal = async (modalType, id= 0) => {
      
        
-        console.log('mantenimientos', mantenimiento)
         if (modalType === "mantenimiento"){
             try {
                 if (!sensor || !sensor.id) return;
 
                 const data = await SensorMantenimientoService.getMantenimientoBySensor(id);
 
-                console.log("Datos de mantenimiento:", data);
                 if (data.statusCode === 404) {
                     setMantenimiento([]);  
                 } else {
@@ -160,13 +154,11 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
                 setMantenimiento([]); 
             }
         }
-        console.log('mantenimientos', mantenimiento)
         if (modalType === "calibrar"){
             try {
                 if (!sensor || !sensor.id) return;
 
                 const data = await CalibrarSensor.getMantenimientoBysensor(sensor.id);
-                console.log("Datos de mantenimiento:", data);
                 if (data.statusCode === 404) {
                     setCalibracion([]);  
                 } else {

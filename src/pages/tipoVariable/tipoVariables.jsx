@@ -10,17 +10,17 @@ import VariableType from "../../services/VariableType";
 import SuccessAlert from "../../components/alerts/success";
 import ErrorAlert from "../../components/alerts/error";
 import { IoSearch } from "react-icons/io5";
-import LoadingView from '../../components/Loading/loadingView';
 import CompanyService from "../../services/CompanyService";
 
 
-import { ImEqualizer2 } from "react-icons/im";
+import { ImEqualizer2 } from "react-icons/im"; 
 import { IoIosWarning } from 'react-icons/io';
 
 
 import Select from "react-select";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
+import LoadingView from "../../components/Loading/loadingView";
 
 const TipoVariable = () => {
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
@@ -48,7 +48,7 @@ const TipoVariable = () => {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
 
   useEffect(() => {
@@ -67,6 +67,7 @@ const TipoVariable = () => {
         }
 
         const data = await VariableType.getAllTypeVariable();
+        setIsLoading(false)
 
         // Verifica si la respuesta es válida y si contiene datos
         if (data.statusCode === 404) {
@@ -183,7 +184,6 @@ const TipoVariable = () => {
       // Guardar la lista actualizada en el localStorage
       localStorage.setItem('variableTypes', JSON.stringify(updatedVariableTypes));
   
-      console.log('Tipo de variable eliminado del localStorage:', selectedTypeVariable.id);
   
       // Mostrar mensaje de éxito
       setMessageAlert("Tipo de variable eliminada exitosamente");
@@ -289,6 +289,10 @@ const TipoVariable = () => {
           )} */}
         </div>
       </div>
+      {isLoading ? (
+        <LoadingView />
+      ) : (
+        <>
 
       <div className="relative w-full mt-6 py-5 z-0">
         {/* Input de búsqueda */}
@@ -383,7 +387,8 @@ const TipoVariable = () => {
           </button>
         </div>
       </div>
-
+    </>
+      )}
       {/* Modalcrear-editar-visualizar*/}
 
       {isModalOpen && (

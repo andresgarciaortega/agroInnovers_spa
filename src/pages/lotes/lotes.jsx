@@ -97,7 +97,6 @@ const Lotes = () => {
         // Obtener reportes de seguimiento
         const reportes = await ReporteService.getAllReporte(0, {});
 
-        console.log('reportes', reportes)
         const reportesPorEspecie = reportes.reduce((acc, reporte) => {
           const especieId = reporte.specieId;
           if (!acc[especieId]) {
@@ -280,7 +279,6 @@ const Lotes = () => {
   };
 
   const handleViewLot = (lote) => {
-    console.log('si')
     navigate(`../visualizarLote/${lote.id}`);
   };
 
@@ -305,7 +303,6 @@ const Lotes = () => {
     setItemsPerPage(Number(event.target.value));
     setCurrentPage(1);
   };
-  // console.log("productoLoSpecies:", loteList.productoLoSpecies);
 
 
   return (

@@ -28,10 +28,7 @@ const ActuadorMantenimientoService = {
     // CREAR UNA mantenimiento
     async createMantenimiento(data) {
         try {
-            console.log('entre en esto')
             const response = await api.post('/actuator-maintenance/', data);
-            console.log('termine en esto', response)
-
             return response;
         } catch (error) {
             console.error('Error al crear la especies:', error);

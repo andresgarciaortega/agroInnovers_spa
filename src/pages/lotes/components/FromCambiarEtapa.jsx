@@ -32,7 +32,6 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             }));
             if (lote.id) fetchEspeciesPorLote(lote.id);
         }
-        console.log('lote traido',lote )
     }, [lote]);
 
     const fetchEspacios = async () => {
@@ -80,7 +79,6 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                     name: stageItem.stage.name
                 }));
                 setEtapas(etapasList);
-                console.log('etapas:', etapasList)
             } else {
                 setEtapas([]);
             }
@@ -112,7 +110,6 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
     
-        console.log("Datos antes del envío:", formData);
     
         const data = {
             trackingConfig: {
@@ -122,7 +119,6 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             },
         };
     
-        console.log("Datos enviados:", data);
     
         try {
             await LoteService.updateLots(lote, data);

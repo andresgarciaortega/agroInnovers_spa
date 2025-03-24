@@ -192,7 +192,6 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                     normalResponse: point.normalResponse || ''
                 })) || [],
             });
-            console.log('tipo de sensor traido:', sensor)
             setImagePreview(sensor.icon); // Actualización de la vista previa del ícono
         } else {
             setFormData({
@@ -288,7 +287,6 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
                 showErrorAlert("Sensor actualizado");
             }
 
-            console.log('Datos enviados:', formDataToSubmit);
             onClose();
             onUpdate();
         } catch (error) {
@@ -335,7 +333,6 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
     };
 
     useEffect(() => {
-        console.log(formData.calibrationPoints); // Verifica el estado en cada renderizado
     }, [formData.calibrationPoints]);
 
     return (

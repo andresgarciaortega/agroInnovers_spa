@@ -69,7 +69,6 @@ const Espacio = () => {
   //     try {
   //       const data = await EspacioService.getAllEspacio();
   //       setVariableList(data);
-  //       console.log('espacios', variableList)
   //     } catch (error) {
   //       console.error('Error fetching space:', error);
   //     }
@@ -95,12 +94,10 @@ const Espacio = () => {
         const data = await EspacioService.getAllEspacio(companyId);
         if (data.statusCode === 404) {
           setVariableList([]);
-          console.log('datos1', data)
 
         } else {
           setShowErrorAlertTable(false)
           setVariableList(Array.isArray(data) ? data : []);
-          console.log('datos', data)
 
         }
       } catch (error) {

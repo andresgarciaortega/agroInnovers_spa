@@ -154,7 +154,6 @@ const EditarCategorias = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        console.log("entro aqui")
         try {
             let imageUrl = '';
             if (formData.image && formData.image.name) {
@@ -188,13 +187,11 @@ const EditarCategorias = () => {
 
             };
 
-            console.log(formDataToSubmit);
 
             await CategoryService.updateCategory(id, formDataToSubmit);
 
             setShowSuccessAlert(true);
             setTimeout(() => setShowSuccessAlert(false), 3000);
-            console.log("Show success alert:", showSuccessAlert);
             setTimeout(() => {
                 navigate('../especies');
             }, 3000);
@@ -202,7 +199,6 @@ const EditarCategorias = () => {
             console.error("Error:", error);
             setShowAlertError(true);
             setMessageAlert("Hubo un error al editar la categoría");
-            console.log("Show error alert:", showAlertError);
         }
     };
 
@@ -213,13 +209,11 @@ const EditarCategorias = () => {
 
     useEffect(() => {
         if (showSuccessAlert) {
-            console.log("Show success alert:", showSuccessAlert);
         }
     }, [showSuccessAlert]);
 
     useEffect(() => {
         if (showAlertError) {
-            console.log("Show error alert:", showAlertError);
         }
     }, [showAlertError]);
 

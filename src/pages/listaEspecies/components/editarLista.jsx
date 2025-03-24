@@ -100,8 +100,6 @@ const EditarLista = () => {
 
             const variables = await VaiableService.getAllVariable(companyId);
             setVariables(variables);
-console.log('--', variables )
-console.log('-++-', variables )
         } catch (error) {
             console.error('Error fetching subcategories:', error);
         }
@@ -109,7 +107,6 @@ console.log('-++-', variables )
     const fetchSpecie = async () => {
         try {
             const data = await SpeciesService.getSpecieById(id);
-            console.log("Datos de especie:", data);
             setFormData({
                 category_id: data.category?.id || 0,
                 company_id: data.company_id || 0,
@@ -123,7 +120,6 @@ console.log('-++-', variables )
                 stage: data.stages || [],
                 parameters: data.parameters || [],
             });
-            console.log('datos', formData)
 
             setImagePreview(data.photo);
 
@@ -155,7 +151,6 @@ console.log('-++-', variables )
 
     useEffect(() => {
         if (showSuccessAlert) {
-            console.log("Show success alert:", showSuccessAlert);
         }
     }, [showSuccessAlert]);
     const handleEditClick = (stageIndex, paramIndex) => {
@@ -561,7 +556,6 @@ console.log('-++-', variables )
 
         try {
             let imageUrl = '';
-            console.log('imagen  1: ', formData.image)
 
             if (formData.image?.name) {
                 imageUrl = await UploadToS3(formData.image);
@@ -570,7 +564,6 @@ console.log('-++-', variables )
             }
 
             const parsedCompanyId = parseInt(formData.company_id, 10);
-            console.log("Datos de especie formData:", formData);
 
             const formDataToSubmit = {
                 scientific_name: formData.scientificName,
@@ -586,12 +579,10 @@ console.log('-++-', variables )
                             ? parseInt(stageItem.id, 10)
                             : 0;
                         const IdStage = stageItem?.stage.id
-                        console.log("Etapa ID:", stageItem.id, "ID validado:", stageId);
 
                         if (stageId === 0) {
                             throw new Error(`Etapa con ID ${stageItem.id} no válida.`);
                         }
-                        console.log('id stage', IdStage)
                         return {
                             id: stageId,
                             time_to_production: stageItem.time_to_production ? parseInt(stageItem.time_to_production, 10) : 0,
@@ -614,9 +605,7 @@ console.log('-++-', variables )
                 variables: formData.variable_id || [],
             };
 
-            console.log('imagen', imageUrl)
 
-            console.log('datos de la etapa:', formDataToSubmit);
             await SpeciesService.updateSpecie(id, formDataToSubmit);
             showErrorAlertSuccess("Editada");
 
@@ -642,7 +631,6 @@ console.log('-++-', variables )
             setShowErrorAlert(false);
         }, 2500);
     };
-    console.log ('--------------------',formData.variable_id)
 
 
     const handleCancel = () => navigate('../Listaespecie');

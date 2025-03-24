@@ -9,7 +9,6 @@ const CompanySelector = ({ update }) => {
     const { selectedCompanyUniversal, setSelectedCompanyUniversal, shouldUpdate, showHidden } = useCompanyContext(); // Accede al estado global
 
     useEffect(() => {
-        console.log("update : ", showHidden)
         const fetchCompanies = async () => {
             try {
                 const data = await CompanyService.getAllCompany();
@@ -27,7 +26,6 @@ const CompanySelector = ({ update }) => {
         if (savedCompany && !selectedCompanyUniversal) {
             // Si hay una empresa guardada en localStorage y no se ha seleccionado ninguna
             const company = JSON.parse(savedCompany);
-            console.log("company ---> ", company)
             setSelectedCompanyUniversal(company); // Establecemos la empresa del localStorage como seleccionada
         }
     }, [selectedCompanyUniversal, setSelectedCompanyUniversal]);

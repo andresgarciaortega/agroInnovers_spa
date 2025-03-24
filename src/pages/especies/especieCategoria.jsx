@@ -62,7 +62,6 @@ const Especie = () => {
     const fetchCompanies = async () => {
       try {
         const data = await CompanyServices.getAllCompany();
-        console.log("Fetched companies:", data);
         setCompanyList(data);
       } catch (error) {
         console.error('Error fetching companies:', error);
@@ -94,7 +93,6 @@ const Especie = () => {
 
       try {
         const data = await CategoryServices.getAllCategory(companyId);
-        console.log("Categorías recibidas:", data);
         if (data.statusCode === 404) {
           setCategoryList([]);
         } else {
@@ -116,7 +114,6 @@ const Especie = () => {
 
   const handleCompanyChange = (selectedOption) => {
     setSelectedCompany(selectedOption ? selectedOption.value : null);
-    console.log("Selected company:", selectedOption ? selectedOption.value : null);
   };
 
   const handleSearchChange = (e) => {

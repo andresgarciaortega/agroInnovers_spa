@@ -349,7 +349,6 @@ const Tipos = () => {
     const fetchSensor = async () => {
       try {
         const data = await TypeService.getAllSensor();
-        console.log("Respuesta de sensores:", data);
         if (Array.isArray(data)) {
           setSensorList(data);
         } else {
@@ -674,7 +673,6 @@ const Tipos = () => {
     const fetchActuador = async () => {
       try {
         const data = await TypeService.getAllActuador();
-        console.log("Respuesta de actuadores:", data);
         if (Array.isArray(data)) {
           setActuadorList(data);
         } else {

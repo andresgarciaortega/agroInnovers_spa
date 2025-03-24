@@ -118,7 +118,6 @@ const FormCosechar = ({ lote, onUpdate, closeModal }) => {
         }
     };
     const openModal = (especie) => {
-        console.log("Abriendo modal con especie:", especie);
         setModalEspecie(especie);
 
         // Revisar si la especie tiene valores de cosecha para poner en modo edición

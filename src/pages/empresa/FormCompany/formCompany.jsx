@@ -6,6 +6,7 @@ import TypeDocumentsService from '../../../services/fetchTypes';
 import Success from '../../../components/alerts/success';
 import UploadToS3 from '../../../config/UploadToS3';
 import ErrorAlert from '../../../components/alerts/error';
+import LoadingView from '../../../components/Loading/loadingView';
 
 
 
@@ -22,6 +23,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
     email_billing: "",
     logo: ''
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   const [errorMessages, setErrorMessages] = useState({
     phone: ''
@@ -53,6 +55,8 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
         const typeDocuments = await TypeDocumentsService.getAllTypeDocuments();
         const personaTypes = typeDocuments.filter(type => type.process === 'EMPRESA');
         setDocumentTypes(personaTypes);
+        setIsLoading(false);
+
       } catch (error) {
         console.error('Error al obtener tipos de documentos:', error);
       }
@@ -147,7 +151,6 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   const handleEmilBlur = async () => {
     if (mode !== 'edit') {
       const emailExisting = await CompanyService.getFacturacionEmail(formData.email_user_admin);
-      console.log('correo', emailExisting)
       if (emailExisting.success) {
         setShowAlertError(true);
         setMessageAlert("Los sentimos! el email ya esta registrado")
@@ -166,7 +169,6 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   const handleEmilBlur1 = async () => {
     if (mode !== 'edit') {
       const emailExisting = await CompanyService.getFacturacionEmail(formData.email_billing);
-      console.log("email existente : ", emailExisting)
       if (emailExisting.success) {
         setShowAlertError(true);
         setMessageAlert("Los sentimos! el email de facturación ya esta registrado")
@@ -262,7 +264,6 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
         email: formData.email_user_admin,
         type_document_id: Number(formData.type_document_id),
       };
-      console.log(formDataToSubmit)
 
       // Obtener las empresas actuales del localStorage
       const cacheKey = 'cache_/companies?page=1&limit=10000';
@@ -276,7 +277,6 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
         showSuccessAlert("Creada");
       } else if (mode === 'edit') {
         const { typeDocument, created_at, updated_at, state, ...filteredData } = formDataToSubmit;
-        console.log(filteredData);
         const updatedCompany = await CompanyService.updateCompany(company.id, filteredData);
 
         // Buscar la empresa en localStorage
@@ -325,184 +325,196 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="mb- py-">
-        <label>Adjuntar Logo</label>
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
-          {imagePreview ? (
-            <img src={imagePreview} alt="Company Logo" className="mx-auto h-20 object-contain" />
-          ) : (
-            <>
-              <IoCloudUploadOutline className="mx-auto h-12 w-12 text-gray-400" />
-              <p className="mt-1 text-sm text-gray-600">
-                Haga <span className="text-cyan-500 underline">clic aquí</span> para cargar o arrastre y suelte
-              </p>
-              <p className="text-xs text-gray-500">Archivos máximo 10 mb</p>
-            </>
+      {isLoading ? (
+        <LoadingView />
+      ) : (
+        <>
+          {/* Adjuntar Logo */}
+          <div className="mb-5">
+            <label>Adjuntar Logo</label>
+            <div
+              className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50"
+              onClick={() => document.getElementById('logo-upload').click()}
+            >
+              {imagePreview ? (
+                <img src={imagePreview} alt="Company Logo" className="mx-auto h-20 object-contain" />
+              ) : (
+                <>
+                  <IoCloudUploadOutline className="mx-auto h-12 w-12 text-gray-400" />
+                  <p className="mt-1 text-sm text-gray-600">
+                    Haga <span className="text-cyan-500 underline">clic aquí</span> para cargar o arrastrar y soltar
+                  </p>
+                  <p className="text-xs text-gray-500">Archivos máximo 10 MB</p>
+                </>
+              )}
+            </div>
+            <input id="logo-upload" type="file" className="hidden" onChange={handleLogoUpload} accept="image/*" />
+          </div>
+  
+          {/* Formulario de datos */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Nombre de la empresa</label>
+              <input
+                type="text"
+                name="name"
+                placeholder="Nombre de la empresa"
+                value={formData.name}
+                onChange={handleChange}
+                disabled={mode === 'view'}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              />
+            </div>
+  
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tipo de documento</label>
+              <select
+                name="type_document_id"
+                value={formData.type_document_id || ''}
+                onChange={handleChange}
+                disabled={mode === 'view' || mode === 'edit'}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              >
+                <option value="" disabled>Selecciona una opción</option>
+                {documentTypes.map((type) => (
+                  <option key={type.id} value={type.id}>{type.name}</option>
+                ))}
+              </select>
+            </div>
+  
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Documento</label>
+              <input
+                type="text"
+                name="nit"
+                placeholder="Documento"
+                value={formData.nit}
+                onChange={handleChange}
+                onBlur={handleDocumentBlur}
+                disabled={mode === 'view' || mode === 'edit'}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              />
+            </div>
+  
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Correo electrónico</label>
+              <input
+                type="email"
+                name="email_user_admin"
+                placeholder="Correo electrónico"
+                value={formData.email_user_admin}
+                onChange={handleChange}
+                onBlur={handleEmilBlur}
+                disabled={mode === 'view' || mode === 'edit'}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              />
+            </div>
+  
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Celular</label>
+              <input
+                type="text"
+                name="phone"
+                placeholder="Celular"
+                value={formData.phone}
+                onChange={handleChange}
+                disabled={mode === 'view'}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              />
+              {errorMessages.phone && <p className="text-red-500 text-sm">{errorMessages.phone}</p>}
+            </div>
+  
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Dirección</label>
+              <input
+                type="text"
+                name="location"
+                placeholder="Dirección"
+                value={formData.location}
+                onChange={handleChange}
+                disabled={mode === 'view'}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              />
+            </div>
+  
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Posición GPS</label>
+              <input
+                type="text"
+                name="gps"
+                placeholder="Link de la posición GPS"
+                value={formData.gps}
+                onChange={handleChange}
+                disabled={mode === 'view'}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              />
+            </div>
+  
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Email de facturación</label>
+              <input
+                type="email"
+                name="email_billing"
+                placeholder="Email de facturación"
+                value={formData.email_billing}
+                onChange={handleChange}
+                onBlur={handleEmilBlur1}
+                disabled={mode === 'view' || mode === 'edit'}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              />
+            </div>
+          </div>
+  
+          {/* Botones de acción */}
+          <div className="flex justify-end space-x-2">
+            {mode === 'view' ? (
+              <button
+                type="button"
+                onClick={closeModal}
+                className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+              >
+                Volver
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                >
+                  Cerrar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isButtonDisabled}
+                  className={`${isButtonDisabled
+                    ? 'bg-[#168C0DFF] text-gray-100 cursor-not-allowed'
+                    : 'bg-[#168C0DFF] text-white hover:bg-[#146A0D]'
+                  } px-4 py-2 rounded`}
+                >
+                  {mode === 'create' ? "Crear Empresa" : "Guardar Cambios"}
+                </button>
+              </>
+            )}
+          </div>
+  
+          {/* Alerta de error */}
+          {showAlertError && (
+            <ErrorAlert message={messageAlert} onCancel={handleCloseAlert} />
           )}
-        </div>
-        <input id="logo-upload" type="file" className="hidden" onChange={handleLogoUpload} accept="image/*" />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Nombre de la empresa</label>
-          <input
-            type="text"
-            name="name"
-            placeholder="Nombre de la empresa"
-            value={formData.name}
-            onChange={handleChange}
-            disabled={mode === 'view'}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Tipo de documento</label>
-          <select
-            name="type_document_id"
-            value={formData.type_document_id || ''}  // Asegúrate de que nunca sea undefined
-            onChange={handleChange}
-            disabled={mode === 'view' || mode === 'edit'}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          >
-            <option value="" disabled>
-              Selecciona una opción
-            </option>
-            {documentTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Documento</label>
-          <input
-            type="text"
-            name="nit"
-            placeholder="Documento"
-            value={formData.nit}
-            // disabled={mode === 'view'}
-            onChange={handleChange}
-            onBlur={handleDocumentBlur}
-            disabled={mode === 'view' || mode === 'edit'}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Correo electrónico</label>
-          <input
-            type="email"
-            name="email_user_admin"
-            placeholder="Correo electrónico"
-            value={formData.email_user_admin}
-            onChange={handleChange}
-            onBlur={handleEmilBlur}
-            disabled={mode === 'view' || mode === 'edit'}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Celular</label>
-          <input
-            type="text"
-            name="phone"
-            placeholder="Celular"
-            value={formData.phone}
-            onChange={handleChange}
-            disabled={mode === 'view'}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-          {errorMessages.phone && <p className="text-red-500 text-sm">{errorMessages.phone}</p>}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Dirección</label>
-          <input
-            type="text"
-            name="location"
-            placeholder="Dirección"
-            value={formData.location}
-            onChange={handleChange}
-            disabled={mode === 'view'}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Posición GPS</label>
-          <input
-            type="text"
-            name="gps"
-            placeholder="Link de la posición GPS"
-            value={formData.gps}
-            onChange={handleChange}
-            disabled={mode === 'view'}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Email de facturación</label>
-          <input
-            type="email"
-            name="email_billing"
-            placeholder="Email de facturación"
-            value={formData.email_billing}
-            onChange={handleChange}
-            onBlur={handleEmilBlur1}
-            disabled={mode === 'view' || mode === 'edit'}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-
-      </div>
-
-      <div className="flex justify-end space-x-2">
-        {mode === 'view' ? (
-          <button
-            type="button"
-            onClick={closeModal}
-            className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
-          >
-            Volver
-          </button>
-        ) : (
-          <>
-            <button
-              type="button"
-              onClick={closeModal}
-              className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
-            >
-              Cerrar
-            </button>
-            <button
-              type="submit"
-              disabled={isButtonDisabled}
-              className={`${isButtonDisabled
-                ? 'bg-[#168C0DFF] text-gray-100 cursor-not-allowed '
-                : 'bg-[#168C0DFF] text-white hover:bg-[#146A0D] '
-                } px-4 py-2 rounded`}
-            >
-              {mode === 'create' ? "Crear Empresa" : "Guardar Cambios"}
-            </button>
-          </>
-        )}
-      </div>
-
-      {showAlertError && (
-        <ErrorAlert
-          message={messageAlert}
-          onCancel={handleCloseAlert}
-        />
+        </>
       )}
     </form>
   );
+  
 };
 
 export default FormCompany;

@@ -56,7 +56,6 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
     useEffect(() => {
         if (lote) {
-            console.log("Lote recibido:", lote);
 
             setFormData({
                 productionLotId: lote.id || '',
@@ -77,7 +76,6 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             if (lote.productionSpace?.id) {
                 fetchEspacioDetalles(lote.productionSpace.id);
             }
-            console.log('lote traido', lote)
 
 
             setLoteConEspecies(lote);
@@ -215,7 +213,6 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             };
 
             const response = await ReporteService.createReporte(preparedData);
-            console.log('Reporte creado:', response);
             showErrorAlert("Reporte de seguimiento creado");
 
             onUpdate();
@@ -254,8 +251,6 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
 
     const addVariable = () => {
-        console.log("ID de variable seleccionada:", selectedVariableId);
-        console.log("Lista de variables disponibles:", mainVariables);
 
         const variableName = mainVariables.find((v) => v.id === Number(selectedVariableId))?.name;
 
@@ -298,7 +293,6 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     };
 
     // const handleContainerChange = (id, name, value) => {
-    //     console.log('container', id)
     //     setVariableContainers(prevContainers =>
     //         prevContainers.map((container, i) =>
     //             i === id ? { ...container, [field]: value } : container
@@ -309,7 +303,6 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     //         variableId: Number(id),
     //         [name]: value,
     //     }));
-    //     console.log('prueba v', variableTrackingReports)
     // };
 
     const handleVariableChange = (e) => {

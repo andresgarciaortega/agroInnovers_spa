@@ -98,7 +98,6 @@ const FromMantenimiento = ({selectedCompany,actuadorId, showErrorAlert, onUpdate
 
   useEffect(() => {
     if (actuadorId) {  
-      console.log('ID del actuador recibido:', actuadorId); 
       setFormData((prevData) => ({
         ...prevData,
         actuator_id: actuadorId  
@@ -210,12 +209,9 @@ const handleSubmit = async (e) => {
       actuator_id: actuadorId || formData.actuator_id,
     };
 
-    console.log('Datos enviados al servicio:', formDataToSubmit);
-    console.log('mode',mode)
 
     if (mode === 'mantenimiento') {
       const createdMantenimiento = await ActuadorMantenimientoService.createMantenimiento(formDataToSubmit);
-      console.log('Respuesta del backend:', createdMantenimiento);
       showErrorAlert("Mantenimiento creado correctamente.");
     } else if (mode === 'edit') {
       await ActuadorMantenimientoService.updateMantenimiento(actuadorId, formDataToSubmit);
@@ -237,10 +233,8 @@ const handleSubmit = async (e) => {
     const fetchActuadorDetails = async () => {
       try {
         const actuadorDetails = await ActuadorService.getActuadorById(actuadorId);
-        console.log('Detalles del actuador:', actuadorDetails);
 
         setFormData((prevData) => {
-          console.log('Formulario actualizado:', { ...prevData, estimatedReplacementDate: actuadorDetails.estimatedChangeDate });
           return {
             ...prevData,
             estimatedReplacementDate: actuadorDetails.estimatedChangeDate || '',

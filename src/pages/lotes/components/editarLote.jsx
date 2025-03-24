@@ -32,7 +32,6 @@ const FormEditarLote = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
 
     useEffect(() => {
         if (lote) {
-            console.log('Lote recibido:', lote);  // Verifica la estructura de 'lote'
             const trackingConfigData = lote.trackingConfig?.length > 0 ? lote.trackingConfig[0] : {};
             setFormData({
                 lotCode: lote.lotCode || '',
@@ -107,7 +106,6 @@ const FormEditarLote = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
     };
     useEffect(() => {
         if (lote) {
-            console.log('Lote recibido:', lote);  // Verifica la estructura de 'lote'
             const trackingConfigData = lote.trackingConfig?.length > 0 ? lote.trackingConfig[0] : {};
             setFormData({
                 lotCode: lote.lotCode || '',
@@ -136,7 +134,6 @@ const FormEditarLote = ({ lote, onUpdate, closeModal,showErrorAlert }) => {
         try {
             const response = await EspacioService.getAllStage();  // Reemplaza con la URL de tu API
             const data = await response.json();
-            console.log("Etapas recibidas:", data);  // Verifica los datos
             setEtapas(data);
         } catch (error) {
             console.error("Error al obtener las etapas:", error);

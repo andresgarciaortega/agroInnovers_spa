@@ -20,10 +20,10 @@ const VariableTypeService = {
         try {
             const response = await api.post('/type-variables/', data);
 
-            // 🔥 Guardar en `localStorage`
-            let cacheData = JSON.parse(localStorage.getItem(CACHE_KEY)) || { data: [] };
-            cacheData.data.push(response);
-            localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+            // // 🔥 Guardar en `localStorage`
+            // let cacheData = JSON.parse(localStorage.getItem(CACHE_KEY)) || { data: [] };
+            // cacheData.data.push(response);
+            // localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
 
             return response;
         } catch (error) {

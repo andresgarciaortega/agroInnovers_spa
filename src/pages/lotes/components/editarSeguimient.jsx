@@ -45,7 +45,6 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
     useEffect(() => {
   
         if (reporte) {
-            console.log("Reporte recibido para edición:", reporte);
             setFormData(prevFormData => ({
                 ...prevFormData,
                 productionLotId: reporte.productionLot?.id || prevFormData.productionLotId,
@@ -57,13 +56,6 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
                     ? reporte.variableTrackingReports
                     : prevFormData.variableTrackingReports
             }));
-
-            console.log('tipo de variable', reporte.typeVariable?.id)
-            console.log('lote de producción', reporte.productionLot
-                ?.id)
-            console.log('especie', reporte.specie?.id)
-            console.log('variable', reporte.variableTrackingReports?.variable)
-
 
             // Si hay variables en el reporte, cargarlas en `variableContainers`
             if (reporte.variableTrackingReports && reporte.variableTrackingReports.length > 0) {
@@ -191,11 +183,8 @@ const FormEditSeguimiento = ({ lote, onUpdate, reporte, closeModal, showErrorAle
                         : String(reporte.variableTrackingReports?.weightAmount || "0")
                 }))
             };
-console.log('arreglo', preparedData),
-console.log('datos de  la variable', variableContainers)
 
             const response = await ReporteService.updateReporte(reporte.id, preparedData);
-            console.log('Reporte editado:', response);
             showErrorAlert(" editado ");
 
             onUpdate();
@@ -231,7 +220,6 @@ console.log('datos de  la variable', variableContainers)
     const handleAddVariable = (selectedVariable) => {
         setVariableContainers(prevVariables => {
             const updatedVariables = [...prevVariables, selectedVariable];
-            console.log("Variables actualizadas:", updatedVariables);
             return updatedVariables;
         });
     };

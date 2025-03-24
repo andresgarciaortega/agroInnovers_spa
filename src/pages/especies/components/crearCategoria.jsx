@@ -129,7 +129,6 @@ const CrearCategorias = ({ }) => {
             setTimeout(() => {
                 setShowSuccessAlert(false);
             }, 2500);
-            console.log("Categoría, subcategorías y etapas creadas correctamente.");
             setTimeout(() => {
                 navigate('../especies');
             }, 3000);
@@ -171,7 +170,6 @@ const CrearCategorias = ({ }) => {
 
     useEffect(() => {
         if (showSuccessAlert) {
-            console.log("Show success alert:", showSuccessAlert);
         }
     }, [showSuccessAlert]);
 

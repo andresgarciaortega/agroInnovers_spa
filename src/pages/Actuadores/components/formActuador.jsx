@@ -39,10 +39,8 @@ const FormActuador = ({ selectedCompany, showErrorAlert, onUpdate, actuador, mod
         const typeSensor = await TypeService.getAllActuador();
         setSensorType(typeSensor);
       } catch (error) {
-        console.log('tipo de sensores 2,', typeSensor)
         console.error('Error al obtener los tipos de sensores:', error);
       }
-      console.log('tipo de actuador 2,', typeSensor)
 
     };
 

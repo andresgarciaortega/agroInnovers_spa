@@ -159,7 +159,6 @@ const CrearEspacio = () => {
       try {
         const data = await SensorService.getAllSensor();
         setTipoSensor(data);
-        console.log('sensores', data)
       } catch (error) {
         console.error('Error fetching tipo sensor:', error);
       }
@@ -172,7 +171,6 @@ const CrearEspacio = () => {
       try {
         const data = await Actuadorervice.getAllActuador();
         setTipoActuador(data);
-        console.log('actuadores', data)
 
       } catch (error) {
         console.error('Error fetching tio actuador:', error);
@@ -186,7 +184,6 @@ const CrearEspacio = () => {
       try {
         const data = await SpeciesService.getAllSpecie();
         setTipoEspecies(data);
-        console.log('species', data);
       } catch (error) {
         console.error('Error fetching species:', error);
       }
@@ -201,7 +198,6 @@ const CrearEspacio = () => {
 
       try {
         const data = await SpeciesService.getVariableBySpecie({species:{id:selectedSpeciesId}});
-        console.log("Datos de variables de la especie:", data);
 
         if (data.statusCode === 404) {
           setVariables([]);
@@ -222,7 +218,6 @@ const CrearEspacio = () => {
       try {
         const data = await TipoEspacioService.getAlltipoEspacio();
         setTipoEspacio(data);
-        console.log('tipos', data);
       } catch (error) {
         console.error('Error fetching tipoEspacio:', error);
       }
@@ -521,13 +516,11 @@ const handleAddVariable = (type, index) => {
     setSelectedVariables((prev) => ({ ...prev, [index]: "" }));
 
     // Verificar el valor de specieId para saber si se está enviando correctamente
-    console.log('specieId:', specieId);
 
     // Realizar la consulta para obtener las variables asociadas a la especie seleccionada
     const fetchVariablesForSubspace = async () => {
       try {
         const data = await SpeciesService.getVariableBySpecie({species:{id:specieId}});
-        console.log(data)
         if (index !== 0) {
           setMainVariables(data);
         }
@@ -665,7 +658,6 @@ const handleAddVariable = (type, index) => {
 
     try {
       const response = await EspacioService.createEspacio(data);
-      console.log('Espacio creado con éxito', response);
       navigate('../espacio');
     } catch (error) {
       console.error('Error al crear el espacio:', error);
