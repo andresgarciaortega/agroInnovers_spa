@@ -23,7 +23,7 @@ const UsersService = {
             console.error('Error al obtener los usuarios:', error);
             throw error;
         }
-    },
+    }, 
 
     // 📌 CREAR UN USUARIO
     async createUser(data) {

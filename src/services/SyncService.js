@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import api from "./ApiService";
 
 const SYNC_KEYS = {
-  "cache_/users": "/users/batch",
   // "cache_/companies": "/companies/batch",
+  "cache_/users": "/users/batch",
   "cache_/type-variables": "/type-variables/batch",
   // "cache_/variables": "/variables/batch",
   // "cache_/category-species": "/category-species/batch",

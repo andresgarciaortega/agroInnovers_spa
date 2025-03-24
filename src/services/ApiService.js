@@ -102,8 +102,48 @@ const generateCacheKey = (endpoint) => {
 };
 
 // 📌 Funciones auxiliares para `localStorage`
-const saveToLocalStorage = (key, data) => localStorage.setItem(key, JSON.stringify(data));
-const getFromLocalStorage = (key) => JSON.parse(localStorage.getItem(key)) || { data: [] };
+// const saveToLocalStorage = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+// const getFromLocalStorage = (key) => JSON.parse(localStorage.getItem(key)) || { data: [] };
+
+// 📌 Función para guardar en localStorage
+const saveToLocalStorage = (key, data) => {
+    console.log("🔹 Guardando en LocalStorage. Key:", key);
+    console.log("📦 Datos antes de guardar:", JSON.stringify(data, null, 2));
+    localStorage.setItem(key, JSON.stringify(data));
+
+    // 🔍 Verificar que realmente se guardó correctamente
+    const checkSaved = localStorage.getItem(key);
+    console.log("✅ Verificación: Datos guardados en LocalStorage:", checkSaved);
+};
+
+// 📌 Función para obtener de localStorage
+const getFromLocalStorage = (key) => {
+    console.log("🔍 Obteniendo datos de LocalStorage. Key:", key);
+    const data = localStorage.getItem(key);
+
+    if (!data) {
+        console.warn("⚠️ No hay datos en LocalStorage para esta clave:", key);
+        return { data: [] };
+    }
+
+    try {
+        const parsedData = JSON.parse(data);
+        console.log("📥 Datos obtenidos de LocalStorage:", parsedData);
+
+        // 🔥 Verificar si hay `null` en el arreglo y eliminarlo
+        parsedData.data = parsedData.data.filter(item => item !== null && item !== undefined);
+        console.log("📥 Datos después de limpiar null:", parsedData);
+
+        return parsedData;
+    } catch (error) {
+        console.error("❌ Error al parsear los datos de LocalStorage:", error);
+        return { data: [] };
+    }
+};
+
+
+
+
 
 // 📌 Función genérica para hacer solicitudes con timeout
 const fetchWithTimeout = (url, options, timeout = TIMEOUT) => {
@@ -149,7 +189,8 @@ const api = {
                 // 🔥 Obtener datos desde `localStorage`
                 let cachedData = getFromLocalStorage(cacheKey);
                 if (!cachedData || !cachedData.data) return { data: [] };
-
+                console.log("nombre arreglo : ", cachedData)
+                console.log("datos del arreglo : ", cachedData.data)
                 // ✅ Si se envió `companyId`, filtrar usuarios por empresa
                 // if (params.companyId) {
                 //     cachedData.data = cachedData.data.filter(user =>
@@ -183,6 +224,7 @@ const api = {
                 return response;
             } else {
                 let cacheData = getFromLocalStorage(cacheKey) || { data: [] };
+                console.log(cacheKey)
 
                 // Filtrar los registros que pertenezcan a la empresa actual
                 const companyRecords = cacheData.data.filter(item => item.company_id === data.company_id);
@@ -200,10 +242,17 @@ const api = {
                 // 📌 Crear el nuevo objeto con el ID generado
                 const newItem = { ...data, id: newId };
                 cacheData.data.push(newItem);
+                console.log(newItem)
+                console.log(cacheData.data)
 
                 // 📌 Guardar en localStorage
                 saveToLocalStorage(cacheKey, cacheData);
                 console.warn("🚨 No hay internet. Datos guardados en LocalStorage con ID:", newId);
+
+                // 🛠 Verificar si realmente se guardó correctamente
+                const checkCache = getFromLocalStorage(cacheKey);
+                console.log("🔄 Verificación de LocalStorage después de guardar:", checkCache);
+
 
                 return newItem;
             }
@@ -232,7 +281,7 @@ const api = {
             } else {
                 let cacheData = getFromLocalStorage(cacheKey);
                 const index = cacheData.data.findIndex(item => item.id === data.id);
-
+                console.log("nombre arreglo : ", cacheData)
                 if (index !== -1) {
                     cacheData.data[index] = { ...cacheData.data[index], ...data };
                     saveToLocalStorage(cacheKey, cacheData);

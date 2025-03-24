@@ -1,7 +1,7 @@
 // services/variableTypes.js
 import api from './ApiService';
 
-const CACHE_KEY = 'cache_/type-variables?page=1&limit=10000&company=0';
+const CACHE_KEY = 'cache_/type-variables';
 
 const VariableTypeService = {
     // 📌 LISTAR TODOS LOS TIPOS DE VARIABLE
@@ -20,13 +20,16 @@ const VariableTypeService = {
         try {
             const response = await api.post('/type-variables/', data);
 
-            // // 🔥 Guardar en `localStorage`
-            // let cacheData = JSON.parse(localStorage.getItem(CACHE_KEY)) || { data: [] };
-            // cacheData.data.push(response);
-            // localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+            // 🔥 Guardar en `localStorage`
+            let cacheData = JSON.parse(localStorage.getItem(CACHE_KEY)) || { data: [] };
+            cacheData.data.push(response);
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
 
+            console.log("✅ Tipo de variable guardado correctamente en LocalStorage:");
+            console.log(localStorage.getItem(CACHE_KEY));
             return response;
         } catch (error) {
+            // 🔥 Guardar en `localStorage`
             console.error('Error al crear el tipo de variable:', error);
             throw error;
         }

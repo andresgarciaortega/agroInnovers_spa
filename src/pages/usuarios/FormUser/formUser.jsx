@@ -259,7 +259,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         // Crear un nuevo usuario
         const response = await UsersService.createUser(formattedData);
         cacheData.data.push(response);
-        setIsLoading(false);
+        setIsLoading(false); 
         showErrorAlert("Creado");
 
       } else if (mode === "edit") {

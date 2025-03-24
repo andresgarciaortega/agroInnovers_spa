@@ -1,7 +1,7 @@
 // services/variables.js
 import api from './ApiService';
 
-const CACHE_KEY = 'cache_/variables?page=1&limit=10000&company=0';
+const CACHE_KEY = 'cache_/variables';
 
 const VariablesService = {
     // 📌 LISTAR TODAS LAS VARIABLES

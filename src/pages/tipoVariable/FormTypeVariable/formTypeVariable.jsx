@@ -10,6 +10,8 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
   const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
   const [isLoading, setIsLoading] = useState(true);
   const [companies, setCompanies] = useState([]);
+  const [messageAlert, setMessageAlert] = useState("");
+  const [showAlertError, setShowAlertError] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -175,7 +177,7 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
 
 
       // Clave del localStorage
-      const cacheKey = 'cache_/type-variables?page=1&limit=10000&company=0';
+      const cacheKey = 'cache_/type-variables';
       let cacheData = JSON.parse(localStorage.getItem(cacheKey)) || { data: [] };
 
       if (mode === 'create') {
@@ -189,7 +191,7 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
       } else if (mode === 'edit') {
         // Actualizar un tipo de variable existente
         const updatedVariableType = await VariableTypeService.updateTypeVariable(typevariable.id, formDataToSubmit);
-
+        console.log("cacheData : ", cacheData)
         // Buscar el tipo de variable a actualizar
         const variableTypeIndex = cacheData.data.findIndex((vt) => vt.id === typevariable.id);
 
