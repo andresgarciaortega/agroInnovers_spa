@@ -16,9 +16,9 @@ import SuccessAlert from "../../../components/alerts/success";
 
 const CrearListas = () => {
   const navigate = useNavigate();
-  
-    const [showErrorAlert, setShowErrorAlert] = useState(false);
-    const [messageAlert, setMessageAlert] = useState('');
+
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [messageAlert, setMessageAlert] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
   const [fieldErrors, setFieldErrors] = useState({
@@ -143,10 +143,10 @@ const CrearListas = () => {
     }
   };
 
-   useEffect(() => {
-        if (showSuccessAlert) {
-        }
-    }, [showSuccessAlert]);
+  useEffect(() => {
+    if (showSuccessAlert) {
+    }
+  }, [showSuccessAlert]);
 
   const handleVariableChange = (e) => {
     const { value } = e.target;
@@ -155,9 +155,9 @@ const CrearListas = () => {
 
   const handleNextStep = () => {
     const { category, subcategory, scientificName, commonName, variable, image, description, company_id } = formData;
-  
+
     let newErrors = {};
-  
+
     if (!category) newErrors.category = 'Este campo es obligatorio';
     if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
     if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
@@ -166,15 +166,15 @@ const CrearListas = () => {
     if (!image) newErrors.image = 'Este campo es obligatorio';
     if (!description) newErrors.description = 'Este campo es obligatorio';
     if (!company_id) newErrors.company_id = 'Este campo es obligatorio'; // Corrige la clave si es necesario
-  
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);  // Se actualiza el estado de los errores
       return;  // No permite avanzar al siguiente paso
     }
-  
+
     setStep((prev) => prev + 1);  // Solo avanza si no hay errores
   };
-  
+
 
 
 
@@ -230,22 +230,22 @@ const CrearListas = () => {
     // Obtener el parámetro seleccionado
     const stage = stages[stageIndex];
     const parameter = stage.parameters[paramIndex];
-  
+
     // Guardar la información actual del parámetro en el estado `newParameter`
     setNewParameter({
-      variable: parameter.variable.id, 
+      variable: parameter.variable.id,
       min_normal_value: parameter.min_normal_value,
       max_normal_value: parameter.max_normal_value,
       min_limit: parameter.min_limit,
       max_limit: parameter.max_limit,
     });
-  
+
     // Guardar la etapa y el índice del parámetro que se está editando
     setSelectedStageId(stage.id);
     setSelectedParameterIndex(paramIndex);
     setIsModalOpen(true); // Abrir el modal para editar
   };
-  
+
 
 
 
@@ -264,8 +264,8 @@ const CrearListas = () => {
   useEffect(() => {
     setStages(formData.stage);
   }, [formData.stage]);
-  
- 
+
+
   const handleSaveParameter = () => {
     // Limpiar errores previos
     setFieldErrors({
@@ -275,9 +275,9 @@ const CrearListas = () => {
       max_limit: '',
       variable: '',
     });
-  
+
     let hasError = false;
-  
+
     // Validar si los campos están vacíos
     if (!newParameter.variable) {
       setFieldErrors((prevErrors) => ({
@@ -286,7 +286,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-  
+
     if (!newParameter.min_normal_value) {
       setFieldErrors((prevErrors) => ({
         ...prevErrors,
@@ -294,7 +294,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-  
+
     if (!newParameter.max_normal_value) {
       setFieldErrors((prevErrors) => ({
         ...prevErrors,
@@ -302,7 +302,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-  
+
     if (!newParameter.min_limit) {
       setFieldErrors((prevErrors) => ({
         ...prevErrors,
@@ -310,7 +310,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-  
+
     if (!newParameter.max_limit) {
       setFieldErrors((prevErrors) => ({
         ...prevErrors,
@@ -318,13 +318,13 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-  
+
     // Convertir valores a número para evitar problemas con comparaciones
     const minNormalValue = Number(newParameter.min_normal_value);
     const maxNormalValue = Number(newParameter.max_normal_value);
     const minLimit = Number(newParameter.min_limit);
     const maxLimit = Number(newParameter.max_limit);
-  
+
     // Validar que el valor mínimo normal no sea mayor que el valor máximo normal
     if (minNormalValue > maxNormalValue) {
       setFieldErrors((prevErrors) => ({
@@ -334,7 +334,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-  
+
     // Validar que el límite mínimo no sea mayor que el límite máximo
     if (minLimit > maxLimit) {
       setFieldErrors((prevErrors) => ({
@@ -344,7 +344,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-  
+
     // Validar que el valor mínimo normal sea mayor que el límite mínimo
     if (minNormalValue < minLimit) {
       setFieldErrors((prevErrors) => ({
@@ -354,7 +354,7 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-  
+
     // Validar que el valor máximo normal sea menor que el límite máximo
     if (maxNormalValue > maxLimit) {
       setFieldErrors((prevErrors) => ({
@@ -364,24 +364,24 @@ const CrearListas = () => {
       }));
       hasError = true;
     }
-  
+
     // Si hay un error, evitar continuar
     if (hasError) {
       return;
     }
-  
+
     // Buscar la variable seleccionada
     const selectedVariable = variables.find((v) => v.id === Number(newParameter.variable));
     if (!selectedVariable) {
       setErrorMessage("Variable seleccionada no encontrada.");
       return;
     }
-  
+
     // Verificar si la variable ya tiene parámetros creados
     const variableHasParameters = stages.some((stage) => {
       return stage.parameters?.some((param) => param.variable.id === selectedVariable.id);
     });
-  
+
     if (variableHasParameters) {
       setFieldErrors((prevErrors) => ({
         ...prevErrors,
@@ -389,13 +389,13 @@ const CrearListas = () => {
       }));
       return; // Evitar continuar si ya hay parámetros
     }
-  
+
     // Crear el nuevo parámetro
     const newParam = {
       ...newParameter,
       variable: selectedVariable,
     };
-  
+
     // Actualizar el estado de `stages`
     setStages((prevStages) => {
       return prevStages.map((stage) => {
@@ -408,7 +408,7 @@ const CrearListas = () => {
         return stage;
       });
     });
-  
+
     // Cerrar el modal y limpiar el formulario
     setIsModalOpen(false);
     setNewParameter({
@@ -420,12 +420,12 @@ const CrearListas = () => {
     });
     setErrorMessage('');
   };
-  
+
   // Sincronizar `stages` con `formData`
   useEffect(() => {
     setStages(formData.stage);
   }, [formData.stage]);
-  
+
   // Eliminar parámetro
   // const handleDeleteClick = (paramId) => {
   //   setStages((prevStages) => {
@@ -495,9 +495,9 @@ const CrearListas = () => {
     event.preventDefault();
 
     try {
-      let imageUrl = '';
+      let imageUrl = 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg';
       if (formData.image) {
-        imageUrl = await UploadToS3(formData.image);
+        // imageUrl = await UploadToS3(formData.image);
       }
       const parsedCompanyId = parseInt(formData.company_id, 10);
 
@@ -512,21 +512,20 @@ const CrearListas = () => {
         time_to_production: isNaN(stage.time_to_production) ? 0 : parseInt(stage.time_to_production, 10),
         parameters: (stage.parameters || []).map(param => ({
           variable_id: param?.variable?.id && !isNaN(parseInt(param.variable.id, 10))
-          ? parseInt(param.variable.id, 10)
-          : 0,
-            min_normal_value: isNaN(param.min_normal_value) ? 0 : parseInt(param.min_normal_value, 10),
-            max_normal_value: isNaN(param.max_normal_value) ? 0 : parseInt(param.max_normal_value, 10),
-            min_limit: isNaN(param.min_limit) ? 0 : parseInt(param.min_limit, 10),
-            max_limit: isNaN(param.max_limit) ? 0 : parseInt(param.max_limit, 10)
+            ? parseInt(param.variable.id, 10)
+            : 0,
+          min_normal_value: isNaN(param.min_normal_value) ? 0 : parseInt(param.min_normal_value, 10),
+          max_normal_value: isNaN(param.max_normal_value) ? 0 : parseInt(param.max_normal_value, 10),
+          min_limit: isNaN(param.min_limit) ? 0 : parseInt(param.min_limit, 10),
+          max_limit: isNaN(param.max_limit) ? 0 : parseInt(param.max_limit, 10)
         }))
-    }));
-    
+      }));
 
       const formDataToSubmit = {
         scientific_name: formData.scientificName,
         common_name: formData.commonName,
         description: formData.description,
-        photo: imageUrl,
+        photo: 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg',
         category_id: categoryId,
         subcategory_id: subcategoryId,
         company_id: parsedCompanyId,
@@ -537,12 +536,12 @@ const CrearListas = () => {
       showErrorAlertSuccess("Creada");
       setShowSuccessAlert(true);
       setTimeout(() => {
-          setShowSuccessAlert(false);
+        setShowSuccessAlert(false);
       }, 2500);
       setTimeout(() => {
         navigate('../ListaEspecie');
-    }, 3000);
-    
+      }, 3000);
+
     } catch (error) {
       console.error("Error:", error);
     }
@@ -608,7 +607,7 @@ const CrearListas = () => {
   const showErrorAlertSuccess = (message) => {
     setShowErrorAlert(true);
     setMessageAlert(`Especie ${message} exitosamente`);
-  
+
     setTimeout(() => {
       setShowErrorAlert(false);
     }, 2500);
@@ -850,105 +849,105 @@ const CrearListas = () => {
                     </label>
                     <div className="space-y-4">
                       {stages
-                       .sort((a, b) => a.id - b.id) 
-                       .map((stage, stageIndex) => (
-                        <div key={stageIndex} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
-                          <div className="flex justify-between items-center mb-2">
-                            <h3 className="text-sm font-semibold text-gray-800">
-                              {`Etapa ${stage?.name || 'Sin nombre'}`}
+                        .sort((a, b) => a.id - b.id)
+                        .map((stage, stageIndex) => (
+                          <div key={stageIndex} className="mt-4 border-2 border-gray-400 rounded-md p-4 w-full">
+                            <div className="flex justify-between items-center mb-2">
+                              <h3 className="text-sm font-semibold text-gray-800">
+                                {`Etapa ${stage?.name || 'Sin nombre'}`}
 
-                            </h3>
-                            <button
-                              type='button'
-                              onClick={() => handleOpenModal(stage.id)}
-                              className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                            >
-                              Añadir Parámetro
-                            </button>
-                          </div>
-
-                          <div className="flex justify-between mb-2">
-                            <div className="w-1/2 p-1">
-                              <label className="text-sm font-medium text-gray-700">Descripción</label>
-                              <input
-                                type="text"
-                                placeholder="Descripción de la etapa"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                onChange={(e) => handleStageChange(stageIndex, 'description', e.target.value)}
-                              />
+                              </h3>
+                              <button
+                                type='button'
+                                onClick={() => handleOpenModal(stage.id)}
+                                className="inline-flex items-center px-3 py-2 border border-[#168C0DFF] text-sm leading-4 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                              >
+                                Añadir Parámetro
+                              </button>
                             </div>
-                            <div className="w-1/2 p-1">
-                              <label className="text-sm font-medium text-gray-700">Tiempo de Producción</label>
-                              <input
-                                type="number"
-                                placeholder="Tiempo de producción en días"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                value={stages[stageIndex]?.time_to_production || ''}
-                                onChange={(e) => handleStageChange(stageIndex, 'time_to_production', e.target.value)}
-                              />
 
-                            </div>
-                            {/* <h1>arreglo : {stage?.parameters?.length}</h1> */}
-                          </div>
-
-                          <ul className="space-y-2 mt-4">
-                            {stage?.parameters?.length > 0 && (
-                              <div className="mt-4">
-                                <div className="flex justify-between space-x-">
-                                  <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
-                                    Condiciones operación normal
-                                  </h4>
-                                  <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 py- w-full">
-                                    Condiciones operación Criticas
-                                  </h4>
-                                </div>
-                                <table className="min-w-full table-auto border-collapse">
-                                  <thead>
-                                    <tr className="bg-gray-200">
-                                      <th className="border px-4 py-2 font-bold">Variable</th>
-                                      <th className="border px-4 py-2 font-semibold">Mínimo</th>
-                                      <th className="border px-4 py-2 font-semibold">Máximo</th>
-                                      <th className="border px-4 py-2 font-semibold">Límite Mín</th>
-                                      <th className="border px-4 py-2 font-semibold">Límite Máx</th>
-                                      <th className="border px-4 py-2 font-semibold">Acciones</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {stage.parameters?.map((param, paramIndex) => (
-                                      <tr key={paramIndex}>
-                                        <td className="border px-4 py-2">{param.variable?.name || 'N/A'}</td>
-
-                                        <td className="border px-4 py-2">{param.min_normal_value}</td>
-                                        <td className="border px-4 py-2">{param.max_normal_value}</td>
-                                        <td className="border px-4 py-2">{param.min_limit}</td>
-                                        <td className="border px-4 py-2">{param.max_limit}</td>
-                                        <td className="border px-4 py-2">
-                                          <button
-                                            type='button'
-                                            onClick={() => handleEditClick(stageIndex, paramIndex)}
-                                            className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
-                                          >
-                                            <Edit size={20} />
-                                          </button>
-                                          <button
-                                            type='button'
-                                            onClick={() => handleDeleteClick(stageIndex, paramIndex, param)}
-                                            className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
-                                          >
-                                            <Trash size={20} />
-                                          </button>
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-
-                                </table>
+                            <div className="flex justify-between mb-2">
+                              <div className="w-1/2 p-1">
+                                <label className="text-sm font-medium text-gray-700">Descripción</label>
+                                <input
+                                  type="text"
+                                  placeholder="Descripción de la etapa"
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                  onChange={(e) => handleStageChange(stageIndex, 'description', e.target.value)}
+                                />
                               </div>
-                            )}
-                          </ul>
+                              <div className="w-1/2 p-1">
+                                <label className="text-sm font-medium text-gray-700">Tiempo de Producción</label>
+                                <input
+                                  type="number"
+                                  placeholder="Tiempo de producción en días"
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                  value={stages[stageIndex]?.time_to_production || ''}
+                                  onChange={(e) => handleStageChange(stageIndex, 'time_to_production', e.target.value)}
+                                />
 
-                        </div>
-                      ))}
+                              </div>
+                              {/* <h1>arreglo : {stage?.parameters?.length}</h1> */}
+                            </div>
+
+                            <ul className="space-y-2 mt-4">
+                              {stage?.parameters?.length > 0 && (
+                                <div className="mt-4">
+                                  <div className="flex justify-between space-x-">
+                                    <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
+                                      Condiciones operación normal
+                                    </h4>
+                                    <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 py- w-full">
+                                      Condiciones operación Criticas
+                                    </h4>
+                                  </div>
+                                  <table className="min-w-full table-auto border-collapse">
+                                    <thead>
+                                      <tr className="bg-gray-200">
+                                        <th className="border px-4 py-2 font-bold">Variable</th>
+                                        <th className="border px-4 py-2 font-semibold">Mínimo</th>
+                                        <th className="border px-4 py-2 font-semibold">Máximo</th>
+                                        <th className="border px-4 py-2 font-semibold">Límite Mín</th>
+                                        <th className="border px-4 py-2 font-semibold">Límite Máx</th>
+                                        <th className="border px-4 py-2 font-semibold">Acciones</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {stage.parameters?.map((param, paramIndex) => (
+                                        <tr key={paramIndex}>
+                                          <td className="border px-4 py-2">{param.variable?.name || 'N/A'}</td>
+
+                                          <td className="border px-4 py-2">{param.min_normal_value}</td>
+                                          <td className="border px-4 py-2">{param.max_normal_value}</td>
+                                          <td className="border px-4 py-2">{param.min_limit}</td>
+                                          <td className="border px-4 py-2">{param.max_limit}</td>
+                                          <td className="border px-4 py-2">
+                                            <button
+                                              type='button'
+                                              onClick={() => handleEditClick(stageIndex, paramIndex)}
+                                              className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
+                                            >
+                                              <Edit size={20} />
+                                            </button>
+                                            <button
+                                              type='button'
+                                              onClick={() => handleDeleteClick(stageIndex, paramIndex, param)}
+                                              className="text-[#168C0DFF] hover:text-[#0F6A06] px-2 py-2 rounded"
+                                            >
+                                              <Trash size={20} />
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+
+                                  </table>
+                                </div>
+                              )}
+                            </ul>
+
+                          </div>
+                        ))}
                     </div>
                   </div>
                 </div>
@@ -968,7 +967,7 @@ const CrearListas = () => {
 
             {step > 0 && (
               <button
-              type='button'
+                type='button'
 
                 onClick={handlePrevStep}
                 className="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 mb-1 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
@@ -979,7 +978,7 @@ const CrearListas = () => {
 
             {step < 1 && (
               <button
-              type='button'
+                type='button'
                 onClick={handleNextStep}
                 className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#137B09FF] text-base font-medium text-white hover:bg-[#168C0DFF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#168C0DFF]"
               >
@@ -1083,14 +1082,14 @@ const CrearListas = () => {
             </div>
           </div>
         )}
-  {showErrorAlert && (
+        {showErrorAlert && (
           <div className="alert alert-danger p-4 rounded-md text-red-600">
-          {messageAlert}
-      </div>
-  )}
-  {showSuccessAlert && (
-      <SuccessAlert message="Especie creada exitosamente" />
-  )}
+            {messageAlert}
+          </div>
+        )}
+        {showSuccessAlert && (
+          <SuccessAlert message="Especie creada exitosamente" />
+        )}
       </div>
     </form>
   );
