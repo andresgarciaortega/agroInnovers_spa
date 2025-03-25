@@ -149,7 +149,7 @@ const FormViewSensor = ({ sensor, closeModal }) => {
                     </div>
 
 
-<br />
+                    <br />
                     <div className="flex flex-col col-span-2">
                         <div className="flex items-center">
                             <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Protocolo IOT:</label>
@@ -168,11 +168,15 @@ const FormViewSensor = ({ sensor, closeModal }) => {
                             <p className="ml-2 text-sm text-gray-600">{sensor.signalType}</p>
                         </div>
                     </div>
-<br />
+                    <br />
                     <div className="flex flex-col col-span-2">
                         <div className="flex items-center">
-                            <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">Datasheet:</label>
-                            <p className="ml-2 text-sm text-gray-600">{sensor.datasheet}</p>
+                            <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">
+                                Datasheet:
+                            </label>
+                            <p className="ml-2 text-sm text-gray-600 break-words overflow-hidden">
+                                {sensor.datasheet}
+                            </p>
                         </div>
                     </div>
                     <div className="flex flex-col col-span-2">
@@ -254,31 +258,30 @@ const FormViewSensor = ({ sensor, closeModal }) => {
                 </div>
 
             </div>
-<div>
-<table className="min-w-full table-auto border-collapse mb-4 mt-4">
-                            <thead>
-                                <tr className="bg-gray-200">
-                                    {/* <th className="border px-4 py-2 font-bold">Punto de calibración</th> */}
+            <div>
+                <table className="min-w-full table-auto border-collapse mb-4 mt-4">
+                    <thead>
+                        <tr className="bg-gray-200">
+                            {/* <th className="border px-4 py-2 font-bold">Punto de calibración</th> */}
 
-                                    <th className="border px-4 py-2 font-semibold">Punto Calibración</th>
-                                    <th className="border px-4 py-2 font-semibold">Valor</th>
-                                    <th className="border px-4 py-2 font-semibold">Respuesta</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {formData.calibrationPoints.map((param, index) => (
-                                    <tr key={index}>
-                                        <td className="border px-4 py-2"> Punto {index+1}</td>
-                                        <td className="border px-4 py-2">{param.value}°C</td>
-                                        <td className="border px-4 py-2">{param.normalResponse} V</td>
-                                        
-                                    </tr>
-                                ))}
-                            </tbody>
+                            <th className="border px-4 py-2 font-semibold">Punto Calibración</th>
+                            <th className="border px-4 py-2 font-semibold">Valor</th>
+                            <th className="border px-4 py-2 font-semibold">Respuesta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {formData.calibrationPoints.slice(1).map((param, index) => (
+                            <tr key={index}>
+                                <td className="border px-4 py-2"> Punto {index + 1}</td>
+                                <td className="border px-4 py-2">{param.value === '' ? "0" : param.value}°C</td>
+                                <td className="border px-4 py-2">{param.normalResponse === '' ? "0" : param.normalResponse} V</td>
+                            </tr>
+                        ))}
+                    </tbody>
 
 
-                        </table>
-</div>
+                </table>
+            </div>
             {/* Botón para cerrar el modal */}
             <div className="flex justify-end mt-5">
                 <button

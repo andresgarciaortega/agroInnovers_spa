@@ -379,7 +379,11 @@ const CrearListas = () => {
 
     // Verificar si la variable ya tiene parámetros creados
     const variableHasParameters = stages.some((stage) => {
-      return stage.parameters?.some((param) => param.variable.id === selectedVariable.id);
+      console.log(selectedStageId)
+      return (
+        stage.id === selectedStageId && // ✅ Validar que sea el mismo stage
+        stage.parameters?.some((param) => param.variable.id === selectedVariable.id) // ✅ Misma variable
+      );
     });
 
     if (variableHasParameters) {

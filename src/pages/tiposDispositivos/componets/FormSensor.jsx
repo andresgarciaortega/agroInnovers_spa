@@ -19,7 +19,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
     const [companies, setCompanies] = useState([]);
 
     const [formData, setFormData] = useState({
-        icon: '',
+        icon: 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg',
         sensorTypeName: '',
         commercialName: '',
         manufacturer: '',
@@ -160,7 +160,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
     useEffect(() => {
         if ((mode === 'edit' || mode === 'view') && sensor) {
             setFormData({
-                icon: sensor.icon || '',
+                icon: sensor.icon || 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg',
                 sensorTypeName: sensor.sensorTypeName || '',
                 commercialName: sensor.commercialName || '',
                 manufacturer: sensor.manufacturer || '',
@@ -195,7 +195,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
             setImagePreview(sensor.icon); // Actualización de la vista previa del ícono
         } else {
             setFormData({
-                icon: '',
+                icon: 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg',
                 sensorTypeName: '',
                 commercialName: '',
                 manufacturer: '',
@@ -237,16 +237,16 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
         try {
             let iconUrl = '';
 
-            if (formData.icon && formData.icon instanceof File) {
-                // Si `icon` es un archivo, súbelo a S3
-                iconUrl = await UploadToS3(formData.icon);
-            } else if (sensor?.icon) {
-                // Si no es un archivo pero existe un icono en el sensor, reutilízalo
-                iconUrl = sensor.icon;
-            }
+            // if (formData.icon && formData.icon instanceof File) {
+            //     // Si `icon` es un archivo, súbelo a S3
+            //     iconUrl = await UploadToS3(formData.icon);
+            // } else if (sensor?.icon) {
+            //     // Si no es un archivo pero existe un icono en el sensor, reutilízalo
+            //     iconUrl = sensor.icon;
+            // }
 
             const formDataToSubmit = {
-                icon: iconUrl, // Usa la URL resultante de S3 o el icono existente
+                icon: iconUrl || 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg', // Usa la URL resultante de S3 o el icono existente
                 sensorTypeName: formData.sensorTypeName,
                 commercialName: formData.commercialName,
                 manufacturer: formData.manufacturer,

@@ -249,6 +249,8 @@ const CrearEspacio = () => {
         const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
         const data = await Actuadorervice.getAllActuador(companyId, {});
+
+        console.log("datos actuador : ",data)
         setTipoActuador(data);
 
       } catch (error) {
@@ -454,6 +456,7 @@ const CrearEspacio = () => {
 
   const handleDeviceTypeChange = (index, type) => {
     const newDevicesList = [...devicesList];
+    console.log("dispositivos : ",newDevicesList)
     newDevicesList[index].deviceType = type;
     newDevicesList[index].selectedDevice = "";
     setDevicesList(newDevicesList);
@@ -472,6 +475,7 @@ const CrearEspacio = () => {
 
 
   const getDevicesByType = (type) => {
+    console.log()
     if (type === "actuador") {
       return tipoActuador.map((device) => ({
         id: device.id,

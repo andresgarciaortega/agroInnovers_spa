@@ -171,13 +171,11 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
                 iotProtocol: actuador.iotProtocol || '',
                 iotCommunicationType: actuador.iotCommunicationType || '',
                 controlSignal: actuador.controlSignal || '',
-
                 maxValue: actuador.maxValue || '',
                 minValue: actuador.minValue || '',
                 precision: actuador.precision || '',
                 speed: actuador.speed || '',
                 operatingVoltage: actuador.operatingVoltage || '',
-
                 repeatability: actuador.repeatability || '',
                 voltageType: actuador.voltageType || '',
                 maxSamplingFrequency: actuador.maxSamplingFrequency || '',
@@ -237,7 +235,7 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
 
             if (formData.icon && formData.icon instanceof File) {
                 // Si `icon` es un archivo, súbelo a S3
-                iconUrl = await UploadToS3(formData.icon);
+                // iconUrl = await UploadToS3(formData.icon);
             } else if (actuador?.icon) {
                 // Si no es un archivo pero existe un icono en el actuador, reutilízalo
                 iconUrl = actuador.icon;
@@ -248,7 +246,7 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
             const validCalibrationFrequency = isNaN(formData.calibrationFrequency) ? null : parseFloat(formData.calibrationFrequency);
 
             const formDataToSubmit = {
-                icon: iconUrl, // Usa la URL resultante de S3 o el icono existente
+                icon: 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg', // Usa la URL resultante de S3 o el icono existente
                 actuatorTypeName: formData.actuatorTypeName,
                 commercialName: formData.commercialName,
                 manufacturer: formData.manufacturer,
@@ -795,22 +793,21 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
                             <tbody>
                                 {formData.calibrationPoints.length > 0 &&
                                     formData.calibrationPoints.map((param, index) => (
-                                        param.value && param.normalResponse ? (  // Evita renderizar objetos vacíos
-                                            <tr key={index}>
-                                                <td className="border px-4 py-2">{param.value}</td>
-                                                <td className="border px-4 py-2">{param.normalResponse}</td>
-                                                <td className="border px-4 py-2">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleDeletePoint(index)}
-                                                        className="text-red-500 hover:text-red-700 px-2 py-2 rounded"
-                                                    >
-                                                        <Trash size={20} />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ) : null
-                                    ))}
+                                        <tr key={index} className={`${!param.value || !param.normalResponse ? 'bg-gray-100' : ''}`}>
+                                            <td className="border px-4 py-2">{param.value || <span className="text-gray-400">Sin valor</span>}</td>
+                                            <td className="border px-4 py-2">{param.normalResponse || <span className="text-gray-400">Sin respuesta</span>}</td>
+                                            <td className="border px-4 py-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDeletePoint(index)}
+                                                    className="text-red-500 hover:text-red-700 px-2 py-2 rounded"
+                                                >
+                                                    <Trash size={20} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                }
                             </tbody>
 
 

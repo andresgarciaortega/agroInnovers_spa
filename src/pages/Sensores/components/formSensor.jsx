@@ -104,15 +104,15 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
     const { name, value } = e.target;
     const today = new Date().toISOString().split("T")[0]; // Obtiene la fecha actual en formato YYYY-MM-DD
 
-    if (name === "installationDate" && value > today) {
-      showErrorAlert("La fecha de instalación no puede ser futura.");
-      return;
-    }
+    // if (name === "installationDate" && value > today) {
+    //   showErrorAlert("La fecha de instalación no puede ser futura.");
+    //   return;
+    // }
 
-    if (name === "estimatedChangeDate" && value < today) {
-      showErrorAlert("La fecha estimada de cambio no puede ser anterior a hoy.");
-      return;
-    }
+    // if (name === "estimatedChangeDate" && value < today) {
+    //   showErrorAlert("La fecha estimada de cambio no puede ser anterior a hoy.");
+    //   return;
+    // }
 
     setFormData({
       ...formData,

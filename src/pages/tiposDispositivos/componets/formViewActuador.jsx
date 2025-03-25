@@ -44,6 +44,7 @@ const FormViewActuador = ({ actuador, closeModal }) => {
                 const typeSensor = await TypeService.getAllSensor();
                 setSensorType(typeSensor);
             } catch (error) {
+                console.log('Error al obtener los tipos de actuadores:', error);
             }
         };
 
@@ -168,10 +169,15 @@ const FormViewActuador = ({ actuador, closeModal }) => {
                         </div>
                     </div>
                     <br />
+                  
                     <div className="flex flex-col col-span-2">
                         <div className="flex items-center">
-                            <label htmlFor="actuadorCode" className="block text-sm font-medium text-gray-900">Datasheet:</label>
-                            <p className="ml-2 text-sm text-gray-600">{actuador.datasheet}</p>
+                            <label htmlFor="sensorCode" className="block text-sm font-medium text-gray-900">
+                                Datasheet:
+                            </label>
+                            <p className="ml-2 text-sm text-gray-600 break-words overflow-hidden">
+                                {actuador.datasheet}
+                            </p>
                         </div>
                     </div>
                     <div className="flex flex-col col-span-2">
@@ -267,14 +273,23 @@ const FormViewActuador = ({ actuador, closeModal }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {formData.calibrationPoints.map((param, index) => (
+                        {/* {formData.calibrationPoints.map((param, index) => (
                             <tr key={index}>
                                 <td className="border px-4 py-2"> Punto {index + 1}</td>
                                 <td className="border px-4 py-2">{param.value}°C</td>
                                 <td className="border px-4 py-2">{param.normalResponse} V</td>
 
                             </tr>
+                        ))} */}
+
+                    {formData.calibrationPoints.slice(1).map((param, index) => (
+                            <tr key={index}>
+                                <td className="border px-4 py-2"> Punto {index + 1}</td>
+                                <td className="border px-4 py-2">{param.value === '' ? "0" : param.value}°C</td>
+                                <td className="border px-4 py-2">{param.normalResponse === '' ? "0" : param.normalResponse} V</td>
+                            </tr>
                         ))}
+
                     </tbody>
 
 

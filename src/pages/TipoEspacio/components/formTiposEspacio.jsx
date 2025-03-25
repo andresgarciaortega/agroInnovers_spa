@@ -109,7 +109,7 @@ const FormTipo = ({ selectedCompany, showErrorAlert, onUpdate, variable, mode, c
       // Verificar si se ha seleccionado una nueva imagen
       let logoUrl = '';
       if (formData.icon.name) {
-        logoUrl = await UploadToS3(formData.icon);
+        // logoUrl = await UploadToS3(formData.icon);
       } else if (mode === 'edit' && variable.icon) {
         logoUrl = variable.icon;
       }
@@ -117,7 +117,7 @@ const FormTipo = ({ selectedCompany, showErrorAlert, onUpdate, variable, mode, c
       // Crear el objeto de datos a enviar
       const formDataToSubmit = {
         ...formData,
-        icon: logoUrl || '',
+        icon: logoUrl || 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg',
         spaceTypeName: formData.spaceTypeName,
         description: formData.description,
         company_id: Number(companyId) || Number(formData.company_id),
