@@ -37,32 +37,38 @@ const useDataSync = () => {
 
   useEffect(() => {
     const syncData = async () => {
-      const storedData = JSON.parse(localStorage.getItem("cache_/production-lots")) || [];
+        const storedData = JSON.parse(localStorage.getItem("cache_/production-lots")) || { data: [] };
 
-      for (const item of storedData.data) {
-        const { id, productionSpace } = item;
-
-        // Validar si tiene datos de medición
-        if (productionSpace && productionSpace.configureMeasurementControls) {
-          for (const control of productionSpace.configureMeasurementControls) {
-            const sensor = control.sensor;
-            if (!sensor) continue; // Si no tiene sensor, saltar a la siguiente iteración
-
-            const Puerto_de_entrada = sensor.inputPort; // Puerto de entrada
-            const Puerto_de_lectura = sensor.readingPort; // Puerto de lectura
-
-            console.log(`🟢 Ejecutando API para ID: ${id}, Puerto Entrada: ${Puerto_de_entrada}, Puerto Lectura: ${Puerto_de_lectura}`);
-
-            try {
-              const response = await fetch(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`);
-              const newData = await response.json();
-              console.log("📌 Respuesta API de newRed:", newData);
-            } catch (error) {
-              console.error(`❌ Error en API para ID: ${id}`, error);
+        // Verificar que storedData.data sea un array antes de iterar
+        if (!Array.isArray(storedData.data)) {
+          console.error("❌ Error: La propiedad 'data' no es iterable.");
+          return;
+        }
+        
+        for (const item of storedData.data) {  // 🔹 Accede correctamente a storedData.data
+          const { id, productionSpace } = item;
+        
+          if (productionSpace && productionSpace.configureMeasurementControls) {
+            for (const control of productionSpace.configureMeasurementControls) {
+              const sensor = control.sensor;
+              if (!sensor) continue;
+        
+              const Puerto_de_entrada = sensor.inputPort;
+              const Puerto_de_lectura = sensor.readingPort;
+        
+              console.log(`🟢 Ejecutando API para ID: ${id}, Puerto Entrada: ${Puerto_de_entrada}, Puerto Lectura: ${Puerto_de_lectura}`);
+        
+              try {
+                const response = await fetch(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`);
+                const newData = await response.json();
+                console.log("📌 Respuesta API de newRed:", newData);
+              } catch (error) {
+                console.error(`❌ Error en API para ID: ${id}`, error);
+              }
             }
           }
         }
-      }
+        
     };
 
     // Ejecutar al montar y cada 1 minuto verificar
