@@ -49,6 +49,7 @@ const Navbar = () => {
         Swal.fire("Sesión finalizada.", "", "success");
         localStorage.removeItem('authToken');
         localStorage.removeItem('selectedCompany');
+        localStorage.clear();
         navigate('/');
       }
     });

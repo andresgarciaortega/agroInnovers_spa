@@ -213,6 +213,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             };
 
             const response = await ReporteService.createReporte(preparedData);
+            console.log("response del reporte : ",response)
             showErrorAlert("Reporte de seguimiento creado");
 
             onUpdate();
@@ -261,8 +262,8 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
         }
         const newVariable = {
             id: selectedVariableId,
-            name: selectedVariable.name, 
-            unit_of_measurement: selectedVariable.unit_of_measurement, 
+            name: selectedVariable.name,
+            unit_of_measurement: selectedVariable.unit_of_measurement,
             variableId: selectedVariableId,
             updateDate: new Date().toLocaleDateString(),
             updateTime: new Date().toLocaleTimeString(),
@@ -277,14 +278,14 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const filteredSpecies = species.filter(specie =>
         lote?.productionLotSpecies?.some(lotSpecie => lotSpecie.specie.id === specie.id)
     );
-    
+
     const handleContainerChange = (index, field, value) => {
         setVariableContainers(prevContainers =>
             prevContainers.map((container, i) =>
                 i === index ? { ...container, [field]: value } : container
             )
         );
-    
+
         setVariableTrackingReports((prevFormDataAcces) => ({
             ...prevFormDataAcces,
             variableId: Number(index),
@@ -378,10 +379,10 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                     >
                         <option value="">Seleccione una especie</option>
                         {filteredSpecies.map((specie) => (
-    <option key={specie.id} value={specie.id}>
-        {specie.common_name}
-    </option>
-))}
+                            <option key={specie.id} value={specie.id}>
+                                {specie.common_name}
+                            </option>
+                        ))}
 
                     </select>
                 </div>
@@ -453,7 +454,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                                     <label className="block text-sm font-medium">Fecha Actualización</label>
                                     <input
                                         type="date"
-                                max={today}
+                                        max={today}
 
                                         name="updateDate"
                                         value={formData.updateDate}

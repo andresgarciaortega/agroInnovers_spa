@@ -91,7 +91,10 @@ const VisualizarLote = () => {
 
     const fetchSeguimiento = async (filters) => {
         try {
+            console.log("respotes de seguimientos titulo: ")
+            
             const response = await ReporteService.getAllReporte(0, filters);
+            console.log("respotes de seguimientos : ", response)
             setSeguimiento(response);
         } catch (error) {
             console.error("Error al cargar el seguimiento:", error);

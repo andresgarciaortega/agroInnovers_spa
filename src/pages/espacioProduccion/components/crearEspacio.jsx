@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import SpeciesService from '../../../services/SpeciesService';
 import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } from '@mui/material';
 import { FaChevronDown, FaChevronUp, FaTimes } from 'react-icons/fa';
-import { FiPlusCircle } from "react-icons/fi";
+import { FiPlusCircle, FiCheckSquare, FiTrash2 } from "react-icons/fi";
 import { useCompanyContext } from '../../../context/CompanyContext';
 
 const CrearEspacio = () => {
@@ -91,7 +91,7 @@ const CrearEspacio = () => {
     volume: '',
     specificFeatures: '',
     species: [],
-    productionSpaceType: null,
+    productionSpaceType: '',
     subProductionSpaces: [
       {
         name: '',
@@ -186,6 +186,16 @@ const CrearEspacio = () => {
       ],
     });
 
+
+  // Cuando spaceTypeId cambie, actualiza productionSpaceType
+  useEffect(() => {
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      productionSpaceType: prevFormData.spaceTypeId,
+    }));
+  }, [formData.spaceTypeId]);
+
+
   const [especiesEspacio, setEspecieEspasios] = useState([]);
   const [especiesSubspacio, setEspecieSubspasios] = useState({ species: [], });
 
@@ -194,10 +204,13 @@ const CrearEspacio = () => {
 
   const handleNextStep = () => {
     if (step < 2) setStep((prev) => prev + 1);
+    console.log("primer dato : ", formData)
+    console.log("primer dato subspaces: ", subspaces)
   };
 
   const handlePrevStep = () => {
     if (step > 0) setStep((prev) => prev - 1);
+    console.log("devicesList : ", devicesList)
     setVariablesSelected("");
   };
 
@@ -236,6 +249,7 @@ const CrearEspacio = () => {
 
         const data = await SensorService.getAllSensor(companyId, {});
         setTipoSensor(data);
+        console.log('sensores', data)
       } catch (error) {
         console.error('Error fetching tipo sensor:', error);
       }
@@ -249,9 +263,8 @@ const CrearEspacio = () => {
         const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
         const data = await Actuadorervice.getAllActuador(companyId, {});
-
-        console.log("datos actuador : ",data)
         setTipoActuador(data);
+        console.log('actuadores', data)
 
       } catch (error) {
         console.error('Error fetching tio actuador:', error);
@@ -267,6 +280,7 @@ const CrearEspacio = () => {
 
         const data = await SpeciesService.getAllSpecie(companyId, {});
         setTipoEspecies(data);
+        console.log('especies traidas', data);
       } catch (error) {
         console.error('Error fetching species:', error);
       }
@@ -282,6 +296,7 @@ const CrearEspacio = () => {
 
       try {
         const data = await SpeciesService.getVariableBySpecie({ species: { id: selectedSpeciesId } });
+        console.log("Datos de variables de la especie:", data);
 
         if (data.statusCode === 404) {
           setVariables([]);
@@ -293,6 +308,7 @@ const CrearEspacio = () => {
         setVariables([]);
       }
     };
+    console.log('variabes', variables.name)
     fetchVariable();
   }, [selectedSpeciesId]);
 
@@ -301,6 +317,7 @@ const CrearEspacio = () => {
       try {
         const data = await TipoEspacioService.getAlltipoEspacio();
         setTipoEspacio(data);
+        console.log('tipos', data);
       } catch (error) {
         console.error('Error fetching tipoEspacio:', error);
       }
@@ -336,58 +353,11 @@ const CrearEspacio = () => {
     ]);
   };
 
-  const handleOpenModal = (dato, mode,VariablesSelected) => {
-    setVariableModal(VariablesSelected)
 
-    if (mode === "edit") {
-    setVariableModal(VariablesSelected)
 
-      // Busca la medición y control existente para esta variable
-      const existingControl = measurementControls.find(
-        (control) => control.productionVariableId === dato.nombre
-      );
+  const handleOpenModal = (lote = null, mode = 'create') => {
 
-      // Si existe, establece los valores en el estado
-      if (existingControl) {
-        setMeasurementControls({
-          measurementType: existingControl.measurementType,
-          sensorId: existingControl.sensor?.id || '',
-          actuatorId: existingControl.actuator?.id || '',
-          samplingTimeUnit: existingControl.samplingTimeUnit,
-          samplingFrequency: existingControl.samplingFrequency,
-          numberOfSamples: existingControl.numberOfSamples,
-          controlType: existingControl.controlType,
-          actuationTimeUnit: existingControl.actuationTimeUnit,
-          activationParameterRange: existingControl.activationParameterRange,
-          alertMessage: existingControl.alertMessage,
-          productionVariableId: existingControl.productionVariableId,
-          id: existingControl.id,
-          activationFrequency: existingControl.activationFrequency,
-        });
-      }
-    } else {
-      // Modo "create": establece valores por defecto
-      setMeasurementControls({
-        measurementType: '',
-        sensorId: '',
-        actuatorId: '',
-        samplingTimeUnit: '',
-        samplingFrequency: '',
-        numberOfSamples: '',
-        controlType: '',
-        actuationTimeUnit: '',
-        activationParameterRange: '',
-        alertMessage: '',
-        productionVariableId: dato.nombre,
-        id: null, // No hay ID en modo creación
-        activationFrequency: '',
-      });
-    }
-
-    setModalMode(mode);
-    setIsModalOpen(true);
   };
-
 
   // Cerrar el modal
   const closeModal = async () => {
@@ -455,8 +425,8 @@ const CrearEspacio = () => {
   };
 
   const handleDeviceTypeChange = (index, type) => {
+    console.log('paso 2 ', index, type)
     const newDevicesList = [...devicesList];
-    console.log("dispositivos : ",newDevicesList)
     newDevicesList[index].deviceType = type;
     newDevicesList[index].selectedDevice = "";
     setDevicesList(newDevicesList);
@@ -466,6 +436,7 @@ const CrearEspacio = () => {
     const newDevicesList = [...devicesList];
     newDevicesList[index].selectedDevice = selectedDevice;
     setDevicesList(newDevicesList);
+    console.log('sensores y actuafores, pso 2', devicesList)
   };
 
 
@@ -475,7 +446,6 @@ const CrearEspacio = () => {
 
 
   const getDevicesByType = (type) => {
-    console.log()
     if (type === "actuador") {
       return tipoActuador.map((device) => ({
         id: device.id,
@@ -506,6 +476,7 @@ const CrearEspacio = () => {
     updatedSubspaces[index].deviceType = type;
     updatedSubspaces[index].selectedDevice = "";
     setSubspaces(updatedSubspaces);
+    console.log('tipo paso 2 en subespacio', subspaces)
 
   };
 
@@ -514,6 +485,8 @@ const CrearEspacio = () => {
     const updatedSubspaces = [...subspaces];
     updatedSubspaces[index].selectedDevice = deviceId;
     setSubspaces(updatedSubspaces);
+    // console.log('paso 2 en subespacio', subspaces)
+    console.log('paso 2 en subespacio2', updatedSubspaces)
   };
 
   const transformSubspaceData = (subspace) => {
@@ -590,8 +563,11 @@ const CrearEspacio = () => {
     e.preventDefault();
 
     if (type === 'main') {
+      console.log("selectedVariables3421: ", selectedVariables);
+      console.log("-------------selectedVariables122: ", VariablesSelected);
 
       data.push(selectedVariables.main);
+      console.log("selectedVariables1: ", selectedVariables);
 
       setSelectedVariables((prev) => ({
         ...prev,
@@ -616,9 +592,15 @@ const CrearEspacio = () => {
           )
         }));
         // idVariable[0].id
+        console.log('posicion', idVariable[0].id)
+        console.log('nombre', variables.filter((e) => e.name === selectedVariables.main[0]));
       }
     } else {
       if (selectedVariables.subspaces != undefined && selectedVariables.subspaces != null) {
+        console.log("selectedVariables1: ", selectedVariables);
+        console.log("-------------selectedVariables122: ", VariablesSelected);
+        console.log("selectedVariables.main: ", selectedVariables.main);
+        console.log("selectedVariables.subspaces: ", selectedVariables.subspaces);
         setVariablesSelected((prev) => {
           const newDatosVariables = { ...prev.datosVariables };
 
@@ -658,10 +640,12 @@ const CrearEspacio = () => {
     valueSpecie.push(value)
 
     setEspecieEspasios(valueSpecie)
+    console.log('arreglo de especies', especiesEspacio)
   };
 
   // const handleChangeCategory = (event, index) => {
   //   const { value } = event.target;
+  //   console.log('especies subespacio event', event, 'index', index, 'value', value)
   //   setEspecieSubspasios(value);
   //   setFormData((prevFormData) => {
   //     const updatedSubspaces = [...prevFormData.subProductionSpaces];
@@ -673,6 +657,7 @@ const CrearEspacio = () => {
   //     valueSpecie.push(value)
 
   //     setEspecieSubspasios(valueSpecie)
+  //     console.log('arreglo de especies', especiesSubspacio)
   //     return {
   //       ...prevFormData,
   //       subProductionSpaces: updatedSubspaces,
@@ -692,6 +677,7 @@ const CrearEspacio = () => {
         species: Array.isArray(value) ? value : [value], // Asegurar que siempre sea un array
       };
 
+      console.log("Subespacios actualizados:", updatedSubspaces);
       return updatedSubspaces;
     });
   };
@@ -710,6 +696,7 @@ const CrearEspacio = () => {
   };
 
   const handleSpeciesChange = (index, specieId) => {
+    console.log(selectedSpecies)
     // Actualizar el estado de la especie seleccionada para ese subespacio
     const newSelectedSpecies = { ...selectedSpecies, [index]: specieId };
     setSelectedSpecies(newSelectedSpecies);  // Esto actualizará el estado seleccionado
@@ -720,11 +707,13 @@ const CrearEspacio = () => {
     setSelectedVariables((prev) => ({ ...prev, [index]: "" }));
 
     // Verificar el valor de specieId para saber si se está enviando correctamente
+    console.log('specieId:', specieId);
 
     // Realizar la consulta para obtener las variables asociadas a la especie seleccionada
     const fetchVariablesForSubspace = async () => {
       try {
         const data = await SpeciesService.getVariableBySpecie({ species: { id: specieId } });
+        console.log('data', data)
         if (index !== 0) {
           setMainVariables(data);
         }
@@ -734,6 +723,7 @@ const CrearEspacio = () => {
           [index]: data.statusCode === 404 ? [] : data,
           // Si no hay datos, usar arreglo vacío
         }));
+        console.log("data1: ", data);
 
       } catch (error) {
         console.error(`Error fetching variables for subspace ${index}:`, error);
@@ -751,12 +741,15 @@ const CrearEspacio = () => {
   let datosVariables = []
   const handleVariableChange = (e, space, variableId) => {
     e.preventDefault()
+    console.log('variable seleccionada', variableId)
+    // console.log('variable seleccionada2',variableId.datosVariables)
     if (space === "main") {
       datosVariables.push(variableId)
       setSelectedVariables((prev) => ({
         ...prev,
         main: datosVariables,
       }));
+      console.log('variable seleccionada2', datosVariables)
 
     } else {
       setSelectedVariables((prev) => ({
@@ -822,6 +815,7 @@ const CrearEspacio = () => {
       area: Math.max(formData.area || 0, 0),
       volume: Math.max(formData.volume || 0, 0),
       specificFeatures: formData.specificFeatures,
+      productionSpaceType: formData.productionSpaceType,
       monitoringSystemId: parseNumber(formData.monitoringSystemId),
       spaceTypeId: parseNumber(formData.spaceTypeId),
       company_id: parseNumber(formData.company_id),
@@ -846,6 +840,9 @@ const CrearEspacio = () => {
       //   }))
       //   : []
     };
+    // console.log(devicesList);
+    // console.log('satos de subespacios', transformedSubspaces);
+    console.log('datos enviados', data)
     try {
       const response = await EspacioService.createEspacio(data);
       showErrorAlertSuccess("Creada");
@@ -873,6 +870,8 @@ const CrearEspacio = () => {
   const [measurementControls, setMeasurementControls] = useState([]);
 
   const guardarMedicion = (dato) => {
+    console.log('datos de medicion y control', dato);
+    console.log('datos de medicion y control2', measurementControls);
     setMeasurementControls([...measurementControls, dato]);
   };
 
@@ -898,7 +897,9 @@ const CrearEspacio = () => {
   const [variableModal, setVariableModal] = useState([]);
 
   const handleMedicionControl = (VariablesSelected, type = "main") => {
+    console.log(type)
     setVariableModal(VariablesSelected)
+    console.log('VariablesSelected en medicion', VariablesSelected)
     if (type === "main") {
       setIsModalOpen(true)
     }
@@ -908,9 +909,28 @@ const CrearEspacio = () => {
 
 
   const finalizar = () => {
+    console.log("paso 1 , datos del espacio : ", formData)
+    console.log("paso 1, primer dato del subespacio: ", subspaces)
+    console.log("-------------------------------------------------")
+
+    console.log('paso 2, sensores y actuadores del espacio', devicesList)
+    console.log('paso 2 ,en subespacio2', subspaces)
+
+
+  };
 
 
 
+  const handleEliminar = (nombreVariable) => {
+    // Filtrar las variables eliminando la seleccionada
+    const nuevasVariables = VariablesSelected.datosVariables.filter(
+      (item) => item.nombre !== nombreVariable
+    );
+
+    // Actualizar el estado con las nuevas variables
+    setVariablesSelected({ ...VariablesSelected, datosVariables: nuevasVariables });
+
+    console.log(`Variable eliminada: ${nombreVariable}`);
   };
 
 
@@ -1658,38 +1678,86 @@ const CrearEspacio = () => {
                         <div className="mt-4">
                           <h3 className="text-lg font-medium">Variables del Espacio:</h3>
                           <div className="mt-2 grid grid-cols-1 gap-2">
+
                             {Array.isArray(VariablesSelected.datosVariables) &&
                               VariablesSelected.datosVariables.map((datosVariables, index) => {
-                                // Verifica si measurementControls es un array antes de usar .some()
-                                const hasMeasurementControl = Array.isArray(measurementControls)
-                                  ? measurementControls.some(
-                                    (control) => control.productionVariableId === datosVariables.nombre
-                                  )
-                                  : false;
+                                // Verificar si existen datos en measurementControls con la misma productionVariableId
+                                const existeMedicion = measurementControls?.some(
+                                  (control) => control.productionVariableId === datosVariables.nombre
+                                );
 
                                 return (
-                                  <div
-                                    key={index}
-                                    className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md"
-                                  >
+                                  <div key={index} className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md">
                                     <div className="flex justify-between items-center">
-                                      <span>{datosVariables.id}</span>
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          handleOpenModal(
-                                            datosVariables,
-                                            hasMeasurementControl ? "edit" : "create"
-                                          )
-                                        }
-                                        className="ml-4 px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
-                                      >
-                                        {hasMeasurementControl ? "Editar" : "Medición y Control"}
-                                      </button>
+                                      {/* ID alineado a la izquierda */}
+                                      <span className="flex">
+                                        <p><strong>{datosVariables.id}</strong></p>
+                                      </span>
+
+                                      {/* Botones alineados a la derecha */}
+                                      <div className="flex">
+                                        {existeMedicion ? (
+                                          <>
+                                            <button
+                                              type="button"
+                                              onClick={() => handleEditar(datosVariables.nombre)}
+                                              className="px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800 mr-4"
+                                            >
+                                              <FiCheckSquare />
+                                            </button>
+
+                                            <button
+                                              type="button"
+                                              onClick={() => handleEliminar(datosVariables.nombre)}
+                                              className="px-4 py-2 bg-red-500 text-white rounded-md shadow-md hover:bg-red-800"
+                                            >
+                                              <FiTrash2 />
+                                            </button>
+                                          </>
+                                        ) : (
+                                          <button
+                                            type="button"
+                                            onClick={() => handleMedicionControl(datosVariables.nombre)}
+                                            className="px-4 py-2 bg-[#168C0DFF] text-white rounded-md shadow-md hover:bg-green-800"
+                                          >
+                                            Medición y Control
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    <div>
+                                      {measurementControls?.map((control, index) => {
+                                        // Buscar el sensor en typeSensor
+                                        const sensor = tipoSensor.find((sensor) => sensor.id === control.sensorId);
+                                        const sensorName = sensor ? sensor.sensorCode : 'No encontrado';
+
+                                        // Buscar el actuador en typeActuador
+                                        const actuator = tipoActuador.find((actuator) => actuator.id === control.actuatorId);
+                                        const actuatorName = actuator ? actuator.actuatorCode : 'No encontrado';
+
+                                        return control.productionVariableId === datosVariables.nombre ? (
+                                          <div key={index} className="flex justify-between items-start gap-4 w-full">
+                                            {/* Columna 1: Tipo de Medición y Sensor */}
+                                            <div className="w-1/2">
+                                              <p><strong>Tipo de Medición:</strong> {control.measurementType}</p>
+                                              <p><strong>Nombre:</strong> {sensorName}</p>
+                                            </div>
+
+                                            {/* Columna 2: Tipo de Control y Actuador */}
+                                            <div className="w-1/2">
+                                              <p><strong>Tipo de Control:</strong> {control.controlType}</p>
+                                              <p><strong>Nombre:</strong> {actuatorName}</p>
+                                            </div>
+                                          </div>
+                                        ) : null;
+                                      })}
                                     </div>
                                   </div>
                                 );
                               })}
+
+
                           </div>
                         </div>
                       )}
@@ -1751,6 +1819,7 @@ const CrearEspacio = () => {
                                   Selecciona una variable
                                 </option>
                                 {(variablesBySubspace[index] || []).map((variable, varIndex) => (
+                                  // console.log(variable),
                                   <option key={varIndex} value={variable.name}>
                                     {variable.name}
                                   </option>
@@ -1891,7 +1960,8 @@ const CrearEspacio = () => {
             onClose={() => setIsModalOpen(false)}
           />
         </GenericModal>
-      )}
+      )
+      }
     </>
 
   );

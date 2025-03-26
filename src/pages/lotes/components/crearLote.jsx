@@ -7,6 +7,7 @@ import EspeciesService from "../../../services/SpeciesService";
 import GenericModal from '../../../components/genericModal';
 // import CrearEspacio from '../../espacioProduccion/components/crearEspacio';
 import CompanyService from '../../../services/CompanyService';
+import { useCompanyContext } from '../../../context/CompanyContext';
 
 const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [step, setStep] = useState(1);
@@ -113,11 +114,15 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             console.error("Error al obtener detalles del espacio:", error);
         }
     };
+    const { selectedCompanyUniversal } = useCompanyContext();
 
 
     const fetchEspecies = async () => {
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+        console.log(companyId)
         try {
-            const especiesData = await EspeciesService.getAllSpecie(0, {});
+            const especiesData = await EspeciesService.getAllSpecie(companyId, {});
+            console.log("listad de especies", especiesData)
             setEspecies(especiesData);
         } catch (error) {
             console.error("Error al obtener las especies:", error);

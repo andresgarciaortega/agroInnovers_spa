@@ -18,6 +18,7 @@ const ReporteService = {
     async createReporte(data) {
         try {
             const response = await api.post('/tracking-reports/', data);
+            console.log("🚀 createReporte ~ response:", response)
             return response;
         } catch (error) {
             const errorMessage = error.response?.data?.message?.message || 'Error desconocido al crear los reportes.';
