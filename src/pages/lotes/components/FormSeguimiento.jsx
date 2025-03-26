@@ -213,7 +213,6 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             };
 
             const response = await ReporteService.createReporte(preparedData);
-            console.log("response del reporte : ",response)
             showErrorAlert("Reporte de seguimiento creado");
 
             onUpdate();

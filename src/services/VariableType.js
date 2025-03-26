@@ -30,14 +30,11 @@ const VariableTypeService = {
     async createTypeVariable(data) {
         try {
             const response = await api.post('/type-variables/', data);
-            console.log("dato de retorno ", response)
             // 🔥 Guardar en `localStorage`
             let cacheData = JSON.parse(localStorage.getItem(CACHE_KEY)) || { data: [] };
             cacheData.data.push(response);
             localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
 
-            console.log("✅ Tipo de variable guardado correctamente en LocalStorage:");
-            console.log(localStorage.getItem(CACHE_KEY));
             return response;
         } catch (error) {
             // 🔥 Guardar en `localStorage`

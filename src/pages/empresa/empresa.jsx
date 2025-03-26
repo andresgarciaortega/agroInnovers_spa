@@ -45,12 +45,10 @@ const Empresa = () => {
   useEffect(() => {
     hiddenSelect(false)
     const fetchCompanies = async () => {
-      console.log("empresas : ")
 
       setIsLoading(true);
       try {
         const data = await CompanyService.getAllCompany();
-        console.log("empresas : ", data)
         setCompanyList(data);
       } catch (error) {
         console.error('Error fetching companies:', error);

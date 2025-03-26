@@ -44,7 +44,7 @@ const FormViewActuador = ({ actuador, closeModal }) => {
                 const typeSensor = await TypeService.getAllSensor();
                 setSensorType(typeSensor);
             } catch (error) {
-                console.log('Error al obtener los tipos de actuadores:', error);
+                console.error('Error al obtener los tipos de actuadores:', error);
             }
         };
 

@@ -206,7 +206,6 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
       } else if (mode === 'edit') {
         // Actualizar un tipo de variable existente
         const updatedVariableType = await VariableTypeService.updateTypeVariable(typevariable.id, formDataToSubmit);
-        console.log("cacheData : ", cacheData)
         // Buscar el tipo de variable a actualizar
         const variableTypeIndex = cacheData.data.findIndex((vt) => vt.id === typevariable.id);
 

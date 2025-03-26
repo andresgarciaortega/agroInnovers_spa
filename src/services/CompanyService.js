@@ -7,7 +7,6 @@ const CompanyService = {
     // 📌 LISTAR TODAS LAS COMPAÑÍAS
     async getAllCompany() {
         try {
-            console.log("mpress peticion")
             const response = await api.get('/companies?page=1&limit=10000&');
             return response.data;
         } catch (error) {

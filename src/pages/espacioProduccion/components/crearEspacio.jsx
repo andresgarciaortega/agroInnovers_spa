@@ -204,13 +204,10 @@ const CrearEspacio = () => {
 
   const handleNextStep = () => {
     if (step < 2) setStep((prev) => prev + 1);
-    console.log("primer dato : ", formData)
-    console.log("primer dato subspaces: ", subspaces)
   };
 
   const handlePrevStep = () => {
     if (step > 0) setStep((prev) => prev - 1);
-    console.log("devicesList : ", devicesList)
     setVariablesSelected("");
   };
 
@@ -249,7 +246,6 @@ const CrearEspacio = () => {
 
         const data = await SensorService.getAllSensor(companyId, {});
         setTipoSensor(data);
-        console.log('sensores', data)
       } catch (error) {
         console.error('Error fetching tipo sensor:', error);
       }
@@ -264,7 +260,6 @@ const CrearEspacio = () => {
 
         const data = await Actuadorervice.getAllActuador(companyId, {});
         setTipoActuador(data);
-        console.log('actuadores', data)
 
       } catch (error) {
         console.error('Error fetching tio actuador:', error);
@@ -280,7 +275,6 @@ const CrearEspacio = () => {
 
         const data = await SpeciesService.getAllSpecie(companyId, {});
         setTipoEspecies(data);
-        console.log('especies traidas', data);
       } catch (error) {
         console.error('Error fetching species:', error);
       }
@@ -296,7 +290,6 @@ const CrearEspacio = () => {
 
       try {
         const data = await SpeciesService.getVariableBySpecie({ species: { id: selectedSpeciesId } });
-        console.log("Datos de variables de la especie:", data);
 
         if (data.statusCode === 404) {
           setVariables([]);
@@ -308,7 +301,6 @@ const CrearEspacio = () => {
         setVariables([]);
       }
     };
-    console.log('variabes', variables.name)
     fetchVariable();
   }, [selectedSpeciesId]);
 
@@ -317,7 +309,6 @@ const CrearEspacio = () => {
       try {
         const data = await TipoEspacioService.getAlltipoEspacio();
         setTipoEspacio(data);
-        console.log('tipos', data);
       } catch (error) {
         console.error('Error fetching tipoEspacio:', error);
       }
@@ -425,7 +416,6 @@ const CrearEspacio = () => {
   };
 
   const handleDeviceTypeChange = (index, type) => {
-    console.log('paso 2 ', index, type)
     const newDevicesList = [...devicesList];
     newDevicesList[index].deviceType = type;
     newDevicesList[index].selectedDevice = "";
@@ -436,7 +426,6 @@ const CrearEspacio = () => {
     const newDevicesList = [...devicesList];
     newDevicesList[index].selectedDevice = selectedDevice;
     setDevicesList(newDevicesList);
-    console.log('sensores y actuafores, pso 2', devicesList)
   };
 
 
@@ -476,7 +465,6 @@ const CrearEspacio = () => {
     updatedSubspaces[index].deviceType = type;
     updatedSubspaces[index].selectedDevice = "";
     setSubspaces(updatedSubspaces);
-    console.log('tipo paso 2 en subespacio', subspaces)
 
   };
 
@@ -485,8 +473,6 @@ const CrearEspacio = () => {
     const updatedSubspaces = [...subspaces];
     updatedSubspaces[index].selectedDevice = deviceId;
     setSubspaces(updatedSubspaces);
-    // console.log('paso 2 en subespacio', subspaces)
-    console.log('paso 2 en subespacio2', updatedSubspaces)
   };
 
   const transformSubspaceData = (subspace) => {
@@ -563,11 +549,8 @@ const CrearEspacio = () => {
     e.preventDefault();
 
     if (type === 'main') {
-      console.log("selectedVariables3421: ", selectedVariables);
-      console.log("-------------selectedVariables122: ", VariablesSelected);
 
       data.push(selectedVariables.main);
-      console.log("selectedVariables1: ", selectedVariables);
 
       setSelectedVariables((prev) => ({
         ...prev,
@@ -592,15 +575,9 @@ const CrearEspacio = () => {
           )
         }));
         // idVariable[0].id
-        console.log('posicion', idVariable[0].id)
-        console.log('nombre', variables.filter((e) => e.name === selectedVariables.main[0]));
       }
     } else {
       if (selectedVariables.subspaces != undefined && selectedVariables.subspaces != null) {
-        console.log("selectedVariables1: ", selectedVariables);
-        console.log("-------------selectedVariables122: ", VariablesSelected);
-        console.log("selectedVariables.main: ", selectedVariables.main);
-        console.log("selectedVariables.subspaces: ", selectedVariables.subspaces);
         setVariablesSelected((prev) => {
           const newDatosVariables = { ...prev.datosVariables };
 
@@ -640,12 +617,10 @@ const CrearEspacio = () => {
     valueSpecie.push(value)
 
     setEspecieEspasios(valueSpecie)
-    console.log('arreglo de especies', especiesEspacio)
   };
 
   // const handleChangeCategory = (event, index) => {
   //   const { value } = event.target;
-  //   console.log('especies subespacio event', event, 'index', index, 'value', value)
   //   setEspecieSubspasios(value);
   //   setFormData((prevFormData) => {
   //     const updatedSubspaces = [...prevFormData.subProductionSpaces];
@@ -657,7 +632,6 @@ const CrearEspacio = () => {
   //     valueSpecie.push(value)
 
   //     setEspecieSubspasios(valueSpecie)
-  //     console.log('arreglo de especies', especiesSubspacio)
   //     return {
   //       ...prevFormData,
   //       subProductionSpaces: updatedSubspaces,
@@ -677,7 +651,6 @@ const CrearEspacio = () => {
         species: Array.isArray(value) ? value : [value], // Asegurar que siempre sea un array
       };
 
-      console.log("Subespacios actualizados:", updatedSubspaces);
       return updatedSubspaces;
     });
   };
@@ -696,7 +669,6 @@ const CrearEspacio = () => {
   };
 
   const handleSpeciesChange = (index, specieId) => {
-    console.log(selectedSpecies)
     // Actualizar el estado de la especie seleccionada para ese subespacio
     const newSelectedSpecies = { ...selectedSpecies, [index]: specieId };
     setSelectedSpecies(newSelectedSpecies);  // Esto actualizará el estado seleccionado
@@ -707,13 +679,11 @@ const CrearEspacio = () => {
     setSelectedVariables((prev) => ({ ...prev, [index]: "" }));
 
     // Verificar el valor de specieId para saber si se está enviando correctamente
-    console.log('specieId:', specieId);
 
     // Realizar la consulta para obtener las variables asociadas a la especie seleccionada
     const fetchVariablesForSubspace = async () => {
       try {
         const data = await SpeciesService.getVariableBySpecie({ species: { id: specieId } });
-        console.log('data', data)
         if (index !== 0) {
           setMainVariables(data);
         }
@@ -723,7 +693,6 @@ const CrearEspacio = () => {
           [index]: data.statusCode === 404 ? [] : data,
           // Si no hay datos, usar arreglo vacío
         }));
-        console.log("data1: ", data);
 
       } catch (error) {
         console.error(`Error fetching variables for subspace ${index}:`, error);
@@ -741,15 +710,12 @@ const CrearEspacio = () => {
   let datosVariables = []
   const handleVariableChange = (e, space, variableId) => {
     e.preventDefault()
-    console.log('variable seleccionada', variableId)
-    // console.log('variable seleccionada2',variableId.datosVariables)
     if (space === "main") {
       datosVariables.push(variableId)
       setSelectedVariables((prev) => ({
         ...prev,
         main: datosVariables,
       }));
-      console.log('variable seleccionada2', datosVariables)
 
     } else {
       setSelectedVariables((prev) => ({
@@ -840,9 +806,6 @@ const CrearEspacio = () => {
       //   }))
       //   : []
     };
-    // console.log(devicesList);
-    // console.log('satos de subespacios', transformedSubspaces);
-    console.log('datos enviados', data)
     try {
       const response = await EspacioService.createEspacio(data);
       showErrorAlertSuccess("Creada");
@@ -870,8 +833,6 @@ const CrearEspacio = () => {
   const [measurementControls, setMeasurementControls] = useState([]);
 
   const guardarMedicion = (dato) => {
-    console.log('datos de medicion y control', dato);
-    console.log('datos de medicion y control2', measurementControls);
     setMeasurementControls([...measurementControls, dato]);
   };
 
@@ -897,9 +858,7 @@ const CrearEspacio = () => {
   const [variableModal, setVariableModal] = useState([]);
 
   const handleMedicionControl = (VariablesSelected, type = "main") => {
-    console.log(type)
     setVariableModal(VariablesSelected)
-    console.log('VariablesSelected en medicion', VariablesSelected)
     if (type === "main") {
       setIsModalOpen(true)
     }
@@ -909,12 +868,7 @@ const CrearEspacio = () => {
 
 
   const finalizar = () => {
-    console.log("paso 1 , datos del espacio : ", formData)
-    console.log("paso 1, primer dato del subespacio: ", subspaces)
-    console.log("-------------------------------------------------")
 
-    console.log('paso 2, sensores y actuadores del espacio', devicesList)
-    console.log('paso 2 ,en subespacio2', subspaces)
 
 
   };
@@ -930,7 +884,6 @@ const CrearEspacio = () => {
     // Actualizar el estado con las nuevas variables
     setVariablesSelected({ ...VariablesSelected, datosVariables: nuevasVariables });
 
-    console.log(`Variable eliminada: ${nombreVariable}`);
   };
 
 
@@ -1819,7 +1772,6 @@ const CrearEspacio = () => {
                                   Selecciona una variable
                                 </option>
                                 {(variablesBySubspace[index] || []).map((variable, varIndex) => (
-                                  // console.log(variable),
                                   <option key={varIndex} value={variable.name}>
                                     {variable.name}
                                   </option>

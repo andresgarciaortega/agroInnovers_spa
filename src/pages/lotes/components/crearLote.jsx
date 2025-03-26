@@ -119,10 +119,8 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
     const fetchEspecies = async () => {
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
-        console.log(companyId)
         try {
             const especiesData = await EspeciesService.getAllSpecie(companyId, {});
-            console.log("listad de especies", especiesData)
             setEspecies(especiesData);
         } catch (error) {
             console.error("Error al obtener las especies:", error);

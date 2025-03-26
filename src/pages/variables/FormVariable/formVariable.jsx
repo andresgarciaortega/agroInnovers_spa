@@ -56,7 +56,6 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
     const fetchRegisterTypes = async () => {
       try {
         const typeRegisters = await RegistrerTypeServices.getAllRegistrerType();
-        console.log("--------------------- ", typeRegisters)
         setRegisterTypes(typeRegisters);
       } catch (error) {
         console.error('Error al obtener los tipos de registro:', error);

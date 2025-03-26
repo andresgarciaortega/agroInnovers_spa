@@ -107,18 +107,14 @@ const getFromLocalStorage = (key) => JSON.parse(localStorage.getItem(key)) || { 
 
 // 📌 Función para guardar en localStorage
 // const saveToLocalStorage = (key, data) => {
-//     console.log("🔹 Guardando en LocalStorage. Key:", key);
-//     console.log("📦 Datos antes de guardar:", JSON.stringify(data, null, 2));
 //     localStorage.setItem(key, JSON.stringify(data));
 
 //     // 🔍 Verificar que realmente se guardó correctamente
 //     const checkSaved = localStorage.getItem(key);
-//     console.log("✅ Verificación: Datos guardados en LocalStorage:", checkSaved);
 // };
 
 // // 📌 Función para obtener de localStorage
 // const getFromLocalStorage = (key) => {
-//     console.log("🔍 Obteniendo datos de LocalStorage. Key:", key);
 //     const data = localStorage.getItem(key);
 
 //     if (!data) {
@@ -128,11 +124,9 @@ const getFromLocalStorage = (key) => JSON.parse(localStorage.getItem(key)) || { 
 
 //     try {
 //         const parsedData = JSON.parse(data);
-//         console.log("📥 Datos obtenidos de LocalStorage:", parsedData);
 
 //         // 🔥 Verificar si hay `null` en el arreglo y eliminarlo
 //         parsedData.data = parsedData.data.filter(item => item !== null && item !== undefined);
-//         console.log("📥 Datos después de limpiar null:", parsedData);
 
 //         return parsedData;
 //     } catch (error) {
@@ -171,12 +165,10 @@ const createAuthHeaders = () => {
 const api = {
     get: async (endpoint, params = {}) => {
         const cacheKey = generateCacheKey(endpoint); // 🔥 Clave uniforme
-        console.log("nombre local sin internet antes", cacheKey)
 
         try {
             const online = await isOnline();
             if (online) {
-                console.log("nombre local . ", cacheKey)
                 const url = `${BASE_URL}${endpoint}${Object.keys(params).length ? `?${new URLSearchParams(params)}` : ''}`;
                 const data = await fetchWithTimeout(url, {
                     method: 'GET',
@@ -189,12 +181,9 @@ const api = {
                 saveToLocalStorage(cacheKey, data);
                 return data;
             } else {
-                console.log("nombre local sin internet sin internet", cacheKey)
                 // 🔥 Obtener datos desde `localStorage`
                 let cachedData = getFromLocalStorage(cacheKey);
-                console.log("nombre arreglo : ", cachedData)
                 if (!cachedData || !cachedData.data) return { data: [] };
-                console.log("datos del arreglo : ", cachedData.data)
                 return cachedData;
             }
         } catch (error) {
@@ -221,7 +210,6 @@ const api = {
                 return response;
             } else {
                 let cacheData = getFromLocalStorage(cacheKey) || { data: [] };
-                console.log(cacheKey)
 
                 // Filtrar los registros que pertenezcan a la empresa actual
                 const companyRecords = cacheData.data.filter(item => item.company_id === data.company_id);
@@ -239,8 +227,6 @@ const api = {
                 // 📌 Crear el nuevo objeto con el ID generado
                 const newItem = { ...data, id: newId };
                 cacheData.data.push(newItem);
-                console.log(newItem)
-                console.log(cacheData.data)
 
                 // 📌 Guardar en localStorage
                 saveToLocalStorage(cacheKey, cacheData);
@@ -248,7 +234,6 @@ const api = {
 
                 // 🛠 Verificar si realmente se guardó correctamente
                 const checkCache = getFromLocalStorage(cacheKey);
-                console.log("🔄 Verificación de LocalStorage después de guardar:", checkCache);
 
                 return newItem;
             }
@@ -277,7 +262,6 @@ const api = {
             } else {
                 let cacheData = getFromLocalStorage(cacheKey);
                 const index = cacheData.data.findIndex(item => item.id === data.id);
-                console.log("nombre arreglo : ", cacheData)
                 if (index !== -1) {
                     cacheData.data[index] = { ...cacheData.data[index], ...data };
                     saveToLocalStorage(cacheKey, cacheData);

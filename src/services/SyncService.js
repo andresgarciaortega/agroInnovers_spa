@@ -25,17 +25,14 @@ const SyncService = () => {
 
     const syncData = async () => {
       if (!isOnline){
-      console.log("🌐 Internet NO disponible...");
         return;
       } 
 
-      console.log("🌐 Internet disponible. Iniciando sincronización...");
 
       for (const [cacheKey, endpoint] of Object.entries(SYNC_KEYS)) {
         let cacheData = JSON.parse(localStorage.getItem(cacheKey)) || { data: [] };
         if (!cacheData.data.length) continue;
 
-        console.log(`📤 Sincronizando datos de: ${cacheKey}`);
 
         const batchData = cacheData.data.filter(item => item.id >= 10000 || item.id < 10000);
 
@@ -43,7 +40,6 @@ const SyncService = () => {
           try {
             // 🔥 Enviar la sincronización en batch
             const response = await api.put(endpoint, batchData);
-            console.log(`✅ Sincronización exitosa para ${cacheKey}:`, response);
 
             // 🔥 Obtener los datos actualizados de la nube
             const updatedData = await api.get(endpoint.replace("/batch", ""));
@@ -51,7 +47,6 @@ const SyncService = () => {
             // 🔥 Actualizar el localStorage con la versión más reciente
             localStorage.setItem(cacheKey, JSON.stringify({ data: updatedData }));
 
-            console.log(`🔄 LocalStorage actualizado para ${cacheKey}`);
           } catch (error) {
             console.error(`❌ Error al sincronizar ${cacheKey}:`, error);
           }
@@ -71,7 +66,6 @@ const SyncService = () => {
 
     // 🔄 Intentar sincronizar datos al montar el componente si hay internet
     if (isOnline) syncData();
-    if (!isOnline) console.log("No tenemos conexión");
 
     return () => {
       window.removeEventListener("online", syncData);

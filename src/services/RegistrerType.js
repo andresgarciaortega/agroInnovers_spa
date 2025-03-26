@@ -25,7 +25,6 @@ const RegistrerTypeServices = {
                 // Guardar en `localStorage`
                 localStorage.setItem(CACHE_KEY, JSON.stringify(response));
 
-                console.log("✅ Datos obtenidos desde la API y guardados en `localStorage`.");
                 return response;
             } else {
                 // 🚨 Si no hay internet, obtener desde `localStorage`
