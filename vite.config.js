@@ -5,7 +5,6 @@ import { resolve } from 'path';
 export default defineConfig({
   root: './',
   plugins: [react()],
-  base: '/',
   server: {
     port: 5174, // Cambia al puerto que desees
   },
