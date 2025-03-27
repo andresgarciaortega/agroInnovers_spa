@@ -305,9 +305,14 @@ const CrearEspacio = () => {
   }, [selectedSpeciesId]);
 
   useEffect(() => {
+    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : "";
+    if (!companyId) {
+      setLotesList([]);
+      return;
+    }
     const fetchTipoEspacio = async () => {
       try {
-        const data = await TipoEspacioService.getAlltipoEspacio();
+        const data = await TipoEspacioService.getAlltipoEspacio(companyId);
         setTipoEspacio(data);
       } catch (error) {
         console.error('Error fetching tipoEspacio:', error);

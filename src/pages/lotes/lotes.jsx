@@ -40,7 +40,7 @@ const Lotes = () => {
   const [modalMode, setModalMode] = useState("edit");
   const [selectedCompany, setSelectedCompany] = useState('');
   const [step, setStep] = useState(1)
-  const { selectedCompanyUniversal } = useCompanyContext();
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
   const [nameCompany, setNameCompany] = useState("");
   const [lotesList, setLotesList] = useState([]);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
@@ -60,7 +60,11 @@ const Lotes = () => {
     reportFrequency: '',
     cycleStage: ''
   });
+
+
+
   useEffect(() => {
+    hiddenSelect(true)
     const fetchLotes = async () => {
       try {
         const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : "";

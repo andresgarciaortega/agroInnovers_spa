@@ -39,3 +39,4 @@ export const CompanyProvider = ({ children }) => {
 
 // Hook para acceder al contexto de forma sencilla
 export const useCompanyContext = () => useContext(CompanyContext);
+ 

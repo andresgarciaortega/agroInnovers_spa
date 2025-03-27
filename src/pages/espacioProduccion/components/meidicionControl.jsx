@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import SensorService from '../../../services/SensorService';
 import ActuadorService from '../../../services/ActuadorService';
 import EspacioService from '../../../services/espacios';
+import { useCompanyContext } from '../../../context/CompanyContext';
 
-const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }) => {
+const FormMedicion = ({ selectedVariableId, mode, onClose, control, variableId }) => {
     const [sensors, setSensors] = useState([]);
     const [actuators, setActuators] = useState([]);
     const [formData, setFormData] = useState({
@@ -20,13 +21,21 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }
         alertMessage: '',
         productionVariableId: variableId,
     });
-  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
 
     useEffect(() => {
+
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : "";
+        if (!companyId) {
+            setLotesList([]);
+            return;
+        }
+
         const fetchSensors = async () => {
             try {
-                const data = await SensorService.getAllSensor(0, {});
+                const data = await SensorService.getAllSensor(companyId, {});
                 setSensors(data);
             } catch (error) {
                 console.error('Error fetching sensors:', error);
@@ -36,9 +45,14 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }
     }, []);
 
     useEffect(() => {
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : "";
+        if (!companyId) {
+            setLotesList([]);
+            return;
+        }
         const fetchActuators = async () => {
             try {
-                const data = await ActuadorService.getAllActuador(0, {});
+                const data = await ActuadorService.getAllActuador(companyId, {});
                 setActuators(data);
             } catch (error) {
                 console.error('Error fetching actuators:', error);
@@ -101,30 +115,30 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }
     };
     const handleChange = (e) => {
         setFormulario({ ...formulario, [e.target.name]: e.target.value });
-      };
-    
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-    
+
+
         let formDataToSubmit;
         try {
             formDataToSubmit = {
                 ...formData,
-                productionVariableId: parseInt(formData.productionVariableId, 10),  
-                actuatorId: parseInt(formData.actuatorId, 10),  
-                activationFrequency: parseInt(formData.activationFrequency, 10) ,
-                numberOfSamples: parseInt(formData.numberOfSamples,10),
-                samplingFrequency: parseInt(formData.samplingFrequency,10),
-                sensorId: parseInt(formData.sensorId,10)
+                productionVariableId: parseInt(formData.productionVariableId, 10),
+                actuatorId: parseInt(formData.actuatorId, 10),
+                activationFrequency: parseInt(formData.activationFrequency, 10),
+                numberOfSamples: parseInt(formData.numberOfSamples, 10),
+                samplingFrequency: parseInt(formData.samplingFrequency, 10),
+                sensorId: parseInt(formData.sensorId, 10)
             };
-    
+
             if (mode === 'create') {
             } else if (mode === 'edit') {
                 setShowSuccessAlert("Editada");
                 await EspacioService.updateControl(control.id, formDataToSubmit);
             }
-    
+
             onClose();
         } catch (error) {
             console.error('Error al guardar la control:', error);
@@ -132,7 +146,7 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control ,variableId }
         selectedVariableId(formDataToSubmit);
 
     };
-    
+
 
     return (
         <form onSubmit={handleSubmit}>

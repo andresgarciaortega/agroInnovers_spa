@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import LoteService from "../../../services/lotesService";
 import EspacioService from "../../../services/espacios";
 import SpeciesService from "../../../services/SpeciesService";
+import { useCompanyContext } from '../../../context/CompanyContext';
 
 const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [espacios, setEspacios] = useState([]);
@@ -44,10 +45,17 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     };
 
     const [lotes, setLotes] = useState([]);
+    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
     const fetchLotes = async () => {
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : "";
+        if (!companyId) {
+          setLotesList([]);
+          return;
+        }
+
         try {
-            const lotesData = await LoteService.getAllLots();
+            const lotesData = await LoteService.getAllLots(companyId);
             setLotes(lotesData);
         } catch (error) {
             console.error("Error al obtener los lotes:", error);
@@ -73,11 +81,13 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const fetchEtapasPorEspecie = async (especieId) => {
         try {
             const especieData = await SpeciesService.getSpecieById(especieId);
+            console.log("especieData : ", especieData)
             if (especieData && especieData.stages) {
                 const etapasList = especieData.stages.map(stageItem => ({
                     id: stageItem.stage.id,
                     name: stageItem.stage.name
                 }));
+                console.log("etapasList : ", etapasList)
                 setEtapas(etapasList);
             } else {
                 setEtapas([]);
