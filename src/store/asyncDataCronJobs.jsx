@@ -45,7 +45,7 @@ const useDataSync = () => {
             }
 
             for (const item of storedData.data) {
-                const { id, productionSpace } = item;
+                const { id, lotCode, productionSpace } = item;
 
                 if (productionSpace && productionSpace.configureMeasurementControls) {
                     for (const control of productionSpace.configureMeasurementControls) {
@@ -55,14 +55,29 @@ const useDataSync = () => {
                         const Puerto_de_entrada = sensor.inputPort;
                         const Puerto_de_lectura = sensor.readingPort;
 
-                        console.log(`🟢 Ejecutando API para ID: ${id}, Puerto Entrada: ${Puerto_de_entrada}, Puerto Lectura: ${Puerto_de_lectura}`);
+                        console.log(`🟢 Ejecutando API para Lote: ${lotCode} (ID: ${id}), Puerto Entrada: ${Puerto_de_entrada}, Puerto Lectura: ${Puerto_de_lectura}`);
 
                         try {
                             const response = await fetch(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`);
                             const newData = await response.json();
+
                             console.log("📌 Respuesta API de newRed:", newData);
+
+                            // Si la respuesta es válida, ejecutar `handleSubmit()`
+                            if (newData && !newData.error) {
+                                console.log("✅ Respuesta válida. Ejecutando handleSubmit()...");
+
+                                await handleSubmit({
+                                    productionLotId: id,
+                                    speciesData: item.productionLotSpecies || [],
+                                    specieId: null,
+                                    typeVariableId: control.id, // Usamos el ID del control como variable
+                                    company_id: item.company_id,
+                                    variableTrackingReports: [newData.value] // Guardamos el dato recibido
+                                });
+                            }
                         } catch (error) {
-                            console.error(`❌ Error en API para ID: ${id}`, error);
+                            console.error(`❌ Error en API para Lote ${lotCode} (ID: ${id})`, error);
                         }
 
                         // ⏳ Esperar 30 segundos antes de la siguiente petición
@@ -77,6 +92,31 @@ const useDataSync = () => {
 
         return () => clearInterval(interval);
     }, []);
+
+
+    // Función de guardado (adaptada para recibir datos)
+    const handleSubmit = async (formData) => {
+        try {
+            const preparedData = {
+                productionLotId: parseInt(formData.productionLotId, 10),
+                speciesData: formData.speciesData,
+                specieId: formData.specieId ? parseInt(formData.specieId, 10) : null,
+                typeVariableId: parseInt(formData.typeVariableId, 10),
+                company_id: parseInt(formData.company_id, 10),
+                variableTrackingReports: formData.variableTrackingReports
+            };
+
+            const response = await ReporteService.createReporte(preparedData);
+            console.log("✅ Reporte de seguimiento creado:", response);
+
+            showErrorAlert("Reporte de seguimiento creado");
+            onUpdate();
+            closeModal();
+        } catch (error) {
+            console.error("❌ Error al crear el reporte:", error);
+        }
+    };
+
 
     return data;
 };
