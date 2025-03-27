@@ -39,8 +39,7 @@ const useDataSync = () => {
     const { selectedCompanyUniversal } = useCompanyContext();
     const [data, setData] = useState();
 
-    console.log("▶ Iniciando petición inicial...");
- 
+
     // Función para obtener lotes con o sin internet
     const fetchLotes = async () => {
         try {
@@ -49,8 +48,12 @@ const useDataSync = () => {
                 setData([]);
                 return [];
             }
-    
+
+            console.log("▶ Iniciando petición inicial...");
+
             if (navigator.onLine) {
+                console.log("▶ Iniciando petición inicial por segunda vez.");
+
                 console.log("🔗 Conectado a Internet. Obteniendo datos de la API...");
                 const response = await LoteService.getAllLots(48);
                 console.log("companyId : ", companyId)
@@ -69,46 +72,46 @@ const useDataSync = () => {
             return []; // 🔥 Se devuelve un array vacío en caso de error
         }
     };
-    
+
 
 
     // Función de sincronización de datos
     const syncData = async () => {
         const dataPeticion = await fetchLotes(); // 🔥 Ahora capturamos los datos devueltos
         console.log("📌 Datos obtenidos:", dataPeticion);
-    
+
         if (!Array.isArray(dataPeticion) || dataPeticion.length === 0) return; // 🔥 Usamos dataPeticion en lugar de data
-    
+
         for (const item of dataPeticion) { // 🔥 Usamos dataPeticion aquí
             const { id, lotCode, productionSpace } = item;
-    
+
             if (productionSpace && productionSpace.configureMeasurementControls) {
                 for (const control of productionSpace.configureMeasurementControls) {
                     const sensor = control.sensor;
                     if (!sensor) continue;
-    
+
                     const Puerto_de_entrada = sensor.inputPort;
                     const Puerto_de_lectura = sensor.readingPort;
-    
+
                     console.log(`🟢 Ejecutando API para Lote: ${lotCode} (ID: ${id}), Puerto Entrada: ${Puerto_de_entrada}, Puerto Lectura: ${Puerto_de_lectura}`);
-    
+
                     try {
                         const response = await fetch(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`);
                         const newData = await response.json();
-    
+
                         console.log("📌 Respuesta API de newRed:", newData);
-    
+
                         if (newData && !newData.error) {
                             console.log("✅ Respuesta válida. Ejecutando handleSubmit()...");
-    
+
                             // 📅 Obtener fecha y hora del sistema
                             const now = new Date();
                             const updateDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
                             const updateTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
-    
+
                             // 🟢 Determinar variableId desde el JSON correctamente
                             const variableId = item.productionLotSpecies?.[0]?.specie?.variables?.[0]?.typeVariable.id || null;
-    
+
                             await handleSubmit({
                                 company_id: item.company_id,
                                 productionLotId: id,
@@ -127,14 +130,14 @@ const useDataSync = () => {
                     } catch (error) {
                         console.error(`❌ Error en API para Lote ${lotCode} (ID: ${id})`, error);
                     }
-    
+
                     // ⏳ Esperar 30 segundos antes de la siguiente petición
                     await new Promise(resolve => setTimeout(resolve, 30000));
                 }
             }
         }
     };
-    
+
 
     // Función de guardado de reportes
     const handleSubmit = async (formData) => {
