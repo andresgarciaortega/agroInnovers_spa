@@ -3,86 +3,47 @@ import ReporteService from "../services/LoteSeguimiento";
 import LoteService from "../services/lotesService";
 import { useCompanyContext } from "../context/CompanyContext";
 
-// Función auxiliar para calcular si ya pasó el tiempo requerido
-const hasTimeElapsed = (lastValidation, frequency, unit) => {
-    if (!lastValidation) return true; // Si no hay fecha previa, ejecutar de inmediato
-
-    const now = new Date();
-    const lastValidationDate = new Date(lastValidation);
-    let nextExecutionDate = new Date(lastValidationDate);
-
-    switch (unit) {
-        case "meses":
-            nextExecutionDate.setMonth(nextExecutionDate.getMonth() + frequency);
-            break;
-        case "semanas":
-            nextExecutionDate.setDate(nextExecutionDate.getDate() + frequency * 7);
-            break;
-        case "días":
-            nextExecutionDate.setDate(nextExecutionDate.getDate() + frequency);
-            break;
-        case "horas":
-            nextExecutionDate.setHours(nextExecutionDate.getHours() + frequency);
-            break;
-        case "minutos":
-            nextExecutionDate.setMinutes(nextExecutionDate.getMinutes() + frequency);
-            break;
-        default:
-            return false;
-    }
-
-    return now >= nextExecutionDate;
-};
-
-// Hook personalizado para sincronizar datos según la frecuencia
 const useDataSync = () => {
     const { selectedCompanyUniversal } = useCompanyContext();
-    const [data, setData] = useState();
+    const [data, setData] = useState([]);
+    const [isLotesFetched, setIsLotesFetched] = useState(false); // 🔥 Para saber si `fetchLotes` ya corrió
 
-
-    // Función para obtener lotes con o sin internet
+    // 🔄 Función para obtener lotes con o sin internet
     const fetchLotes = async () => {
         try {
             const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : "";
             if (!companyId) {
                 setData([]);
-                return [];
+                return;
             }
 
             console.log("▶ Iniciando petición inicial...");
+            let response = [];
 
             if (navigator.onLine) {
-                console.log("▶ Iniciando petición inicial por segunda vez.");
-
                 console.log("🔗 Conectado a Internet. Obteniendo datos de la API...");
-                const response = await LoteService.getAllLots(48);
-                console.log("companyId : ", companyId)
-                console.log(" response : ", response)
+                response = await LoteService.getAllLots(48);
                 setData(response);
-                return response; // 🔥 Aquí se devuelve la data correctamente
             } else {
                 console.warn("🚫 Sin conexión a Internet. Cargando datos desde localStorage...");
-                const storedData = JSON.parse(localStorage.getItem("cache_/production-lots")) || { data: [] };
-                setData(storedData.data);
-                return storedData.data; // 🔥 También se devuelve en caso de no estar en línea
+                response = JSON.parse(localStorage.getItem("cache_/production-lots"))?.data || [];
+                setData(response);
             }
+
+            console.log("📌 Datos de lotes obtenidos:", response);
+            setIsLotesFetched(true); // 🔥 Marcamos que `fetchLotes` ya se ejecutó
         } catch (error) {
             console.error("❌ Error al obtener los lotes:", error);
             setData([]);
-            return []; // 🔥 Se devuelve un array vacío en caso de error
         }
     };
 
-
-
-    // Función de sincronización de datos
+    // 🔄 Función de sincronización de datos
     const syncData = async () => {
-        const dataPeticion = await fetchLotes(); // 🔥 Ahora capturamos los datos devueltos
-        console.log("📌 Datos obtenidos:", dataPeticion);
+        if (!isLotesFetched) return; // 🔥 Solo ejecutar si `fetchLotes` ya corrió
 
-        if (!Array.isArray(dataPeticion) || dataPeticion.length === 0) return; // 🔥 Usamos dataPeticion en lugar de data
-
-        for (const item of dataPeticion) { // 🔥 Usamos dataPeticion aquí
+        console.log("⚡ Ejecutando syncData...");
+        for (const item of data) {
             const { id, lotCode, productionSpace } = item;
 
             if (productionSpace && productionSpace.configureMeasurementControls) {
@@ -93,24 +54,19 @@ const useDataSync = () => {
                     const Puerto_de_entrada = sensor.inputPort;
                     const Puerto_de_lectura = sensor.readingPort;
 
-                    console.log(`🟢 Ejecutando API para Lote: ${lotCode} (ID: ${id}), Puerto Entrada: ${Puerto_de_entrada}, Puerto Lectura: ${Puerto_de_lectura}`);
+                    console.log(`🟢 Ejecutando API para Lote: ${lotCode} (ID: ${id})`);
 
                     try {
-                        console.log(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`)
                         const response = await fetch(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`);
                         const newData = await response.json();
 
                         console.log("📌 Respuesta API de newRed:", newData);
 
                         if (newData && !newData.error) {
-                            console.log("✅ Respuesta válida. Ejecutando handleSubmit()...");
-
-                            // 📅 Obtener fecha y hora del sistema
                             const now = new Date();
                             const updateDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
                             const updateTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
 
-                            // 🟢 Determinar variableId desde el JSON correctamente
                             const variableId = item.productionLotSpecies?.[0]?.specie?.variables?.[0]?.typeVariable.id || null;
 
                             await handleSubmit({
@@ -139,8 +95,7 @@ const useDataSync = () => {
         }
     };
 
-
-    // Función de guardado de reportes
+    // 🔄 Función de guardado de reportes
     const handleSubmit = async (formData) => {
         try {
             const preparedData = {
@@ -158,12 +113,23 @@ const useDataSync = () => {
         }
     };
 
+    // 🔄 Efecto para ejecutar `fetchLotes` cada 30s
     useEffect(() => {
-        syncData();
-        const interval = setInterval(syncData, 120000); // Ejecutar cada 1 minuto
+        fetchLotes(); // 🔥 Se ejecuta una vez al montar
 
+        const interval = setInterval(fetchLotes, 30000); // 🔥 Se repite cada 30s
         return () => clearInterval(interval);
     }, [selectedCompanyUniversal]);
+
+    // 🔄 Efecto para ejecutar `syncData` cada 1 min, pero solo si `fetchLotes` ya corrió
+    useEffect(() => {
+        if (!isLotesFetched) return; // 🔥 Evita ejecutar `syncData` antes de que `fetchLotes` termine
+
+        syncData(); // 🔥 Primera ejecución inmediata
+
+        const interval = setInterval(syncData, 60000); // 🔥 Luego cada 1 min
+        return () => clearInterval(interval);
+    }, [isLotesFetched]); // 🔥 Se activa solo cuando `isLotesFetched` cambia a `true`
 
     return data;
 };
