@@ -7,12 +7,11 @@ import useDataSync from './store/asyncDataCronJobs';
 
 
 const App = () => {
-  useDataSync(); // Activamos la lógica de sincronización
 
   return (
     <CompanyProvider>
       <BrowserRouter>
-        <AppRoutes /> 
+        <AppRoutes />
       </BrowserRouter>
     </CompanyProvider>
   );

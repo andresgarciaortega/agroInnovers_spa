@@ -13,7 +13,7 @@ const LotsService = {
             console.error('Error al obtener los tipos de lotes:', error);
             throw error;
         }
-    },
+    }, 
 
     async getAllLotsById(id) {
         try {
