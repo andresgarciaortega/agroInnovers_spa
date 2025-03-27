@@ -120,10 +120,6 @@ const useDataSync = () => {
 
             const response = await ReporteService.createReporte(preparedData);
             console.log("✅ Reporte de seguimiento creado:", response);
-
-            showErrorAlert("Reporte de seguimiento creado");
-            onUpdate();
-            closeModal();
         } catch (error) {
             console.error("❌ Error al crear el reporte:", error);
         }
