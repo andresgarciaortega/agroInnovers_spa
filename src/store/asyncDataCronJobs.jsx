@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ReporteService from "../services/LoteSeguimiento";
 
 // Función auxiliar para calcular si ya pasó el tiempo requerido
 const hasTimeElapsed = (lastValidation, frequency, unit) => {
