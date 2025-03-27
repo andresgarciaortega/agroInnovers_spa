@@ -61,25 +61,37 @@ const useDataSync = () => {
                         try {
                             const response = await fetch(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`);
                             const newData = await response.json();
-
+                        
                             console.log("📌 Respuesta API de newRed:", newData);
-
-                            // Si la respuesta es válida, ejecutar `handleSubmit()`
+                        
                             if (newData && !newData.error) {
                                 console.log("✅ Respuesta válida. Ejecutando handleSubmit()...");
-
+                        
+                                // 📅 Obtener fecha y hora del sistema
+                                const now = new Date();
+                                const updateDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
+                                const updateTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
+                        
+                                // 🟢 Determinar variableId desde el JSON correctamente
+                                const variableId = item.productionLotSpecies?.[0]?.specie?.id || null;
+                        
                                 await handleSubmit({
-                                    productionLotId: id,
-                                    speciesData: item.productionLotSpecies || [],
-                                    specieId: null,
-                                    typeVariableId: control.id, // Usamos el ID del control como variable
                                     company_id: item.company_id,
-                                    variableTrackingReports: [newData.value] // Guardamos el dato recibido
+                                    productionLotId: id,
+                                    specieId: null,
+                                    typeVariableId: control.id, 
+                                    variableTrackingReports: [{
+                                        variableId,
+                                        updateDate,
+                                        updateTime,
+                                        weightAmount: newData.value
+                                    }]
                                 });
                             }
                         } catch (error) {
                             console.error(`❌ Error en API para Lote ${lotCode} (ID: ${id})`, error);
                         }
+                        
 
                         // ⏳ Esperar 30 segundos antes de la siguiente petición
                         await new Promise(resolve => setTimeout(resolve, 30000));
@@ -100,7 +112,6 @@ const useDataSync = () => {
         try {
             const preparedData = {
                 productionLotId: parseInt(formData.productionLotId, 10),
-                speciesData: formData.speciesData,
                 specieId: null,
                 typeVariableId: parseInt(formData.typeVariableId, 10),
                 company_id: parseInt(formData.company_id, 10),
