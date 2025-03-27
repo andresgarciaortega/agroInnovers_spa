@@ -196,7 +196,12 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-       
+
+        // if (!formData.typeVariableId || isNaN(formData.typeVariableId)) {
+        //     alert("El campo Tipo de variable es obligatorio y debe ser un número.");
+        //     return;
+        // }
+
         try {
             const preparedData = {
                 productionLotId: parseInt(formData.productionLotId, 10),

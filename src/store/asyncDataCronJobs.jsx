@@ -101,7 +101,7 @@ const useDataSync = () => {
             const preparedData = {
                 productionLotId: parseInt(formData.productionLotId, 10),
                 speciesData: formData.speciesData,
-                specieId: formData.specieId ? parseInt(formData.specieId, 10) : null,
+                specieId: null,
                 typeVariableId: parseInt(formData.typeVariableId, 10),
                 company_id: parseInt(formData.company_id, 10),
                 variableTrackingReports: formData.variableTrackingReports
