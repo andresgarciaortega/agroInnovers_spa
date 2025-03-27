@@ -160,7 +160,7 @@ const useDataSync = () => {
 
     useEffect(() => {
         syncData();
-        const interval = setInterval(syncData, 60000); // Ejecutar cada 1 minuto
+        const interval = setInterval(syncData, 120000); // Ejecutar cada 1 minuto
 
         return () => clearInterval(interval);
     }, [selectedCompanyUniversal]);
