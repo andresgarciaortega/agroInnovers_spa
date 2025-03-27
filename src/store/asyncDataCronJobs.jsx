@@ -73,7 +73,7 @@ const useDataSync = () => {
                                 const updateTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
                         
                                 // 🟢 Determinar variableId desde el JSON correctamente
-                                const variableId = item.productionLotSpecies?.[0]?.specie?.variables?.[0]?.id || null;
+                                const variableId = item.productionLotSpecies?.[0]?.specie?.variables?.[0]?.typeVariable.id || null;
                         
                                 await handleSubmit({
                                     company_id: item.company_id,
