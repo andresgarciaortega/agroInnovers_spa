@@ -96,6 +96,7 @@ const useDataSync = () => {
                     console.log(`🟢 Ejecutando API para Lote: ${lotCode} (ID: ${id}), Puerto Entrada: ${Puerto_de_entrada}, Puerto Lectura: ${Puerto_de_lectura}`);
 
                     try {
+                        console.log(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`)
                         const response = await fetch(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`);
                         const newData = await response.json();
 
