@@ -28,6 +28,7 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { GoArrowSwitch } from "react-icons/go";
 
 const Lotes = () => {
+  const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
   const { companyId } = useParams();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,8 +41,8 @@ const Lotes = () => {
   const [modalMode, setModalMode] = useState("edit");
   const [selectedCompany, setSelectedCompany] = useState('');
   const [step, setStep] = useState(1)
-  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
-  const [nameCompany, setNameCompany] = useState("");
+  const { selectedCompanyUniversal, hiddenSelect, showHidden } = useCompanyContext();
+  const [nameCompany, setNameCompany] = useState(idcompanyLST.label);
   const [lotesList, setLotesList] = useState([]);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
   const [messageAlert, setMessageAlert] = useState("");
@@ -61,20 +62,27 @@ const Lotes = () => {
     cycleStage: ''
   });
 
+  const [especies, setEspecies] = useState([]);
+
+  
+  useEffect(() => {
+    hiddenSelect(false); // Change to false to show the selector
+  }, []);
+
+
 
 
   useEffect(() => {
+    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+    console.log(companyId)
+    if (!companyId) {
+      setLotesList([]);
+      return;
+    }
     hiddenSelect(true)
     const fetchLotes = async () => {
       try {
-        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : "";
-        if (!companyId) {
-          setLotesList([]);
-          return;
-        }
-
-        setNameCompany(selectedCompanyUniversal.label);
-
+      
         const response = await LoteService.getAllLots(companyId);
 
         if (response.statusCode === 404 || !Array.isArray(response)) {
@@ -96,10 +104,18 @@ const Lotes = () => {
     fetchLotes();
   }, [selectedCompanyUniversal]);
   useEffect(() => {
+
+    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+    console.log(companyId)
+    if (!companyId) {
+      setLotesList([]);
+      return;
+    }
+
     const fetchReportesSeguimiento = async () => {
       try {
         // Obtener reportes de seguimiento
-        const reportes = await ReporteService.getAllReporte(0, {});
+        const reportes = await ReporteService.getAllReporte(companyId, {});
 
         const reportesPorEspecie = reportes.reduce((acc, reporte) => {
           const especieId = reporte.specieId;
@@ -253,13 +269,11 @@ const Lotes = () => {
     setLoteList([]);
 
     try {
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : "";
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
       if (!companyId) {
         setLotesList([]);
         return;
       }
-
-      setNameCompany(selectedCompanyUniversal.label);
 
       const response = await LoteService.getAllLots(companyId);
 

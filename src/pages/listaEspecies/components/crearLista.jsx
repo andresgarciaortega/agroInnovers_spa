@@ -877,6 +877,7 @@ const CrearListas = () => {
                                   placeholder="Descripción de la etapa"
                                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                   onChange={(e) => handleStageChange(stageIndex, 'description', e.target.value)}
+                                  value={stage?.name}
                                 />
                               </div>
                               <div className="w-1/2 p-1">

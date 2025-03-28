@@ -26,7 +26,7 @@ const Variable = () => {
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
-
+  const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
   const [variableList, setVariableList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedVariable, setSelectedVariable] = useState(null);
@@ -35,7 +35,7 @@ const Variable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
-  const [nameCompany, setNameCompany] = useState("");
+  const [nameCompany, setNameCompany] = useState(idcompanyLST.label);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
   const [userRoles, setUserRoles] = useState([]);
@@ -72,13 +72,11 @@ const Variable = () => {
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
       if (!companyId) {
         setVariableList([]);
         return;
-      } else {
-        setNameCompany(selectedCompanyUniversal.label)
-      }
+      } 
 
       try {
         const data = await VariableService.getAllVariable(companyId);
@@ -237,7 +235,7 @@ const Variable = () => {
     setShowErrorAlertTable(false);
     setVariableList([]);
     try {
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
       if (!companyId) {
         setVariableList([]);
         return;

@@ -24,15 +24,13 @@ import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
 
 const ListaEspecies = () => {
+  const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
   const [companyList, setCompanyList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
-    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
-
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
   const navigate = useNavigate();
-
-
   const [speciesList, setSpeciesList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedEspecie, setSelectedEspecie] = useState(null);
@@ -41,7 +39,7 @@ const ListaEspecies = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
-  const [nameCompany, setNameCompany] = useState("");
+  const [nameCompany, setNameCompany] = useState(idcompanyLST.label);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
   const [userRoles, setUserRoles] = useState([]);
@@ -89,15 +87,12 @@ const ListaEspecies = () => {
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
 
       if (!companyId) {
         setSpeciesList([]);
         return;
-      } else {
-        setNameCompany(selectedCompanyUniversal.label)
-      }
-
+      } 
       try {
         const data = await SpeciesService.getAllSpecie(companyId, {});
         if (data.statusCode === 404) {
@@ -115,7 +110,7 @@ const ListaEspecies = () => {
     };
 
     fetchEspecies();
-  }, [selectedCompanyUniversal],{});
+  }, [selectedCompanyUniversal], {});
 
   const handleCompanyChange = (selectedOption) => {
     setSelectedCompany(selectedOption ? selectedOption.value : null);
@@ -273,7 +268,7 @@ const ListaEspecies = () => {
       setMessageAlert('Esta empresa no tiene especies registradas, Intentalo con otra empresa');
       setShowErrorAlertTable(true);
     }
-  
+
   };
 
   const handleEditSpecie = (species) => {

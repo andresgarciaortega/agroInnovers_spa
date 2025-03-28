@@ -5,28 +5,17 @@ import { resolve } from 'path';
 export default defineConfig({
   root: './',
   plugins: [react()],
-  server: {
-    port: 5174, // Cambia al puerto que desees
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src')
-    }
-  },
+  base: '/',
   build: {
     outDir: 'dist',
-    sourcemap: false,
+    emptyOutDir: true,
     rollupOptions: {
-      input: './src/index.jsx', // Ajusta la ruta si es necesario
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          icons: ['react-icons']
-        }
+      input: {
+        main: resolve(__dirname, 'index.html')
       }
     }
   },
-  css: {
-    postcss: './postcss.config.js',
-  }
+  server: {
+    port: 5174, // Cambia al puerto que desees
+  },
 });

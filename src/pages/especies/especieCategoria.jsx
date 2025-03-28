@@ -28,12 +28,13 @@ const Especie = () => {
 
   const navigate = useNavigate();
 
-    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
-  
+  const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
+
   const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
-  const [nameCompany, setNameCompany] = useState("");
+  const [nameCompany, setNameCompany] = useState(idcompanyLST.label);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
 
   const [categoryList, setCategoryList] = useState([]);
@@ -82,14 +83,12 @@ const Especie = () => {
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
 
       if (!companyId) {
         setCategoryList([]);
         return;
-      } else {
-        setNameCompany(selectedCompanyUniversal.label)
-      }
+      } 
 
       try {
         const data = await CategoryServices.getAllCategory(companyId);
@@ -239,7 +238,7 @@ const Especie = () => {
   const updateService = async () => {
     try {
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
 
       if (!companyId) {
         setCategoryList([]);
@@ -312,12 +311,12 @@ const Especie = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {currentCategories.map((category) => (
                 <tr key={category.id}>
-                  
+
                   <td className=" p-3  whitespace-nowrap text-sm text-gray-900">
                     {category.image && (
                       <img
-                      src={category.image}
-                      alt={category.name}
+                        src={category.image}
+                        alt={category.name}
                         className="h-12 w-12 object-cover rounded-full"
                       />
                     )}
@@ -325,7 +324,7 @@ const Especie = () => {
                   <td className="whitespace-nowrap text-sm text-gray-900">{category.name}</td>
 
 
-                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     <span className="text-[#168C0DFF] border-b-2 underline  font-bold bg-blue-50 px-2 py-1 rounded-md">
                       {category.subcategories.length}
                     </span>

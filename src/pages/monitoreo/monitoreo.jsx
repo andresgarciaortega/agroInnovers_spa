@@ -21,12 +21,14 @@ import { getDecodedToken } from "../../utils/auseAuth";
 
 
 const Monitoreo = () => {
+  const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
+
   const [data, setData] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [nameCompany, setNameCompany] = useState("");
+  const [nameCompany, setNameCompany] = useState(idcompanyLST.label);
   const [messageAlert, setMessageAlert] = useState("");
   const [messageAlertDelete, setMessageAlertDelete] = useState("");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
@@ -65,15 +67,13 @@ const Monitoreo = () => {
         const decodedToken = await getDecodedToken();
         setUserRoles(decodedToken.roles?.map(role => role.name) || []);
 
-        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
 
 
         if (!companyId) {
           setData([]);
           return;
-        } else {
-          setNameCompany(selectedCompanyUniversal.label)
-        }
+        } 
         const data = await SystemMonitory.getAllMonitories(companyId);
 
         if (data.statusCode === 404) {
@@ -194,15 +194,13 @@ const Monitoreo = () => {
   const updateListMonitories = async () => {
     try {
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
 
 
       if (!companyId) {
         setData([]);
         return;
-      } else {
-        setNameCompany(selectedCompanyUniversal.label)
-      }
+      } 
       const data = await SystemMonitory.getAllMonitories(companyId);
 
 
@@ -276,7 +274,7 @@ const Monitoreo = () => {
 
     try {
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
 
       if (!companyId) {
         setData([]);

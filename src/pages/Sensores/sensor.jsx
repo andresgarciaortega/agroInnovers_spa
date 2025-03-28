@@ -27,6 +27,8 @@ import { getDecodedToken } from "../../utils/auseAuth";
 import ErrorAlert from "../../components/alerts/error";
 
 const Sensor = () => {
+  const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
+
   const [companyList, setCompanyList] = useState([]);
   const [sensorId, setSensorId] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
@@ -44,7 +46,7 @@ const Sensor = () => {
   const [isModalOpenCali, setIsModalOpenCali] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
-  const [nameCompany, setNameCompany] = useState("");
+  const [nameCompany, setNameCompany] = useState(idcompanyLST.label);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
   const [newVariable, setNewVariable] = useState({
@@ -88,13 +90,12 @@ const Sensor = () => {
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
       if (!companyId) {
         setVariableList([]);
         return;
       }
 
-      setNameCompany(selectedCompanyUniversal.label); // Establecer el nombre de la empresa seleccionada
 
       try {
         const data = await SensorService.getAllSensor(companyId, {}); // Servicio que filtra por empresa
@@ -274,7 +275,7 @@ const Sensor = () => {
 
     try {
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
 
       if (!companyId) {
         setVariableList([]);

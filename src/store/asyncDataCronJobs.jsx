@@ -40,7 +40,7 @@ const useDataSync = () => {
 
     // 🔄 Función de sincronización de datos
     const syncData = async () => {
-        if (!isLotesFetched) return; // 🔥 Solo ejecutar si `fetchLotes` ya corrió
+        if (!isLotesFetched) return;
 
         console.log("⚡ Ejecutando syncData...");
         for (const item of data) {
@@ -64,31 +64,64 @@ const useDataSync = () => {
 
                         if (newData && !newData.error) {
                             const now = new Date();
-                            const updateDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
-                            const updateTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
+                            const updateDate = now.toISOString().split('T')[0];
+                            const updateTime = now.toTimeString().split(' ')[0].substring(0, 5);
 
-                            const variableId = item.productionLotSpecies?.[0]?.specie?.variables?.[0]?.typeVariable.id || null;
-
+                            // Obtener la primera especie del lote de producción
+                            const productionLotSpecies = item.productionLotSpecies?.[0];
+                            // Obtener la primera variable de la especie
+                            const variable = productionLotSpecies?.specie?.variables?.[0];
+                            // Obtener el ID del tipo de variable
+                            const typeVariableId = variable?.typeVariable?.id || null;
+                            // Obtener el ID de la variable misma
+                            const variableId = variable?.id || null;
+                            console.log("va a guardar")
                             await handleSubmit({
                                 company_id: item.company_id,
                                 productionLotId: id,
-                                specieId: null,
-                                typeVariableId: control.id,
+                                specieId: productionLotSpecies?.specie?.id || null,
+                                typeVariableId: typeVariableId, // Usamos el ID del tipo de variable
                                 variableTrackingReports: [
                                     {
-                                        variableId,
+                                        variableId: variableId, // Usamos el ID de la variable
                                         updateDate,
                                         updateTime,
                                         weightAmount: newData.value
                                     }
                                 ]
                             });
+
+
+
+
+                            // Llamar a la API del actuador después de guardar
+                            if (control.actuator) {
+                                console.log("activando actuador")
+                                const actuatorInputPort = control.actuator.inputPort;
+                                const actuatorActivationPort = control.actuator.activationPort;
+                                const actuatorUrl = `http://127.0.0.1:1880/request?id_c=${actuatorInputPort}&id_a=${actuatorActivationPort}&state=true`;
+                                console.log("respuesta activación actuador : ", actuatorUrl)
+
+                                console.log(`🟠 Activando actuador para Lote: ${lotCode} (ID: ${id})`);
+                                console.log(`URL de activación: ${actuatorUrl}`);
+
+                                try {
+                                    const actuatorResponse = await fetch(actuatorUrl);
+                                    const actuatorData = await actuatorResponse.json();
+                                    console.log("📌 Respuesta API de actuador:", actuatorData);
+                                } catch (error) {
+                                    console.error(`❌ Error al activar actuador para Lote ${lotCode} (ID: ${id})`, error);
+                                }
+                            }
+
+
+
                         }
+
                     } catch (error) {
                         console.error(`❌ Error en API para Lote ${lotCode} (ID: ${id})`, error);
                     }
 
-                    // ⏳ Esperar 30 segundos antes de la siguiente petición
                     await new Promise(resolve => setTimeout(resolve, 30000));
                 }
             }
@@ -97,10 +130,13 @@ const useDataSync = () => {
 
     // 🔄 Función de guardado de reportes
     const handleSubmit = async (formData) => {
+        console.log("va a guardando ", formData)
+
         try {
             const preparedData = {
                 productionLotId: parseInt(formData.productionLotId, 10),
                 specieId: null,
+                speciesData: true,
                 typeVariableId: parseInt(formData.typeVariableId, 10),
                 company_id: parseInt(formData.company_id, 10),
                 variableTrackingReports: formData.variableTrackingReports
@@ -123,6 +159,8 @@ const useDataSync = () => {
 
     // 🔄 Efecto para ejecutar `syncData` cada 1 min, pero solo si `fetchLotes` ya corrió
     useEffect(() => {
+        if (!isLotesFetched) console.log("ya se cargo "); // 🔥 Evita ejecutar `syncData` antes de que `fetchLotes` termine
+
         if (!isLotesFetched) return; // 🔥 Evita ejecutar `syncData` antes de que `fetchLotes` termine
 
         syncData(); // 🔥 Primera ejecución inmediata

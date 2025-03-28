@@ -23,7 +23,7 @@ import { useCompanyContext } from "../../context/CompanyContext";
 
 
 const Usuario = () => {
-
+  const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
   const { selectedCompanyUniversal } = useCompanyContext();
   // const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
@@ -75,15 +75,14 @@ const Usuario = () => {
 
 
   useEffect(() => {
+    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+    if (!companyId) {
+      setUsersList([]);
+      return;
+    } 
+    
     setIsLoading(true);
     const fetchUsersList = async () => {
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
-      if (!companyId) {
-        setUsersList([]);
-        return;
-      } else {
-        setNameCompany(selectedCompanyUniversal.label)
-      }
       try {
         const data = await UsersService.getAllUser(companyId);
         if (data.statusCode === 404) {
@@ -271,12 +270,7 @@ const Usuario = () => {
         <div className="flex items-center space-x-2 text-gray-700">
           <HiOutlineUserGroup size={20} />
           <span>Usuarios</span>
-          <span className="text-black font-bold"> / {nameCompany ? nameCompany : ''} </span>
-          {selectedCompany && (
-            <span className="text-black font-bold">
-              {companyList.find(company => company.id === selectedCompany)?.name || 'No seleccionado'}
-            </span>
-          )}
+          <span className="text-black font-bold"> / {idcompanyLST.label} </span>
         </div>
       </div>
 

@@ -21,6 +21,8 @@ import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
 
 const Espacio = () => {
+  const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
+
   const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
@@ -36,7 +38,7 @@ const Espacio = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
-  const [nameCompany, setNameCompany] = useState("");
+  const [nameCompany, setNameCompany] = useState(idcompanyLST.label);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
   const [newVariable, setNewVariable] = useState({
@@ -64,31 +66,16 @@ const Espacio = () => {
     fetchCompanies();
   }, []);
 
-  // useEffect(() => {
-  //   const fetchEspecies = async () => {
-  //     try {
-  //       const data = await EspacioService.getAllEspacio();
-  //       setVariableList(data);
-  //     } catch (error) {
-  //       console.error('Error fetching space:', error);
-  //     }
-  //   };
-
-  //   fetchEspecies();
-  // }, []);
-
   useEffect(() => {
     const fetchEspecies = async () => {
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
       if (!companyId) {
         setVariableList([]);
         return;
-      } else {
-        setNameCompany(selectedCompanyUniversal.label)
-      }
+      } 
 
       try {
         const data = await EspacioService.getAllEspacio(companyId);
@@ -222,7 +209,7 @@ const Espacio = () => {
 
     try {
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
 
       if (!companyId) {
         setVariableList([]);

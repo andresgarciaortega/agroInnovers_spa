@@ -29,6 +29,8 @@ import { getDecodedToken } from "../../utils/auseAuth";
 import ErrorAlert from "../../components/alerts/error";
 
 const Actuador = () => {
+  const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
+
   const [companyList, setCompanyList] = useState([]);
   const [actuadorList, setActuadorList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
@@ -47,7 +49,7 @@ const Actuador = () => {
   const [isModalOpenCali, setIsModalOpenCali] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [messageAlert, setMessageAlert] = useState("");
-  const [nameCompany, setNameCompany] = useState("");
+  const [nameCompany, setNameCompany] = useState(idcompanyLST.label);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
   const [newVariable, setNewVariable] = useState({
@@ -116,14 +118,11 @@ const Actuador = () => {
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
 
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
       if (!companyId) {
         setVariableList([]);
         return;
-      } else {
-        setNameCompany(selectedCompanyUniversal.label)
-      }
-
+      } 
       try {
         const data = await ActuadorService.getAllActuador(companyId, {});
         if (data.statusCode === 404) {
@@ -295,7 +294,7 @@ const Actuador = () => {
 
     try {
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
 
       if (!companyId) {
         setVariableList([]);

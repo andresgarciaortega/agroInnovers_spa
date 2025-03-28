@@ -37,6 +37,12 @@ const Login = () => {
                 "label": decodedToken?.company.name,
             }
         ));
+        localStorage.setItem("rol", JSON.stringify(
+          {
+              "value": decodedToken?.roles[0].id,
+              "label": decodedToken?.roles[0].name,
+          }
+      ));
         navigate('/home/dashboard', { replace: true });
     } else {
         // Error: muestra la alerta
