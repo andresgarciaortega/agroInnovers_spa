@@ -223,12 +223,12 @@ const VisualizarEmpresa = ({ }) => {
 
   return (
     <div className="flex">
-     
-          <div className="flex-1 p-6">
-          {isLoading ? (
-        <LoadingView />
-      ) : (
-        <>
+
+      <div className="flex-1 p-6">
+        {isLoading ? (
+          <LoadingView />
+        ) : (
+          <>
             <div className="max-w-7xl mx-auto">
 
               <button
@@ -432,23 +432,23 @@ const VisualizarEmpresa = ({ }) => {
                 </div>
               </div>
             </div>
-            </>
+          </>
+        )}
+      </div>
+      {isModalOpen && (
+        <GenericModal
+          title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'}
+          onClose={closeModal}>
+          <FormCompany
+            showSuccessAlert={showSuccessAlertSuccess}
+            onUpdate={updateCompanies}
+            company={newCompany}
+            mode={modalMode}
+            typeDocuments={typeDocuments}
+            closeModal={closeModal} />
+        </GenericModal>
       )}
-          </div>
-          {isModalOpen && (
-            <GenericModal
-              title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'}
-              onClose={closeModal}>
-              <FormCompany
-                showSuccessAlert={showSuccessAlertSuccess}
-                onUpdate={updateCompanies}
-                company={newCompany}
-                mode={modalMode}
-                typeDocuments={typeDocuments}
-                closeModal={closeModal} />
-            </GenericModal>
-          )}
-        
+
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import LoteService from "../../../services/lotesService";
 import ReporteService from "../../../services/LoteSeguimiento";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
@@ -11,8 +11,11 @@ import FormEditSeguimiento from './editarSeguimient';
 import GenericModal from '../../../components/genericModal';
 import SuccessAlert from "../../../components/alerts/success";
 import { useCompanyContext } from "../../../context/CompanyContext";
-import { AiOutlineSearch } from "react-icons/ai";
+import { AiOutlineSearch  } from "react-icons/ai";
+import { IoArrowBack } from 'react-icons/io5';
 import Delete from '../../../components/delete';
+import LoadingView from "../../../components/Loading/loadingView";
+import ErrorAlert from "../../../components/alerts/error";
 
 const VisualizarLote = () => {
     const { id } = useParams();
@@ -24,6 +27,7 @@ const VisualizarLote = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [messageAlert, setMessageAlert] = useState("");
     const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const [showErrorAlertNoTiene, setShowErrorAlertNoTiene] = useState(false);
 
     const { selectedCompanyUniversal } = useCompanyContext();
     const [nameCompany, setNameCompany] = useState("");
@@ -34,7 +38,7 @@ const VisualizarLote = () => {
     const [isModalOpenSeguimiento, setIdModalOpenSeguimiento] = useState(false);
     const [isModalOpenEditSeguimiento, setIdModalOpenEditSeguimiento] = useState(false);
     const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState("create");
     // const [typeVariable, setTipoVariable] = useState("");
@@ -77,7 +81,7 @@ const VisualizarLote = () => {
                     name: item.specie?.common_name || "Sin nombre"
                 })) || []);
 
-              
+
             } catch (error) {
                 console.error("Error al cargar el lote:", error);
             }
@@ -91,28 +95,70 @@ const VisualizarLote = () => {
 
     const fetchSeguimiento = async (filters) => {
         try {
-            
-            const response = await ReporteService.getAllReporte(0, filters);
-            setSeguimiento(response);
+            // Asegurar que los parámetros obligatorios estén presentes
+            if (!filters.lote_id || !filters.type_variable_id) {
+                throw new Error("Los parámetros lote_id y type_variable_id son obligatorios");
+            }
+
+            // Preparar parámetros para el servicio
+            const params = {
+                lote_id: filters.lote_id,
+                type_variable: filters.type_variable_id,
+                specie_id: filters.specie_id // Puede ser undefined
+            };
+
+            const response = await ReporteService.getAllReporteSelecte(
+                params.lote_id,
+                params.type_variable,
+                params.specie_id
+            );
+
+            setIsLoading(false)
+            setSeguimiento(response || []);
         } catch (error) {
             console.error("Error al cargar el seguimiento:", error);
+            setShowErrorAlertTable(true);
+            setSeguimiento([]); // Limpiar datos en caso de error
+        }
+    };
+
+    const handleBuscar = () => {
+        if (formData.typeVariableId === '') {
+            setMessageAlert("Es importante que seleccione un tipo de variable");
+            setShowErrorAlertNoTiene(true)
+            setTimeout(() => {
+                setShowErrorAlertNoTiene(false)
+            }, 900);
+        } else {
+            setIsLoading(true)
+            setShowErrorAlertTable(false);
+            setHasSearched(true);
+
+            // Construir objeto de filtros
+            const filters = {
+                lote_id: id, // ID del lote (obligatorio)
+                type_variable_id: formData.typeVariableId ? parseInt(formData.typeVariableId, 10) : undefined,
+                specie_id: tipoReporte === "especie" && especieSeleccionada ? Number(especieSeleccionada) : undefined
+            };
+
+            // Validación básica
+            if (!filters.type_variable_id) {
+                setShowErrorAlertTable(true);
+                return;
+            }
+
+            // Limpiar filtro de especie si es reporte general
+            if (tipoReporte === 'general') {
+                filters.specie_id = undefined;
+            }
+            fetchSeguimiento(filters);
         }
     };
 
 
-    const handleBuscar = () => {
-        setShowErrorAlertTable(false);
-        setHasSearched(true);
-        const filters = {
-            typeVariable: formData.typeVariableId ? { id: parseInt(formData.typeVariableId, 10) } : undefined,
-            speciesData: tipoReporte === "especie",
-            specie: tipoReporte === "especie" && especieSeleccionada
-                ? { id: Number(especieSeleccionada) }
-                : undefined,
-        };
 
-        fetchSeguimiento(filters);
-    };
+
+
 
 
 
@@ -139,10 +185,10 @@ const VisualizarLote = () => {
 
     const calcularIndividuosMuertos = (seguimiento, especieId) => {
         const mortandadReportes = seguimiento.filter(reporte =>
-            reporte.typeVariable?.id === 64 && 
-            reporte.specie?.id === especieId 
+            reporte.typeVariable?.id === 64 &&
+            reporte.specie?.id === especieId
         );
-    
+
         const sumaMortandad = mortandadReportes.reduce((acc, reporte) => {
             const cantidad = parseFloat(reporte.variableTrackingReports[0]?.weightOrQuantity) || 0;
             return acc + cantidad;
@@ -239,7 +285,7 @@ const VisualizarLote = () => {
                 name: item.specie?.common_name || "Sin nombre"
             })) || []);
 
-         
+
         } catch (error) {
             console.error("Error fetching lots:", error);
             setLotesList([]);
@@ -255,8 +301,22 @@ const VisualizarLote = () => {
             setShowErrorAlert(false)
         }, 2500);
     }
+    const navigate = useNavigate();
+
+    const handleGoBack = () => {
+        navigate("/home/lotes");
+      };
+
+      
     return (
         <div>
+            <button
+                className="btn-volver  bottom-5 right-5  text-gray-300  hover:text-gray-500"
+                onClick={handleGoBack}
+                title="Volver"  // El texto que aparece al pasar el cursor
+              >
+                <IoArrowBack size={24} />  {/* El ícono de flecha */}
+              </button>
             <h1 className="text-xl font-bold mb-4">Detalle del Lote</h1>
             {lote && (
                 <div className="grid grid-cols-2 gap-4 border border-gray-300 p-4 shadow-lg">
@@ -291,36 +351,36 @@ const VisualizarLote = () => {
             <div className="border border-gray-300 p-4 mt-4 shadow-lg">
                 <h2 className="text-xl font-bold mb-4">Especies</h2>
                 <div className="grid grid-cols-1 gap-4">
-                {lote?.productionLotSpecies?.map((especie) => {
-        // Verificar si trackingConfig existe y tiene al menos un elemento
-        const etapa = especie.trackingConfig?.[0]?.productionCycleStage?.name || "Etapa no disponible";
+                    {lote?.productionLotSpecies?.map((especie) => {
+                        // Verificar si trackingConfig existe y tiene al menos un elemento
+                        const etapa = especie.trackingConfigs?.[0]?.productionCycleStage?.name || "Etapa no disponible";
 
-        return (
-            <div
-                            key={especie.id}
-                            className="border p-2 rounded-md bg-gray-100 shadow-lg"
-                        >
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p><strong>{especie.specie.common_name}</strong></p>
-                                    <p>Etapa: {etapa}</p>
-                                    <p>Peso Total inicial: {especie.initialWeight} kg</p>
-                                    <p>Peso Total Final: {especie.finalWeight} kg</p>
-                                </div>
+                        return (
+                            <div
+                                key={especie.id}
+                                className="border p-2 rounded-md bg-gray-100 shadow-lg"
+                            >
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p><strong>{especie.specie.common_name}</strong></p>
+                                        <p>Etapa: {etapa}</p>
+                                        <p>Peso Total inicial: {especie.initialWeight} kg</p>
+                                        <p>Peso Total Final: {especie.finalWeight} kg</p>
+                                    </div>
 
-                                <div className="ml-auto text-right">
-                                    <p>N° individuos iniciales: {especie.initialIndividuals}</p>
-                                    <p>N° individuos finales: {especie.finalIndividuals}</p>
-                                    <p>N° individuos muertos: {calcularIndividuosMuertos(seguimiento, especie.specie.id)}</p>
+                                    <div className="ml-auto text-right">
+                                        <p>N° individuos iniciales: {especie.initialIndividuals}</p>
+                                        <p>N° individuos finales: {especie.finalIndividuals}</p>
+                                        <p>N° individuos muertos: {calcularIndividuosMuertos(seguimiento, especie.specie.id)}</p>
+                                    </div>
+
+
                                 </div>
 
 
                             </div>
-
-
-                        </div>
-        );
-})}
+                        );
+                    })}
                 </div>
             </div>
 
@@ -372,10 +432,7 @@ const VisualizarLote = () => {
                     {/* Botón de búsqueda con icono de lupa */}
                     <button
                         onClick={handleBuscar}
-                        className="bg-gray-200 text-white px-4 py-2 rounded-md flex items-center justify-center col-span-1 shadow-lg"
-
-                    >
-
+                        className="bg-gray-200 text-white px-4 py-2 rounded-md flex items-center justify-center col-span-1 shadow-lg">
                         <AiOutlineSearch className="text-lg mr-1 text-[#168C0DFF]"
                         />
                     </button>
@@ -395,55 +452,58 @@ const VisualizarLote = () => {
                         </button>
                     </div>
                     <div className="overflow-x-auto">
-                       
+                        {isLoading ? <LoadingView /> : (
+                            <>
+                                <table className="w-full">
+                                    <thead className="bg-gray-300 ">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Espacio de producción </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variable</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Especie</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad medida</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {seguimiento.map((reporte, index) => (
+                                            <tr key={index}>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ textTransform: 'uppercase' }}>{reporte.productionLot?.productionSpace?.name}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.variable?.name}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.updateDate}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {tipoReporte === "general"
+                                                        ? lote?.productionLotSpecies?.map(especie => especie.specie.common_name).join(", ")
+                                                        : reporte.specie?.common_name}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.weightOrQuantity}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.variable?.unit_of_measurement}</td>
+                                                <td className="bg-customGreen text-[#168C0DFF] px- py-2 rounded">
+                                                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
+                                                        onClick={() => handleOpenModalEdit(reporte, 'view')}>
+                                                        <Eye size={18} />
+                                                    </button>
+                                                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
+                                                        onClick={() => handleOpenModalEdit(reporte, 'edit')}>
+                                                        <Edit size={18} />
+                                                    </button>
+                                                    <button className="px-2 py-4 whitespace-nowrap text-sm font-medium"
+                                                        onClick={() => handleDelete(reporte)}>
+                                                        <Trash size={18}
+                                                        />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
 
-                        <table className="w-full">
-                            <thead className="bg-gray-300 ">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Espacio de producción </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variable</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Especie</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad medida</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {seguimiento.map((reporte, index) => (
-                                    <tr key={index}>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ textTransform: 'uppercase' }}>{reporte.productionLot?.productionSpace?.name}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.variable?.name}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.updateDate}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {tipoReporte === "general"
-                                                ? lote?.productionLotSpecies?.map(especie => especie.specie.common_name).join(", ")
-                                                : reporte.specie?.common_name}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.weightOrQuantity}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reporte.variableTrackingReports[0]?.variable?.unit_of_measurement}</td>
-                                        <td className="bg-customGreen text-[#168C0DFF] px- py-2 rounded">
-                                            <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
-                                                onClick={() => handleOpenModalEdit(reporte, 'view')}>
-                                                <Eye size={18} />
-                                            </button>
-                                            <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
-                                                onClick={() => handleOpenModalEdit(reporte, 'edit')}>
-                                                <Edit size={18} />
-                                            </button>
-                                            <button className="px-2 py-4 whitespace-nowrap text-sm font-medium"
-                                                onClick={() => handleDelete(reporte)}>
-                                                <Trash size={18}
-                                                />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                            
-                        </table>
+                                </table>
+
+                            </>
+                        )}
                         {hasSearched && seguimiento.length === 0 && (
                             <div className="alert alert-error flex flex-col items-start space-y-2 p-4 mt-4 bg-red-500 text-white rounded-md w-full">
                                 <div className="flex items-center space-x-2">
@@ -471,6 +531,14 @@ const VisualizarLote = () => {
                     onCancel={handleCloseAlert}
                 />
             )}
+
+            {showErrorAlertNoTiene && (
+                <ErrorAlert
+                    message={messageAlert}
+                    onCancel={handleCloseAlert}
+                />
+            )}
+
             {isModalOpenSeguimiento && (
                 <GenericModal
                     title={modalMode === 'edit' ? 'Editar Reporte de seguimiento' : modalMode === 'view' ? 'Ver Reporte de seguimiento' : 'Reporte de seguimiento'}

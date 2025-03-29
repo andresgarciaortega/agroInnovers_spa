@@ -45,84 +45,82 @@ const useDataSync = () => {
         console.log("⚡ Ejecutando syncData...");
         for (const item of data) {
             const { id, lotCode, productionSpace } = item;
-
-            if (productionSpace && productionSpace.configureMeasurementControls) {
-                for (const control of productionSpace.configureMeasurementControls) {
-                    const sensor = control.sensor;
-                    if (!sensor) continue;
-
-                    const Puerto_de_entrada = sensor.inputPort;
-                    const Puerto_de_lectura = sensor.readingPort;
-
-                    console.log(`🟢 Ejecutando API para Lote: ${lotCode} (ID: ${id})`);
-
-                    try {
-                        const response = await fetch(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`);
-                        const newData = await response.json();
-
-                        console.log("📌 Respuesta API de newRed:", newData);
-
-                        if (newData && !newData.error) {
-                            const now = new Date();
-                            const updateDate = now.toISOString().split('T')[0];
-                            const updateTime = now.toTimeString().split(' ')[0].substring(0, 5);
-
-                            // Obtener la primera especie del lote de producción
-                            const productionLotSpecies = item.productionLotSpecies?.[0];
-                            // Obtener la primera variable de la especie
-                            const variable = productionLotSpecies?.specie?.variables?.[0];
-                            // Obtener el ID del tipo de variable
-                            const typeVariableId = variable?.typeVariable?.id || null;
-                            // Obtener el ID de la variable misma
-                            const variableId = variable?.id || null;
-                            console.log("va a guardar")
-                            await handleSubmit({
-                                company_id: item.company_id,
-                                productionLotId: id,
-                                specieId: productionLotSpecies?.specie?.id || null,
-                                typeVariableId: typeVariableId, // Usamos el ID del tipo de variable
-                                variableTrackingReports: [
-                                    {
-                                        variableId: variableId, // Usamos el ID de la variable
-                                        updateDate,
-                                        updateTime,
-                                        weightAmount: newData.value
+            if(item.status === "Producción"){
+                if (productionSpace && productionSpace.configureMeasurementControls) {
+                    for (const control of productionSpace.configureMeasurementControls) {
+                        const sensor = control.sensor;
+                        if (!sensor) continue;
+    
+                        const Puerto_de_entrada = sensor.inputPort;
+                        const Puerto_de_lectura = sensor.readingPort;
+    
+                        console.log(`🟢 Ejecutando API para Lote: ${lotCode} (ID: ${id})`);
+    
+                        try {
+                            const response = await fetch(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`);
+                            const newData = await response.json();
+    
+                            console.log("📌 Respuesta API de newRed:", newData);
+    
+                            if (newData && !newData.error) {
+                                const now = new Date();
+                                const updateDate = now.toISOString().split('T')[0];
+                                const updateTime = now.toTimeString().split(' ')[0].substring(0, 5);
+    
+                                // Obtener la primera especie del lote de producción
+                                const productionLotSpecies = item.productionLotSpecies?.[0];
+                                // Obtener la primera variable de la especie
+                                const variable = productionLotSpecies?.specie?.variables?.[0];
+                                // Obtener el ID del tipo de variable
+                                const typeVariableId = variable?.typeVariable?.id || null;
+                                // Obtener el ID de la variable misma
+                                const variableId = variable?.id || null;
+                                console.log("va a guardar")
+                                await handleSubmit({
+                                    company_id: item.company_id,
+                                    productionLotId: id,
+                                    specieId: productionLotSpecies?.specie?.id || null,
+                                    typeVariableId: typeVariableId, // Usamos el ID del tipo de variable
+                                    variableTrackingReports: [
+                                        {
+                                            variableId: variableId, // Usamos el ID de la variable
+                                            updateDate,
+                                            updateTime,
+                                            weightAmount: newData.value
+                                        }
+                                    ]
+                                });
+    
+                                // Llamar a la API del actuador después de guardar
+                                if (control.actuator) {
+                                    console.log("activando actuador")
+                                    const actuatorInputPort = control.actuator.inputPort;
+                                    const actuatorActivationPort = control.actuator.activationPort;
+                                    const actuatorUrl = `http://127.0.0.1:1880/request?id_c=${actuatorInputPort}&id_a=${actuatorActivationPort}&state=true`;
+                                    console.log("respuesta activación actuador : ", actuatorUrl)
+    
+                                    console.log(`🟠 Activando actuador para Lote: ${lotCode} (ID: ${id})`);
+                                    console.log(`URL de activación: ${actuatorUrl}`);
+    
+                                    try {
+                                        const actuatorResponse = await fetch(actuatorUrl);
+                                        const actuatorData = await actuatorResponse.json();
+                                        console.log("📌 Respuesta API de actuador:", actuatorData);
+                                    } catch (error) {
+                                        console.error(`❌ Error al activar actuador para Lote ${lotCode} (ID: ${id})`, error);
                                     }
-                                ]
-                            });
-
-
-
-
-                            // Llamar a la API del actuador después de guardar
-                            if (control.actuator) {
-                                console.log("activando actuador")
-                                const actuatorInputPort = control.actuator.inputPort;
-                                const actuatorActivationPort = control.actuator.activationPort;
-                                const actuatorUrl = `http://127.0.0.1:1880/request?id_c=${actuatorInputPort}&id_a=${actuatorActivationPort}&state=true`;
-                                console.log("respuesta activación actuador : ", actuatorUrl)
-
-                                console.log(`🟠 Activando actuador para Lote: ${lotCode} (ID: ${id})`);
-                                console.log(`URL de activación: ${actuatorUrl}`);
-
-                                try {
-                                    const actuatorResponse = await fetch(actuatorUrl);
-                                    const actuatorData = await actuatorResponse.json();
-                                    console.log("📌 Respuesta API de actuador:", actuatorData);
-                                } catch (error) {
-                                    console.error(`❌ Error al activar actuador para Lote ${lotCode} (ID: ${id})`, error);
                                 }
+    
+    
+    
                             }
-
-
-
+    
+                        } catch (error) {
+                            console.error(`❌ Error en API para Lote ${lotCode} (ID: ${id})`, error);
                         }
-
-                    } catch (error) {
-                        console.error(`❌ Error en API para Lote ${lotCode} (ID: ${id})`, error);
+    
+                        await new Promise(resolve => setTimeout(resolve, 30000));
                     }
-
-                    await new Promise(resolve => setTimeout(resolve, 30000));
                 }
             }
         }

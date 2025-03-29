@@ -64,17 +64,14 @@ const Lotes = () => {
 
   const [especies, setEspecies] = useState([]);
 
-  
+
   useEffect(() => {
     hiddenSelect(false); // Change to false to show the selector
   }, []);
 
 
-
-
   useEffect(() => {
     const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-    console.log(companyId)
     if (!companyId) {
       setLotesList([]);
       return;
@@ -82,7 +79,7 @@ const Lotes = () => {
     hiddenSelect(true)
     const fetchLotes = async () => {
       try {
-      
+
         const response = await LoteService.getAllLots(companyId);
 
         if (response.statusCode === 404 || !Array.isArray(response)) {
@@ -103,47 +100,50 @@ const Lotes = () => {
 
     fetchLotes();
   }, [selectedCompanyUniversal]);
+
+
+
+
   useEffect(() => {
 
     const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
     console.log(companyId)
     if (!companyId) {
       setLotesList([]);
-      return;
+    } else {
+      const fetchReportesSeguimiento = async () => {
+        try {
+          // Obtener reportes de seguimiento
+          const reportes = await ReporteService.getAllReporte(companyId, {});
+
+          const reportesPorEspecie = reportes.reduce((acc, reporte) => {
+            const especieId = reporte.specieId;
+            if (!acc[especieId]) {
+              acc[especieId] = [];
+            }
+            acc[especieId].push({
+              variableName: reporte.variableName,
+              weightAmount: reporte.weightAmount,
+              updateDate: reporte.updateDate,
+            });
+            return acc;
+          }, {});
+
+          // Asignar los reportes a cada especie
+          setEspecies((prevEspecies) =>
+            prevEspecies.map((especie) => ({
+              ...especie,
+              reportesSeguimiento: reportesPorEspecie[especie.id] || [],
+            }))
+          );
+        } catch (error) {
+          console.error("Error al obtener reportes de seguimiento:", error);
+        }
+      };
+      fetchReportesSeguimiento();
     }
 
-    const fetchReportesSeguimiento = async () => {
-      try {
-        // Obtener reportes de seguimiento
-        const reportes = await ReporteService.getAllReporte(companyId, {});
-
-        const reportesPorEspecie = reportes.reduce((acc, reporte) => {
-          const especieId = reporte.specieId;
-          if (!acc[especieId]) {
-            acc[especieId] = [];
-          }
-          acc[especieId].push({
-            variableName: reporte.variableName,
-            weightAmount: reporte.weightAmount,
-            updateDate: reporte.updateDate,
-          });
-          return acc;
-        }, {});
-
-        // Asignar los reportes a cada especie
-        setEspecies((prevEspecies) =>
-          prevEspecies.map((especie) => ({
-            ...especie,
-            reportesSeguimiento: reportesPorEspecie[especie.id] || [],
-          }))
-        );
-      } catch (error) {
-        console.error("Error al obtener reportes de seguimiento:", error);
-      }
-    };
-
-    fetchReportesSeguimiento();
-  }, [0, {}]);
+  }, [companyId]);
 
 
   const getRemainingDays = (endDate) => {
@@ -370,8 +370,8 @@ const Lotes = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {currentCompanies.map((lote) => (
-              <div key={lote.id} 
-              className="border p-4 rounded-md shadow-lg border-gray-300">
+              <div key={lote.id}
+                className="border p-4 rounded-md shadow-lg border-gray-300">
                 <div className="text-lg flex items-center justify-between font-bold">
                   <span>{lote.lotCode}</span>
                   <div className="flex items-center gap-2 text-[#168C0DFF]">
@@ -422,8 +422,11 @@ const Lotes = () => {
                 <br />
                 <div className="space-y-2">
                   <div className="flex items-center">
-                    <span className="text-sm text-muted-foreground">
-                      Estado: {lote.status || "N/A"}
+                    <span
+                      className={`text-sm ${lote.status === "Rechazado" ? "text-red-600 font-bold uppercase" : "text-muted-foreground"
+                        }`}
+                    >
+                      Estado: {lote.status === "Rechazado" ? "RECHAZADO" : lote.status || "N/A"}
                     </span>
                   </div>
                   <div className="flex items-center">
@@ -445,10 +448,10 @@ const Lotes = () => {
                       <div
                         key={especie.id}
                         className={`border p-2 rounded-md shadow-lg ${especie.status === "Cosechado"
-                            ? "bg-green-200"
-                            : especie.rejected
-                              ? "bg-red-200"
-                              : "bg-white"
+                          ? "bg-green-200"
+                          : especie.rejected
+                            ? "bg-red-200"
+                            : "bg-white"
                           }`} // Cambia el color según el estado de la especie o si está rechazada
                       >
                         <div className="flex justify-between items-center">
@@ -478,7 +481,7 @@ const Lotes = () => {
                         >
                           {expanded === especie.id && (
                             <>
-                               <p>Etapa: {especie.trackingConfig?.[0]?.productionCycleStage?.name || "Etapa no disponible"}</p>
+                              <p>Etapa: {especie.trackingConfigs?.[0]?.productionCycleStage?.name || "Etapa no disponible"}</p>
                               <p>Peso inicial: {especie.initialWeight} kg</p>
 
                               {/* Verifica si la especie fue rechazada */}
@@ -514,22 +517,28 @@ const Lotes = () => {
                     ))}
                   </div>
 
-                  <div>
-                    <button
-                      className="bg-[#168C0DFF] text-white w-full px-6 py-2 rounded-lg items-center"
-                      onClick={() => handleOpenModal(lote, 'seguimiento')}
-                    >
-                      Crear reporte de seguimiento
-                    </button>
-                  </div>
-                  <div>
-                    <button
-                      className="bg-white text-[#168C0DFF] border border-[#168C0DFF] w-full px-6 py-2 rounded-lg items-center"
-                      onClick={() => handleOpenModal(lote, 'cosechar')}
-                    >
-                      Cierre y cosecha
-                    </button>
-                  </div>
+                  {lote.status !== "Rechazado" && (
+                    <>
+                      <div>
+                        <button
+                          className="bg-[#168C0DFF] text-white w-full px-6 py-2 rounded-lg items-center"
+                          onClick={() => handleOpenModal(lote, 'seguimiento')}
+                        >
+                          Crear reporte de seguimiento
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          className="bg-white text-[#168C0DFF] border border-[#168C0DFF] w-full px-6 py-2 rounded-lg items-center"
+                          onClick={() => handleOpenModal(lote, 'cosechar')}
+                        >
+                          Cierre y cosecha
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+
                   <br />
                 </div>
               </div>

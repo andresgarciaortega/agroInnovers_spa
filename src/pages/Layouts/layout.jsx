@@ -5,7 +5,7 @@ import './layout.css'
 import useDataSync from "../../store/asyncDataCronJobs";
 
 const LayoutHome = () => {
-    useDataSync(); // Activamos la lógica de sincronización
+    // useDataSync(); // Activamos la lógica de sincronización
 
     return (
         <>
