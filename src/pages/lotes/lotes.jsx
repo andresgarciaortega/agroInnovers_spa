@@ -335,7 +335,7 @@ const Lotes = () => {
       </div>
 
       <div className="flex-1 ">
-        <div className="mb-5">
+        <div className="mb-5 max-w-7xl mx-auto">
           {/* Input de búsqueda */}
           <input
             type="text"
@@ -345,7 +345,7 @@ const Lotes = () => {
           // onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto mb-6">
           <div className="flex justify-between items-center py-6 border-b seccionLotes">
             <h2 className="text-xl font-semibold">Lotes de producción</h2>
 
@@ -376,47 +376,52 @@ const Lotes = () => {
                   <span>{lote.lotCode}</span>
                   <div className="flex items-center gap-2 text-[#168C0DFF]">
                     <div className="relative group">
-                      <GoArrowSwitch size={19}
-                        className="cursor-pointer"
-                        onClick={() => handleOpenModal(lote.id, 'etapa')}
-                      />
-                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                        Cambiar etapa
-                      </span>
-                    </div>
-                    <div className="relative group">
                       <Eye size={19} className="cursor-pointer"
                         onClick={() => handleViewLot(lote)} />
                       <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                         Ver Lote
                       </span>
                     </div>
-                    <div className="relative group">
-                      <FaRegEdit
-                        className="cursor-pointer"
-                        onClick={() => handleOpenModal(lote, 'edit')}
-                      />
-                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                        Editar Lote
-                      </span>
-                    </div>
-                    <div className="relative group">
-                      <FaRegTrashAlt
-                        onClick={() => handleDelete(lote)}
-                        className="cursor-pointer"
-                      />
-                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                        Eliminar Lote
-                      </span>
-                    </div>
-                    <div className="relative group">
-                      <Ban size={19} className="cursor-pointer"
-                        onClick={() => handleOpenModal(lote, 'rechazar')}
-                      />
-                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                        Rechazar
-                      </span>
-                    </div>
+                    {lote.status !== 'Rechazado' && (
+                      <>
+                        <div className="relative group">
+                          <GoArrowSwitch size={19}
+                            className="cursor-pointer"
+                            onClick={() => handleOpenModal(lote.id, 'etapa')}
+                          />
+                          <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            Cambiar etapa
+                          </span>
+                        </div>
+
+                        <div className="relative group">
+                          <FaRegEdit
+                            className="cursor-pointer"
+                            onClick={() => handleOpenModal(lote, 'edit')}
+                          />
+                          <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            Editar Lote
+                          </span>
+                        </div>
+                        <div className="relative group">
+                          <FaRegTrashAlt
+                            onClick={() => handleDelete(lote)}
+                            className="cursor-pointer"
+                          />
+                          <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            Eliminar Lote
+                          </span>
+                        </div>
+                        <div className="relative group">
+                          <Ban size={19} className="cursor-pointer"
+                            onClick={() => handleOpenModal(lote, 'rechazar')}
+                          />
+                          <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-400 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            Rechazar
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
                 <br />
@@ -439,9 +444,11 @@ const Lotes = () => {
                       Fecha cosecha estimada: {lote.estimatedEndDate}
                     </span>
                   </div>
-                  <div className="flex items-center mt-5">
-                    {getRemainingDays(lote.estimatedEndDate)}
-                  </div>
+                  {lote.status !== "Rechazado" && (
+                    <div className="flex items-center mt-5">
+                      {getRemainingDays(lote.estimatedEndDate)}
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 gap-4 py-2">
                     {lote.productionLotSpecies.map((especie) => (
@@ -559,7 +566,7 @@ const Lotes = () => {
               />
             )}
           </div>
-          <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+          <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white mt-6">
 
             <div className="pagination-info text-sm flex items-center space-x-2">
               <span>Cantidad de filas</span>

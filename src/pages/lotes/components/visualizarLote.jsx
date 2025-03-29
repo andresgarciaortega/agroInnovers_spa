@@ -322,7 +322,7 @@ const VisualizarLote = () => {
                 <div className="grid grid-cols-2 gap-4 border border-gray-300 p-4 shadow-lg">
                     <div>
                         <p><strong>Código del Lote:</strong> {lote.lotCode}</p>
-                        <p><strong>Estado del lote:</strong> {lote.status}</p>
+                        <p><strong>Estado del lote:</strong> {lote.status == 'Rechazado' ? (<strong className="text-red-600">RECHAZADO</strong>) : lote.status}</p>
                         <p>
                             <strong>Posición GPS:</strong>{" "}
                             {lote.productionSpace?.gpsPosition ? (
@@ -443,6 +443,7 @@ const VisualizarLote = () => {
 
                 {/* Tabla */}
                 <div className="bg-white rounded-lg shadow mt-4">
+                    {lote.status  !== 'Rechazado' && (
                     <div className="flex justify-between items-center p-6 border-b seccionNombreBtn">
                         <div className="divisor"></div>
                         <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center shadow-lg"
@@ -451,6 +452,7 @@ const VisualizarLote = () => {
                             Añadir Reporte de seguimiento
                         </button>
                     </div>
+                    )}
                     <div className="overflow-x-auto">
                         {isLoading ? <LoadingView /> : (
                             <>
