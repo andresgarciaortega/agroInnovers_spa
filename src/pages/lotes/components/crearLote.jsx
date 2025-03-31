@@ -149,7 +149,9 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                     id: stageItem.stage.id,
                     name: stageItem.stage.name
                 }));
-                setEtapas(etapasList);
+
+                console.log("etapasList ------------ ", etapasList)
+                // setEtapas(etapasList);
             } else {
                 setEtapas([]);
             }
@@ -188,8 +190,9 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const fetchEtapas = async () => {
         try {
             const response = await EspacioService.getAllStage();
-            const data = await response.json();
-            setEtapas(data);
+            // const data = await response.json();
+            console.log(" ----------------- ", response)
+            setEtapas(response);
         } catch (error) {
             console.error("Error al obtener las etapas:", error);
         }

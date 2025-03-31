@@ -66,20 +66,42 @@ const FormEditarLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
         setIsLoading(false)
     }, [lote]);
 
+
+
+
+
+
+    
+    // const fetchEspacios = async () => {
+    //     try {
+    //         const espaciosData = await EspacioService.getAllEspacio();
+    //         console.log("111111111111111111111 ",espaciosData)
+    //         setEspacios(espaciosData);
+    //     setIsLoading(false);
+
+    //     } catch (error) {
+    //         console.error("Error al obtener los espacios:", error);
+    //     }
+    // };
+
     const fetchEspacios = async () => {
         try {
-            const espaciosData = await EspacioService.getAllEspacio();
-            setEspacios(espaciosData);
-        setIsLoading(false);
-
+            const response = await EspacioService.getAllEspacio();
+            console.log("Datos de espacios:", response); // Ahora deberías ver los datos directamente
+            setEspacios(response.data || response); // Dependiendo de tu estructura de datos
+            setIsLoading(false);
         } catch (error) {
             console.error("Error al obtener los espacios:", error);
+            setIsLoading(false);
         }
     };
+
 
     const fetchEspacioDetalles = async (id) => {
         try {
             const espacios = await EspacioService.getAllEspacio();
+            console.log("222222222222222222 ",espacios)
+
             const espacio = espacios.find(espacio => espacio.id === id);
             setEspacioDetalles(espacio);
         } catch (error) {
@@ -153,7 +175,7 @@ const FormEditarLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
         }
         fetchEspacios();
-        fetchEtapas();
+        // fetchEtapas();
     }, [lote]);
 
 
@@ -165,8 +187,9 @@ const FormEditarLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const fetchEtapas = async () => {
         try {
             const response = await EspacioService.getAllStage();  // Reemplaza con la URL de tu API
-            const data = await response.json();
-            setEtapas(data);
+            // const data = await response.json();
+            console.log("etapasssssssssssssssssss : ", response)
+            setEtapas(response);
         } catch (error) {
             console.error("Error al obtener las etapas:", error);
         }
