@@ -163,7 +163,7 @@ const useDataSync = () => {
 
         syncData(); // 🔥 Primera ejecución inmediata
 
-        const interval = setInterval(syncData, 60000); // 🔥 Luego cada 1 min
+        const interval = setInterval(syncData, 15000); // 🔥 Luego cada 1 min
         return () => clearInterval(interval);
     }, [isLotesFetched]); // 🔥 Se activa solo cuando `isLotesFetched` cambia a `true`
 
