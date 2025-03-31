@@ -9,6 +9,7 @@ import './auth.css'
 import { IoIosEye } from "react-icons/io";
 import ErrorAlert from '../../components/alerts/error';
 import { getDecodedToken } from '../../utils/auseAuth';
+import { useCompanyContext } from '../../context/CompanyContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -23,38 +24,88 @@ const Login = () => {
   const [data, setData] = useState({})
   const navigate = useNavigate();
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   localStorage.clear();
+
+  //   const accesUser = await AccesUser.accesUsersLoguin({ email, password });
+
+  //   if (accesUser.error) {
+  //     localStorage.setItem('authToken', accesUser.response);
+  //     const decodedToken = await getDecodedToken();
+  //     localStorage.setItem("selectedCompany", JSON.stringify(
+  //       {
+  //         "value": decodedToken?.company.id,
+  //         "label": decodedToken?.company.name,
+  //       }
+  //     ));
+  //     localStorage.setItem("rol", JSON.stringify(
+  //       {
+  //         "value": decodedToken?.roles[0].id,
+  //         "label": decodedToken?.roles[0].name,
+  //       }
+  //     ));
+  //     setTimeout(() => {
+  //       navigate('/home/dashboard', { replace: true });
+  //     }, 600);
+  //   } else {
+  //     // Error: muestra la alerta
+  //     setEmailError(true);
+  //     setPasswordError(true);
+  //     setErrorMessage(accesUser.message); // Usa el mensaje devuelto por accesUsersLoguin
+  //     setShowErrorAlert(true);
+  //     setTimeout(() => {
+  //       setShowErrorAlert(false);
+  //     }, 1200);
+  //   }
+  // };
+
+  const { setSelectedCompanyUniversal } = useCompanyContext(); // Añade esto
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    localStorage.clear();
+  
     const accesUser = await AccesUser.accesUsersLoguin({ email, password });
-
+  
     if (accesUser.error) {
-        localStorage.setItem('authToken', accesUser.response);
-        const decodedToken = await getDecodedToken();
-        localStorage.setItem("selectedCompany", JSON.stringify(
-            {
-                "value": decodedToken?.company.id,
-                "label": decodedToken?.company.name,
-            }
-        ));
-        localStorage.setItem("rol", JSON.stringify(
-          {
-              "value": decodedToken?.roles[0].id,
-              "label": decodedToken?.roles[0].name,
-          }
+      localStorage.setItem('authToken', accesUser.response);
+      const decodedToken = await getDecodedToken();
+      
+      // Crear objeto empresa
+      const companyData = {
+        value: decodedToken?.company.id,
+        label: decodedToken?.company.name,
+      };
+  
+      // Actualizar localStorage
+      localStorage.setItem("selectedCompany", JSON.stringify(companyData));
+      
+      // Actualizar contexto de empresa (nuevo código)
+      if (setSelectedCompanyUniversal) {
+        setSelectedCompanyUniversal(companyData);
+      }
+  
+      localStorage.setItem("rol", JSON.stringify(
+        {
+          "value": decodedToken?.roles[0].id,
+          "label": decodedToken?.roles[0].name,
+        }
       ));
+      
+      setTimeout(() => {
         navigate('/home/dashboard', { replace: true });
+      }, 600);
     } else {
-        // Error: muestra la alerta
-        setEmailError(true);
-        setPasswordError(true);
-        setErrorMessage(accesUser.message); // Usa el mensaje devuelto por accesUsersLoguin
-        setShowErrorAlert(true);
-        setTimeout(() => {
-            setShowErrorAlert(false);
-        }, 1200);
+      // Error: muestra la alerta (condición original mantenida)
+      setEmailError(true);
+      setPasswordError(true);
+      setErrorMessage(accesUser.message);
+      setShowErrorAlert(true);
+      setTimeout(() => {
+        setShowErrorAlert(false);
+      }, 1200);
     }
-};
+  };
 
   const handleCloseAlert = () => {
     setShowErrorAlert(false);

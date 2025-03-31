@@ -18,6 +18,7 @@ import { ImEqualizer2 } from "react-icons/im";
 import { IoSearch } from "react-icons/io5";
 import { IoIosWarning } from 'react-icons/io';
 import { getDecodedToken } from "../../utils/auseAuth";
+import LoadingView from "../../components/Loading/loadingView";
 
 
 const Monitoreo = () => {
@@ -43,6 +44,7 @@ const Monitoreo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
+  const [isLoading, setIsLoading] = useState(true);
 
 
   const [newSistem, setNewSistem] = useState({
@@ -62,6 +64,7 @@ const Monitoreo = () => {
 
   useEffect(() => {
     hiddenSelect(true)
+    setIsLoading(true)
     const fetchMonitoreo = async () => {
       try {
         const decodedToken = await getDecodedToken();
@@ -73,7 +76,7 @@ const Monitoreo = () => {
         if (!companyId) {
           setData([]);
           return;
-        } 
+        }
         const data = await SystemMonitory.getAllMonitories(companyId);
 
         if (data.statusCode === 404) {
@@ -81,6 +84,7 @@ const Monitoreo = () => {
         } else {
           setShowErrorAlertTable(false);
           setData(Array.isArray(data) ? data : []);
+          setIsLoading(false)
         }
       } catch (error) {
         console.error('Error fetching type Monitoreo:', error);
@@ -142,17 +146,17 @@ const Monitoreo = () => {
 
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false); // Cierra el modal de confirmación
-  
+
     try {
       setSelectedDevice(null);
       const data = await SystemMonitory.deleteMonitories(selectedDevice.id);
-  
+
       if (data.success) {
         // Si la eliminación fue exitosa
         setMessageAlert(data.message);
         showErrorAlertSuccess("eliminado"); // Establece el mensaje de éxito
         setAlertSelecte(false); // Indica que la alerta es de éxito
-     
+
         updateListMonitories(); // Actualiza la lista de monitoreos
       } else {
         // Si la eliminación no fue exitosa
@@ -164,22 +168,22 @@ const Monitoreo = () => {
     } catch (error) {
       // Manejo de errores
       let errorMessage;
-  
+
       if (error.statusCode === 400 && error.message.includes("ya está asociada")) {
         errorMessage = `${message} exitosamente`;
-     (error.message);
-     setShowErrorVariableAlert(true);
+        (error.message);
+        setShowErrorVariableAlert(true);
       } else {
         errorMessage = "No se puede eliminar el sistema de monitoreo porque está asociado a otros registros";
         setMessageAlert(errorMessage); // Establece el mensaje de error
         setShowErrorAlert(true); // Muestra la alerta
-        
+
       }
-  
+
       console.error("Error al eliminar el sistema de monitoreo:", error);
     }
   };
-  
+
 
   const showErrorAlertSuccess = (message) => {
     setShowSuccessAlert(true)
@@ -200,7 +204,7 @@ const Monitoreo = () => {
       if (!companyId) {
         setData([]);
         return;
-      } 
+      }
       const data = await SystemMonitory.getAllMonitories(companyId);
 
 
@@ -324,111 +328,120 @@ const Monitoreo = () => {
         {/* Icono de búsqueda alineado a la izquierda */}
       </div>
 
-      <div className="bg-white rounded-lg shadow">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Monitoreo de Dispositivos</h2>
-          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
-            Crear dispositivo
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-300">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Disp asignados</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP fija</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lote de producción</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Espacios de producción</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {currentDevices.map((monitoreo, index) => (
-                <tr key={monitoreo.id}>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">{index + 1}</td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">{monitoreo.nombreId}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    <div
-                      className={`relative inline-flex items-center h-7 rounded-full w-11 cursor-pointer transition-colors ease-in-out duration-200 
+      <>
+        {isLoading ? (
+          <LoadingView />
+        ) : (
+          <>
+
+            <div className="bg-white rounded-lg shadow">
+              <div className="flex justify-between items-center p-6 border-b">
+                <h2 className="text-xl font-semibold">Monitoreo de Dispositivos</h2>
+                <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
+                  Crear dispositivo
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-300">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase">ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Disp asignados</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP fija</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lote de producción</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Espacios de producción</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {currentDevices.map((monitoreo, index) => (
+                      <tr key={monitoreo.id}>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">{index + 1}</td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">{monitoreo.nombreId}</td>
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          <div
+                            className={`relative inline-flex items-center h-7 rounded-full w-11 cursor-pointer transition-colors ease-in-out duration-200 
                         ${monitoreo.displayFisico ? 'bg-green-500' : 'bg-gray-300'
-                        }`}
-                      onClick={() => toggleSwitch(monitoreo.displayFisico)}
-                    >
-                      <span
-                        className={`inline-block w-6 h-6 transform bg-white rounded-full transition-transform ease-in-out duration-200 shadow shadow-gray-700
+                              }`}
+                            onClick={() => toggleSwitch(monitoreo.displayFisico)}
+                          >
+                            <span
+                              className={`inline-block w-6 h-6 transform bg-white rounded-full transition-transform ease-in-out duration-200 shadow shadow-gray-700
                            ${monitoreo.displayFisico ? 'translate-x-5' : 'translate-x-0'
-                          }`}
-                      />
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{monitoreo.displayFisico ? monitoreo.ipFija : 'Sin asignar'}</td>
+                                }`}
+                            />
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-700">{monitoreo.displayFisico ? monitoreo.ipFija : 'Sin asignar'}</td>
 
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    {monitoreo.productionSpaces && monitoreo.productionSpaces.length > 0
-                      ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots.length > 0
-                        ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots[0].lotCode
-                        : "No asignado"
-                      : "No asignado"}
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          {monitoreo.productionSpaces && monitoreo.productionSpaces.length > 0
+                            ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots.length > 0
+                              ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots[0].lotCode
+                              : "No asignado"
+                            : "No asignado"}
 
-                  </td>
-                  <td>
-                    {monitoreo.productionSpaces?.length > 0 && monitoreo.productionSpaces.length > 0
-                      ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].name
-                      : "No asignado"}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium">
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded">
-                      <Eye size={18} onClick={() => handleEditMonitoreo(monitoreo)} />
-                    </button>
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(monitoreo, 'edit')}>
-                      <Edit size={18} />
-                    </button>
-                    <button onClick={() => handleDelete(monitoreo)} className=" text-[#168C0DFF] px-2 py-2 rounded">
-                      <Trash size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+                        </td>
+                        <td>
+                          {monitoreo.productionSpaces?.length > 0 && monitoreo.productionSpaces.length > 0
+                            ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].name
+                            : "No asignado"}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium">
+                          <button className=" text-[#168C0DFF] px-2 py-2 rounded">
+                            <Eye size={18} onClick={() => handleEditMonitoreo(monitoreo)} />
+                          </button>
+                          <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(monitoreo, 'edit')}>
+                            <Edit size={18} />
+                          </button>
+                          <button onClick={() => handleDelete(monitoreo)} className=" text-[#168C0DFF] px-2 py-2 rounded">
+                            <Trash size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
 
-          </table>
+                </table>
 
-          {isModalOpen && (
-            <GenericModal
-              title={modalMode === 'edit' ? 'Editar Sistema de monitoreo' : modalMode === 'view' ? 'Ver Monitoreo' : 'Añadir Sistema de monitoreo'}
-              onClose={closeModal}
+                {isModalOpen && (
+                  <GenericModal
+                    title={modalMode === 'edit' ? 'Editar Sistema de monitoreo' : modalMode === 'view' ? 'Ver Monitoreo' : 'Añadir Sistema de monitoreo'}
+                    onClose={closeModal}
 
-              companyId={selectedCompany} >
+                    companyId={selectedCompany} >
 
-              <FormMonitoreo showErrorAlert={showErrorAlertSuccess}
-                onUpdate={updateService}
-                monitoreo={newSistem} mode={modalMode} closeModal={closeModal} />
-            </GenericModal>
-          )}
+                    <FormMonitoreo showErrorAlert={showErrorAlertSuccess}
+                      onUpdate={updateService}
+                      monitoreo={newSistem} mode={modalMode} closeModal={closeModal} />
+                  </GenericModal>
+                )}
 
 
-          {isDeleteModalOpen && (
-            <Delete
-              message={`¿Seguro que desea eliminar el dispositivo ${selectedDevice?.nombreId}?`}
-              onCancel={handleCancelDelete}
-              onConfirm={handleConfirmDelete}
-            />
-          )}
-        </div>
-      </div>
+                {isDeleteModalOpen && (
+                  <Delete
+                    message={`¿Seguro que desea eliminar el dispositivo ${selectedDevice?.nombreId}?`}
+                    onCancel={handleCancelDelete}
+                    onConfirm={handleConfirmDelete}
+                  />
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </>
 
       {showErrorAlert && (
-  <div className="alert-container">
-    {alertSelecte ? (
-      <SuccessAlert message={messageAlert} /> // Muestra la alerta de éxito
-    ) : (
-      <ErrorAlert message={messageAlert} onCancel={closeModal} /> // Muestra la alerta de error
-    )}
-  </div>
-)}
-     
+        <div className="alert-container">
+          {alertSelecte ? (
+            <SuccessAlert message={messageAlert} /> // Muestra la alerta de éxito
+          ) : (
+            <ErrorAlert message={messageAlert} onCancel={closeModal} /> // Muestra la alerta de error
+          )}
+        </div>
+      )}
+
 
 
       {showErrorAlertTable && (

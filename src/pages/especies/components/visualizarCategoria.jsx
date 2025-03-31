@@ -12,6 +12,7 @@ import CompanyService from '../../../services/CompanyService';
 import CompanySelector from "../../../components/shared/companySelect";
 import { useCompanyContext } from "../../../context/CompanyContext";
 import { BiWorld } from "react-icons/bi";
+import LoadingView from '../../../components/Loading/loadingView';
 
 const VisualizarCategoria = () => {
     const navigate = useNavigate();
@@ -20,6 +21,7 @@ const VisualizarCategoria = () => {
     const [editIndex, setEditIndex] = useState(null);
     const [editEtapaIndex, setEditEtapandex] = useState(null);
     const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
+    const [isLoading, setIsLoading] = useState(true);
 
     const [nameCompany, setNameCompany] = useState("");
     const [selectedCompany, setSelectedCompany] = useState('');
@@ -57,7 +59,7 @@ const VisualizarCategoria = () => {
                 name: data.name || '',
                 image: data.image || null,
                 company_id: data.company_id || 0,
-                stage: data.stages || [], 
+                stage: data.stages || [],
                 subcategory: data.subcategories || []
             });
             setNewCategory(data);
@@ -70,6 +72,7 @@ const VisualizarCategoria = () => {
         try {
             const data = await CompanyService.getAllCompany();
             setCompanies(data);
+            setIsLoading(false)
         } catch (error) {
             console.error('Error fetching companies:', error);
         }
@@ -145,12 +148,12 @@ const VisualizarCategoria = () => {
         }
     };
     const handleDeleteImage = () => {
-       
+
         setFormData({ ...formData, image: null });
     };
 
     const handleEditSubcategory = (index) => {
-        setEditIndex(index); 
+        setEditIndex(index);
     };
 
     const handleCancelEdit = () => {
@@ -158,7 +161,7 @@ const VisualizarCategoria = () => {
     };
 
     const handleEditEtapa = (index) => {
-        setEditEtapandex(index); 
+        setEditEtapandex(index);
     };
 
     const handleCancelEditEtapa = () => {
@@ -167,166 +170,173 @@ const VisualizarCategoria = () => {
 
 
     return (
-        <form onSubmit={handleSubmit} className="p-6">
-            <div className="">
-                <div className="relative w-full">
-                    <CompanySelector />
 
-                </div>
-                <br />
-                <div className="flex items-center space-x-2 text-gray-700">
-                    <BiWorld size={20} />
-                    <span>Gestión de especies</span>
-                    <span>/</span>
-                    <span>Categoría</span>
-                    <span>/</span>
-                    <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
-                    <span className="text-black font-bold">  </span>
-                    {selectedCompany && (
-                        <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
-                    )}
-                    <span>/</span>
-                    <span>Visualizar Categoría</span>
-                </div>
-            </div>
-            {showAlertError && <div className="alert alert-error">{messageAlert}</div>}
-            <div className="mt-6">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50">
-                    {formData.image ? (
-                        <img 
-                            src={formData.image} 
-                            alt="Category"
-                            className="mx-auto h-32 object-contain"
-                        />
-                    ) : (
-                        <div className="text-gray-500">
-                            <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                            <p className="mt-1">Subir imagen</p>
+        <>
+
+            {isLoading ? (
+                <LoadingView />
+            ) : (
+                <>
+                    <form onSubmit={handleSubmit} className="p-6">
+                        <div className="">
+                            <div className="relative w-full">
+                                <CompanySelector />
+
+                            </div>
+                            <br />
+                            <div className="flex items-center space-x-2 text-gray-700">
+                                <BiWorld size={20} />
+                                <span>Gestión de especies</span>
+                                <span>/</span>
+                                <span>Categoría</span>
+                                <span>/</span>
+                                <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
+                                <span className="text-black font-bold">  </span>
+                                {selectedCompany && (
+                                    <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
+                                )}
+                                <span>/</span>
+                                <span>Visualizar Categoría</span>
+                            </div>
                         </div>
-                    )}
-
-                    <input
-                        id="image-upload"
-                        type="file"
-                        className="hidden"
-                        onChange={handleImageUpload}
-
-                        accept="image/*"
-                    />
-                </div>
-
-            
-            </div>
-
-
-            <div className="grid grid-cols- gap-4 mt-6">
-                <div className="mb-6">
-                    <label htmlFor="category-name" className="block text-slg font-medium text-gray-700 mb-1">Nombre categoría</label>
-                    <input
-                        type="text"
-                        id="category-name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                        placeholder="Nombre de la categoría"
-                        required
-                        disabled
-                    />
-                </div>
-                
-            </div>
-            <hr className="my-6 border-gray-400" />
-
-            {/* Subcategorías */}
-            <div className="mt-6">
-                <div className="flex items-center justify-between">
-                    <label className="block text-lg font-medium text-gray-700 font-bold">Subcategorías</label>
-                    
-                </div>
-
-                {formData.subcategory.map((subcategory, index) => (
-                    <div key={index} className="flex gap-4 mt-2 items-center">
-                        <div className='w-full'>
-                    <label className="block text-sm font-medium text-gray-700">Nombre Subcategoría</label>
-
-                        <input
-                            type="text"
-                            value={subcategory.name}
-                            onChange={(e) => handleSubcategoryChange(index, e.target.value)}
-                            placeholder="Nombre de la subcategoría"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            disabled={editIndex !== index}
-                        />
-                        </div>
-                       
-                    </div>
-                ))}
-            </div>
-            <hr className="my-6 border-gray-400" />
-
-
-            {/* Etapas */}
-            <div className="mt-6">
-                <div className="flex items-center justify-between">
-                    <label className="block text-lg font-medium text-gray-700 ">Etapas</label>
-                    
-                </div>
-
-                {formData.stage.map((stage, index) => (
-                    <div key={index} className="mt-4 border-2 border-gray-400 rounded-md p-4">
-
-                        <div className="flex justify-between items-center mb-2">
-                            <h3 className="text-sm font-semibold text-gray-800">
-                                {`Etapa ${index + 1}`}
-                            </h3>
-                            
-                        </div>
-
-                        <div className="flex justify-between items-center">
-                            <div className="w-full">
-                            <label className="block text-sm font-medium text-gray-700">Nombre Etapa</label>
+                        {showAlertError && <div className="alert alert-error">{messageAlert}</div>}
+                        <div className="mt-6">
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50">
+                                {formData.image ? (
+                                    <img
+                                        src={formData.image}
+                                        alt="Category"
+                                        className="mx-auto h-32 object-contain"
+                                    />
+                                ) : (
+                                    <div className="text-gray-500">
+                                        <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                                        <p className="mt-1">Subir imagen</p>
+                                    </div>
+                                )}
 
                                 <input
+                                    id="image-upload"
+                                    type="file"
+                                    className="hidden"
+                                    onChange={handleImageUpload}
+
+                                    accept="image/*"
+                                />
+                            </div>
+
+
+                        </div>
+
+
+                        <div className="grid grid-cols- gap-4 mt-6">
+                            <div className="mb-6">
+                                <label htmlFor="category-name" className="block text-slg font-medium text-gray-700 mb-1">Nombre categoría</label>
+                                <input
                                     type="text"
-                                    value={stage.name}
-                                    onChange={(e) => handleStageChange(index, 'name', e.target.value)}
-                                    placeholder="Nombre de la etapa"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                    id="category-name"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                                    placeholder="Nombre de la categoría"
+                                    required
                                     disabled
                                 />
                             </div>
+
+                        </div>
+                        <hr className="my-6 border-gray-400" />
+
+                        {/* Subcategorías */}
+                        <div className="mt-6">
+                            <div className="flex items-center justify-between">
+                                <label className="block text-lg font-medium text-gray-700 font-bold">Subcategorías</label>
+
+                            </div>
+
+                            {formData.subcategory.map((subcategory, index) => (
+                                <div key={index} className="flex gap-4 mt-2 items-center">
+                                    <div className='w-full'>
+                                        <label className="block text-sm font-medium text-gray-700">Nombre Subcategoría</label>
+
+                                        <input
+                                            type="text"
+                                            value={subcategory.name}
+                                            onChange={(e) => handleSubcategoryChange(index, e.target.value)}
+                                            placeholder="Nombre de la subcategoría"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                            disabled={editIndex !== index}
+                                        />
+                                    </div>
+
+                                </div>
+                            ))}
+                        </div>
+                        <hr className="my-6 border-gray-400" />
+
+
+                        {/* Etapas */}
+                        <div className="mt-6">
+                            <div className="flex items-center justify-between">
+                                <label className="block text-lg font-medium text-gray-700 ">Etapas</label>
+
+                            </div>
+
+                            {formData.stage.map((stage, index) => (
+                                <div key={index} className="mt-4 border-2 border-gray-400 rounded-md p-4">
+
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h3 className="text-sm font-semibold text-gray-800">
+                                            {`Etapa ${index + 1}`}
+                                        </h3>
+
+                                    </div>
+
+                                    <div className="flex justify-between items-center">
+                                        <div className="w-full">
+                                            <label className="block text-sm font-medium text-gray-700">Nombre Etapa</label>
+
+                                            <input
+                                                type="text"
+                                                value={stage.name}
+                                                onChange={(e) => handleStageChange(index, 'name', e.target.value)}
+                                                placeholder="Nombre de la etapa"
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                                disabled
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-2">
+                                        <label className="block text-sm font-medium text-gray-700">Descripción</label>
+
+                                        <input
+                                            type="text"
+                                            value={stage.description}
+                                            onChange={(e) => handleStageChange(index, 'description', e.target.value)}
+                                            placeholder="Descripción de la etapa"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                            disabled={editEtapaIndex !== index} // Deshabilita el campo si no está en edición
+                                        />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
 
-                        <div className="mt-2">
-                        <label className="block text-sm font-medium text-gray-700">Descripción</label>
-
-                            <input
-                                type="text"
-                                value={stage.description}
-                                onChange={(e) => handleStageChange(index, 'description', e.target.value)}
-                                placeholder="Descripción de la etapa"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                disabled={editEtapaIndex !== index} // Deshabilita el campo si no está en edición
-                            />
+                        <div className="flex justify-end space-x-4 mt-8">
+                            <button type="button"
+                                onClick={handleCancel}
+                                className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400">
+                                Cancelar
+                            </button>
+                            {/* <button type="submit" className="px-4 py-2 bg-[#168C0DFF] text-white hover:bg-[#146A0D] rounded-md">
+                                Guardar
+                            </button> */}
                         </div>
-                    </div>
-                ))}
-            </div>
+                    </form>
+                </>)}
+        </>
 
-
-
-            <div className="flex justify-end space-x-4 mt-8">
-                <button type="button"
-                 onClick={handleCancel} 
-                 className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400">
-
-                    Cancelar
-                </button>
-                <button type="submit" className="px-4 py-2 bg-[#168C0DFF] text-white hover:bg-[#146A0D] rounded-md">
-                    Guardar
-                </button>
-            </div>
-        </form>
     );
 };
 

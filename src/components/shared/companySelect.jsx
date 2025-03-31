@@ -6,8 +6,9 @@ import { useCompanyContext } from "../../context/CompanyContext";
 
 const CompanySelector = ({ update }) => {
     const [companyList, setCompanyList] = useState([]);
-    const { selectedCompanyUniversal, setSelectedCompanyUniversal, shouldUpdate, showHidden } = useCompanyContext(); // Accede al estado global
+    const { selectedCompanyUniversal, setSelectedCompanyUniversal, shouldUpdate, showHidden } = useCompanyContext();
 
+    // 1. Cargar lista de empresas
     useEffect(() => {
         const fetchCompanies = async () => {
             try {
@@ -20,23 +21,39 @@ const CompanySelector = ({ update }) => {
         fetchCompanies();
     }, [shouldUpdate]);
 
-    // Leer empresa del localStorage y establecerla como valor predeterminado en el contexto si no hay selección
+    // 2. Sincronizar contexto con localStorage (mejorado)
     useEffect(() => {
-        const savedCompany = localStorage.getItem("selectedCompany");
-        if (savedCompany && !selectedCompanyUniversal) {
-            // Si hay una empresa guardada en localStorage y no se ha seleccionado ninguna
-            const company = JSON.parse(savedCompany);
-            setSelectedCompanyUniversal(company); // Establecemos la empresa del localStorage como seleccionada
-        }
+        const handleStorageSync = () => {
+            const savedCompany = JSON.parse(localStorage.getItem("selectedCompany"));
+            
+            // Si hay cambios en el localStorage y es diferente al contexto
+            if (savedCompany && (!selectedCompanyUniversal || savedCompany.value !== selectedCompanyUniversal.value)) {
+                setSelectedCompanyUniversal(savedCompany);
+            }
+            
+            // Si no hay nada en el localStorage pero hay algo en el contexto, limpiar
+            if (!savedCompany && selectedCompanyUniversal) {
+                setSelectedCompanyUniversal(null);
+            }
+        };
+
+        // Ejecutar al montar y escuchar cambios de storage
+        handleStorageSync();
+        window.addEventListener('storage', handleStorageSync);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageSync);
+        };
     }, [selectedCompanyUniversal, setSelectedCompanyUniversal]);
 
-    // Manejar el cambio de selección
+    // 3. Manejar cambio de selección (actualiza contexto y localStorage)
     const handleCompanyChange = (selectedOption) => {
-        setSelectedCompanyUniversal(selectedOption); // Actualiza el contexto con la opción seleccionada
+        setSelectedCompanyUniversal(selectedOption);
+        localStorage.setItem("selectedCompany", JSON.stringify(selectedOption));
     };
 
     return (
-        <div className={` w-100 selectorUniversal ${showHidden ? '' : 'hidden'}`}>
+        <div className={`w-100 selectorUniversal ${showHidden ? '' : 'hidden'}`}>
             <Select
                 className="w-full"
                 onChange={handleCompanyChange}
@@ -46,7 +63,7 @@ const CompanySelector = ({ update }) => {
                 }))}
                 placeholder="Seleccionar empresa"
                 isSearchable={true}
-                value={selectedCompanyUniversal} // Esto se asegura de que el valor se mantenga seleccionado
+                value={selectedCompanyUniversal}
                 classNamePrefix="select"
             />
         </div>

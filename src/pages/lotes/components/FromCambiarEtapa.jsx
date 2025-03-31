@@ -24,7 +24,6 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     });
     const [isLoading, setIsLoading] = useState(true);
 
-    console.log("lote", lote)
     useEffect(() => {
         fetchLotes();
         if (lote) {
@@ -90,13 +89,11 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const fetchEtapasPorEspecie = async (especieId) => {
         try {
             const especieData = await SpeciesService.getSpecieById(especieId);
-            console.log("especieData : ", especieData)
             if (especieData && especieData.stages) {
                 const etapasList = especieData.stages.map(stageItem => ({
                     id: stageItem.stage.id,
                     name: stageItem.stage.name
                 }));
-                console.log("etapasList : ", etapasList)
                 setEtapas(etapasList);
             } else {
                 setEtapas([]);

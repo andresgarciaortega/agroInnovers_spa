@@ -275,7 +275,7 @@ const Variable = () => {
         />
 
       </div>
-
+ 
 
 
       <div className="bg-white  rounded-lg shadow ">

@@ -46,7 +46,7 @@ const Especie = () => {
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [messageAlert, setMessageAlert] = useState("");
@@ -66,6 +66,7 @@ const Especie = () => {
         setCompanyList(data);
       } catch (error) {
         console.error('Error fetching companies:', error);
+        
       }
     };
 
@@ -78,28 +79,33 @@ const Especie = () => {
 
 
   useEffect(() => {
+    setIsLoading(true)
     const fetchCategory = async () => {
 
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
-
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-
       if (!companyId) {
         setCategoryList([]);
         return;
-      } 
+      }
 
       try {
         const data = await CategoryServices.getAllCategory(companyId);
-        if (data.statusCode === 404) {
+        if (data.statusCode == 404) {
           setCategoryList([]);
+          setMessageAlert('Esta empresa no tiene categorías registradas, Intentalo con otra empresa');
+          setShowErrorAlertTable(true)
         } else {
           setShowErrorAlertTable(false)
-          setCategoryList(Array.isArray(data) ? data : []);
+          setIsLoading(false)
+          setCategoryList(Array.isArray(data.data) ? data.data : []);
         }
+        setIsLoading(false)
+
       } catch (error) {
         setCategoryList([])
+        setIsLoading(false)
         console.error('Error fetching categories:', error);
         setMessageAlert('Esta empresa no tiene categorías registradas, Intentalo con otra empresa');
         setShowErrorAlertTable(true);
@@ -237,18 +243,14 @@ const Especie = () => {
 
   const updateService = async () => {
     try {
-
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-
       if (!companyId) {
         setCategoryList([]);
         return;
       }
 
-
       const data = await CategoryServices.getAllCategory(companyId);
-
-      setCategoryList(data);
+      setCategoryList(data.data);
     } catch (error) {
       console.error('Error al actualizar las categorías:', error);
     }
@@ -278,114 +280,123 @@ const Especie = () => {
           )}
         </div>
       </div>
-      <div className="relative w-full mt-6 py-5 z-0">
-        {/* Input de búsqueda */}
-        <input
-          type="text"
-          placeholder="Buscar Categoría"
-          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
 
-        {/* Icono de búsqueda alineado a la izquierda */}
-      </div>
-      <div className="bg-white rounded-lg shadow">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Lista de categorías</h2>
-          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => navigate('../crearCategoria')}>
-            Crear categoría
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-300">
-              <tr>
-                <th className="px-"></th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre categoría</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subcategorías</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Etapas</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {currentCategories.map((category) => (
-                <tr key={category.id}>
+      {isLoading ? (
+        <LoadingView />
+      ) : (
+        <>
 
-                  <td className=" p-3  whitespace-nowrap text-sm text-gray-900">
-                    {category.image && (
-                      <img
-                        src={category.image}
-                        alt={category.name}
-                        className="h-12 w-12 object-cover rounded-full"
-                      />
-                    )}
-                  </td>
-                  <td className="whitespace-nowrap text-sm text-gray-900">{category.name}</td>
+          <div className="relative w-full mt-6 py-5 z-0">
+            {/* Input de búsqueda */}
+            <input
+              type="text"
+              placeholder="Buscar Categoría"
+              className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+
+            {/* Icono de búsqueda alineado a la izquierda */}
+          </div>
+          <div className="bg-white rounded-lg shadow">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-xl font-semibold">Lista de categorías</h2>
+              <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => navigate('../crearCategoria')}>
+                Crear categoría
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-300">
+                  <tr>
+                    <th className="px-"></th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre categoría</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subcategorías</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Etapas</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {currentCategories.map((category) => (
+                    <tr key={category.id}>
+
+                      <td className=" p-3  whitespace-nowrap text-sm text-gray-900">
+                        {category.image && (
+                          <img
+                            src={category.image}
+                            alt={category.name}
+                            className="h-12 w-12 object-cover rounded-full"
+                          />
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap text-sm text-gray-900">{category.name}</td>
 
 
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    <span className="text-[#168C0DFF] border-b-2 underline  font-bold bg-blue-50 px-2 py-1 rounded-md">
-                      {category.subcategories.length}
-                    </span>
-                  </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <span className="text-[#168C0DFF] border-b-2 underline  font-bold bg-blue-50 px-2 py-1 rounded-md">
+                          {category.subcategories.length}
+                        </span>
+                      </td>
 
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className="text-cyan-500 border-b-2 underline font-bold bg-blue-50 px-2 py-1 rounded-md">
-                      {category.stages.length}
-                    </span>
-                  </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <span className="text-cyan-500 border-b-2 underline font-bold bg-blue-50 px-2 py-1 rounded-md">
+                          {category.stages.length}
+                        </span>
+                      </td>
 
-                  {/* Acciones */}
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewCategory(category, 'view')}>
-                      <Eye size={18} />
-                    </button>
-                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleEditCategory(category)}>
-                      <Edit size={18} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCategory(category)} // Cambiado para abrir el modal
-                      className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
-                    >
-                      <Trash size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      {/* Acciones */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewCategory(category, 'view')}>
+                          <Eye size={18} />
+                        </button>
+                        <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleEditCategory(category)}>
+                          <Edit size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCategory(category)} // Cambiado para abrir el modal
+                          className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
+                        >
+                          <Trash size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-        </div>
-      </div>
-      <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
-        <div className="pagination-info text-sm flex items-center space-x-2">
-          <span>Cantidad de filas</span>
-          <select className="border border-gray-200 rounded py-2 text-sm m-2"
-            value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={15}>15</option>
-          </select>
-        </div>
-        <div className="pagination-controls text-xs flex items-center space-x-2">
-          <span>{indexOfFirstCategory + 1}-{indexOfLastCategory} de {categoryList.length}</span>
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-          >
-            <IoIosArrowBack size={20} />
-          </button>
-          <button onClick={handleNextPage}
-            disabled={currentPage === Math.ceil(categoryList.length / itemsPerPage)}
-            className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-          >
-            <IoIosArrowForward size={20} />
-          </button>
-        </div>
-      </div>
+            </div>
+          </div>
+          <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+            <div className="pagination-info text-sm flex items-center space-x-2">
+              <span>Cantidad de filas</span>
+              <select className="border border-gray-200 rounded py-2 text-sm m-2"
+                value={itemsPerPage}
+                onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={15}>15</option>
+              </select>
+            </div>
+            <div className="pagination-controls text-xs flex items-center space-x-2">
+              <span>{indexOfFirstCategory + 1}-{indexOfLastCategory} de {categoryList.length}</span>
+              <button
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+              >
+                <IoIosArrowBack size={20} />
+              </button>
+              <button onClick={handleNextPage}
+                disabled={currentPage === Math.ceil(categoryList.length / itemsPerPage)}
+                className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+              >
+                <IoIosArrowForward size={20} />
+              </button>
+            </div>
+          </div>
+
+        </>
+      )}
 
       {isDeleteModalOpen && (
         <Delete

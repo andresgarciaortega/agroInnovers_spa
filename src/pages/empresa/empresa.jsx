@@ -147,13 +147,10 @@ const Empresa = () => {
     try {
       // Eliminar la compañía del servidor
       const data = await CompanyService.deleteCompany(selectedCompany.id);
-
-      if (data.message) {
-        setMessageAlert(data.message);
-        showErrorAlertr(data.message);
-      } else {
+      if (data.success) {
         setMessageAlert("Empresa eliminada exitosamente");
         showSuccessAlertSuccess("Compañía eliminada correctamente");
+        updateCompanies();
 
         // Obtener las empresas actuales del localStorage
         const companiesFromLocalStorage = JSON.parse(localStorage.getItem('companies')) || [];
@@ -165,10 +162,15 @@ const Empresa = () => {
 
         // Guardar la lista actualizada en el localStorage
         localStorage.setItem('companies', JSON.stringify(updatedCompanies));
+
+      } else {
+
+        setMessageAlert(data.message);
+        showErrorAlertr(data.message);
+      
       }
 
       // Actualizar la lista de empresas
-      updateCompanies();
     } catch (error) {
       console.error('Error al eliminar la compañía:', error);
       setMessageAlert("Ocurrió un error al eliminar la compañía");

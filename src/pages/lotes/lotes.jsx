@@ -107,7 +107,6 @@ const Lotes = () => {
   useEffect(() => {
 
     const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-    console.log(companyId)
     if (!companyId) {
       setLotesList([]);
     } else {

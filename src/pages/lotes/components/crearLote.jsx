@@ -12,7 +12,7 @@ import LoadingView from '../../../components/Loading/loadingView';
 
 const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
-    const [Role, setRole] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
+    const [Role, setRole] = useState(JSON.parse(localStorage.getItem('rol')));
 
     const [step, setStep] = useState(1);
     const [espacios, setEspacios] = useState([]);
@@ -144,7 +144,6 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const fetchEtapasPorEspecie = async (especieId) => {
         try {
             const especieData = await EspeciesService.getSpecieById(especieId);
-            console.log("especieData : ", especieData)
             if (especieData && especieData.stages) {
                 const etapasList = especieData.stages.map(stageItem => ({
                     id: stageItem.stage.id,
@@ -245,7 +244,6 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
         const updatedSpecies = loteConEspecies.productionLotSpecies.map(specie => {
             const specieId = specie.specie ? specie.specie.id : null;
-            console.log(specieId)
             if (!specieId) {
                 console.error("Cada especie debe tener un specieId válido.");
                 return null;
@@ -278,7 +276,6 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             // No incluyas reportFrequency y cycleStage aquí si ya están en trackingConfig
         };
 
-        console.log(data)
         try {
             await LoteService.createLots(data);
             setIsLoading(false)

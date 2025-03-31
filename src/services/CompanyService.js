@@ -94,7 +94,7 @@ const CompanyService = {
             cacheData.data = cacheData.data.filter(company => company.id !== id);
             localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
 
-            return { success: true, data: response };
+            return response;
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 return {

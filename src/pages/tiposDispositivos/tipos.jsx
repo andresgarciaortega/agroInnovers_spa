@@ -22,7 +22,7 @@ const Tipos = () => {
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
   const [expandedSection, setExpandedSection] = useState(null);
-  const [searchVisible, setSearchVisible] = useState(false);
+  const [searchVisible, setSearchVisible] = useState(true);
 
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
@@ -383,7 +383,6 @@ const Tipos = () => {
             <IoIosSearch size={18} className="text-[#168C0DFF]" />
           </button>
           {searchVisible && (
-
             <input
               onChange={handleSearchChange}
               type="text"

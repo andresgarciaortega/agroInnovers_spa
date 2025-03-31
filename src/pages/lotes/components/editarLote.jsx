@@ -32,7 +32,6 @@ const FormEditarLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
         productionLotSpecies: []  // Array vacío al inicio
     });
 
-    console.log("lote  :  : ", lote)
     useEffect(() => {
         if (lote) {
             const trackingConfigData = lote.trackingConfig?.length > 0 ? lote.trackingConfig[0] : {};
@@ -266,7 +265,6 @@ const FormEditarLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
 
     const handleEliminarEspecie = (specieId) => {
-        console.log(specieId)
         const updatedSpecies = loteConEspecies.productionLotSpecies.filter(
             (especie) => especie.specieId !== specieId
         );

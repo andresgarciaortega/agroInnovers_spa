@@ -21,8 +21,6 @@ import AWS from "aws-sdk";
 //     },
 //   });
 
-console.log(import.meta.env.VITE_WASABI_ACCESS_KEY)
-console.log(import.meta.env.VITE_WASABI_SECRET_KEY)
 
 const s3 = new AWS.S3({
     endpoint: "https://s3.us-east-1.wasabisys.com",

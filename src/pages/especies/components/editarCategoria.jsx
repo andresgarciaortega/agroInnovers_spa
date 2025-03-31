@@ -16,16 +16,18 @@ import CompanySelector from "../../../components/shared/companySelect";
 import { useCompanyContext } from "../../../context/CompanyContext";
 import { BiWorld } from "react-icons/bi";
 import useUploadToS3 from '../../../store/cargaDocument';
+import LoadingView from '../../../components/Loading/loadingView';
 
 const EditarCategorias = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const { uploadFile } = useUploadToS3(); // Usamos el hook
+    const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
 
     const [editIndex, setEditIndex] = useState(null);
     const [editEtapaIndex, setEditEtapandex] = useState(null);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(true);
     const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
     const [nameCompany, setNameCompany] = useState("");
@@ -82,6 +84,7 @@ const EditarCategorias = () => {
         try {
             const data = await CompanyService.getAllCompany();
             setCompanies(data);
+            setIsLoading(false)
         } catch (error) {
             console.error('Error fetching companies:', error);
         }
@@ -155,6 +158,8 @@ const EditarCategorias = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        setIsLoading(true)
+
         try {
             let imageUrl = '';
             if (formData.image && formData.image.name) {
@@ -191,6 +196,7 @@ const EditarCategorias = () => {
 
             await CategoryService.updateCategory(id, formDataToSubmit);
 
+            setIsLoading(false)
             setShowSuccessAlert(true);
             setTimeout(() => setShowSuccessAlert(false), 3000);
             setTimeout(() => {
@@ -250,239 +256,250 @@ const EditarCategorias = () => {
 
 
     return (
-        <form onSubmit={handleSubmit} className="">
-            <div className="">
-                <div className="flex items-center space-x-2 text-gray-700">
-                    <BiWorld size={20} />
-                    <span>Gestión de especies</span>
-                    <span>/</span>
-                    <span>Categoría</span>
-                    <span>/</span>
-                    <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
-                    <span className="text-black font-bold">  </span>
-                    {selectedCompany && (
-                        <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
-                    )}
-                    <span>/</span>
-                    <span>Editar Categoría</span>
-                </div>
-            </div>
 
+        <>
 
-            <div className="mt-6">
-                <div className="mb- py-">
-                    <label>Adjuntar Logo</label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
-                        {imagePreview ? (
-                            <img src={imagePreview} alt="Company Logo" className="mx-auto h-20 object-contain" />
-                        ) : (
-                            <>
-                                <IoCloudUploadOutline className="mx-auto h-12 w-12 text-gray-400" />
-                                <p className="mt-1 text-sm text-gray-600">
-                                    Haga <span className="text-cyan-500 underline">clic aquí</span> para cargar o arrastre y suelte
-                                </p>
-                                <p className="text-xs text-gray-500">Archivos máximo 10 mb</p>
-                            </>
-                        )}
-                    </div>
-                    <input id="logo-upload" type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
-                </div>
-
-                {imagePreview && (
-                    <button
-                        type="button"
-                        onClick={handleDeleteImage}
-                        className="mt-2 text-red-600 hover:text-red-800"
-                    >
-                        Eliminar imagen
-                    </button>
-                )}
-            </div>
-
-
-            <div className="grid grid-cols- gap-4">
-                <div className="mb-6">
-                    <label htmlFor="category-name" className="block text-slg font-medium text-gray-700 mb-1">Nombre categoría</label>
-                    <input
-                        type="text"
-                        id="category-name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                        placeholder="Nombre de la categoría"
-                        required
-                    />
-                </div>
-
-            </div>
-            <hr className="my-6 border-gray-400" />
-
-            {/* Subcategorías */}
-            <div className="mt-6">
-                <div className="flex items-center justify-between">
-                    <label className="block text-lg font-medium text-gray-700 ">Subcategorías</label>
-                    <button
-                        type="button"
-                        onClick={handleAddSubcategory}
-                        className="mb-2 inline-flex items-center px-2 py-1 border border-[#168C0DFF] text-sm leading-1 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                        <Plus className="mr-2" />
-                        Agregar subcategoría
-                    </button>
-                </div>
-
-                {formData.subcategory.map((subcategory, index) => (
-                    <div key={index} className="flex gap-4 mt-2 items-center">
-                         <div className='w-full'>
-                         <label className="block text-sm font-medium text-gray-700">Nombre Subcategoría</label>
-                        <input
-                            type="text"
-                            value={subcategory.name}
-                            onChange={(e) => handleSubcategoryChange(index, e.target.value)}
-                            placeholder="Nombre de la subcategoría"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            disabled={editIndex !== index}
-                        />
+            {isLoading ? (
+                <LoadingView />
+            ) : (
+                <>
+                    <form onSubmit={handleSubmit} className="">
+                        <div className="">
+                            <div className="flex items-center space-x-2 text-gray-700">
+                                <BiWorld size={20} />
+                                <span>Gestión de especies</span>
+                                <span>/</span>
+                                <span>Categoría</span>
+                                <span>/</span>
+                                <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
+                                <span className="text-black font-bold">  </span>
+                                {selectedCompany && (
+                                    <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
+                                )}
+                                <span>/</span>
+                                <span>Editar Categoría</span>
+                            </div>
                         </div>
-                        <div className="flex gap-2">
-                            {editIndex === index ? (
+
+
+                        <div className="mt-6">
+                            <div className="mb- py-">
+                                <label>Adjuntar Logo</label>
+                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-0 text-center cursor-pointer hover:bg-gray-50" onClick={() => document.getElementById('logo-upload').click()}>
+                                    {imagePreview ? (
+                                        <img src={imagePreview} alt="Company Logo" className="mx-auto h-20 object-contain" />
+                                    ) : (
+                                        <>
+                                            <IoCloudUploadOutline className="mx-auto h-12 w-12 text-gray-400" />
+                                            <p className="mt-1 text-sm text-gray-600">
+                                                Haga <span className="text-cyan-500 underline">clic aquí</span> para cargar o arrastre y suelte
+                                            </p>
+                                            <p className="text-xs text-gray-500">Archivos máximo 10 mb</p>
+                                        </>
+                                    )}
+                                </div>
+                                <input id="logo-upload" type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                            </div>
+
+                            {imagePreview && (
                                 <button
                                     type="button"
-                                    onClick={handleCancelEdit}
-                                    className="text-[#168C0DFF] hover:text-red-500"
+                                    onClick={handleDeleteImage}
+                                    className="mt-2 text-red-600 hover:text-red-800"
                                 >
-                                    Cancelar
-                                </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => handleEditSubcategory(index)}
-                                    className="text-[#168C0DFF] hover:text-[#0F6A06]"
-                                >
-                                    <Edit />
+                                    Eliminar imagen
                                 </button>
                             )}
-                            <button
-                                type="button"
-                                onClick={() => handleRemoveSubcategory(index)}
-                                className="text-[#168C0DFF] hover:text-[#0F6A06]"
-                            >
-                                <Trash />
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-            <hr className="my-6 border-gray-400" />
-
-
-            {/* Etapas */}
-            <div className="mt-6">
-                <div className="flex items-center justify-between">
-                    <label className="block text-lg font-medium text-gray-700 ">Etapas</label>
-                    <button
-                        type="button"
-                        onClick={handleAddStage}
-                        className="mb-2 inline-flex items-center px-8 py-1 border border-[#168C0DFF] text-sm leading-1 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                        <Plus className="mr-2" />
-                        Agregar etapa
-                    </button>
-                </div>
-
-                {formData.stage.map((stage, index) => (
-                    <div key={index} className="mt-4 border-2 border-gray-400 rounded-md p-4">
-
-                        <div className="flex justify-between items-center mb-2">
-                            <h3 className="text-sm font-semibold text-gray-800">
-                                {`Etapa ${index + 1}`}
-                            </h3>
-                            <div className="flex gap-4">
-                                {editEtapaIndex === index ? (
-                                    <button
-                                        type="button"
-                                        onClick={handleCancelEditEtapa}
-                                        className="text-[#168C0DFF] hover:text-red-500"
-                                    >
-                                        Cancelar
-                                    </button>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        onClick={() => handleEditEtapa(index)}
-                                        className="text-[#168C0DFF] hover:text-[#0F6A06]"
-                                    >
-                                        <Edit />
-                                    </button>
-                                )}
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemoveStage(index)}
-                                    className="text-[#168C0DFF] hover:text-[#0F6A06]"
-                                >
-                                    <Trash />
-                                </button>
-                            </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
-                            <div className="w-full">
-                            <label className="block text-sm font-medium text-gray-700">Nombre Etapa</label>
 
+                        <div className="grid grid-cols- gap-4">
+                            <div className="mb-6">
+                                <label htmlFor="category-name" className="block text-slg font-medium text-gray-700 mb-1">Nombre categoría</label>
                                 <input
                                     type="text"
-                                    value={stage.name}
-                                    onChange={(e) => handleStageChange(index, 'name', e.target.value)}
-                                    placeholder="Nombre de la etapa"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                    disabled={editEtapaIndex !== index}
+                                    id="category-name"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                                    placeholder="Nombre de la categoría"
+                                    required
                                 />
                             </div>
+
+                        </div>
+                        <hr className="my-6 border-gray-400" />
+
+                        {/* Subcategorías */}
+                        <div className="mt-6">
+                            <div className="flex items-center justify-between">
+                                <label className="block text-lg font-medium text-gray-700 ">Subcategorías</label>
+                                <button
+                                    type="button"
+                                    onClick={handleAddSubcategory}
+                                    className="mb-2 inline-flex items-center px-2 py-1 border border-[#168C0DFF] text-sm leading-1 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                >
+                                    <Plus className="mr-2" />
+                                    Agregar subcategoría
+                                </button>
+                            </div>
+
+                            {formData.subcategory.map((subcategory, index) => (
+                                <div key={index} className="flex gap-4 mt-2 items-center">
+                                    <div className='w-full'>
+                                        <label className="block text-sm font-medium text-gray-700">Nombre Subcategoría</label>
+                                        <input
+                                            type="text"
+                                            value={subcategory.name}
+                                            onChange={(e) => handleSubcategoryChange(index, e.target.value)}
+                                            placeholder="Nombre de la subcategoría"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                            disabled={editIndex !== index}
+                                        />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        {editIndex === index ? (
+                                            <button
+                                                type="button"
+                                                onClick={handleCancelEdit}
+                                                className="text-[#168C0DFF] hover:text-red-500"
+                                            >
+                                                Cancelar
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEditSubcategory(index)}
+                                                className="text-[#168C0DFF] hover:text-[#0F6A06]"
+                                            >
+                                                <Edit />
+                                            </button>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveSubcategory(index)}
+                                            className="text-[#168C0DFF] hover:text-[#0F6A06]"
+                                        >
+                                            <Trash />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <hr className="my-6 border-gray-400" />
+
+
+                        {/* Etapas */}
+                        <div className="mt-6">
+                            <div className="flex items-center justify-between">
+                                <label className="block text-lg font-medium text-gray-700 ">Etapas</label>
+                                <button
+                                    type="button"
+                                    onClick={handleAddStage}
+                                    className="mb-2 inline-flex items-center px-8 py-1 border border-[#168C0DFF] text-sm leading-1 font-medium rounded-md text-[#168C0DFF] bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                >
+                                    <Plus className="mr-2" />
+                                    Agregar etapa
+                                </button>
+                            </div>
+
+                            {formData.stage.map((stage, index) => (
+                                <div key={index} className="mt-4 border-2 border-gray-400 rounded-md p-4">
+
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h3 className="text-sm font-semibold text-gray-800">
+                                            {`Etapa ${index + 1}`}
+                                        </h3>
+                                        <div className="flex gap-4">
+                                            {editEtapaIndex === index ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleCancelEditEtapa}
+                                                    className="text-[#168C0DFF] hover:text-red-500"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleEditEtapa(index)}
+                                                    className="text-[#168C0DFF] hover:text-[#0F6A06]"
+                                                >
+                                                    <Edit />
+                                                </button>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveStage(index)}
+                                                className="text-[#168C0DFF] hover:text-[#0F6A06]"
+                                            >
+                                                <Trash />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center">
+                                        <div className="w-full">
+                                            <label className="block text-sm font-medium text-gray-700">Nombre Etapa</label>
+
+                                            <input
+                                                type="text"
+                                                value={stage.name}
+                                                onChange={(e) => handleStageChange(index, 'name', e.target.value)}
+                                                placeholder="Nombre de la etapa"
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                                disabled={editEtapaIndex !== index}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-2">
+                                        <label className="block text-sm font-medium text-gray-700">Descripción</label>
+
+                                        <input
+                                            type="text"
+                                            value={stage.description}
+                                            onChange={(e) => handleStageChange(index, 'description', e.target.value)}
+                                            placeholder="Descripción de la etapa"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                            disabled={editEtapaIndex !== index}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
 
-                        <div className="mt-2">
-                        <label className="block text-sm font-medium text-gray-700">Descripción</label>
 
-                            <input
-                                type="text"
-                                value={stage.description}
-                                onChange={(e) => handleStageChange(index, 'description', e.target.value)}
-                                placeholder="Descripción de la etapa"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                disabled={editEtapaIndex !== index}
+                        <div className="flex justify-end space-x-4 mt-8">
+                            <button type="button"
+                                onClick={handleCancel}
+                                className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400">
+
+                                Cancelar
+                            </button>
+                            <button type="submit" className="px-4 py-2 bg-[#168C0DFF] text-white hover:bg-[#146A0D] rounded-md">
+                                Guardar
+                            </button>
+                        </div>
+                        {showSuccessAlert && (
+                            <div className="alert alert-success text-green-700 bg-green-100 border border-green-400 rounded-lg p-4">
+                                ¡Categoría editada con éxito!
+                            </div>
+                        )}
+                        {showSuccessAlert && <SuccessAlert message="Categoría actualizada exitosamente!" />}
+
+                        {showAlertError && (
+                            <ErrorAlert
+                                message={messageAlert}
+
+                                onCancel={handleCancelAlertError}
                             />
-                        </div>
-                    </div>
-                ))}
-            </div>
+                        )}
+                    </form>
+                </>)
+            }
+        </>
 
-
-            <div className="flex justify-end space-x-4 mt-8">
-                <button type="button"
-                    onClick={handleCancel}
-                    className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400">
-
-                    Cancelar
-                </button>
-                <button type="submit" className="px-4 py-2 bg-[#168C0DFF] text-white hover:bg-[#146A0D] rounded-md">
-                    Guardar
-                </button>
-            </div>
-            {showSuccessAlert && (
-                <div className="alert alert-success text-green-700 bg-green-100 border border-green-400 rounded-lg p-4">
-                    ¡Categoría editada con éxito!
-                </div>
-            )}
-            {showSuccessAlert && <SuccessAlert message="Categoría actualizada exitosamente!" />}
-
-            {showAlertError && (
-                <ErrorAlert
-                    message={messageAlert}
-
-                    onCancel={handleCancelAlertError}
-                />
-            )}
-        </form>
     );
 };
 

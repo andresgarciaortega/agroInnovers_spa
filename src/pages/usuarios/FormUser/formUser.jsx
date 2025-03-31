@@ -45,6 +45,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
   const [isLoading, setIsLoading] = useState(true);
 
 
+  const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
+  const [Role, setRole] = useState(JSON.parse(localStorage.getItem('rol')));
 
 
   useEffect(() => {
@@ -259,7 +261,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         // Crear un nuevo usuario
         const response = await UsersService.createUser(formattedData);
         cacheData.data.push(response);
-        setIsLoading(false); 
+        setIsLoading(false);
         showErrorAlert("Creado");
 
       } else if (mode === "edit") {
@@ -387,7 +389,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
               />
               {errorMessages.document && <p className="text-red-500 text-sm">{errorMessages.document}</p>}
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700">Empresa</label>
               <select
                 name="company"
@@ -405,7 +407,40 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
                 ))}
               </select>
 
-            </div>
+            </div> */}
+            {Role.label == "SUPER-ADMINISTRADOR" ? (
+              <>
+                <div>
+                  <label htmlFor="company" className="block text-sm font-medium text-gray-700">Empresa</label>
+                  <select
+                    id="company"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                    required
+                    disabled={mode === 'edit' || mode === 'view'} // Deshabilitar si mode es 'edit' o 'view'
+                  >
+                    <option value="">Seleccione una empresa</option>
+                    {companies.map((type) => (
+                      <option key={type.id} value={type.id}  selected={type.id === Number(idcompanyLST.value)}>
+                        {type.name}
+                      </option>
+                    ))}
+
+                  </select>
+                </div>
+              </>
+            ) : ''}
+
+
+
+
+
+
+
+
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Rol</label>
               <select

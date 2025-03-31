@@ -255,7 +255,6 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
       // Subir el logo a S3 si se proporciona un archivo
       if (formData.logo && formData.logo.name) {
         logoUrl = await uploadFile(formData.logo);
-        console.log("logoUrl imagen creada : ", logoUrl)
       } else {
         logoUrl = company.icon; // Usar el logo existente si no se proporciona uno nuevo
       }

@@ -30,7 +30,6 @@ const FormRechazar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
   const [alertMotivo, setalertMotivo] = useState(false)
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log("lote", lote)
   useEffect(() => {
     if (lote && lote.lotCode) {
       setFormData({
@@ -70,8 +69,6 @@ const FormRechazar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
   const fetchEspecies = async () => {
     const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-    console.log(lote.productionSpace.species)
-    console.log(lote.productionSpace.species)
 
     try {
       const especiesData = await EspeciesService.getAllSpecie(companyId, {});
@@ -111,7 +108,6 @@ const FormRechazar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
       return;
     }
 
-    console.log("especie seleccionada : ", formData.specieId)
     let rejectionData = {}; // Inicializar rejectionData como un objeto vacío
 
     // Configuración para rechazo general
@@ -163,7 +159,6 @@ const FormRechazar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     }
 
     let idLore = lote.id
-    console.log({idLore, rejectionData})
     // Enviar los datos de rechazo
     try {
       await LoteService.updateRechazo(lote.id, rejectionData);

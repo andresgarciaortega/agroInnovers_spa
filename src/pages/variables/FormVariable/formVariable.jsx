@@ -11,13 +11,15 @@ import useUploadToS3 from '../../../store/cargaDocument';
 const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mode, closeModal, companyId }) => {
   const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
   const { uploadFile } = useUploadToS3(); // Usamos el hook
+  const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
+  const [Role, setRole] = useState(JSON.parse(localStorage.getItem('rol')));
 
   const [variableTypes, setVariableTypes] = useState([]);
   const [registerTypes, setRegisterTypes] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [isDashboard, setIsDashboard] = useState(false);
+  const [isDashboard, setIsDashboard] = useState(false); 
   const [isIncrement, setIsIncrement] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -67,6 +69,7 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
       try {
         const fetchedCompanies = await CompanyService.getAllCompany();
         setCompanies(fetchedCompanies);
+        setIsLoading(false)
       } catch (error) {
         console.error('Error al obtener las empresas:', error);
       }
@@ -75,7 +78,6 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
     fetchVariableTypes();
     fetchRegisterTypes();
     fetchCompanies();
-    setIsLoading(false)
   }, []); // The empty dependency array ensures this only runs once when the component mounts.
 
   useEffect(() => {
@@ -371,7 +373,7 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
                 ))}
               </select>
             </div>
-            <div >
+            {/* <div >
               <label htmlFor="company_id" className="block text-sm font-medium text-gray-700">Empresa</label>
               <select
                 id="company_id"
@@ -389,7 +391,48 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
+
+            {Role.label == "SUPER-ADMINISTRADOR" ? (
+              <>
+                <div>
+                  <label htmlFor="company" className="block text-sm font-medium text-gray-700">Empresa</label>
+                  <select
+                    id="company_id"
+                    name="company_id"
+                    value={formData.company_id}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                    required
+                    disabled={mode === 'edit' || mode === 'view'} // Deshabilitar si mode es 'edit' o 'view'
+                  >
+                    <option value="">Seleccione una empresa</option>
+                    {/* {companies.map((company) => (
+                      <option
+                        key={company.id}
+                        value={company.id}
+                        selected={company.id === Number(idcompanyLST.value)}
+                      >
+                        {company.name}
+                      </option>
+                    ))} */}
+
+                    {companies.map((type) => (
+                      <option key={type.id} value={type.id}  selected={type.id === Number(idcompanyLST.value)}>
+                        {type.name}
+                      </option>
+                    ))}
+
+                  </select>
+                </div>
+              </>
+            ) : ''}
+
+
+
+
+
+
           </div>
 
           <div className="mt-5">

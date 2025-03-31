@@ -29,7 +29,6 @@ const Usuario = () => {
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
   const [nameCompany, setNameCompany] = useState("");
   const { hiddenSelect } = useCompanyContext();
-
   const [usersList, setUsersList] = useState([]);
   const [companyList, setCompanyList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -74,16 +73,22 @@ const Usuario = () => {
 
 
   useEffect(() => {
-    const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-    if (!companyId) {
+    const company = selectedCompanyUniversal ?? idcompanyLST;
+    if (!company.value) {
       setUsersList([]);
+      setShowErrorAlertTable(true);
+      setMessageAlert('Por favor selecciona una empresa para ver sus usuarios');
+      setIsLoading(false);
       return;
-    } 
+    } else{
+      setNameCompany(company.label)
+    }
+
     
     setIsLoading(true);
     const fetchUsersList = async () => {
       try {
-        const data = await UsersService.getAllUser(companyId);
+        const data = await UsersService.getAllUser(company.value);
         if (data.statusCode === 404) {
           setUsersList([]);
         } else {
@@ -202,18 +207,24 @@ const Usuario = () => {
       // Eliminar el usuario del servidor
       const data = await UsersService.deleteUser(selectedUsers.id);
       // Mostrar mensaje de éxito
-      setMessageAlert("Usuario eliminado exitosamente");
-      showErrorAlertSuccess("eliminado");
-      // Obtener los usuarios actuales del localStorage
-      const usersFromLocalStorage = JSON.parse(localStorage.getItem('users')) || [];
-      // Filtrar la lista para eliminar el usuario con el ID seleccionado
-      const updatedUsers = usersFromLocalStorage.filter(
-        (user) => user.id !== selectedUsers.id
-      );
-      // Guardar la lista actualizada en el localStorage
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
-      // Actualizar la lista de usuarios
-      updateListUsers();
+      if(data.success){
+        setMessageAlert("Usuario eliminado exitosamente");
+        showErrorAlertSuccess("eliminado");
+        // Obtener los usuarios actuales del localStorage
+        const usersFromLocalStorage = JSON.parse(localStorage.getItem('users')) || [];
+        // Filtrar la lista para eliminar el usuario con el ID seleccionado
+        const updatedUsers = usersFromLocalStorage.filter(
+          (user) => user.id !== selectedUsers.id
+        );
+        // Guardar la lista actualizada en el localStorage
+        localStorage.setItem('users', JSON.stringify(updatedUsers));
+        // Actualizar la lista de usuarios
+        updateListUsers();
+      } else {
+        setMessageAlert(data.message);
+        showErrorAlertSuccess(data.message);
+      }
+    
     } catch (error) {
       console.error('Error al eliminar el usuario:', error);
       setMessageAlert("Ocurrió un error al eliminar el usuario");
@@ -235,15 +246,15 @@ const Usuario = () => {
 
   const updateListUsers = async () => {
     try {
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
-
-      if (!companyId) {
+      // const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+      const company = selectedCompanyUniversal ?? idcompanyLST;
+      if (!company.value) {
         setUsersList([]);
-        localStorage.removeItem('users'); // Limpiar el localStorage si no hay companyId
+        localStorage.removeItem('users'); // Limpiar el localStorage si no hay company.value
         return;
       }
       // Obtener los usuarios
-      const data = await UsersService.getAllUser(companyId);
+      const data = await UsersService.getAllUser(company.value);
       // Actualizar el estado
       setUsersList(data);
       // Guardar o actualizar los usuarios en el localStorage
@@ -269,7 +280,7 @@ const Usuario = () => {
         <div className="flex items-center space-x-2 text-gray-700">
           <HiOutlineUserGroup size={20} />
           <span>Usuarios</span>
-          <span className="text-black font-bold"> / {idcompanyLST.label} </span>
+          <span className="text-black font-bold"> / {nameCompany} </span>
         </div>
       </div>
 

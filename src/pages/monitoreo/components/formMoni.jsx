@@ -3,6 +3,7 @@ import MonitoreoService from '../../../services/monitoreo';
 import CompanyService from '../../../services/CompanyService';
 import { useCompanyContext } from '../../../context/CompanyContext';
 import { IoEye, IoEyeOff } from 'react-icons/io5';
+import LoadingView from '../../../components/Loading/loadingView';
 
 const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, closeModal, companyId }) => {
     const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
@@ -18,6 +19,7 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
         frecuenciaSincronizacion: '',
         company_id: companySeleector.value || ''
     });
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchMonitoreo = async () => {
@@ -63,7 +65,9 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
                 company_id: monitoreo.company_id || companySeleector.value,
             });
             setIsDisplayActive(monitoreo.displayFisico || false);
+            setIsLoading(false)
         } else {
+            setIsLoading(false)
             setFormData({
                 nombreId: '',
                 ipFija: '',  // Se inicia vacío en modo creación
@@ -130,6 +134,12 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
     };
 
     return (
+        <>
+        {isLoading ? (
+          <LoadingView />
+        ) : (
+          <>
+
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
@@ -283,6 +293,10 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
                 )}
             </div>
         </form>
+        </>
+      )}
+    </>
+
     );
 };
 
