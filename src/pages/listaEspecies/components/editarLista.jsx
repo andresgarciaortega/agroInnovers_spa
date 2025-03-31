@@ -102,7 +102,7 @@ const EditarLista = () => {
                     setShowErrorAlert(false);
                 }, 2500);
             }
-            setIsLoading(false)
+            setIsLoading(false) 
         } catch (error) {
             console.error("Error fetching initial data:", error);
         }

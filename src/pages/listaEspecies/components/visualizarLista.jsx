@@ -28,6 +28,7 @@ const VisualizarLista = () => {
     const [stage, setStage] = useState([
         { name: "", description: "" },
     ]);
+    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
     const [categories, setCategories] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
@@ -66,10 +67,22 @@ const VisualizarLista = () => {
 
     const fetchCategory = async () => {
         try {
-            const data = await CategoryService.getAllCategory();
-            setCategories(data); // Asegúrate de que `data` contiene un array de categorías con `id` y `name`
+            const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
+            const categories = await CategoryService.getAllCategory(companyId);
+            setCategories(categories.data);
+
+            if (!categories.data || categories.statusCode == 400) {
+                setIsLoading(false)
+                setShowAlertError(true);
+                setMessageAlert(`No se tiene registro de categorias`);
+                setTimeout(() => {
+                    navigate('/home/listaEspecie')
+                    setShowErrorAlert(false);
+                }, 2500);
+            }
+            setIsLoading(false)
         } catch (error) {
-            console.error('Error fetching categories:', error);
+            console.error("Error fetching initial data:", error);
         }
     };
 
@@ -91,11 +104,11 @@ const VisualizarLista = () => {
             const data = await SpeciesService.getSpecieById(id);
             setFormData({
                 category_id: data.category?.id || 0,
-                company_id: data.company_id|| 0,
-                subcategory_id: data.subcategory?.id  || 0,
+                company_id: data.company_id || 0,
+                subcategory_id: data.subcategory?.id || 0,
                 scientificName: data.scientific_name || '',
                 commonName: data.common_name || '',
-                variable_id:  data.variables.map(variable => variable.id) || [],
+                variable_id: data.variables.map(variable => variable.id) || [],
                 image: data.photo || null,
                 descripcion: data.description || '',
                 stage: data.stages || [],
@@ -313,7 +326,7 @@ const VisualizarLista = () => {
                                 />
                             </div>
                         </div>
-                        
+
 
                         <div className="flex flex-col justify-center">
                             <div className="mb-4">
@@ -370,7 +383,7 @@ const VisualizarLista = () => {
                                     <Select
                                         className='selectorMultipleVariables'
                                         multiple
-                                    disabled
+                                        disabled
 
                                         value={formData.variable_id || []}
                                         onChange={(e) =>
@@ -393,71 +406,71 @@ const VisualizarLista = () => {
                                 </FormControl>
                             </div>
                         </div>
-                       
+
                     </div>
 
 
                     <div className="mt-6">
                         {formData.stage
-                        .sort((a, b) => a.id - b.id) 
-                        .map((stage, index) => (
-                            <div key={index} className="mt-4 rounded-md p-4 border border-gray-300">
-                                <div className="flex justify-between items-center mb-2">
-                                    <h3 className="text-lg font-semibold text-gray-800">
-                                        {stage.stage?.name}
-                                    </h3>
+                            .sort((a, b) => a.id - b.id)
+                            .map((stage, index) => (
+                                <div key={index} className="mt-4 rounded-md p-4 border border-gray-300">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h3 className="text-lg font-semibold text-gray-800">
+                                            {stage.stage?.name}
+                                        </h3>
 
-                                </div>
+                                    </div>
 
-                                <div className="flex flex-col text-sm">
-                                    <p className="text-gray-700">
-                                    </p>
-                                    <p className="text-gray-700">
-                                        <span className="">Descripción:</span> <strong>{stage.description}</strong>
-                                    </p>
-                                    <p className="text-gray-700 mt-2">
-                                        <span className="">Tiempo de producción:</span> <strong>{stage.time_to_production}</strong>
-                                    </p>
+                                    <div className="flex flex-col text-sm">
+                                        <p className="text-gray-700">
+                                        </p>
+                                        <p className="text-gray-700">
+                                            <span className="">Descripción:</span> <strong>{stage.description}</strong>
+                                        </p>
+                                        <p className="text-gray-700 mt-2">
+                                            <span className="">Tiempo de producción:</span> <strong>{stage.time_to_production}</strong>
+                                        </p>
 
-                                    {stage.parameters.length > 0 && (
-                                        <div className="mt-4">
+                                        {stage.parameters.length > 0 && (
+                                            <div className="mt-4">
 
-                                            <div className="flex justify-between space-x-">
-                                                <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
-                                                    Condiciones operación normal
-                                                </h4>
-                                                <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 py- w-full">
-                                                    Condiciones operación Criticas
-                                                </h4>
-                                            </div>
-                                            <table className="min-w-full table-auto border-collapse">
-                                                <thead>
-                                                    <tr className="bg-gray-200">
-                                                        <th className="border px-4 py-2 font-bold">Variable</th>
-                                                        <th className="border px-4 py-2 font-semibold">Mínimo</th>
-                                                        <th className="border px-4 py-2 font-semibold">Máximo</th>
-                                                        <th className="border px-4 py-2 font-semibold">Límite Mín</th>
-                                                        <th className="border px-4 py-2 font-semibold">Límite Máx</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {stage.parameters.map((param, paramIndex) => (
-                                                        <tr key={paramIndex}>
-                                                            <td className="border px-4 py-2">{param.variable?.name || 'N/A'}</td>
-                                                            <td className="border px-4 py-2">{param.min_normal_value}</td>
-                                                            <td className="border px-4 py-2">{param.max_normal_value}</td>
-                                                            <td className="border px-4 py-2">{param.min_limit}</td>
-                                                            <td className="border px-4 py-2">{param.max_limit}</td>
-
+                                                <div className="flex justify-between space-x-">
+                                                    <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 text-center py-1 px-32 w-full">
+                                                        Condiciones operación normal
+                                                    </h4>
+                                                    <h4 className="text-sm font-semibold text-gray-800 bg-gray-200 py-1 py- w-full">
+                                                        Condiciones operación Criticas
+                                                    </h4>
+                                                </div>
+                                                <table className="min-w-full table-auto border-collapse">
+                                                    <thead>
+                                                        <tr className="bg-gray-200">
+                                                            <th className="border px-4 py-2 font-bold">Variable</th>
+                                                            <th className="border px-4 py-2 font-semibold">Mínimo</th>
+                                                            <th className="border px-4 py-2 font-semibold">Máximo</th>
+                                                            <th className="border px-4 py-2 font-semibold">Límite Mín</th>
+                                                            <th className="border px-4 py-2 font-semibold">Límite Máx</th>
                                                         </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    )}
+                                                    </thead>
+                                                    <tbody>
+                                                        {stage.parameters.map((param, paramIndex) => (
+                                                            <tr key={paramIndex}>
+                                                                <td className="border px-4 py-2">{param.variable?.name || 'N/A'}</td>
+                                                                <td className="border px-4 py-2">{param.min_normal_value}</td>
+                                                                <td className="border px-4 py-2">{param.max_normal_value}</td>
+                                                                <td className="border px-4 py-2">{param.min_limit}</td>
+                                                                <td className="border px-4 py-2">{param.max_limit}</td>
+
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                     <div className="flex justify-end space-x-4 mt-8">
                         <button type="button"
