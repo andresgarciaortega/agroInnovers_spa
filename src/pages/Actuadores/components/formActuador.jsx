@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { IoCloudUploadOutline } from "react-icons/io5";
-import UploadToS3 from '../../../config/UploadToS3';
 import TypeService from "../../../services/TypeDispositivosService";
 import ActuadorService from "../../../services/ActuadorService";
 import RegistrerTypeServices from '../../../services/RegistrerType';

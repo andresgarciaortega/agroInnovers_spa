@@ -9,7 +9,6 @@ import SpeciesService from '../../../services/SpeciesService';
 import ParameterModal from './formLimit';
 import SuccessAlert from "../../../components/alerts/success";
 import ErrorAlert from "../../../components/alerts/error";
-import UploadToS3 from '../../../config/UploadToS3';
 import CompanyService from '../../../services/CompanyService';
 import { IoCloudUploadOutline } from "react-icons/io5";
 import CompanySelector from "../../../components/shared/companySelect";

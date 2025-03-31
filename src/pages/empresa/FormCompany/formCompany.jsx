@@ -4,13 +4,14 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import CompanyService from '../../../services/CompanyService';
 import TypeDocumentsService from '../../../services/fetchTypes';
 import Success from '../../../components/alerts/success';
-import UploadToS3 from '../../../config/UploadToS3';
 import ErrorAlert from '../../../components/alerts/error';
 import LoadingView from '../../../components/Loading/loadingView';
+import useUploadToS3 from '../../../store/cargaDocument';
 
 
 
 const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) => {
+  const { uploadFile } = useUploadToS3(); // Usamos el hook
 
   const [formData, setFormData] = useState({
     name: '',
@@ -237,6 +238,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   // };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     // Validación del celular
     const phoneRegex = /^[0-9]{10}$/;
@@ -252,7 +254,8 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
 
       // Subir el logo a S3 si se proporciona un archivo
       if (formData.logo && formData.logo.name) {
-        logoUrl = await UploadToS3(formData.logo);
+        logoUrl = await uploadFile(formData.logo);
+        console.log("logoUrl imagen creada : ", logoUrl)
       } else {
         logoUrl = company.icon; // Usar el logo existente si no se proporciona uno nuevo
       }
@@ -274,6 +277,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
         const createdCompany = await CompanyService.createCompany(formDataToSubmit);
         // Agregar la nueva empresa a la lista
         cacheData.data.push(createdCompany.data);
+        setIsLoading(false);
         showSuccessAlert("Creada");
       } else if (mode === 'edit') {
         const { typeDocument, created_at, updated_at, state, ...filteredData } = formDataToSubmit;
@@ -288,7 +292,7 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
             ...updatedCompany, // Reemplazar con los nuevos datos
           };
         }
-
+        setIsLoading(false);
         showSuccessAlert("Editada");
       }
 

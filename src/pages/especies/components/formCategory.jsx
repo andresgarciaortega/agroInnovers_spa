@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { X, Upload } from 'lucide-react';
 import { Plus } from 'lucide-react';
 import CategoryService from '../../../services/CategoryService';
-import UploadToS3 from '../../../config/UploadToS3'; // Importa la función UploadToS3
 
 const FormCategory = ({ showErrorAlert, onUpdate, category, mode, closeModal, categoryData = null }) => {
     const [name, setName] = useState(categoryData?.name || '');

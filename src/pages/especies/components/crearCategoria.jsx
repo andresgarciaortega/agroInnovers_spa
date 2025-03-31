@@ -4,17 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import CategoryService from '../../../services/CategoryService';
 import SubCategoryService from '../../../services/SubcategoryService';
 import StagesService from '../../../services/StagesService';
-import UploadToS3 from '../../../config/UploadToS3';
 import CompanyService from '../../../services/CompanyService';
 import { IoCloudUploadOutline } from "react-icons/io5";
 import SuccessAlert from "../../../components/alerts/success";
 import { useCompanyContext } from '../../../context/CompanyContext';
 import { BiWorld } from "react-icons/bi";
+import useUploadToS3 from '../../../store/cargaDocument';
 
 const CrearCategorias = ({ }) => {
     const navigate = useNavigate();
     const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
     const [nameCompany, setNameCompany] = useState("");
+    const { uploadFile } = useUploadToS3(); // Usamos el hook
 
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [name, setName] = useState('');
@@ -76,7 +77,7 @@ const CrearCategorias = ({ }) => {
         try {
             let imageUrl = '';
             if (formData.image) {
-                imageUrl = await UploadToS3(formData.image);
+                imageUrl = await uploadFile(formData.image);
             }
 
             const parsedCompanyId = parseInt(companyId, 10);

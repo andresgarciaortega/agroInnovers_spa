@@ -100,7 +100,9 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                 return;
             }
             const espaciosData = await EspacioService.getAllEspacio(companyId);
-            setEspacios(espaciosData);
+            // Filtrar los espacios con status === true (o 1)
+            const espaciosFiltrados = espaciosData.filter(espacio => espacio.status === true || espacio.status === 1);
+            setEspacios(espaciosFiltrados);
         } catch (error) {
             console.error("Error al obtener los espacios:", error);
         }
@@ -230,62 +232,17 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
         }
     };
 
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-
-    //     if (loteConEspecies.productionLotSpecies.length === 0) {
-    //         console.error("El lote debe tener al menos una especie.");
-    //         return;
-    //     }
-
-    //     const updatedSpecies = loteConEspecies.productionLotSpecies.map(specie => {
-    //         const specieId = specie.specie ? specie.specie.id : null;
-    //         if (!specieId) {
-    //             console.error("Cada especie debe tener un specieId válido.");
-    //             return null;
-    //         }
-
-    //         return {
-    //             ...specie,
-    //             specieId: Number(specieId),
-    //             initialIndividuals: Number(specie.initialIndividuals),
-    //             initialWeight: Number(specie.initialWeight),
-    //             trackingConfig: [
-    //                 trackingConfig
-    //             ],
-    //         };
-    //     }).filter(specie => specie !== null);
-
-    //     const data = {
-    //         lotCode: formData.lotCode,
-    //         startDate: formData.startDate,
-    //         estimatedEndDate: formData.estimatedEndDate,
-    //         productionSpaceId: Number(formData.productionSpaceId),
-    //         reportFrequency: formData.reportFrequency,
-    //         cycleStage: formData.cycleStage,
-    //         productionLotSpecies: updatedSpecies,
-    //         company_id: Number(formData.company_id) || Number(idcompanyLST.value) ,
-    //     };
-
-    //     try {
-    //         await LoteService.createLots(data);
-    //         showErrorAlert("Creado");
-
-    //         onUpdate();
-    //         closeModal();
-    //     } catch (error) {
-    //         console.error("Error al actualizar el lote:", error);
-    //     }
-    // };
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+        setIsLoading(true)
+
         if (loteConEspecies.productionLotSpecies.length === 0) {
             console.error("El lote debe tener al menos una especie.");
             return;
         }
-    
+
         const updatedSpecies = loteConEspecies.productionLotSpecies.map(specie => {
             const specieId = specie.specie ? specie.specie.id : null;
             console.log(specieId)
@@ -293,14 +250,14 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                 console.error("Cada especie debe tener un specieId válido.");
                 return null;
             }
-    
+
             // Crear el objeto de configuración de seguimiento para cada especie
             const especieTrackingConfig = {
                 startDate: formData.startDate, // o usar trackingConfig.startDate si existe
                 trackingReportFrequency: Number(formData.reportFrequency),
                 productionCycleStage: Number(formData.cycleStage)
             };
-    
+
             return {
                 ...specie,
                 specieId: Number(specieId),
@@ -309,7 +266,7 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                 trackingConfig: [especieTrackingConfig] // Aquí asignas el trackingConfig correctamente
             };
         }).filter(specie => specie !== null);
-    
+
         const data = {
             lotCode: formData.lotCode,
             startDate: formData.startDate,
@@ -320,10 +277,11 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             company_id: Number(formData.company_id) || Number(idcompanyLST.value),
             // No incluyas reportFrequency y cycleStage aquí si ya están en trackingConfig
         };
-    
+
         console.log(data)
         try {
             await LoteService.createLots(data);
+            setIsLoading(false)
             showErrorAlert("Creado");
             onUpdate();
             closeModal();
@@ -434,292 +392,294 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <>
             {isLoading ? <LoadingView /> : (
                 <>
-                    {step === 1 && (
-                        <>
-                            <div>
-                                <label className="block text-sm font-medium">Código del lote</label>
-                                <input
-                                    type="text"
-                                    name="lotCode"
-                                    value={formData.lotCode}
-                                    onChange={handleChange}
-                                    className="mt-1 block w-full border rounded-md p-2"
-                                    required
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4 mt-4">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {step === 1 && (
+                            <>
                                 <div>
-                                    <label className="block text-sm font-medium">Fecha de inicio</label>
+                                    <label className="block text-sm font-medium">Código del lote</label>
                                     <input
-                                        type="date"
-                                        name="startDate"
-                                        value={formData.startDate}
-                                        max={today}
+                                        type="text"
+                                        name="lotCode"
+                                        value={formData.lotCode}
                                         onChange={handleChange}
                                         className="mt-1 block w-full border rounded-md p-2"
                                         required
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium">Fecha fin estimada</label>
-                                    <input
-                                        type="date"
-                                        name="estimatedEndDate"
-                                        value={formData.estimatedEndDate}
-                                        onChange={handleChange}
-                                        min={new Date(Date.now() + 86400000).toISOString().split("T")[0]} // Mínimo: mañana
 
-                                        className="mt-1 block w-full border rounded-md p-2"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            {Role.label == "SUPER-ADMINISTRADOR" ? (
-                                <>
+                                <div className="grid grid-cols-2 gap-4 mt-4">
                                     <div>
-                                        <label htmlFor="company_id" className="block text-sm font-medium text-gray-700">Empresa</label>
-                                        <select
-                                            id="company_id"
-                                            name="company_id"
-                                            value={formData.company_id}
+                                        <label className="block text-sm font-medium">Fecha de inicio</label>
+                                        <input
+                                            type="date"
+                                            name="startDate"
+                                            value={formData.startDate}
+                                            max={today}
                                             onChange={handleChange}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                            className="mt-1 block w-full border rounded-md p-2"
                                             required
-                                        >
-                                            <option value="">Seleccione una empresa</option>
-                                            {companies.map((company) => (
-                                                <option
-                                                    key={company.id}
-                                                    value={company.id}
-                                                    selected={company.id === Number(idcompanyLST.value)}
-                                                >
-                                                    {company.name}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        />
                                     </div>
-                                </>
-                            ) : ''}
+                                    <div>
+                                        <label className="block text-sm font-medium">Fecha fin estimada</label>
+                                        <input
+                                            type="date"
+                                            name="estimatedEndDate"
+                                            value={formData.estimatedEndDate}
+                                            onChange={handleChange}
+                                            min={new Date(Date.now() + 86400000).toISOString().split("T")[0]} // Mínimo: mañana
 
-
-                            <div>
-                                <label className="block text-sm font-medium">Espacio de producción</label>
-                                <select
-                                    name="productionSpaceId"
-                                    value={formData.productionSpaceId}
-                                    onChange={handleChange}
-                                    className="mt-1 block w-full border rounded-md p-2"
-                                    required
-                                >
-                                    <option value="">Seleccione una opción</option>
-                                    {espacios.map(espacio => (
-                                        <option key={espacio.id} value={espacio.id}>
-                                            {espacio.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {formData.productionSpaceId && (
-                                <div className="p-4 border rounded-md bg-white mt-4 shadow-xl">
-                                    <div className="flex justify-between items-center">
-                                        <h4 className="font-bold text-lg">
-                                            {espacios.find(espacio => espacio.id === formData.productionSpaceId)?.name}
-                                        </h4>
-
-                                        <button
-                                            type="button"
-                                            onClick={handleAbrirModal}
-                                            className="px-4 py-2 bg-[#168C0DFF] text-white rounded-md"
-                                        >
-                                            Añadir especie
-                                        </button>
+                                            className="mt-1 block w-full border rounded-md p-2"
+                                            required
+                                        />
                                     </div>
-
-                                    {loteConEspecies.productionLotSpecies && loteConEspecies.productionLotSpecies.length > 0 && (
-                                        <div className="mt-4">
-                                            <h4 className="text-lg font-semibold">Especies añadidas:</h4>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                {loteConEspecies.productionLotSpecies.map((especie, index) => (
-                                                    <div key={index} className="p-4 border rounded-md bg-white shadow-md">
-                                                        <strong>{especie.specie.common_name}</strong>
-                                                        <div>Individuos iniciales: {especie.initialIndividuals}</div>
-                                                        <div>Peso inicial: {especie.initialWeight} kg</div>
-
-                                                        <div className="flex justify-end mt-2 space-x-4">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleEdit(especie)}
-                                                                className="text-[#168C0DFF]"
-                                                            >
-                                                                <Edit />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-
-
                                 </div>
-                            )}
-
-                            {isModalOpen && (
-                                <GenericModal onClose={handleCerrarModal} title={isEditMode ? 'Editar especie' : 'Añadir especie a producir'}>
-                                    <div className="mt-4">
-                                        <div className="mb-4">
-                                            <label className="block text-sm font-medium">Especie</label>
+                                {Role.label == "SUPER-ADMINISTRADOR" ? (
+                                    <>
+                                        <div>
+                                            <label htmlFor="company_id" className="block text-sm font-medium text-gray-700">Empresa</label>
                                             <select
-                                                name="specieId"
-                                                value={formData.specieId}
-                                                onChange={(e) => {
-                                                    const { value } = e.target;
-                                                    setFormData((prevFormData) => ({
-                                                        ...prevFormData,
-                                                        specieId: value,
-                                                        cycleStage: '',
-                                                    }));
-                                                    fetchEtapasPorEspecie(value);
-                                                }}
-                                                className="mt-1 block w-full border rounded-md p-2"
-                                                required
-                                            >
-                                                <option value="">Seleccione una opción</option>
-                                                {especies.map((especie) => (
-                                                    <option key={especie.id} value={especie.id}>
-                                                        {especie.common_name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4 mb-4">
-                                            <div>
-                                                <label className="block text-sm font-medium">Individuos iniciales</label>
-                                                <input
-                                                    type="number"
-                                                    name="initialIndividuals"
-                                                    value={formData.initialIndividuals}
-                                                    onChange={handleChange}
-                                                    className="mt-1 block w-full border rounded-md p-2"
-                                                    required
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium">Peso Inicial</label>
-                                                <input
-                                                    type="number"
-                                                    name="initialWeight"
-                                                    value={formData.initialWeight}
-                                                    onChange={handleChange}
-                                                    className="mt-1 block w-full border rounded-md p-2"
-                                                    required
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <h2 className="mb-4">Configurar seguimiento de producción</h2>
-
-                                        <div className="grid grid-cols-2 gap-4 mb-4">
-                                            <div>
-                                                <label className="block text-sm font-medium">Fecha de inicio</label>
-                                                <input
-                                                    type="date"
-                                                    name="startDate"
-                                                    value={formData.startDate}
-                                                    max={today}
-
-                                                    onChange={handleChange}
-                                                    className="mt-1 block w-full border rounded-md p-2"
-                                                    required
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium">Frecuencia reporte de seguimiento</label>
-                                                <input
-                                                    type="number"
-                                                    name="reportFrequency"
-                                                    value={formData.reportFrequency}
-                                                    onChange={handleChange}
-                                                    className="mt-1 block w-full border rounded-md p-2"
-                                                    required
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <label className="block text-sm font-medium">Etapa de producción</label>
-                                            <select
-                                                name="cycleStage"
-                                                value={formData.cycleStage}
+                                                id="company_id"
+                                                name="company_id"
+                                                value={formData.company_id}
                                                 onChange={handleChange}
-                                                className="mt-1 block w-full border rounded-md p-2"
+                                                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                                                 required
                                             >
-                                                <option value="">Seleccione una opción</option>
-                                                {etapas.map((etapa) => (
-                                                    <option key={etapa.id} value={etapa.id}>
-                                                        {etapa.name}
+                                                <option value="">Seleccione una empresa</option>
+                                                {companies.map((company) => (
+                                                    <option
+                                                        key={company.id}
+                                                        value={company.id}
+                                                        selected={company.id === Number(idcompanyLST.value)}
+                                                    >
+                                                        {company.name}
                                                     </option>
                                                 ))}
                                             </select>
                                         </div>
+                                    </>
+                                ) : ''}
 
-                                        <div className="flex justify-end mt-4">
+
+                                <div>
+                                    <label className="block text-sm font-medium">Espacio de producción</label>
+                                    <select
+                                        name="productionSpaceId"
+                                        value={formData.productionSpaceId}
+                                        onChange={handleChange}
+                                        className="mt-1 block w-full border rounded-md p-2"
+                                        required
+                                    >
+                                        <option value="">Seleccione una opción</option>
+                                        {espacios.map(espacio => (
+                                            <option key={espacio.id} value={espacio.id}>
+                                                {espacio.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {formData.productionSpaceId && (
+                                    <div className="p-4 border rounded-md bg-white mt-4 shadow-xl">
+                                        <div className="flex justify-between items-center">
+                                            <h4 className="font-bold text-lg">
+                                                {espacios.find(espacio => espacio.id === formData.productionSpaceId)?.name}
+                                            </h4>
+
                                             <button
                                                 type="button"
-                                                onClick={handleCerrarModal}
-                                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 mr-2"
+                                                onClick={handleAbrirModal}
+                                                className="px-4 py-2 bg-[#168C0DFF] text-white rounded-md"
                                             >
-                                                Cancelar
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={handleAgregarEspecie}
-                                                className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-                                            >
-                                                {isEditMode ? 'Guardar cambios' : 'Agregar'}
+                                                Añadir especie
                                             </button>
                                         </div>
+
+                                        {loteConEspecies.productionLotSpecies && loteConEspecies.productionLotSpecies.length > 0 && (
+                                            <div className="mt-4">
+                                                <h4 className="text-lg font-semibold">Especies añadidas:</h4>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    {loteConEspecies.productionLotSpecies.map((especie, index) => (
+                                                        <div key={index} className="p-4 border rounded-md bg-white shadow-md">
+                                                            <strong>{especie.specie.common_name}</strong>
+                                                            <div>Individuos iniciales: {especie.initialIndividuals}</div>
+                                                            <div>Peso inicial: {especie.initialWeight} kg</div>
+
+                                                            <div className="flex justify-end mt-2 space-x-4">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleEdit(especie)}
+                                                                    className="text-[#168C0DFF]"
+                                                                >
+                                                                    <Edit />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+
+
                                     </div>
-                                </GenericModal>
-                            )}
+                                )}
+
+                                {isModalOpen && (
+                                    <GenericModal onClose={handleCerrarModal} title={isEditMode ? 'Editar especie' : 'Añadir especie a producir'}>
+                                        <div className="mt-4">
+                                            <div className="mb-4">
+                                                <label className="block text-sm font-medium">Especie</label>
+                                                <select
+                                                    name="specieId"
+                                                    value={formData.specieId}
+                                                    onChange={(e) => {
+                                                        const { value } = e.target;
+                                                        setFormData((prevFormData) => ({
+                                                            ...prevFormData,
+                                                            specieId: value,
+                                                            cycleStage: '',
+                                                        }));
+                                                        fetchEtapasPorEspecie(value);
+                                                    }}
+                                                    className="mt-1 block w-full border rounded-md p-2"
+                                                    required
+                                                >
+                                                    <option value="">Seleccione una opción</option>
+                                                    {especies.map((especie) => (
+                                                        <option key={especie.id} value={especie.id}>
+                                                            {especie.common_name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium">Individuos iniciales</label>
+                                                    <input
+                                                        type="number"
+                                                        name="initialIndividuals"
+                                                        value={formData.initialIndividuals}
+                                                        onChange={handleChange}
+                                                        className="mt-1 block w-full border rounded-md p-2"
+                                                        required
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium">Peso Inicial</label>
+                                                    <input
+                                                        type="number"
+                                                        name="initialWeight"
+                                                        value={formData.initialWeight}
+                                                        onChange={handleChange}
+                                                        className="mt-1 block w-full border rounded-md p-2"
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <h2 className="mb-4">Configurar seguimiento de producción</h2>
+
+                                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium">Fecha de inicio</label>
+                                                    <input
+                                                        type="date"
+                                                        name="startDate"
+                                                        value={formData.startDate}
+                                                        max={today}
+
+                                                        onChange={handleChange}
+                                                        className="mt-1 block w-full border rounded-md p-2"
+                                                        required
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium">Frecuencia reporte de seguimiento</label>
+                                                    <input
+                                                        type="number"
+                                                        name="reportFrequency"
+                                                        value={formData.reportFrequency}
+                                                        onChange={handleChange}
+                                                        className="mt-1 block w-full border rounded-md p-2"
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label className="block text-sm font-medium">Etapa de producción</label>
+                                                <select
+                                                    name="cycleStage"
+                                                    value={formData.cycleStage}
+                                                    onChange={handleChange}
+                                                    className="mt-1 block w-full border rounded-md p-2"
+                                                    required
+                                                >
+                                                    <option value="">Seleccione una opción</option>
+                                                    {etapas.map((etapa) => (
+                                                        <option key={etapa.id} value={etapa.id}>
+                                                            {etapa.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            <div className="flex justify-end mt-4">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleCerrarModal}
+                                                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 mr-2"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleAgregarEspecie}
+                                                    className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                                                >
+                                                    {isEditMode ? 'Guardar cambios' : 'Agregar'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </GenericModal>
+                                )}
 
 
-                            <div className="flex justify-end space-x-4 mt-6">
-                                <button
-                                    type="button"
-                                    onClick={() => closeModal()}
+                                <div className="flex justify-end space-x-4 mt-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => closeModal()}
 
-                                    className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
-                                >
-                                    Volver
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-                                >
-                                    Crear Lote de producción
-                                </button>
-                            </div>
-                        </>
-                    )}
-                    {showAlertError && (
-                        <ErrorAlert
-                            message={messageAlert}
-                            onCancel={handleCloseAlert}
-                        />
-                    )}
+                                        className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
+                                    >
+                                        Volver
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                                    >
+                                        Crear Lote de producción
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                        {showAlertError && (
+                            <ErrorAlert
+                                message={messageAlert}
+                                onCancel={handleCloseAlert}
+                            />
+                        )}
+                    </form>
                 </>
-            )}
-        </form>
-    );
+            )};
+        </>
+    )
 };
 
 export default FormCrearLote;

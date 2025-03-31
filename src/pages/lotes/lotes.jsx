@@ -382,7 +382,7 @@ const Lotes = () => {
                         Ver Lote
                       </span>
                     </div>
-                    {lote.status !== 'Rechazado' && (
+                    {lote.status !== 'Rechazado' && lote.status !== 'Cosechado' && (
                       <>
                         <div className="relative group">
                           <GoArrowSwitch size={19}
@@ -428,10 +428,20 @@ const Lotes = () => {
                 <div className="space-y-2">
                   <div className="flex items-center">
                     <span
-                      className={`text-sm ${lote.status === "Rechazado" ? "text-red-600 font-bold uppercase" : "text-muted-foreground"
+                      className={`text-sm ${lote.status === "Rechazado"
+                          ? "text-red-600 font-bold uppercase"
+                          : lote.status === "Cosechado"
+                            ? "text-green-600 font-bold uppercase"
+                            : "text-muted-foreground"
                         }`}
                     >
-                      Estado: {lote.status === "Rechazado" ? "RECHAZADO" : lote.status || "N/A"}
+                      Estado: {
+                        lote.status === "Rechazado"
+                          ? "RECHAZADO"
+                          : lote.status === "Cosechado"
+                            ? "COSECHADO"
+                            : lote.status || "N/A"
+                      }
                     </span>
                   </div>
                   <div className="flex items-center">
@@ -444,7 +454,7 @@ const Lotes = () => {
                       Fecha cosecha estimada: {lote.estimatedEndDate}
                     </span>
                   </div>
-                  {lote.status !== "Rechazado" && (
+                  {lote.status !== 'Rechazado' && lote.status !== 'Cosechado' && (
                     <div className="flex items-center mt-5">
                       {getRemainingDays(lote.estimatedEndDate)}
                     </div>
@@ -524,7 +534,7 @@ const Lotes = () => {
                     ))}
                   </div>
 
-                  {lote.status !== "Rechazado" && (
+                  {lote.status !== 'Rechazado' && lote.status !== 'Cosechado' && (
                     <>
                       <div>
                         <button

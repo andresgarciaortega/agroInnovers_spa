@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { IoCloudUploadOutline } from "react-icons/io5";
-import UploadToS3 from '../../../config/UploadToS3';
 import VariableTypeService from '../../../services/VariableType';
 import CompanyService from '../../../services/CompanyService';
 import { useCompanyContext } from '../../../context/CompanyContext';
 import LoadingView from '../../../components/Loading/loadingView';
+import useUploadToS3 from '../../../store/cargaDocument';
 
 const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeModal }) => {
   const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
@@ -12,6 +12,7 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
   const [companies, setCompanies] = useState([]);
   const [messageAlert, setMessageAlert] = useState("");
   const [showAlertError, setShowAlertError] = useState(false);
+  const { uploadFile } = useUploadToS3(); // Usamos el hook
 
   const [formData, setFormData] = useState({
     name: '',
@@ -176,7 +177,7 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
       // Si se ha seleccionado una nueva imagen
       if (formData.icon?.name) {
         // Subir la nueva imagen a S3 y obtener la URL
-        iconUrl = await UploadToS3(formData.icon);
+        iconUrl = await uploadFile(formData.icon);
       } else {
         // Si no se seleccionó una nueva imagen y estamos en modo edición, mantener la URL de la imagen existente
         iconUrl = typevariable.icon || 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg';

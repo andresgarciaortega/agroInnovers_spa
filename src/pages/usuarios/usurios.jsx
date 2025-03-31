@@ -8,7 +8,6 @@ import GenericModal from '../../components/genericModal';
 import FormUser from './FormUser/formUser';
 import UsersService from "../../services/UserService";
 import CompanyService from "../../services/CompanyService";
-import UploadToS3 from "../../config/UploadToS3";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
 import LoadingView from '../../components/Loading/loadingView';

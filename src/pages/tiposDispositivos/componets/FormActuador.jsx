@@ -3,10 +3,10 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import VariableService from '../../../services/variableService';
 import TypeDispotivicosService from '../../../services/TypeDispositivosService';
 import Success from '../../../components/alerts/success';
-import UploadToS3 from '../../../config/UploadToS3';
 import ErrorAlert from '../../../components/alerts/error';
 import { Edit, Trash, Eye } from 'lucide-react';
 import CompanyService from '../../../services/CompanyService';
+import useUploadToS3 from '../../../store/cargaDocument';
 
 
 const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mode, onClose, companyId }) => {
@@ -17,6 +17,7 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
     const [step, setStep] = useState(1); // Control del paso actual
     const [companies, setCompanies] = useState([]);
+    const { uploadFile } = useUploadToS3(); // Usamos el hook
 
     const [formData, setFormData] = useState({
         icon: '',
@@ -231,11 +232,11 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            let iconUrl = '';
+            let iconUrl = 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg';
 
             if (formData.icon && formData.icon instanceof File) {
                 // Si `icon` es un archivo, súbelo a S3
-                // iconUrl = await UploadToS3(formData.icon);
+                iconUrl = await uploadFile(formData.icon);
             } else if (actuador?.icon) {
                 // Si no es un archivo pero existe un icono en el actuador, reutilízalo
                 iconUrl = actuador.icon;
@@ -246,7 +247,7 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
             const validCalibrationFrequency = isNaN(formData.calibrationFrequency) ? null : parseFloat(formData.calibrationFrequency);
 
             const formDataToSubmit = {
-                icon: 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg', // Usa la URL resultante de S3 o el icono existente
+                icon: iconUrl, // Usa la URL resultante de S3 o el icono existente
                 actuatorTypeName: formData.actuatorTypeName,
                 commercialName: formData.commercialName,
                 manufacturer: formData.manufacturer,

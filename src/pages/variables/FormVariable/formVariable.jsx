@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { IoCloudUploadOutline } from "react-icons/io5";
-import UploadToS3 from '../../../config/UploadToS3';
 import VariablesService from '../../../services/variableService';
 import VariableTypeService from '../../../services/VariableType';
 import RegistrerTypeServices from '../../../services/RegistrerType';
 import CompanyService from '../../../services/CompanyService';
 import { useCompanyContext } from '../../../context/CompanyContext';
 import LoadingView from '../../../components/Loading/loadingView';
+import useUploadToS3 from '../../../store/cargaDocument';
 
 const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mode, closeModal, companyId }) => {
   const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
+  const { uploadFile } = useUploadToS3(); // Usamos el hook
 
   const [variableTypes, setVariableTypes] = useState([]);
   const [registerTypes, setRegisterTypes] = useState([]);
@@ -188,7 +189,7 @@ const FormVariable = ({ selectedCompany, showErrorAlert, onUpdate, variable, mod
       // Verificar si se ha seleccionado una nueva imagen
       let logoUrl = '';
       if (formData.icon?.name) {
-        logoUrl = await UploadToS3(formData.icon);
+        logoUrl = await uploadFile(formData.icon);
       } else if (mode === 'edit' && variable.icon) {
         logoUrl = variable.icon;
       }

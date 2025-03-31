@@ -8,14 +8,15 @@ import SpeciesService from '../../../services/SpeciesService';
 import { FaCheckCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } from '@mui/material';
-import UploadToS3 from '../../../config/UploadToS3';
 import { useCompanyContext } from '../../../context/CompanyContext';
 import { Trash, Edit, Factory, Variable, Activity, Cpu, Users } from 'lucide-react';
 import SuccessAlert from "../../../components/alerts/success";
+import useUploadToS3 from '../../../store/cargaDocument';
 
 
 const CrearListas = () => {
   const navigate = useNavigate();
+  const { uploadFile } = useUploadToS3(); // Usamos el hook
 
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [messageAlert, setMessageAlert] = useState('');
@@ -500,7 +501,7 @@ const CrearListas = () => {
     try {
       let imageUrl = 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg';
       if (formData.image) {
-        // imageUrl = await UploadToS3(formData.image);
+        imageUrl = await uploadFile(formData.image);
       }
       const parsedCompanyId = parseInt(formData.company_id, 10);
 
@@ -528,7 +529,7 @@ const CrearListas = () => {
         scientific_name: formData.scientificName,
         common_name: formData.commonName,
         description: formData.description,
-        photo: 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg',
+        photo: imageUrl,
         category_id: categoryId,
         subcategory_id: subcategoryId,
         company_id: parsedCompanyId,

@@ -3,13 +3,14 @@ import LoteService from "../../../services/lotesService";
 import EspacioService from "../../../services/espacios";
 import SpeciesService from "../../../services/SpeciesService";
 import { useCompanyContext } from '../../../context/CompanyContext';
+import LoadingView from '../../../components/Loading/loadingView';
 
 const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [espacios, setEspacios] = useState([]);
     const [especies, setEspecies] = useState([]);
     const [etapas, setEtapas] = useState([]); // Inicializar etapas como un array vacío
     const [formData, setFormData] = useState({
-        lotCode: '',
+        lotCode: lote,
         startDate: '',
         estimatedEndDate: '',
         productionSpaceId: '',
@@ -21,18 +22,23 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             productionCycleStage: ''
         }
     });
+    const [isLoading, setIsLoading] = useState(true);
 
+    console.log("lote", lote)
     useEffect(() => {
         fetchLotes();
         if (lote) {
             setFormData(prev => ({
                 ...prev,
-                lotCode: lote.lotCode || '',
+                lotCode: lote.lotCode || lote,
                 specieId: lote.productionLotSpecies?.[0]?.specie?.id || '',
                 cycleStage: lote.cycleStage || ''
             }));
             if (lote.id) fetchEspeciesPorLote(lote.id);
         }
+
+        fetchEspeciesPorLote(lote);
+        // fetchEtapasPorEspecie(lote);
     }, [lote]);
 
     const fetchEspacios = async () => {
@@ -50,8 +56,8 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const fetchLotes = async () => {
         const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : "";
         if (!companyId) {
-          setLotesList([]);
-          return;
+            setLotesList([]);
+            return;
         }
 
         try {
@@ -71,8 +77,11 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                     },
                 },
             };
-            const especiesData = await SpeciesService.getAllSpecie(0, searchParameter);
-            setEspecies(especiesData);
+            // const especiesData = await SpeciesService.getAllSpecie(0, searchParameter);
+            const lotesData = await LoteService.getAllLotsById(lote);
+
+            setEspecies(lotesData.productionSpace.species);
+            setIsLoading(false)
         } catch (error) {
             console.error("Error al obtener las especies:", error);
         }
@@ -100,7 +109,7 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-    
+
         if (name === "productionCycleStage") {
             setFormData(prevFormData => ({
                 ...prevFormData,
@@ -116,11 +125,11 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             }));
         }
     };
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
-    
+
+
         const data = {
             trackingConfig: {
                 trackingStartDate: "", // Se manda vacío
@@ -128,111 +137,118 @@ const FormCambiarEtapa = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                 productionCycleStage: formData.trackingConfig.productionCycleStage, // Solo este tiene valor
             },
         };
-    
-    
+
+
         try {
             await LoteService.updateLots(lote, data);
             showErrorAlert("con cambio de etapa");
-    
-            onUpdate(); 
+
+            onUpdate();
             closeModal();
         } catch (error) {
             console.error("Error al actualizar la etapa de producción:", error);
         }
     };
-    
+
 
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-                <label className="block text-sm font-medium">Lote de producción</label>
-                <select
-                    name="lotCode"
-                    value={formData.lotCode}
-                    onChange={(e) => {
-                        const selectedLoteId = e.target.value;
-                        setFormData(prevFormData => ({
-                            ...prevFormData,
-                            lotCode: selectedLoteId,
-                            specieId: '', // Reinicia especie
-                            cycleStage: '' // Reinicia etapa
-                        }));
-                        fetchEspeciesPorLote(selectedLoteId); // Cargar especies para el nuevo lote
-                    }}
-                    className="mt-1 block w-full border rounded-md p-2"
-                    required
-                >
-                    <option value="">Seleccione un lote</option>
-                    {lotes.map(lote => (
-                        <option key={lote.id} value={lote.id}>
-                            {lote.lotCode}
-                        </option>
-                    ))}
-                </select>
-            </div>
+        <>
+            {isLoading ? <LoadingView /> : (
+                <>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium">Lote de producción</label>
+                            <select
+                                name="lotCode"
+                                disabled
+                                value={formData.lotCode}
+                                onChange={(e) => {
+                                    const selectedLoteId = e.target.value;
+                                    setFormData(prevFormData => ({
+                                        ...prevFormData,
+                                        lotCode: selectedLoteId,
+                                        specieId: '', // Reinicia especie
+                                        cycleStage: '' // Reinicia etapa
+                                    }));
+                                }}
+                                className="mt-1 block w-full border rounded-md p-2"
+                                required
+                            >
+                                <option value="">Seleccione un lote</option>
+                                {lotes.map(lote => (
+                                    <option key={lote.id} value={lote.id}>
+                                        {lote.lotCode}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-            <div className="mt-4">
-                <label className="block text-sm font-medium">Especie</label>
-                <select
-                    name="specieId"
-                    value={formData.specieId || ""}
-                    onChange={(e) => {
-                        const { value } = e.target;
-                        setFormData(prevFormData => ({
-                            ...prevFormData,
-                            specieId: value,
-                            cycleStage: '' // Reinicia la etapa al cambiar la especie
-                        }));
-                        fetchEtapasPorEspecie(value); // Actualiza las etapas para la especie seleccionada
-                    }}
-                    className="mt-1 block w-full border rounded-md p-2"
-                    required
-                >
-                    <option value="">Seleccione una opción</option>
-                    {especies.map(especie => (
-                        <option key={especie.id} value={especie.id}>
-                            {especie.common_name}
-                        </option>
-                    ))}
-                </select>
-            </div>
+                        <div className="mt-4">
+                            <label className="block text-sm font-medium">Especie</label>
+                            <select
+                                name="specieId"
+                                value={formData.specieId || ""}
+                                onChange={(e) => {
+                                    const { value } = e.target;
+                                    setFormData(prevFormData => ({
+                                        ...prevFormData,
+                                        specieId: value,
+                                        cycleStage: '' // Reinicia la etapa al cambiar la especie
+                                    }));
+                                    fetchEtapasPorEspecie(value); // Actualiza las etapas para la especie seleccionada
+                                }}
+                                className="mt-1 block w-full border rounded-md p-2"
+                                required
+                            >
+                                <option value="">Seleccione una opción</option>
+                                {especies.map(especie => (
+                                    <option key={especie.id} value={especie.id}>
+                                        {especie.common_name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-            <div className="mt-4">
-                <label className="block text-sm font-medium">Etapa de producción</label>
-                <select
-                    name="productionCycleStage"
-                    value={formData.productionCycleStage}
-                    onChange={handleChange}
-                    className="mt-1 block w-full border rounded-md p-2"
-                    required
-                >
-                    <option value="">Seleccione una opción</option>
-                    {etapas.map(etapa => (
-                        <option key={etapa.id} value={etapa.id}>
-                            {etapa.name}
-                        </option>
-                    ))}
-                </select>
-            </div>
+                        <div className="mt-4">
+                            <label className="block text-sm font-medium">Etapa de producción</label>
+                            <select
+                                name="productionCycleStage"
+                                value={formData.productionCycleStage}
+                                onChange={handleChange}
+                                className="mt-1 block w-full border rounded-md p-2"
+                                required
+                            >
+                                <option value="">Seleccione una opción</option>
+                                {etapas.map(etapa => (
+                                    <option key={etapa.id} value={etapa.id}>
+                                        {etapa.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
 
-            <div className="flex justify-end space-x-4 mt-6">
-                <button
-                    type="button"
-                    onClick={closeModal}
-                    className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
-                >
-                    Volver
-                </button>
-                <button
-                    type="submit"
-                    className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-                >
-                    Cambiar etapa
-                </button>
-            </div>
-        </form>
+                        <div className="flex justify-end space-x-4 mt-6">
+                            <button
+                                type="button"
+                                onClick={closeModal}
+                                className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
+                            >
+                                Volver
+                            </button>
+                            <button
+                                type="submit"
+                                className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                            >
+                                Cambiar etapa
+                            </button>
+                        </div>
+                    </form>
+                </>
+
+            )}
+        </>
     );
 };
 

@@ -9,17 +9,18 @@ import ErrorAlert from "../../../components/alerts/error";
 
 import { useNavigate, useParams } from 'react-router-dom';
 import CategoryService from '../../../services/CategoryService';
-import UploadToS3 from '../../../config/UploadToS3';
 import CompanyService from '../../../services/CompanyService';
 
 
 import CompanySelector from "../../../components/shared/companySelect";
 import { useCompanyContext } from "../../../context/CompanyContext";
 import { BiWorld } from "react-icons/bi";
+import useUploadToS3 from '../../../store/cargaDocument';
 
 const EditarCategorias = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+    const { uploadFile } = useUploadToS3(); // Usamos el hook
 
     const [editIndex, setEditIndex] = useState(null);
     const [editEtapaIndex, setEditEtapandex] = useState(null);
@@ -157,7 +158,7 @@ const EditarCategorias = () => {
         try {
             let imageUrl = '';
             if (formData.image && formData.image.name) {
-                imageUrl = await UploadToS3(formData.image);
+                imageUrl = await uploadFile(formData.image);
             } else {
                 imageUrl = newCategory.image;
             }

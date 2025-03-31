@@ -1,1 +1,0 @@
- Si estás utilizando un estado global como Redux, Flux, o Context API, esta carpeta será clave para manejar la estructura del estado. Aquí organizas las acciones y reducers (o cualquier otra lógica de estado global).

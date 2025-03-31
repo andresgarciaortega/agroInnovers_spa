@@ -3,10 +3,10 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import VariableService from '../../../services/variableService';
 import TypeDispotivicosService from '../../../services/TypeDispositivosService';
 import Success from '../../../components/alerts/success';
-import UploadToS3 from '../../../config/UploadToS3';
 import ErrorAlert from '../../../components/alerts/error';
 import { Edit, Trash, Eye } from 'lucide-react';
 import CompanyService from '../../../services/CompanyService';
+import useUploadToS3 from '../../../store/cargaDocument';
 
 
 const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, onClose, companyId }) => {
@@ -17,6 +17,7 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
     const [step, setStep] = useState(1); // Control del paso actual
     const [companies, setCompanies] = useState([]);
+    const { uploadFile } = useUploadToS3(); // Usamos el hook
 
     const [formData, setFormData] = useState({
         icon: 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg',
@@ -237,13 +238,13 @@ const FormSensor = ({ showErrorAlert, onUpdate, selectedCompany, sensor, mode, o
         try {
             let iconUrl = '';
 
-            // if (formData.icon && formData.icon instanceof File) {
-            //     // Si `icon` es un archivo, súbelo a S3
-            //     iconUrl = await UploadToS3(formData.icon);
-            // } else if (sensor?.icon) {
-            //     // Si no es un archivo pero existe un icono en el sensor, reutilízalo
-            //     iconUrl = sensor.icon;
-            // }
+            if (formData.icon && formData.icon instanceof File) {
+                // Si `icon` es un archivo, súbelo a S3
+                iconUrl = await uploadFile(formData.icon);
+            } else if (sensor?.icon) {
+                // Si no es un archivo pero existe un icono en el sensor, reutilízalo
+                iconUrl = sensor.icon;
+            }
 
             const formDataToSubmit = {
                 icon: iconUrl || 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg', // Usa la URL resultante de S3 o el icono existente

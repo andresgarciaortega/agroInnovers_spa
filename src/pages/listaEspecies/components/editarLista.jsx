@@ -9,16 +9,18 @@ import SpeciesService from '../../../services/SpeciesService';
 import ParameterModal from './formLimit';
 import SuccessAlert from "../../../components/alerts/success";
 import ErrorAlert from "../../../components/alerts/error";
-import UploadToS3 from '../../../config/UploadToS3';
 import CompanyService from '../../../services/CompanyService';
 import { IoCloudUploadOutline } from "react-icons/io5";
 import CompanySelector from "../../../components/shared/companySelect";
 import { useCompanyContext } from "../../../context/CompanyContext";
 import { Alert } from '@mui/material';
 import { MenuItem, FormControl, Select, InputLabel, Checkbox, ListItemText } from '@mui/material';
+import useUploadToS3 from '../../../store/cargaDocument';
 
 const EditarLista = () => {
     const navigate = useNavigate();
+    const { uploadFile } = useUploadToS3(); // Usamos el hook
+
     const { id } = useParams();
     const [showErrorAlert, setShowErrorAlert] = useState(false);
     const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
@@ -558,7 +560,7 @@ const EditarLista = () => {
             let imageUrl = '';
 
             if (formData.image?.name) {
-                imageUrl = await UploadToS3(formData.image);
+                imageUrl = await uploadFile(formData.image);
             } else {
                 imageUrl = formData.image;
             }
@@ -788,7 +790,7 @@ const EditarLista = () => {
 
                     <div className="mt-6">
                         {formData.stage
-                            .sort((a, b) => a.id - b.id) 
+                            .sort((a, b) => a.id - b.id)
                             .map((stage, stageIndex) => (
                                 <div key={stage.id} className="mt-4 rounded-md p-4 border border-gray-300">
                                     <div className="flex justify-between items-center mb-2">
@@ -937,12 +939,12 @@ const EditarLista = () => {
                             >
                                 <option value="">Selecciona una opción</option>
                                 {variables
-                    ?.filter((variable) => formData.variable_id.includes(variable.id)) // Filtrar seleccionados
-                    .map((variable) => (
-                      <option key={variable.id} value={variable.id}>
-                        {variable.name}
-                      </option>
-                    ))}
+                                    ?.filter((variable) => formData.variable_id.includes(variable.id)) // Filtrar seleccionados
+                                    .map((variable) => (
+                                        <option key={variable.id} value={variable.id}>
+                                            {variable.name}
+                                        </option>
+                                    ))}
                             </select>
                             {fieldErrors.variable && (
                                 <p className="text-red-500 text-sm mt-1">{fieldErrors.variable}</p>

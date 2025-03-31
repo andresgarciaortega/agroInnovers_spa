@@ -6,7 +6,6 @@ import { Edit, Trash, Eye } from 'lucide-react';
 
 import { useNavigate, useParams } from 'react-router-dom';
 import CategoryService from '../../../services/CategoryService';
-import UploadToS3 from '../../../config/UploadToS3';
 import CompanyService from '../../../services/CompanyService';
 
 

@@ -4,6 +4,7 @@ import EspacioService from "../../../services/espacios";
 import EspeciesService from "../../../services/SpeciesService";
 import { FaTrash, FaEdit } from 'react-icons/fa';
 import GenericModal from '../../../components/genericModal';
+import LoadingView from '../../../components/Loading/loadingView';
 
 const FormCosechar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [step, setStep] = useState(1);
@@ -13,9 +14,9 @@ const FormCosechar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [formData, setFormData] = useState({
         finalWeight: '',
         finalIndividuals: '',
-        selectedSpecieId: '',  
+        selectedSpecieId: '',
     });
-
+    const [isLoading, setIsLoading] = useState(false);
     const [loteConEspecies, setLoteConEspecies] = useState(lote);
     const [modalEspecie, setModalEspecie] = useState(null);
     const [harvestData, setHarvestData] = useState([]);
@@ -95,18 +96,18 @@ const FormCosechar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+        setIsLoading(true)
         if (!formData.finalWeight || !formData.finalIndividuals) {
             console.error("Ambos campos son necesarios.");
             return;
         }
-    
+
         const newHarvestData = {
             id: modalEspecie.id,
             finalWeight: parseFloat(formData.finalWeight),
             finalIndividuals: parseInt(formData.finalIndividuals, 10)
         };
-    
+
         try {
             if (isEditing) {
                 await LoteService.updateCosecha(lote.id, { harvest: [newHarvestData] });
@@ -119,14 +120,15 @@ const FormCosechar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                 showErrorAlert("cosechado");
 
             }
-    
+
             setLoteConEspecies(prevState => ({
                 ...prevState,
                 productionLotSpecies: prevState.productionLotSpecies.map(specie =>
                     specie.id === modalEspecie.id ? { ...specie, isHarvested: true } : specie
                 )
             }));
-    
+
+            setIsLoading(false)
             onUpdate();
             closeModalHandler();
             closeModal();
@@ -139,7 +141,7 @@ const FormCosechar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
         setModalEspecie(especie);
         const editingMode = especie.finalWeight !== undefined && especie.finalIndividuals !== undefined;
         setIsEditing(editingMode);
-    
+
         if (!editingMode) {
             setFormData({
                 finalWeight: '',
@@ -159,8 +161,11 @@ const FormCosechar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
+        <>
+            {isLoading ? <LoadingView /> : (
+                <>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* <div>
                 <label className="block text-sm font-medium">Especie</label>
                 <select
                     name="selectedSpecieId"
@@ -175,118 +180,120 @@ const FormCosechar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                         </option>
                     ))}
                 </select>
-            </div>
+            </div> */}
 
-            {especieNotFound && (
-                <div className="text-red-500 mt-2">
-                    Esta especie no está en este lote.
-                </div>
-            )}
+                        {especieNotFound && (
+                            <div className="text-red-500 mt-2">
+                                Esta especie no está en este lote.
+                            </div>
+                        )}
 
-            {loteConEspecies.productionLotSpecies.length > 0 && (
-                <div>
-                    <div className="grid grid-cols-2 gap-4 py-2">
-                        {loteConEspecies.productionLotSpecies.map((especie) => (
-                            <div key={especie.id} className="border p-4 rounded-md bg-gray-100 shadow-lg">
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <p><strong>{especie.specie.common_name}</strong></p>
-                                        <p>Peso inicial: {especie.initialWeight} kg</p>
-                                        <p>Individuos: {especie.initialIndividuals}</p>
-                                    </div>
-                                    {especie.finalWeight && especie.finalIndividuals ? (
-                                        <button
-                                            type="button"
-                                            onClick={() => openModal(especie)}
-                                            className="text-[#168C0DFF]"
-                                        >
-                                            <FaEdit />
-                                        </button>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            onClick={() => openModal(especie)}
-                                            className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-                                        >
-                                            Cosechar
-                                        </button>
-                                    )}
+                        {loteConEspecies.productionLotSpecies.length > 0 && (
+                            <div>
+                                <div className="grid grid-cols-2 gap-4 py-2">
+                                    {loteConEspecies.productionLotSpecies.map((especie) => (
+                                        <div key={especie.id} className="border p-4 rounded-md bg-gray-100 shadow-lg">
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <p><strong>{especie.specie.common_name}</strong></p>
+                                                    <p>Peso inicial: {especie.initialWeight} kg</p>
+                                                    <p>Individuos: {especie.initialIndividuals}</p>
+                                                </div>
+                                                {especie.finalWeight && especie.finalIndividuals ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => openModal(especie)}
+                                                        className="text-[#168C0DFF]"
+                                                    >
+                                                        <FaEdit />
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => openModal(especie)}
+                                                        className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                                                    >
+                                                        Cosechar
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+                        )}
 
-            {modalEspecie && (
-                <GenericModal
-                    title={isEditing ? `Cosechar` : `Cosechar a ${modalEspecie.specie.common_name}`}
-                    onClose={closeModalHandler}
-                >
-                    <div>
-                        <h3 className="font-semibold mb-4">
-                            {isEditing ? `Especie` : `Cosechar a`} {modalEspecie.specie.common_name}
-                        </h3>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium">Peso Total</label>
-                                <input
-                                    type="number"
-                                    name="finalWeight"
-                                    value={formData.finalWeight}
-                                    onChange={handleChange}
-                                    className="mt-1 block w-full border rounded-md p-2"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium">Cantidad de Individuos Finales</label>
-                                <input
-                                    type="number"
-                                    name="finalIndividuals"
-                                    value={formData.finalIndividuals}
-                                    onChange={handleChange}
-                                    className="mt-1 block w-full border rounded-md p-2"
-                                />
-                            </div>
-                        </div>
-                        <div className="mt-6 flex justify-end space-x-4">
+                        {modalEspecie && (
+                            <GenericModal
+                                title={isEditing ? `Cosechar` : `Cosechar a ${modalEspecie.specie.common_name}`}
+                                onClose={closeModalHandler}
+                            >
+                                <div>
+                                    <h3 className="font-semibold mb-4">
+                                        {isEditing ? `Especie` : `Cosechar a`} {modalEspecie.specie.common_name}
+                                    </h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium">Peso Total</label>
+                                            <input
+                                                type="number"
+                                                name="finalWeight"
+                                                value={formData.finalWeight}
+                                                onChange={handleChange}
+                                                className="mt-1 block w-full border rounded-md p-2"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium">Cantidad de Individuos Finales</label>
+                                            <input
+                                                type="number"
+                                                name="finalIndividuals"
+                                                value={formData.finalIndividuals}
+                                                onChange={handleChange}
+                                                className="mt-1 block w-full border rounded-md p-2"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="mt-6 flex justify-end space-x-4">
+                                        <button
+                                            type="button"
+                                            onClick={closeModalHandler}
+                                            className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                                        >
+                                            {isEditing ? `Guardar` : `Cosechar`}
+                                        </button>
+                                    </div>
+                                </div>
+                            </GenericModal>
+                        )}
+
+                        <div className="flex justify-end space-x-4 mt-6">
                             <button
                                 type="button"
-                                onClick={closeModalHandler}
-                                className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+                                onClick={() => closeModal()}
+                                className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
                             >
-                                Cancelar
+                                Volver
                             </button>
-                            <button
-                                type="submit"
+                            {/* <button
+                                type="button"
+                                onClick={() => closeModal()}
                                 className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
                             >
-                                {isEditing ? `Guardar` : `Cosechar`}
-                            </button>
+                                Crear
+                            </button> */}
                         </div>
-                    </div>
-                </GenericModal>
-            )}
 
-            <div className="flex justify-end space-x-4 mt-6">
-                <button
-                    type="button"
-                    onClick={() => closeModal()}
-                    className="bg-gray-white border border-gray-400 text-gray-500 px-4 py-2 rounded"
-                >
-                    Volver
-                </button>
-                <button
-                    type="button"
-                    onClick={() => closeModal()}
-                    className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-                >
-                    Crear
-                </button>
-            </div>
-
-        </form>
+                    </form>
+                </>)};
+        </>
     );
 };
 
