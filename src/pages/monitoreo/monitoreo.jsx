@@ -89,6 +89,7 @@ const Monitoreo = () => {
       } catch (error) {
         console.error('Error fetching type Monitoreo:', error);
         setData([]);
+        setIsLoading(false)
         setMessageAlert('Esta empresa no tiene Monitoreo registradas, Intentalo con otra empresa');
         setShowErrorAlertTable(true);
       }
