@@ -25,6 +25,20 @@ const SensorCalibradorService = {
         }
     },
 
+
+      // LISTAR LOS MANTENIMIENTOS DE LOS SENSORES
+      async getCalibracionBySensorAll(sensorId) {
+        try {
+            const response = await api.get(`/calibrations/sensor/${sensorId}`);
+            return response;
+        } catch (error) {
+            console.error('Error al obtener los mantenimientos del sensor:', error);
+            throw error;
+        }
+    },
+
+
+    
     // CREAR UNA mantenimiento
     async createMantenimiento(data) {
         try {

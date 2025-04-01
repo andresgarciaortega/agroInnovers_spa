@@ -17,13 +17,28 @@ const SensorMantenimientoService = {
     },
     async getMantenimientoBySensor(sensorId) {
         try {
-            const response = await api.get(`/maintenance?search=${encodeURIComponent(JSON.stringify({sensor:{id:sensorId}}))}`);
+            const response = await api.get(`/maintenance?search=${encodeURIComponent(JSON.stringify({ sensor: { id: sensorId } }))}`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener los mantenimientos del sensor:', error);
             throw error;
         }
     },
+
+    // LISTAR LOS MANTENIMIENTOS DE LOS SENSORES
+    async getMantenimientoBySensorAll(sensorId) {
+        try {
+            const response = await api.get(`/maintenance/sensor/${sensorId}`);
+            return response;
+        } catch (error) {
+            console.error('Error al obtener los mantenimientos del sensor:', error);
+            throw error;
+        }
+    },
+
+  
+
+
 
     // CREAR UNA mantenimiento
     async createMantenimiento(data) {

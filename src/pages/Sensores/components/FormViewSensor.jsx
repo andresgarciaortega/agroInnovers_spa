@@ -142,7 +142,7 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
             try {
                 if (!sensor || !sensor.id) return;
 
-                const data = await SensorMantenimientoService.getMantenimientoBySensor(id);
+                const data = await SensorMantenimientoService.getMantenimientoBySensorAll(id);
 
                 if (data.statusCode === 404) {
                     setMantenimiento([]);  
@@ -158,7 +158,7 @@ const [selectedCalibracion, setSelectedCalibracion] = useState(null);
             try {
                 if (!sensor || !sensor.id) return;
 
-                const data = await CalibrarSensor.getMantenimientoBysensor(sensor.id);
+                const data = await CalibrarSensor.getCalibracionBySensorAll(sensor.id);
                 if (data.statusCode === 404) {
                     setCalibracion([]);  
                 } else {

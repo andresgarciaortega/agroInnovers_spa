@@ -3,6 +3,7 @@ import AppRoutes from './routes/AppRoutes';
 import { BrowserRouter } from 'react-router-dom';
 import { CompanyProvider } from './context/CompanyContext';
 import useDataSync from './store/asyncDataCronJobs';
+import 'react-tooltip/dist/react-tooltip.css';
 
 const App = () => {
   return (

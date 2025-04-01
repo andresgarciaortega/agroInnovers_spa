@@ -16,7 +16,7 @@ import CompanyService from "../../services/CompanyService";
 import SuccessAlert from "../../components/alerts/success";
 import { IoSearch } from "react-icons/io5";
 import { TbSettingsCog } from "react-icons/tb";
-
+import { Tooltip } from 'react-tooltip';
 import { ImEqualizer2 } from "react-icons/im";
 
 
@@ -385,40 +385,53 @@ const Sensor = () => {
                       <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
                       <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
 
-                      <td className="px-6 py-4 text-sm font-medium">
+                      <td className="px-6 py-4 text-sm font-medium flex space-x-1">
+                        {/* Botón Calibrar */}
                         <button
-                          className="text-[#168C0DFF] px-2 py-2 rounded"
+                          data-tooltip-id="tooltip-calibrar"
+                          data-tooltip-content="Calibrar Sensor"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
                           onClick={() => handleOpenModal(sensor.id, 'calibrar')}
-                          title="Calibrar Sensor"
                         >
                           <ImEqualizer size={18} />
                         </button>
+
+                        {/* Botón Mantenimiento */}
                         <button
-                          className="text-[#168C0DFF] px-2 py-2 rounded"
+                          data-tooltip-id="tooltip-mantenimiento"
+                          data-tooltip-content="Realizar Mantenimiento"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
                           onClick={() => handleOpenModal(sensor.id, 'mantenimiento')}
-                          title="Realizar Mantenimiento"
                         >
                           <TbSettingsCog size={18} />
                         </button>
+
+                        {/* Botón Ver Detalles */}
                         <button
-                          className="text-[#168C0DFF] px-2 py-2 rounded"
+                          data-tooltip-id="tooltip-detalles"
+                          data-tooltip-content="Ver Detalles"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
                           onClick={() => handleOpenModal(sensor, 'view')}
-                          title="Ver Detalles del Sensor"
                         >
                           <Eye size={18} />
                         </button>
+
+                        {/* Botón Editar */}
                         <button
-                          className="text-[#168C0DFF] px-2 py-2 rounded"
+                          data-tooltip-id="tooltip-editar"
+                          data-tooltip-content="Editar Sensor"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
                           onClick={() => handleOpenModal(sensor, 'edit')}
-                          title="Editar Sensor"
                         >
                           <Edit size={18} />
                         </button>
+
+                        {/* Botón Eliminar */}
                         <button
-                        data-tooltip-target="tooltip-default" 
-                          className="text-[#168C0DFF] px-2 py-2 rounded"
+                          data-tooltip-id="tooltip-eliminar"
+                          data-tooltip-content="Eliminar Sensor"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
                           onClick={() => handleDelete(sensor)}
-                          title="Eliminar Sensor"
                         >
                           <Trash size={18} />
                         </button>
@@ -429,6 +442,14 @@ const Sensor = () => {
                   ))}
                 </tbody>
               </table>
+
+              {/* Añade esto al final del componente (fuera de la tabla) */}
+<Tooltip id="tooltip-calibrar" place="top" effect="solid" />
+<Tooltip id="tooltip-mantenimiento" place="top" effect="solid" />
+<Tooltip id="tooltip-detalles" place="top" effect="solid" />
+<Tooltip id="tooltip-editar" place="top" effect="solid" />
+<Tooltip id="tooltip-eliminar" place="top" effect="solid" />
+
             </div>
 
           </div>
@@ -564,7 +585,7 @@ const Sensor = () => {
 
 
 
- 
+
 
 
     </div>
