@@ -19,6 +19,7 @@ import Select from "react-select";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
+import LoadingView from "../../components/Loading/loadingView";
 
 const Espacio = () => {
   const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
@@ -27,7 +28,7 @@ const Espacio = () => {
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
-  
+
   const navigate = useNavigate();
 
   const [variableList, setVariableList] = useState([]);
@@ -49,7 +50,7 @@ const Espacio = () => {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [userRoles, setUserRoles] = useState([]);
 
   useEffect(() => {
@@ -67,28 +68,28 @@ const Espacio = () => {
   }, []);
 
   useEffect(() => {
+    setIsLoading(true)
+
     const fetchEspecies = async () => {
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
-
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
       if (!companyId) {
         setVariableList([]);
         return;
-      } 
-
+      }
       try {
         const data = await EspacioService.getAllEspacio(companyId);
         if (data.statusCode === 404) {
           setVariableList([]);
-
         } else {
           setShowErrorAlertTable(false)
           setVariableList(Array.isArray(data) ? data : []);
-
+          setIsLoading(false)
         }
       } catch (error) {
         setVariableList([])
+        setIsLoading(false)
         console.error('Error fetching space:', error);
         setMessageAlert('Esta empresa no tiene Espacios registrados, Intentalo con otra empresa');
         setShowErrorAlertTable(true);
@@ -224,14 +225,14 @@ const Espacio = () => {
     }
   };
 
-  
+
   const filteredVariable = Array.isArray(variableList)
-  ? variableList.filter(espacio =>
-    (espacio.id && espacio.id.toString().toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (espacio.name && espacio.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (espacio.gpsPosition && espacio.gpsPosition.toLowerCase().includes(searchTerm.toLowerCase()))// Reemplaza "monitoringSystem" por el nombre real si es diferente
-  )
-  : [];
+    ? variableList.filter(espacio =>
+      (espacio.id && espacio.id.toString().toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (espacio.name && espacio.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (espacio.gpsPosition && espacio.gpsPosition.toLowerCase().includes(searchTerm.toLowerCase()))// Reemplaza "monitoringSystem" por el nombre real si es diferente
+    )
+    : [];
 
 
   // Paginación
@@ -292,79 +293,82 @@ const Espacio = () => {
       </div>
 
 
+      {isLoading ? (
+        <LoadingView />
+      ) : (
+        <>
+          <div className="bg-white  rounded-lg shadow ">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-xl font-semibold">Espacios de producción</h2>
+              <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => navigate('../crearEspacio')}>
 
-      <div className="bg-white  rounded-lg shadow ">
-      <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Espacios de producción</h2>
-          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={() => navigate('../crearEspacio')}>
+                Crear Espacio
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full ">
+                <thead className="bg-gray-300  ">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">Nombre espacio</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de espacio</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Áreas</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volumen</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición GPS</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {currentCompanies.map((tipoEspacio, index) => (
+                    <tr key={index}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
 
-            Crear Espacio
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full ">
-            <thead className="bg-gray-300  ">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">Nombre espacio</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de espacio</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Áreas</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volumen</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición GPS</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {currentCompanies.map((tipoEspacio, index) => (
-                <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{tipoEspacio.name}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {tipoEspacio.spaceTypeId?.icon ? (
+                          <img
+                            src={tipoEspacio.spaceTypeId.icon}
+                            alt={tipoEspacio.spaceTypeId.name || "Tipo de espacio"}
+                            className="w-6 h-6 object-contain"
+                          />
+                        ) : (
+                          tipoEspacio.spaceTypeId?.name || "Sin tipo de espacio"
+                        )}
+                      </td>
 
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{tipoEspacio.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    {tipoEspacio.spaceTypeId?.icon ? (
-                      <img
-                        src={tipoEspacio.spaceTypeId.icon}
-                        alt={tipoEspacio.spaceTypeId.name || "Tipo de espacio"}
-                        className="w-6 h-6 object-contain"
-                      />
-                    ) : (
-                      tipoEspacio.spaceTypeId?.name || "Sin tipo de espacio"
-                    )}
-                  </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{tipoEspacio.area}</td>
 
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{tipoEspacio.area}</td>
-
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{tipoEspacio.volume}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{tipoEspacio.gpsPosition}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{tipoEspacio.volume}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{tipoEspacio.gpsPosition}</td>
 
 
 
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewSpace(tipoEspacio.id)}>
-                      <Eye size={18} />
-                    </button>
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleEditSpace(tipoEspacio.id)}>
-                      <Edit size={18} />
-                    </button>
-                    <button onClick={() => handleDelete(tipoEspacio)} className=" text-[#168C0DFF] px-2 py-2 rounded">
-                      <Trash size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {/* Modaeliminación */}
-          {isDeleteModalOpen && (
-            <Delete
-              message={`¿Seguro que desea eliminar el Espacio ${selectedVariable?.name}?`}
-              onCancel={handleCancelDelete}
-              onConfirm={handleConfirmDelete}
-            />
-          )}
-        </div>
-      </div>
-    <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewSpace(tipoEspacio.id)}>
+                          <Eye size={18} />
+                        </button>
+                        <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleEditSpace(tipoEspacio.id)}>
+                          <Edit size={18} />
+                        </button>
+                        <button onClick={() => handleDelete(tipoEspacio)} className=" text-[#168C0DFF] px-2 py-2 rounded">
+                          <Trash size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {/* Modaeliminación */}
+              {isDeleteModalOpen && (
+                <Delete
+                  message={`¿Seguro que desea eliminar el Espacio ${selectedVariable?.name}?`}
+                  onCancel={handleCancelDelete}
+                  onConfirm={handleConfirmDelete}
+                />
+              )}
+            </div>
+          </div>
+          <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
             <div className="border border-gray-200 rounded py-2 text-sm m-2">
               <span>Cantidad de filas</span>
               <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
@@ -385,7 +389,9 @@ const Espacio = () => {
               </button>
             </div>
           </div>
-
+        </>
+      )
+      }
       {showErrorAlert && (
         <SuccessAlert
           message={messageAlert}

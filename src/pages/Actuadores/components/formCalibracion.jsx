@@ -318,7 +318,6 @@ const FromCalibracion = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate
                 <LoadingView />
             ) : (
                 <>
-
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label htmlFor="actuador-calibrationDate" className="block text-sm font-medium text-gray-700">Fecha del mantenimiento</label>

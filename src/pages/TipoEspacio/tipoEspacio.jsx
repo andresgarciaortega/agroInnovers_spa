@@ -18,12 +18,13 @@ import { ImEqualizer2 } from "react-icons/im";
 import Select from "react-select";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
+import LoadingView from "../../components/Loading/loadingView";
 
 const TipoEspacio = () => {
   const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
-    const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
+  const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
   const [variableList, setVariableList] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -44,7 +45,7 @@ const TipoEspacio = () => {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     hiddenSelect(false)
@@ -61,6 +62,7 @@ const TipoEspacio = () => {
   }, []);
 
   useEffect(() => {
+    setIsLoading(true);
     const fetchVariables = async () => {
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
       if (!companyId) {
@@ -77,9 +79,11 @@ const TipoEspacio = () => {
         } else {
           setShowErrorAlertTable(false)
           setVariableList(Array.isArray(data) ? data : []);
+          setIsLoading(false);
         }
       } catch (error) {
         setVariableList([])
+        setIsLoading(false);
         console.error('Error fetching type spacio:', error);
         setMessageAlert('Esta empresa no tiene tipo de espacios registrados, Intentalo con otra empresa');
         setShowErrorAlertTable(true);
@@ -156,7 +160,6 @@ const TipoEspacio = () => {
     setIsModalOpen(false);
     setSelectedVariable(null);
     setModalMode('create');
-    updateService();
   };
 
   //eliminar
@@ -179,16 +182,17 @@ const TipoEspacio = () => {
 
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
-
+    setIsLoading(true)
     try {
       setSelectedVariable(null);
       const data = await TipoEspacioService.deletetipoEspacio(selectedVariable.id);
-      if(data){
+      if (data) {
+        setIsLoading(false)
         setMessageAlert("Tipo de dispositivo eliminado");
         showErrorAlertSuccess("eliminado");
         updateService();
         setAlertSelecte(true);
-      }else{
+      } else {
         setMessageAlert(data.message);
         updateService();
 
@@ -269,90 +273,97 @@ const TipoEspacio = () => {
       </div>
 
 
+      {isLoading ? (
+        <LoadingView />
+      ) : (
+        <>
+          <div className="bg-white  rounded-lg shadow ">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-xl font-semibold">Tipos de espacios</h2>
+              <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
 
-      <div className="bg-white  rounded-lg shadow ">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Tipos de espacios</h2>
-          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
+                Crear tipo de espacio
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full ">
+                <thead className="bg-gray-300  ">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">Icono</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de espacio</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {currentCompanies.map((tipoEspacio, index) => (
+                    <tr key={index}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {tipoEspacio.icon && (
+                          <img
+                            src={tipoEspacio.icon}
+                            alt={tipoEspacio.spaceTypeName}
+                            className="h-10 w-10 object-cover rounded-full"
+                          />
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{tipoEspacio.spaceTypeName}</td>
 
-            Crear tipo de espacio
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full ">
-            <thead className="bg-gray-300  ">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">Icono</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de espacio</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {currentCompanies.map((tipoEspacio, index) => (
-                <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {tipoEspacio.icon && (
-                      <img
-                        src={tipoEspacio.icon}
-                        alt={tipoEspacio.spaceTypeName}
-                        className="h-10 w-10 object-cover rounded-full"
-                      />
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{tipoEspacio.spaceTypeName}</td>
-                 
 
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{tipoEspacio.description}</td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(tipoEspacio, 'view')}>
-                      <Eye size={18} />
-                    </button>
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(tipoEspacio, 'edit')}>
-                      <Edit size={18} />
-                    </button>
-                    <button onClick={() => handleDelete(tipoEspacio)} className=" text-[#168C0DFF] px-2 py-2 rounded">
-                      <Trash size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {/* Modaeliminación */}
-          {isDeleteModalOpen && (
-            <Delete
-              message={`¿Seguro que desea eliminar la variable ${selectedVariable?.spaceTypeName}?`}
-              onCancel={handleCancelDelete}
-              onConfirm={handleConfirmDelete}
-            />
-          )}
-        </div>
-      </div>
-      <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
-        <div className="border border-gray-200 rounded py-2 text-sm m-2">
-          <span>Cantidad de filas</span>
-          <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={15}>15</option>
-          </select>
-        </div>
-        <div className="pagination-controls text-xs flex items-center space-x-2">
-          <span>{indexOfFirstVariable + 1}-{indexOfLastVariable} de {variableList.length}</span>
-          <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-            onClick={handlePrevPage} disabled={currentPage === 1}>
-            <IoIosArrowBack size={20} />
-          </button>
-          <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-            onClick={handleNextPage} disabled={currentPage === Math.ceil(variableList.length / itemsPerPage)}>
-            <IoIosArrowForward size={20} />
-          </button>
-        </div>
-      </div>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{tipoEspacio.description}</td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(tipoEspacio, 'view')}>
+                          <Eye size={18} />
+                        </button>
+                        <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(tipoEspacio, 'edit')}>
+                          <Edit size={18} />
+                        </button>
+                        <button onClick={() => handleDelete(tipoEspacio)} className=" text-[#168C0DFF] px-2 py-2 rounded">
+                          <Trash size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {/* Modaeliminación */}
+              {isDeleteModalOpen && (
+                <Delete
+                  message={`¿Seguro que desea eliminar la variable ${selectedVariable?.spaceTypeName}?`}
+                  onCancel={handleCancelDelete}
+                  onConfirm={handleConfirmDelete}
+                />
+              )}
+            </div>
+          </div>
+          <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+            <div className="border border-gray-200 rounded py-2 text-sm m-2">
+              <span>Cantidad de filas</span>
+              <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={15}>15</option>
+              </select>
+            </div>
+            <div className="pagination-controls text-xs flex items-center space-x-2">
+              <span>{indexOfFirstVariable + 1}-{indexOfLastVariable} de {variableList.length}</span>
+              <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                onClick={handlePrevPage} disabled={currentPage === 1}>
+                <IoIosArrowBack size={20} />
+              </button>
+              <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                onClick={handleNextPage} disabled={currentPage === Math.ceil(variableList.length / itemsPerPage)}>
+                <IoIosArrowForward size={20} />
+              </button>
+            </div>
+          </div>
+
+        </>
+      )
+      }
 
       {/* Modalcrear-editar-visualizar*/}
       {isModalOpen && (
@@ -365,16 +376,16 @@ const TipoEspacio = () => {
           <FormTipo showErrorAlert={showErrorAlertSuccess} onUpdate={updateService} variable={newVariable} mode={modalMode} closeModal={closeModal} />
         </GenericModal>
       )}
-     
-        {showErrorAlert && (
-         <div className="alert-container">
-         {alertSelecte ? (
-           <SuccessAlert message={messageAlert} />
-         ) : (
-           <ErrorAlert message={messageAlert}
-             onCancel={handleCloseAlert} />
-         )}
-       </div>
+
+      {showErrorAlert && (
+        <div className="alert-container">
+          {alertSelecte ? (
+            <SuccessAlert message={messageAlert} />
+          ) : (
+            <ErrorAlert message={messageAlert}
+              onCancel={handleCloseAlert} />
+          )}
+        </div>
       )}
 
 
