@@ -89,7 +89,6 @@ const FormViewSensor = ({ sensor, closeModal }) => {
                 if (!sensor || !sensor.id) return;
 
                 const data = await SensorMantenimientoService.getMantenimientoBySensorAll(sensor.id);
-                console.log("mantenimiento : ", data)
 
                 if (data.statusCode === 404) {
                     setMantenimiento([]);
@@ -128,9 +127,7 @@ const FormViewSensor = ({ sensor, closeModal }) => {
         const fetchCalibrar = async () => {
             try {
                 if (!sensor || !sensor.id) return;
-                console.log(sensor.id)
                 const data = await CalibrarSensor.getCalibracionBySensorAll(sensor.id);
-                console.log("calibración : ", data)
                 if (data.statusCode === 404) {
                     setCalibracion([]);
                 } else {

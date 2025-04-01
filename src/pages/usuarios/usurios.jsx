@@ -19,6 +19,7 @@ import { IoIosWarning } from 'react-icons/io';
 import Select from "react-select";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
+import { Tooltip } from "react-tooltip";
 
 
 const Usuario = () => {
@@ -306,61 +307,89 @@ const Usuario = () => {
         </div>
         <div className="overflow-x-auto">
 
-            <table className="w-full">
-              <thead className="bg-gray-300 ">
-                <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celular</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Día de registro</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de usuario</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {currentCompanies.map((user, index) => (
-                  <tr key={user.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ textTransform: 'uppercase' }}>{user.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phone}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.created_at}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex justify-center text-sm leading-5 py-1 font-bold rounded-md ${(user?.roles[0]?.id === 1 || user?.roles[0]?.name === 'SUPER-ADMINISTRADOR')
-                          ? 'text-blue-500 bg-cyan-100 font-bold '
-                          : (user?.roles[0]?.id === 2 || user?.roles[0]?.name === 'ADMINISTRADOR')
-                            ? 'text-teal-500 bg-cyan-100 '
-                            : (user?.roles[0]?.id === 3 || user?.roles[0]?.name === 'OPERARIO')
-                              ? 'text-[#168C0DFF] bg-cyan-100 '
-                              : 'text-gray-500'
-                          }`}
-                      >
-                        {user?.roles[0] === 1
-                          ? 'SUPER-ADMINISTRADOR'
-                          : user?.roles[0] === 2
-                            ? 'ADMINISTRADOR'
-                            : user?.roles[0] === 3
-                              ? 'OPERARIO'
-                              : `${user?.roles[0]?.name || 'Desconocido'}`}
-                      </span>
-                    </td>
-                    <td className="bg-customGreen text-[#168C0DFF] px- py-2 rounded">
-                      <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(user, 'view')}>
-                        <Eye size={18} />
-                      </button>
-                      <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(user, 'edit')}>
-                        <Edit size={18} />
-                      </button>
-                      <button onClick={() => handleDelete(user)} className="px-2 py-4 whitespace-nowrap text-sm font-medium">
-                        <Trash size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <table className="w-full">
+    <thead className="bg-gray-300">
+      <tr>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Correo</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Celular</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Día de registro</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo de usuario</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
+      </tr>
+    </thead>
+    <tbody className="bg-white divide-y divide-gray-200">
+      {currentCompanies.map((user, index) => (
+        <tr key={user.id} className="hover:bg-gray-50">
+          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 uppercase">
+            {user.name}
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phone}</td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.created_at}</td>
+          <td className="px-6 py-4 whitespace-nowrap">
+            <span
+              className={`px-2 inline-flex justify-center text-sm leading-5 py-1 font-bold rounded-md ${
+                (user?.roles[0]?.id === 1 || user?.roles[0]?.name === 'SUPER-ADMINISTRADOR')
+                  ? 'text-blue-500 bg-cyan-100'
+                  : (user?.roles[0]?.id === 2 || user?.roles[0]?.name === 'ADMINISTRADOR')
+                    ? 'text-teal-500 bg-cyan-100'
+                    : (user?.roles[0]?.id === 3 || user?.roles[0]?.name === 'OPERARIO')
+                      ? 'text-[#168C0DFF] bg-cyan-100'
+                      : 'text-gray-500'
+              }`}
+            >
+              {user?.roles[0]?.id === 1
+                ? 'SUPER-ADMINISTRADOR'
+                : user?.roles[0]?.id === 2
+                  ? 'ADMINISTRADOR'
+                  : user?.roles[0]?.id === 3
+                    ? 'OPERARIO'
+                    : `${user?.roles[0]?.name || 'Desconocido'}`}
+            </span>
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-1">
+            {/* Botón Ver Detalles */}
+            <button
+              data-tooltip-id="tooltip-ver-usuario"
+              data-tooltip-content="Ver Detalles"
+              className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+              onClick={() => handleOpenModal(user, 'view')}
+            >
+              <Eye size={18} />
+            </button>
+
+            {/* Botón Editar */}
+            <button
+              data-tooltip-id="tooltip-editar-usuario"
+              data-tooltip-content="Editar Usuario"
+              className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+              onClick={() => handleOpenModal(user, 'edit')}
+            >
+              <Edit size={18} />
+            </button>
+
+            {/* Botón Eliminar */}
+            <button
+              data-tooltip-id="tooltip-eliminar-usuario"
+              data-tooltip-content="Eliminar Usuario"
+              className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+              onClick={() => handleDelete(user)}
+            >
+              <Trash size={18} />
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  {/* Tooltips para los botones de acciones */}
+  <Tooltip id="tooltip-ver-usuario" place="top" effect="solid" />
+  <Tooltip id="tooltip-editar-usuario" place="top" effect="solid" />
+  <Tooltip id="tooltip-eliminar-usuario" place="top" effect="solid" />
 
           {/* Modal de eliminación */}
           {isDeleteModalOpen && (

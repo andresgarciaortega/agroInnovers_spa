@@ -13,6 +13,7 @@ import ErrorAlert from "../../components/alerts/error";
 import LoadingView from '../../components/Loading/loadingView';
 import { FaRegBuilding, FaTv, FaBars } from 'react-icons/fa';
 import { useCompanyContext } from "../../context/CompanyContext";
+import { Tooltip } from "react-tooltip";
 
 
 const Empresa = () => {
@@ -167,7 +168,7 @@ const Empresa = () => {
 
         setMessageAlert(data.message);
         showErrorAlertr(data.message);
-      
+
       }
 
       // Actualizar la lista de empresas
@@ -242,7 +243,7 @@ const Empresa = () => {
           )}
         </div>
       </div>
-  
+
       {isLoading ? (
         <LoadingView />
       ) : (
@@ -257,7 +258,7 @@ const Empresa = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-  
+
           <div className="bg-white rounded-lg shadow">
             <div className="flex justify-between items-center p-6 border-b seccionNombreBtn">
               <h2 className="text-xl font-semibold">Empresas</h2>
@@ -272,31 +273,54 @@ const Empresa = () => {
                 <thead className="bg-gray-300">
                   <tr>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celular</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Día de registro</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Correo</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Celular</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Día de registro</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Dirección</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {currentCompanies.map((company, index) => (
-                    <tr key={company.id || index}>
+                    <tr key={company.id || index} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ textTransform: 'uppercase' }}>{company.name}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 uppercase">
+                        {company.name}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.email_billing}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.phone}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.created_at}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.location}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewCompany(company.id)}>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-1">
+                        {/* Botón Ver Detalles */}
+                        <button
+                          data-tooltip-id="tooltip-ver-empresa"
+                          data-tooltip-content="Ver Detalles"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleViewCompany(company.id)}
+                        >
                           <Eye size={18} />
                         </button>
-                        <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(company, 'edit')}>
+
+                        {/* Botón Editar */}
+                        <button
+                          data-tooltip-id="tooltip-editar-empresa"
+                          data-tooltip-content="Editar Empresa"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleOpenModal(company, 'edit')}
+                        >
                           <Edit size={18} />
                         </button>
-                        <button onClick={() => handleDelete(company)} className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded">
+
+                        {/* Botón Eliminar */}
+                        <button
+                          data-tooltip-id="tooltip-eliminar-empresa"
+                          data-tooltip-content="Eliminar Empresa"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleDelete(company)}
+                        >
                           <Trash size={18} />
                         </button>
                       </td>
@@ -304,7 +328,12 @@ const Empresa = () => {
                   ))}
                 </tbody>
               </table>
-  
+
+              {/* Tooltips para los botones de acciones */}
+              <Tooltip id="tooltip-ver-empresa" place="top" effect="solid" />
+              <Tooltip id="tooltip-editar-empresa" place="top" effect="solid" />
+              <Tooltip id="tooltip-eliminar-empresa" place="top" effect="solid" />
+
               {/* Modal de eliminación */}
               {isDeleteModalOpen && (
                 <Delete
@@ -315,7 +344,7 @@ const Empresa = () => {
               )}
             </div>
           </div>
-  
+
           {/* Paginación */}
           <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
             <div className="pagination-info text-sm flex items-center space-x-2">
@@ -330,7 +359,7 @@ const Empresa = () => {
                 <option value={20}>20</option>
               </select>
             </div>
-  
+
             <div className="pagination-controls text-xs flex items-center space-x-2">
               <span>{currentPage} de {Math.ceil(companyList.length / itemsPerPage)}</span>
               <button
@@ -351,7 +380,7 @@ const Empresa = () => {
           </div>
         </>
       )}
-  
+
       {/* Modales */}
       {isModalOpen && (
         <GenericModal title={modalMode === 'edit' ? 'Editar Empresa' : modalMode === 'view' ? 'Ver Empresa' : 'Añadir Empresa'} onClose={closeModal}>
@@ -364,7 +393,7 @@ const Empresa = () => {
           />
         </GenericModal>
       )}
-  
+
       {/* Alertas */}
       {showSuccessAlert && (
         <SuccessAlert message={messageAlert} onCancel={handleCloseAlert} />
@@ -374,7 +403,7 @@ const Empresa = () => {
       )}
     </div>
   );
-  
+
 };
 
 export default Empresa;

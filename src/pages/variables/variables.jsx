@@ -20,6 +20,7 @@ import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
 import LoadingView from "../../components/Loading/loadingView";
+import { Tooltip } from "react-tooltip";
 
 const Variable = () => {
   const [companyList, setCompanyList] = useState([]);
@@ -76,7 +77,7 @@ const Variable = () => {
       if (!companyId) {
         setVariableList([]);
         return;
-      } 
+      }
 
       try {
         const data = await VariableService.getAllVariable(companyId);
@@ -275,7 +276,7 @@ const Variable = () => {
         />
 
       </div>
- 
+
 
 
       <div className="bg-white  rounded-lg shadow ">
@@ -287,79 +288,117 @@ const Variable = () => {
           </button>
         </div>
 
-         
-      {isLoading ? (
-        <LoadingView />
-      ) : (
-        <>
-        <div className="overflow-x-auto">
-          <table className="w-full ">
-            <thead className="bg-gray-300  ">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">Icono</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Variable</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo variable</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad medida</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo registro</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {currentCompanies.map((variable, index) => (
-                <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {variable.icon && (
-                      <img
-                        src={variable.icon}
-                        alt={variable.name}
-                        className="h-10 w-10 object-cover rounded-full"
-                      />
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{variable.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    <span className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {variable.typeVariable && variable.typeVariable.length > 0 ? variable.typeVariable.name : variable?.typeVariable?.name ? variable.typeVariable.name : ''}
-                    </span>
-                  </td>
 
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{variable.unit_of_measurement}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {/* Asegúrate de que variable.type_register_id tiene un valor válido */}
-                    <span className="px-2 inline-flex justify-center text-sm leading-5 py-1 font-semibold text-gray-500 bg-gray-300 rounded-sm">
-                      {variable.typeRegister ? variable.typeRegister.name : 'N/A'}
+        {isLoading ? (
+          <LoadingView />
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-300">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Icono</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre Variable</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo variable</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Unidad medida</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo registro</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {currentCompanies.map((variable, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        {index + 1}
+                      </td>
 
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(variable, 'view')}>
-                      <Eye size={18} />
-                    </button>
-                    <button className=" text-[#168C0DFF] px-2 py-2 rounded"
-                      onClick={() => handleOpenModal(variable, 'edit')}>
-                      <Edit size={18} />
-                    </button>
-                    <button onClick={() => handleDelete(variable)} className=" text-[#168C0DFF] px-2 py-2 rounded">
-                      <Trash size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {/* Modaeliminación */}
-          {isDeleteModalOpen && (
-            <Delete
-              message={`¿Seguro que desea eliminar la variable ${selectedVariable?.name}?`}
-              onCancel={handleCancelDelete}
-              onConfirm={handleConfirmDelete}
-            />
-          )}
-        </div>
-        </>
-)}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {variable.icon ? (
+                          <img
+                            src={variable.icon}
+                            alt={variable.name}
+                            className="h-10 w-10 object-cover rounded-full"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-xs text-gray-500">Sin icono</span>
+                          </div>
+                        )}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        {variable.name}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {variable.typeVariable?.name || 'No especificado'}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {variable.unit_of_measurement || 'N/A'}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex justify-center text-sm leading-5 py-1 font-semibold rounded-sm ${variable.typeRegister
+                            ? 'text-gray-700 bg-gray-200'
+                            : 'text-gray-500 bg-gray-100'
+                          }`}>
+                          {variable.typeRegister?.name || 'N/A'}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-1">
+                        {/* Botón Ver Detalles */}
+                        <button
+                          data-tooltip-id="tooltip-ver-variable"
+                          data-tooltip-content="Ver Detalles"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleOpenModal(variable, 'view')}
+                        >
+                          <Eye size={18} />
+                        </button>
+
+                        {/* Botón Editar */}
+                        <button
+                          data-tooltip-id="tooltip-editar-variable"
+                          data-tooltip-content="Editar Variable"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleOpenModal(variable, 'edit')}
+                        >
+                          <Edit size={18} />
+                        </button>
+
+                        {/* Botón Eliminar */}
+                        <button
+                          data-tooltip-id="tooltip-eliminar-variable"
+                          data-tooltip-content="Eliminar Variable"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleDelete(variable)}
+                        >
+                          <Trash size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Tooltips para los botones de acciones */}
+              <Tooltip id="tooltip-ver-variable" place="top" effect="solid" />
+              <Tooltip id="tooltip-editar-variable" place="top" effect="solid" />
+              <Tooltip id="tooltip-eliminar-variable" place="top" effect="solid" />
+              {/* Modaeliminación */}
+              {isDeleteModalOpen && (
+                <Delete
+                  message={`¿Seguro que desea eliminar la variable ${selectedVariable?.name}?`}
+                  onCancel={handleCancelDelete}
+                  onConfirm={handleConfirmDelete}
+                />
+              )}
+            </div>
+          </>
+        )}
       </div>
       <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
         <div className="border border-gray-200 rounded py-2 text-sm m-2">

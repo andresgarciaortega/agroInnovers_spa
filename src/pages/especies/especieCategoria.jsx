@@ -21,6 +21,7 @@ import { BiWorld } from "react-icons/bi";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
+import { Tooltip } from "react-tooltip";
 
 
 const Especie = () => {
@@ -66,7 +67,7 @@ const Especie = () => {
         setCompanyList(data);
       } catch (error) {
         console.error('Error fetching companies:', error);
-        
+
       }
     };
 
@@ -309,52 +310,73 @@ const Especie = () => {
               <table className="w-full">
                 <thead className="bg-gray-300">
                   <tr>
-                    <th className="px-"></th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre categoría</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subcategorías</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Etapas</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Icono</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre categoría</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Subcategorías</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Etapas</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {currentCategories.map((category) => (
-                    <tr key={category.id}>
-
-                      <td className=" p-3  whitespace-nowrap text-sm text-gray-900">
-                        {category.image && (
+                    <tr key={category.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {category.image ? (
                           <img
                             src={category.image}
                             alt={category.name}
                             className="h-12 w-12 object-cover rounded-full"
                           />
+                        ) : (
+                          <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-xs text-gray-500">Sin imagen</span>
+                          </div>
                         )}
                       </td>
-                      <td className="whitespace-nowrap text-sm text-gray-900">{category.name}</td>
 
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        {category.name}
+                      </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        <span className="text-[#168C0DFF] border-b-2 underline  font-bold bg-blue-50 px-2 py-1 rounded-md">
-                          {category.subcategories.length}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold text-[#168C0DFF] bg-blue-50">
+                          {category.subcategories.length} subcategoría(s)
                         </span>
                       </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span className="text-cyan-500 border-b-2 underline font-bold bg-blue-50 px-2 py-1 rounded-md">
-                          {category.stages.length}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold text-cyan-600 bg-cyan-50">
+                          {category.stages.length} etapa(s)
                         </span>
                       </td>
 
-                      {/* Acciones */}
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewCategory(category, 'view')}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-1">
+                        {/* Botón Ver Detalles */}
+                        <button
+                          data-tooltip-id="tooltip-ver-categoria"
+                          data-tooltip-content="Ver Detalles"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleViewCategory(category, 'view')}
+                        >
                           <Eye size={18} />
                         </button>
-                        <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleEditCategory(category)}>
+
+                        {/* Botón Editar */}
+                        <button
+                          data-tooltip-id="tooltip-editar-categoria"
+                          data-tooltip-content="Editar Categoría"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleEditCategory(category)}
+                        >
                           <Edit size={18} />
                         </button>
+
+                        {/* Botón Eliminar */}
                         <button
-                          onClick={() => handleDeleteCategory(category)} // Cambiado para abrir el modal
-                          className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
+                          data-tooltip-id="tooltip-eliminar-categoria"
+                          data-tooltip-content="Eliminar Categoría"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleDeleteCategory(category)}
                         >
                           <Trash size={18} />
                         </button>
@@ -363,6 +385,11 @@ const Especie = () => {
                   ))}
                 </tbody>
               </table>
+
+              {/* Tooltips para los botones de acciones */}
+              <Tooltip id="tooltip-ver-categoria" place="top" effect="solid" />
+              <Tooltip id="tooltip-editar-categoria" place="top" effect="solid" />
+              <Tooltip id="tooltip-eliminar-categoria" place="top" effect="solid" />
 
             </div>
           </div>

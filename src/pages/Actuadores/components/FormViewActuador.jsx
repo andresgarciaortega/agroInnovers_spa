@@ -89,7 +89,6 @@ const FormViewActuador = ({ actuador, closeModal }) => {
                 // Llama al servicio para obtener los mantenimientos asociados al actuador
                 const data = await MantenimientoActuador.getMantenimientoByActuador(actuador.id);
                 // Maneja la respuesta y actualiza el estado
-                console.log("mantenimiento : ", data)
                 if (data.statusCode === 404) {
                     setMantenimiento([]);  // Si no se encuentran mantenimientos
                 } else {
@@ -160,7 +159,6 @@ const FormViewActuador = ({ actuador, closeModal }) => {
             try {
                 if (!actuador || !actuador.id) return;
                 const data = await MantenimientoActuador.getMantenimientoByActuadorAll(actuador.id);
-                console.log("mantenimiento actudador ", data)
                 if (!data) {
                     setMantenimiento([]);
                 } else {
@@ -179,7 +177,6 @@ const FormViewActuador = ({ actuador, closeModal }) => {
 
                 // Llama al servicio para obtener los mantenimientos asociados al actuador
                 const data = await CalibrarActuador.getMantenimientoByactuadorAll(actuador.id);
-                console.log("calibracion actudador ", data)
                 // Maneja la respuesta y actualiza el estado
                 if (data.statusCode === 404) {
                     setCalibracion([]);  // Si no se encuentran mantenimientos

@@ -144,13 +144,12 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const fetchEtapasPorEspecie = async (especieId) => {
         try {
             const especieData = await EspeciesService.getSpecieById(especieId);
+            console.log("especieData ------------ ", especieData)
             if (especieData && especieData.stages) {
                 const etapasList = especieData.stages.map(stageItem => ({
                     id: stageItem.stage.id,
                     name: stageItem.stage.name
                 }));
-
-                console.log("etapasList ------------ ", etapasList)
                 // setEtapas(etapasList);
             } else {
                 setEtapas([]);
@@ -190,8 +189,6 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const fetchEtapas = async () => {
         try {
             const response = await EspacioService.getAllStage();
-            // const data = await response.json();
-            console.log(" ----------------- ", response)
             setEtapas(response);
         } catch (error) {
             console.error("Error al obtener las etapas:", error);
@@ -600,7 +597,7 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-medium">Frecuencia reporte de seguimiento</label>
+                                                    <label className="block text-sm font-medium">Frecuencia reporte de seguimiento (días)</label>
                                                     <input
                                                         type="number"
                                                         name="reportFrequency"

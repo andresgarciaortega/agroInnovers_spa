@@ -20,6 +20,7 @@ import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
 import LoadingView from "../../components/Loading/loadingView";
+import { Tooltip } from "react-tooltip";
 
 const Espacio = () => {
   const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
@@ -306,51 +307,80 @@ const Espacio = () => {
               </button>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full ">
-                <thead className="bg-gray-300  ">
+              <table className="w-full">
+                <thead className="bg-gray-300">
                   <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">Nombre espacio</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de espacio</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Áreas</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volumen</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición GPS</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre espacio</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo de espacio</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Áreas (m²)</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Volumen (m³)</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Posición GPS</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {currentCompanies.map((tipoEspacio, index) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
-
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{tipoEspacio.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {tipoEspacio.spaceTypeId?.icon ? (
-                          <img
-                            src={tipoEspacio.spaceTypeId.icon}
-                            alt={tipoEspacio.spaceTypeId.name || "Tipo de espacio"}
-                            className="w-6 h-6 object-contain"
-                          />
-                        ) : (
-                          tipoEspacio.spaceTypeId?.name || "Sin tipo de espacio"
-                        )}
+                  {currentCompanies.map((espacio, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        {index + 1}
                       </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{tipoEspacio.area}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        {espacio.name}
+                      </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{tipoEspacio.volume}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{tipoEspacio.gpsPosition}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 flex items-center gap-2">
+                        {espacio.spaceTypeId?.icon && (
+                          <img
+                            src={espacio.spaceTypeId.icon}
+                            alt={espacio.spaceTypeId.name || "Tipo de espacio"}
+                            className="w-6 h-6 object-contain"
+                          />
+                        )}
+                        <span>{espacio.spaceTypeId?.name || "Sin tipo"}</span>
+                      </td>
 
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {espacio.area ? `${espacio.area} m²` : "-"}
+                      </td>
 
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {espacio.volume ? `${espacio.volume} m³` : "-"}
+                      </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewSpace(tipoEspacio.id)}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-mono">
+                        {espacio.gpsPosition || "No registrada"}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-1">
+                        {/* Botón Ver Detalles */}
+                        <button
+                          data-tooltip-id="tooltip-ver-espacio"
+                          data-tooltip-content="Ver Detalles"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleViewSpace(espacio.id)}
+                        >
                           <Eye size={18} />
                         </button>
-                        <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleEditSpace(tipoEspacio.id)}>
+
+                        {/* Botón Editar */}
+                        <button
+                          data-tooltip-id="tooltip-editar-espacio"
+                          data-tooltip-content="Editar Espacio"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleEditSpace(espacio.id)}
+                        >
                           <Edit size={18} />
                         </button>
-                        <button onClick={() => handleDelete(tipoEspacio)} className=" text-[#168C0DFF] px-2 py-2 rounded">
+
+                        {/* Botón Eliminar */}
+                        <button
+                          data-tooltip-id="tooltip-eliminar-espacio"
+                          data-tooltip-content="Eliminar Espacio"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleDelete(espacio)}
+                        >
                           <Trash size={18} />
                         </button>
                       </td>
@@ -358,6 +388,11 @@ const Espacio = () => {
                   ))}
                 </tbody>
               </table>
+
+              {/* Tooltips para los botones de acciones */}
+              <Tooltip id="tooltip-ver-espacio" place="top" effect="solid" />
+              <Tooltip id="tooltip-editar-espacio" place="top" effect="solid" />
+              <Tooltip id="tooltip-eliminar-espacio" place="top" effect="solid" />
               {/* Modaeliminación */}
               {isDeleteModalOpen && (
                 <Delete

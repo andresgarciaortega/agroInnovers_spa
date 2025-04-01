@@ -75,7 +75,6 @@ const FormEditarLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     // const fetchEspacios = async () => {
     //     try {
     //         const espaciosData = await EspacioService.getAllEspacio();
-    //         console.log("111111111111111111111 ",espaciosData)
     //         setEspacios(espaciosData);
     //     setIsLoading(false);
 
@@ -87,7 +86,6 @@ const FormEditarLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const fetchEspacios = async () => {
         try {
             const response = await EspacioService.getAllEspacio();
-            console.log("Datos de espacios:", response); // Ahora deberías ver los datos directamente
             setEspacios(response.data || response); // Dependiendo de tu estructura de datos
             setIsLoading(false);
         } catch (error) {
@@ -100,7 +98,6 @@ const FormEditarLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const fetchEspacioDetalles = async (id) => {
         try {
             const espacios = await EspacioService.getAllEspacio();
-            console.log("222222222222222222 ",espacios)
 
             const espacio = espacios.find(espacio => espacio.id === id);
             setEspacioDetalles(espacio);
@@ -188,7 +185,6 @@ const FormEditarLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
         try {
             const response = await EspacioService.getAllStage();  // Reemplaza con la URL de tu API
             // const data = await response.json();
-            console.log("etapasssssssssssssssssss : ", response)
             setEtapas(response);
         } catch (error) {
             console.error("Error al obtener las etapas:", error);

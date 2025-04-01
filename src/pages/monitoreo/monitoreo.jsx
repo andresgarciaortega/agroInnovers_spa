@@ -19,6 +19,7 @@ import { IoSearch } from "react-icons/io5";
 import { IoIosWarning } from 'react-icons/io';
 import { getDecodedToken } from "../../utils/auseAuth";
 import LoadingView from "../../components/Loading/loadingView";
+import { Tooltip } from "react-tooltip";
 
 
 const Monitoreo = () => {
@@ -346,66 +347,101 @@ const Monitoreo = () => {
                 <table className="w-full">
                   <thead className="bg-gray-300">
                     <tr>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase">ID</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Disp asignados</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP fija</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lote de producción</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Espacios de producción</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Disp asignados</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">IP fija</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Lote de producción</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Espacios de producción</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {currentDevices.map((monitoreo, index) => (
-                      <tr key={monitoreo.id}>
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">{index + 1}</td>
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">{monitoreo.nombreId}</td>
-                        <td className="px-6 py-4 text-sm text-gray-700">
+                      <tr key={monitoreo.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                          {index + 1}
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                          {monitoreo.nombreId}
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <div
-                            className={`relative inline-flex items-center h-7 rounded-full w-11 cursor-pointer transition-colors ease-in-out duration-200 
-                        ${monitoreo.displayFisico ? 'bg-green-500' : 'bg-gray-300'
+                            className={`relative inline-flex items-center h-7 rounded-full w-11 cursor-pointer transition-colors ease-in-out duration-200 ${monitoreo.displayFisico ? 'bg-green-500' : 'bg-gray-300'
                               }`}
                             onClick={() => toggleSwitch(monitoreo.displayFisico)}
                           >
                             <span
-                              className={`inline-block w-6 h-6 transform bg-white rounded-full transition-transform ease-in-out duration-200 shadow shadow-gray-700
-                           ${monitoreo.displayFisico ? 'translate-x-5' : 'translate-x-0'
+                              className={`inline-block w-6 h-6 transform bg-white rounded-full transition-transform ease-in-out duration-200 shadow shadow-gray-700 ${monitoreo.displayFisico ? 'translate-x-5' : 'translate-x-0'
                                 }`}
                             />
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-700">{monitoreo.displayFisico ? monitoreo.ipFija : 'Sin asignar'}</td>
 
-                        <td className="px-6 py-4 text-sm text-gray-700">
-                          {monitoreo.productionSpaces && monitoreo.productionSpaces.length > 0
-                            ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots.length > 0
-                              ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].productionLots[0].lotCode
-                              : "No asignado"
-                            : "No asignado"}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {monitoreo.displayFisico ? (
+                            <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                              {monitoreo.ipFija}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">Sin asignar</span>
+                          )}
+                        </td>
 
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {monitoreo.productionSpaces?.[monitoreo.productionSpaces.length - 1]?.productionLots?.[0]?.lotCode || (
+                            <span className="text-gray-400">No asignado</span>
+                          )}
                         </td>
-                        <td>
-                          {monitoreo.productionSpaces?.length > 0 && monitoreo.productionSpaces.length > 0
-                            ? monitoreo.productionSpaces[monitoreo.productionSpaces.length - 1].name
-                            : "No asignado"}
+
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {monitoreo.productionSpaces?.[monitoreo.productionSpaces.length - 1]?.name || (
+                            <span className="text-gray-400">No asignado</span>
+                          )}
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium">
-                          <button className=" text-[#168C0DFF] px-2 py-2 rounded">
-                            <Eye size={18} onClick={() => handleEditMonitoreo(monitoreo)} />
+
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-1">
+                          {/* Botón Ver Detalles */}
+                          <button
+                            data-tooltip-id="tooltip-ver-monitoreo"
+                            data-tooltip-content="Ver Detalles"
+                            className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                            onClick={() => handleEditMonitoreo(monitoreo)}
+                          >
+                            <Eye size={18} />
                           </button>
-                          <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(monitoreo, 'edit')}>
+
+                          {/* Botón Editar */}
+                          <button
+                            data-tooltip-id="tooltip-editar-monitoreo"
+                            data-tooltip-content="Editar Dispositivo"
+                            className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                            onClick={() => handleOpenModal(monitoreo, 'edit')}
+                          >
                             <Edit size={18} />
                           </button>
-                          <button onClick={() => handleDelete(monitoreo)} className=" text-[#168C0DFF] px-2 py-2 rounded">
+
+                          {/* Botón Eliminar */}
+                          <button
+                            data-tooltip-id="tooltip-eliminar-monitoreo"
+                            data-tooltip-content="Eliminar Dispositivo"
+                            className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                            onClick={() => handleDelete(monitoreo)}
+                          >
                             <Trash size={18} />
                           </button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
-
                 </table>
 
+                {/* Tooltips para los botones de acciones */}
+                <Tooltip id="tooltip-ver-monitoreo" place="top" effect="solid" />
+                <Tooltip id="tooltip-editar-monitoreo" place="top" effect="solid" />
+                <Tooltip id="tooltip-eliminar-monitoreo" place="top" effect="solid" />
                 {isModalOpen && (
                   <GenericModal
                     title={modalMode === 'edit' ? 'Editar Sistema de monitoreo' : modalMode === 'view' ? 'Ver Monitoreo' : 'Añadir Sistema de monitoreo'}

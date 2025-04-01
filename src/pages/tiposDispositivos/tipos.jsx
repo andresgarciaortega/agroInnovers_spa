@@ -17,6 +17,7 @@ import { ImEqualizer2 } from "react-icons/im";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { FaMicrochip } from "react-icons/fa6";
+import { Tooltip } from "react-tooltip";
 
 const Tipos = () => {
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
@@ -308,12 +309,12 @@ const Tipos = () => {
     try {
       setSelectedSensor(null);
       const data = await TypeService.deleteSensor(selectedSensor.id);
-      if(data.success){
+      if (data.success) {
         setMessageAlert(data.message);
         showErrorAlertSuccess("eliminado");
         updateServiceSensor();
         setAlertSelecte(true);
-      }else{
+      } else {
         setMessageAlert(data.message);
         setShowErrorAlert(true);
         setAlertSelecte(false);
@@ -403,42 +404,79 @@ const Tipos = () => {
 
         </div>
       </div>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="w-full">
+        <thead className="bg-gray-300">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre Comercial</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo de Sensor</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Modelo</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Marca</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre Comercial</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo de Sensor</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Modelo</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Marca</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {currentSensorList.map((sensor, index) => (
-            <tr key={index}>
-              <td className="px-6 py-4 text-sm text-gray-500">{index + 1}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex items-center space-x-2">
-                {sensor.icon && (
+            <tr key={index} className="hover:bg-gray-50">
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                {index + 1}
+              </td>
+
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 flex items-center gap-3">
+                {sensor.icon ? (
                   <img
                     src={sensor.icon}
                     alt={sensor.commercialName}
                     className="h-10 w-10 object-cover rounded-full"
                   />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-xs text-gray-500">Sin icono</span>
+                  </div>
                 )}
                 <span>{sensor.commercialName}</span>
               </td>
-              <td className="px-6 py-4 text-sm text-gray-500">{sensor.sensorTypeName}</td>
-              <td className="px-6 py-4 text-sm text-gray-500">{sensor.model}</td>
-              <td className="px-6 py-4 text-sm text-gray-500">{sensor.brand}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button className="text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModalSensor(sensor, 'view')}>
+
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                {sensor.sensorTypeName || "No especificado"}
+              </td>
+
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                {sensor.model || "N/A"}
+              </td>
+
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                {sensor.brand || "No especificada"}
+              </td>
+
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-1">
+                {/* Botón Ver Detalles */}
+                <button
+                  data-tooltip-id="tooltip-ver-sensor"
+                  data-tooltip-content="Ver Detalles"
+                  className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                  onClick={() => handleOpenModalSensor(sensor, 'view')}
+                >
                   <Eye size={18} />
                 </button>
-                <button className="text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModalSensor(sensor, 'edit')}>
+
+                {/* Botón Editar */}
+                <button
+                  data-tooltip-id="tooltip-editar-sensor"
+                  data-tooltip-content="Editar Sensor"
+                  className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                  onClick={() => handleOpenModalSensor(sensor, 'edit')}
+                >
                   <Edit size={18} />
                 </button>
-                <button className="text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleDelete(sensor)}>
+
+                {/* Botón Eliminar */}
+                <button
+                  data-tooltip-id="tooltip-eliminar-sensor"
+                  data-tooltip-content="Eliminar Sensor"
+                  className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                  onClick={() => handleDelete(sensor)}
+                >
                   <Trash size={18} />
                 </button>
               </td>
@@ -446,6 +484,11 @@ const Tipos = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Tooltips para los botones de acciones */}
+      <Tooltip id="tooltip-ver-sensor" place="top" effect="solid" />
+      <Tooltip id="tooltip-editar-sensor" place="top" effect="solid" />
+      <Tooltip id="tooltip-eliminar-sensor" place="top" effect="solid" />
       <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
         <div className="pagination-info text-sm flex items-center space-x-2">
           <span>Cantidad de filas</span>
@@ -513,14 +556,14 @@ const Tipos = () => {
       )}
 
       {showErrorAlert && (
-         <div className="alert-container">
-         {alertSelecte ? (
-           <SuccessAlert message={messageAlert} />
-         ) : (
-           <ErrorAlert message={messageAlert}
-             onCancel={handleCloseAlert} />
-         )}
-       </div>
+        <div className="alert-container">
+          {alertSelecte ? (
+            <SuccessAlert message={messageAlert} />
+          ) : (
+            <ErrorAlert message={messageAlert}
+              onCancel={handleCloseAlert} />
+          )}
+        </div>
       )}
 
     </div>
@@ -634,12 +677,12 @@ const Tipos = () => {
     try {
       setSelectedActuador(null);
       const data = await TypeService.deleteActuador(selectedActuador.id);
-      if(data.success){
+      if (data.success) {
         setMessageAlert(data.message);
         showErrorAlertSuccess("eliminado");
         updateServiceActuador();
         setAlertSelecte(true);
-      }else{
+      } else {
         setMessageAlert(data.message);
         setShowErrorAlert(true);
         setAlertSelecte(false);
@@ -667,7 +710,7 @@ const Tipos = () => {
     setShowErrorAlert(false);
   };
 
-  
+
   const updateServiceActuador = async () => {
     setShowErrorAlertTable(false);
     const fetchActuador = async () => {
@@ -707,42 +750,79 @@ const Tipos = () => {
         </button>
       </div>
 
-      <table className="min-w-full divide-y divide-gray-200 ">
-        <thead className="bg-gray-50">
+      <table className="w-full">
+        <thead className="bg-gray-300">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre Comercial</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo de Actuador</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Modelo</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Marca</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre Comercial</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo de Actuador</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Modelo</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Marca</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {currentActuadorList.map((actuador, index) => (
-            <tr key={index}>
-              <td className="px-6 py-4 text-sm text-gray-500">{index + 1}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex items-center space-x-2">
-                {actuador.icon && (
+            <tr key={index} className="hover:bg-gray-50">
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                {index + 1}
+              </td>
+
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 flex items-center gap-3">
+                {actuador.icon ? (
                   <img
                     src={actuador.icon}
                     alt={actuador.commercialName}
                     className="h-10 w-10 object-cover rounded-full"
                   />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-xs text-gray-500">Sin icono</span>
+                  </div>
                 )}
                 <span>{actuador.commercialName}</span>
               </td>
-              <td className="px-6 py-4 text-sm text-gray-500">{actuador.actuatorTypeName}</td>
-              <td className="px-6 py-4 text-sm text-gray-500">{actuador.model}</td>
-              <td className="px-6 py-4 text-sm text-gray-500">{actuador.brand}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button className="text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModalActuador(actuador, 'view')}>
+
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                {actuador.actuatorTypeName || "No especificado"}
+              </td>
+
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                {actuador.model || "N/A"}
+              </td>
+
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                {actuador.brand || "No especificada"}
+              </td>
+
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-1">
+                {/* Botón Ver Detalles */}
+                <button
+                  data-tooltip-id="tooltip-ver-actuador"
+                  data-tooltip-content="Ver Detalles"
+                  className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                  onClick={() => handleOpenModalActuador(actuador, 'view')}
+                >
                   <Eye size={18} />
                 </button>
-                <button className="text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModalActuador(actuador, 'edit')}>
+
+                {/* Botón Editar */}
+                <button
+                  data-tooltip-id="tooltip-editar-actuador"
+                  data-tooltip-content="Editar Actuador"
+                  className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                  onClick={() => handleOpenModalActuador(actuador, 'edit')}
+                >
                   <Edit size={18} />
                 </button>
-                <button className="text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleDeleteActuador(actuador)}>
+
+                {/* Botón Eliminar */}
+                <button
+                  data-tooltip-id="tooltip-eliminar-actuador"
+                  data-tooltip-content="Eliminar Actuador"
+                  className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                  onClick={() => handleDeleteActuador(actuador)}
+                >
                   <Trash size={18} />
                 </button>
               </td>
@@ -750,6 +830,12 @@ const Tipos = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Tooltips para los botones de acciones */}
+      <Tooltip id="tooltip-ver-actuador" place="top" effect="solid" />
+      <Tooltip id="tooltip-editar-actuador" place="top" effect="solid" />
+      <Tooltip id="tooltip-eliminar-actuador" place="top" effect="solid" />
+
       <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
         <div className="pagination-info text-sm flex items-center space-x-2">
           <span>Cantidad de filas</span>
@@ -815,7 +901,7 @@ const Tipos = () => {
           <FormViewActuador showErrorAlert={showErrorAlertSuccess} onUpdate={updateServiceActuador} actuador={newActuador} mode={modalModeActuador} closeModal={closeModalActuador} />
         </GenericModal>
       )}
-  {showErrorAlert && (
+      {showErrorAlert && (
         <div className="alert-container">
           {alertSelecte ? (
             <SuccessAlert message={messageAlert} />

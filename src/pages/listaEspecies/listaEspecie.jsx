@@ -23,6 +23,7 @@ import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
 import LoadingView from "../../components/Loading/loadingView";
+import { Tooltip } from "react-tooltip";
 
 const ListaEspecies = () => {
   const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
@@ -98,7 +99,7 @@ const ListaEspecies = () => {
       }
       try {
         const data = await SpeciesService.getAllSpecie(companyId, {});
-        
+
         if (data.statusCode === 404) {
           setShowErrorAlertTable(true)
           setMessageAlert('Esta empresa no tiene categorías registradas, Intentalo con otra empresa');
@@ -336,53 +337,61 @@ const ListaEspecies = () => {
               </button>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full ">
-                <thead className="bg-gray-300  ">
+              <table className="w-full">
+                <thead className="bg-gray-300">
                   <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider">Icono</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre común</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre cientifíco</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tiempo producción</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Icono</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre común</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre científico</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Categoría</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tiempo producción</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {currentSpecies.map((species, index) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{index + 1}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {species.photo && (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        {index + 1}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {species.photo ? (
                           <img
                             src={species.photo}
                             alt={species.common_name}
                             className="h-10 w-10 object-cover rounded-full"
                           />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-xs text-gray-500">Sin imagen</span>
+                          </div>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{species.common_name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{species.scientific_name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        <span className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {species.category && species.category.name ? species.category.name : 'Categoría no disponible'}
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        {species.common_name}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm italic text-gray-900">
+                        {species.scientific_name || 'No especificado'}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                          {species.category?.name || 'Sin categoría'}
                         </span>
                       </td>
-                      {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {species.stages?.map((stage, stageIndex) => (
-                      <div key={stageIndex}>
-                        {Math.round(stage.time_to_production / 30)} meses
-                      </div>
-                    ))}
-                  </td> */}
+
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {(() => {
                           const totalTimeInDays = species.stages?.reduce((totalTime, stage) => {
-                            return totalTime + stage.time_to_production;
-                          }, 0);
+                            return totalTime + (stage.time_to_production || 0);
+                          }, 0) || 0;
 
-                          const months = Math.floor(totalTimeInDays / 30); // Meses completos
-                          const days = totalTimeInDays % 30; // Días restantes
+                          const months = Math.floor(totalTimeInDays / 30);
+                          const days = totalTimeInDays % 30;
 
                           if (months === 0) {
                             return `${days} día${days !== 1 ? "s" : ""}`;
@@ -394,25 +403,46 @@ const ListaEspecies = () => {
                         })()}
                       </td>
 
-
-
-
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleViewSpecie(species, 'view')}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-1">
+                        {/* Botón Ver Detalles */}
+                        <button
+                          data-tooltip-id="tooltip-ver-especie"
+                          data-tooltip-content="Ver Detalles"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleViewSpecie(species, 'view')}
+                        >
                           <Eye size={18} />
                         </button>
-                        <button className=" text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleEditSpecie(species)}>
+
+                        {/* Botón Editar */}
+                        <button
+                          data-tooltip-id="tooltip-editar-especie"
+                          data-tooltip-content="Editar Especie"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleEditSpecie(species)}
+                        >
                           <Edit size={18} />
                         </button>
-                        <button onClick={() => handleDelete(species)} className=" text-[#168C0DFF] px-2 py-2 rounded">
+
+                        {/* Botón Eliminar */}
+                        <button
+                          data-tooltip-id="tooltip-eliminar-especie"
+                          data-tooltip-content="Eliminar Especie"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleDelete(species)}
+                        >
                           <Trash size={18} />
                         </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-
               </table>
+
+              {/* Tooltips para los botones de acciones */}
+              <Tooltip id="tooltip-ver-especie" place="top" effect="solid" />
+              <Tooltip id="tooltip-editar-especie" place="top" effect="solid" />
+              <Tooltip id="tooltip-eliminar-especie" place="top" effect="solid" />
               {/* Modaeliminación */}
               {isDeleteModalOpen && (
                 <Delete

@@ -102,7 +102,6 @@ const CrearListas = () => {
     const fetchCompany = async () => {
       try {
         const data = await CompanyService.getAllCompany();
-        console.log("#3333" , data)
         setCompanies(data);
       } catch (error) {
         console.error('Error fetching companies:', error);
@@ -120,7 +119,6 @@ const CrearListas = () => {
         const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
         const categories = await CategoryService.getAllCategory(companyId);
-        console.log("6666", categories)
         setCategories(categories.data);
 
         if (!categories.data || categories.statusCode == 400) {

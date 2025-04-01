@@ -13,7 +13,7 @@ import { IoSearch } from "react-icons/io5";
 import CompanyService from "../../services/CompanyService";
 
 
-import { ImEqualizer2 } from "react-icons/im"; 
+import { ImEqualizer2 } from "react-icons/im";
 import { IoIosWarning } from 'react-icons/io';
 
 
@@ -21,6 +21,7 @@ import Select from "react-select";
 import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 import LoadingView from "../../components/Loading/loadingView";
+import { Tooltip } from "react-tooltip";
 
 const TipoVariable = () => {
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
@@ -169,26 +170,26 @@ const TipoVariable = () => {
     try {
       setIsDeleteModalOpen(false);
       setSelectedTypeVariable(null);
-  
+
       // Eliminar el tipo de variable del servidor
       await VariableType.deleteTypeVariable(selectedTypeVariable.id);
-  
+
       // Obtener los tipos de variable actuales del localStorage
       const variableTypesFromLocalStorage = JSON.parse(localStorage.getItem('variableTypes')) || [];
-  
+
       // Filtrar la lista para eliminar el tipo de variable con el ID seleccionado
       const updatedVariableTypes = variableTypesFromLocalStorage.filter(
         (vt) => vt.id !== selectedTypeVariable.id
       );
-  
+
       // Guardar la lista actualizada en el localStorage
       localStorage.setItem('variableTypes', JSON.stringify(updatedVariableTypes));
-  
-  
+
+
       // Mostrar mensaje de éxito
       setMessageAlert("Tipo de variable eliminada exitosamente");
       showErrorAlertSuccess("Eliminado");
-  
+
       // Actualizar la lista de tipos de variable
       updateTypeVariable();
     } catch (error) {
@@ -199,7 +200,7 @@ const TipoVariable = () => {
         setMessageAlert("No se puede eliminar el Tipo de variable porque está asociada a uno o más variables");
         setShowErrorAlert(true);
       }
-  
+
       console.error("Error al eliminar el tipo de variable:", error);
     }
   };
@@ -294,100 +295,133 @@ const TipoVariable = () => {
       ) : (
         <>
 
-      <div className="relative w-full mt-6 py-5 z-0">
-        {/* Input de búsqueda */}
-        <input
-          type="text"
-          placeholder="Buscar Tipos de  variable"
-          className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-
-        {/* Icono de búsqueda alineado a la izquierda */}
-      </div>
-      <div className="bg-white rounded-lg shadow">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Tipo de Variables</h2>
-          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
-
-            Crear Tipo de Variable
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-300 ">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ">Icono</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre de tipo de Variable</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {currentTypeVariable.map((typevariable, index) => (
-                <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {typevariable.icon && (
-                      <img
-                        src={typevariable.icon}
-                        alt={typevariable.name}
-                        className="h-10 w-10 object-cover rounded-full"
-                      />
-                    )}
-                  </td>
-
-
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{typevariable.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{typevariable.description}</td>
-
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(typevariable, 'view')}>
-                      <Eye size={18} />
-                    </button>
-                    <button className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded" onClick={() => handleOpenModal(typevariable, 'edit')}>
-                      <Edit size={18} />
-                    </button>
-                    <button onClick={() => handleDelete(typevariable)} className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded">
-                      <Trash size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {/* Modaeliminación */}
-          {isDeleteModalOpen && (
-            <Delete
-              message={`¿Seguro que desea eliminar el Tipo de variable ${selectedTypeVariable?.name}?`}
-              onCancel={handleCancelDelete}
-              onConfirm={handleConfirmDelete}
+          <div className="relative w-full mt-6 py-5 z-0">
+            {/* Input de búsqueda */}
+            <input
+              type="text"
+              placeholder="Buscar Tipos de  variable"
+              className="w-full border border-gray-300 p-2 pl-10 pr-4 rounded-md" // Añadido padding a la izquierda para espacio para el icono
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          )}
-        </div>
-      </div>
-      <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
-        <div className="border border-gray-200 rounded py-2 text-sm m-2">
-          <span>Cantidad de filas</span>
-          <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={15}>15</option>
-          </select>
-        </div>
-        <div className="pagination-controls text-xs flex items-center space-x-2">
-          <span>{indexOffIrstTypeVariable + 1}-{indexOfLastTypeVariable} de {typeVariablesList.length}</span>
-          <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-            onClick={handlePrevPage} disabled={currentPage === 1}>
-            <IoIosArrowBack size={20} />
-          </button>
-          <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-            onClick={handleNextPage} disabled={currentPage === Math.ceil(typeVariablesList.length / itemsPerPage)}>
-            <IoIosArrowForward size={20} />
-          </button>
-        </div>
-      </div>
-    </>
+
+            {/* Icono de búsqueda alineado a la izquierda */}
+          </div>
+          <div className="bg-white rounded-lg shadow">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-xl font-semibold">Tipo de Variables</h2>
+              <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
+
+                Crear Tipo de Variable
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-300">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Icono</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre de tipo de Variable</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Descripción</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {currentTypeVariable.map((typevariable, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {typevariable.icon ? (
+                          <img
+                            src={typevariable.icon}
+                            alt={typevariable.name}
+                            className="h-10 w-10 object-cover rounded-full"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-xs text-gray-500">Sin icono</span>
+                          </div>
+                        )}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        {typevariable.name}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {typevariable.description || "Sin descripción"}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-1">
+                        {/* Botón Ver Detalles */}
+                        <button
+                          data-tooltip-id="tooltip-ver-tipovariable"
+                          data-tooltip-content="Ver Detalles"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleOpenModal(typevariable, 'view')}
+                        >
+                          <Eye size={18} />
+                        </button>
+
+                        {/* Botón Editar */}
+                        <button
+                          data-tooltip-id="tooltip-editar-tipovariable"
+                          data-tooltip-content="Editar Tipo"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleOpenModal(typevariable, 'edit')}
+                        >
+                          <Edit size={18} />
+                        </button>
+
+                        {/* Botón Eliminar */}
+                        <button
+                          data-tooltip-id="tooltip-eliminar-tipovariable"
+                          data-tooltip-content="Eliminar Tipo"
+                          className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+                          onClick={() => handleDelete(typevariable)}
+                        >
+                          <Trash size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Tooltips para los botones de acciones */}
+              <Tooltip id="tooltip-ver-tipovariable" place="top" effect="solid" />
+              <Tooltip id="tooltip-editar-tipovariable" place="top" effect="solid" />
+              <Tooltip id="tooltip-eliminar-tipovariable" place="top" effect="solid" />
+              {/* Modaeliminación */}
+              {isDeleteModalOpen && (
+                <Delete
+                  message={`¿Seguro que desea eliminar el Tipo de variable ${selectedTypeVariable?.name}?`}
+                  onCancel={handleCancelDelete}
+                  onConfirm={handleConfirmDelete}
+                />
+              )}
+            </div>
+          </div>
+          <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+            <div className="border border-gray-200 rounded py-2 text-sm m-2">
+              <span>Cantidad de filas</span>
+              <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={15}>15</option>
+              </select>
+            </div>
+            <div className="pagination-controls text-xs flex items-center space-x-2">
+              <span>{indexOffIrstTypeVariable + 1}-{indexOfLastTypeVariable} de {typeVariablesList.length}</span>
+              <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                onClick={handlePrevPage} disabled={currentPage === 1}>
+                <IoIosArrowBack size={20} />
+              </button>
+              <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                onClick={handleNextPage} disabled={currentPage === Math.ceil(typeVariablesList.length / itemsPerPage)}>
+                <IoIosArrowForward size={20} />
+              </button>
+            </div>
+          </div>
+        </>
       )}
       {/* Modalcrear-editar-visualizar*/}
 

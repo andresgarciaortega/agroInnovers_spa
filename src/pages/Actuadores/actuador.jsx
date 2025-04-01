@@ -28,6 +28,7 @@ import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
 import ErrorAlert from "../../components/alerts/error";
 import LoadingView from "../../components/Loading/loadingView";
+import { Tooltip } from "react-tooltip";
 
 const Actuador = () => {
   const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
@@ -127,7 +128,7 @@ const Actuador = () => {
       }
       try {
         const data = await ActuadorService.getAllActuador(companyId, {});
-        console.log("data    ---- ", data)
+        ("data    ---- ", data)
         if (data.statusCode === 404 || data.length == 0) {
           setVariableList([]);
           setMessageAlert('Esta empresa no tiene Actuadores registrados.');
@@ -355,94 +356,113 @@ const Actuador = () => {
               </button>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-300">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Código ID Actuador</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre Comercial</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo actuador</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Marca</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Modelo</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto entrada</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto activación</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Espacio</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Subespacio</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Sist. monitoreo y control</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentCompanies.map((actuador, index) => (
-                    <tr key={actuador.id} className="bg-white border-b">
-                      <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorCode}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorType.commercialName || "No disponible"}</td>
+  <table className="w-full">
+    <thead className="bg-gray-300">
+      <tr>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Código ID Actuador</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre Comercial</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo actuador</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Marca</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Modelo</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto entrada</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto activación</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Espacio</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Subespacio</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Sist. monitoreo y control</th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {currentCompanies.map((actuador, index) => (
+        <tr key={actuador.id} className="bg-white border-b">
+          <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
+          <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorCode}</td>
+          <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorType.commercialName || "No disponible"}</td>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {actuador.actuatorType && actuador.actuatorType.icon ? (
-                            <img
-                              src={actuador.actuatorType.icon}
-                              alt={actuador.actuatorType.actuadorCode || "actuador Icon"}
-                              className="h-8 w-8 object-contain"
-                            />
-                          ) : (
-                            <span>{actuador.actuatorType?.actuadorCode || "No data"}</span>
-                          )}
-                        </td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+            {actuador.actuatorType && actuador.actuatorType.icon ? (
+              <img
+                src={actuador.actuatorType.icon}
+                alt={actuador.actuatorType.actuadorCode || "Actuador Icon"}
+                className="h-8 w-8 object-contain"
+              />
+            ) : (
+              <span>{actuador.actuatorType?.actuadorCode || "No data"}</span>
+            )}
+          </td>
+          
+          <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorType.brand || "No disponible"}</td>
+          <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorType?.model || "No disponible"}</td>
+          <td className="px-6 py-4 text-sm text-gray-900">{actuador.inputPort}</td>
+          <td className="px-6 py-4 text-sm text-gray-900">{actuador.activationPort}</td>
+          <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+          <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+          <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
 
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorType.brand || "No disponible"}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorType?.model || "No disponible"}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{actuador.inputPort}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{actuador.activationPort}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
-                      <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
-                      <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+          <td className="px-6 py-4 text-sm font-medium flex space-x-1">
+            {/* Botón Calibrar */}
+            <button
+              data-tooltip-id="tooltip-calibrar-actuador"
+              data-tooltip-content="Calibrar Actuador"
+              className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+              onClick={() => handleOpenModal(actuador.id, 'calibrar')}
+            >
+              <ImEqualizer size={18} />
+            </button>
 
-                      <td className="px-6 py-4 text-sm font-medium">
-                        <button className="text-[#168C0DFF] px-2 py-2 rounded"
-                          onClick={() => handleOpenModal(actuador.id, 'calibrar')}
-                          title="Calibrar Actuador"
+            {/* Botón Mantenimiento */}
+            <button
+              data-tooltip-id="tooltip-mantenimiento-actuador"
+              data-tooltip-content="Realizar Mantenimiento"
+              className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+              onClick={() => handleOpenModal(actuador.id, 'mantenimiento')}
+            >
+              <TbSettingsCog size={18} />
+            </button>
 
-                        >
-                          <ImEqualizer size={18} />
-                        </button>
-                        <button className="text-[#168C0DFF] px-2 py-2 rounded"
-                          onClick={() => handleOpenModal(actuador.id, 'mantenimiento')}
-                          title="Realizar Mantenimiento"
-                        >
-                          <TbSettingsCog size={18} />
-                        </button>
-                        <button className="text-[#168C0DFF] px-2 py-2 rounded"
-                          onClick={() => handleOpenModal(actuador, 'view')}
-                          title="Ver Detalles del Actuador">
-                          <Eye size={18}
+            {/* Botón Ver Detalles */}
+            <button
+              data-tooltip-id="tooltip-detalles-actuador"
+              data-tooltip-content="Ver Detalles"
+              className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+              onClick={() => handleOpenModal(actuador, 'view')}
+            >
+              <Eye size={18} />
+            </button>
 
-                          />
-                        </button>
-                        <button className="text-[#168C0DFF] px-2 py-2 rounded"
-                          onClick={() => handleOpenModal(actuador, 'edit')}
-                          title="Editar Actuador"
+            {/* Botón Editar */}
+            <button
+              data-tooltip-id="tooltip-editar-actuador"
+              data-tooltip-content="Editar Actuador"
+              className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+              onClick={() => handleOpenModal(actuador, 'edit')}
+            >
+              <Edit size={18} />
+            </button>
 
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button className="text-[#168C0DFF] px-2 py-2 rounded"
-                          onClick={() => handleDelete(actuador)}
-                          title="Eliminar Actuador"
-                        >
-                          <Trash size={18} />
-                        </button>
+            {/* Botón Eliminar */}
+            <button
+              data-tooltip-id="tooltip-eliminar-actuador"
+              data-tooltip-content="Eliminar Actuador"
+              className="text-[#168C0DFF] px-2 py-2 rounded hover:bg-gray-100"
+              onClick={() => handleDelete(actuador)}
+            >
+              <Trash size={18} />
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
 
-                      </td>
-
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+  {/* Tooltips para los botones de acciones */}
+  <Tooltip id="tooltip-calibrar-actuador" place="top" effect="solid" />
+  <Tooltip id="tooltip-mantenimiento-actuador" place="top" effect="solid" />
+  <Tooltip id="tooltip-detalles-actuador" place="top" effect="solid" />
+  <Tooltip id="tooltip-editar-actuador" place="top" effect="solid" />
+  <Tooltip id="tooltip-eliminar-actuador" place="top" effect="solid" />
+</div>
 
 
           </div>

@@ -9,7 +9,6 @@ const EspacioService = {
     async getAllEspacio(idcompany = 0) {
         try {
             const response = await api.get(`/production-space?page=1&limit=10000&company=${idcompany}`);
-            console.log("456789876 ", response.data)
             return response.data;
         } catch (error) {
             console.error('Error al obtener los s de espacio:', error);
@@ -19,7 +18,6 @@ const EspacioService = {
     async getAllStage() {
         try {
             const response = await api.get('/stages/');
-            console.log("456789876 stages", response)
             return response;
         } catch (error) {
             console.error('Error al obtener las etapas:', error);
