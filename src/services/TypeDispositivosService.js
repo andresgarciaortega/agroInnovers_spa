@@ -60,6 +60,19 @@ const TypeDispotivicosService = {
         }
     },
 
+
+    // OBTENER UN SENSOR POR CODIGO
+    async getSensorByIdCode(id) {
+        try {
+            const response = await api.get(`/sensors/validateCode/${id}`);
+            return response;
+        } catch (error) {
+            console.error('Error al obtener el sensor:', error);
+            throw error;
+        }
+    },
+
+
     //_________________________________________________________________________________//
    
      // LISTAR TODAS LOS ACTUADORES

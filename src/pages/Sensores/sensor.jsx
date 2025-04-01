@@ -25,6 +25,7 @@ import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
 import ErrorAlert from "../../components/alerts/error";
+import LoadingView from "../../components/Loading/loadingView";
 
 const Sensor = () => {
   const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
@@ -65,7 +66,7 @@ const Sensor = () => {
   const [alertSelecte, setAlertSelecte] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [userRoles, setUserRoles] = useState([]);
 
   useEffect(() => {
@@ -85,6 +86,7 @@ const Sensor = () => {
 
 
   useEffect(() => {
+    setIsLoading(true)
     const fetchSensores = async () => {
 
       const decodedToken = await getDecodedToken();
@@ -101,15 +103,21 @@ const Sensor = () => {
         const data = await SensorService.getAllSensor(companyId, {}); // Servicio que filtra por empresa
         if (data?.length === 0) {
           setVariableList([]);
+          setIsLoading(false)
+
           setMessageAlert('Esta empresa no tiene sensores registrados.');
           setShowErrorAlertTable(true);
         } else {
           setVariableList(Array.isArray(data) ? data : []);
           setShowErrorAlertTable(false);
+          setIsLoading(false)
+
         }
       } catch (error) {
         console.error('Error fetching sensores:', error);
         setVariableList([]);
+        setIsLoading(false)
+
         setMessageAlert('Error al cargar los sensores.');
         setShowErrorAlertTable(true);
       }
@@ -220,7 +228,7 @@ const Sensor = () => {
     setIdModalOpenMante(false);
     setIsModalOpenCali(false)
 
-    updateService();
+    // updateService();
   };
 
   //eliminar
@@ -316,129 +324,137 @@ const Sensor = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
-      <div className="bg-white  rounded-lg shadow ">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Sensores</h2>
-          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
-
-            Crear Sensor
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-300">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Código ID Sensor</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo sensor</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Marca</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Modelo</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto entrada</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto Lectura</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Espacio</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Subespacio</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Sist. monitoreo y control</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentCompanies.map((sensor, index) => (
-                <tr key={sensor.id} className="bg-white border-b">
-                  <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
-                  {/* <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorCode}</td> */}
-                  <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorCode}</td>
-
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    <td className=" whitespace-nowrap text-sm text-gray-700">
-                      {sensor.sensorType && sensor.sensorType.icon ? (
-                        <img
-                          src={sensor.sensorType.icon}
-                          alt={sensor.sensorType.sensorCode || "Sensor Icon"}
-                          className="h-8 w-8 object-contain"
-                        />
-                      ) : (
-                        <span>{sensor.sensorType?.sensorCode || "No data"}</span>
-                      )}
-                    </td>
-
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorType.brand || "No disponible"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorType?.model || "No disponible"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{sensor.inputPort}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{sensor.readingPort}</td>
-
-                  <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
-                  <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
-                  <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
-
-                  <td className="px-6 py-4 text-sm font-medium">
-                    <button
-                      className="text-[#168C0DFF] px-2 py-2 rounded"
-                      onClick={() => handleOpenModal(sensor.id, 'calibrar')}
-                      title="Calibrar Sensor"
-                    >
-                      <ImEqualizer size={18} />
-                    </button>
-                    <button
-                      className="text-[#168C0DFF] px-2 py-2 rounded"
-                      onClick={() => handleOpenModal(sensor.id, 'mantenimiento')}
-                      title="Realizar Mantenimiento"
-                    >
-                      <TbSettingsCog size={18} />
-                    </button>
-                    <button
-                      className="text-[#168C0DFF] px-2 py-2 rounded"
-                      onClick={() => handleOpenModal(sensor, 'view')}
-                      title="Ver Detalles del Sensor"
-                    >
-                      <Eye size={18} />
-                    </button>
-                    <button
-                      className="text-[#168C0DFF] px-2 py-2 rounded"
-                      onClick={() => handleOpenModal(sensor, 'edit')}
-                      title="Editar Sensor"
-                    >
-                      <Edit size={18} />
-                    </button>
-                    <button
-                      className="text-[#168C0DFF] px-2 py-2 rounded"
-                      onClick={() => handleDelete(sensor)}
-                      title="Eliminar Sensor"
-                    >
-                      <Trash size={18} />
-                    </button>
-                  </td>
 
 
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {isLoading ? (
+        <LoadingView />
+      ) : (
+        <>
+          <div className="bg-white  rounded-lg shadow ">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-xl font-semibold">Sensores</h2>
+              <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
 
-      </div>
-      <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
-        <div className="border border-gray-200 rounded py-2 text-sm m-2">
-          <span>Cantidad de filas</span>
-          <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={15}>15</option>
-          </select>
-        </div>
-        <div className="pagination-controls text-xs flex items-center space-x-2">
-          <span>{indexOfFirstVariable + 1}-{indexOfLastVariable} de {variableList.length}</span>
-          <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-            onClick={handlePrevPage} disabled={currentPage === 1}>
-            <IoIosArrowBack size={20} />
-          </button>
-          <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-            onClick={handleNextPage} disabled={currentPage === Math.ceil(variableList.length / itemsPerPage)}>
-            <IoIosArrowForward size={20} />
-          </button>
-        </div>
-      </div>
+                Crear Sensor
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-300">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Código ID Sensor</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo sensor</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Marca</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Modelo</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto entrada</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto Lectura</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Espacio</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Subespacio</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Sist. monitoreo y control</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentCompanies.map((sensor, index) => (
+                    <tr key={sensor.id} className="bg-white border-b">
+                      <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
+                      {/* <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorCode}</td> */}
+                      <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorCode}</td>
 
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <td className=" whitespace-nowrap text-sm text-gray-700">
+                          {sensor.sensorType && sensor.sensorType.icon ? (
+                            <img
+                              src={sensor.sensorType.icon}
+                              alt={sensor.sensorType.sensorCode || "Sensor Icon"}
+                              className="h-8 w-8 object-contain"
+                            />
+                          ) : (
+                            <span>{sensor.sensorType?.sensorCode || "No data"}</span>
+                          )}
+                        </td>
+
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorType.brand || "No disponible"}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{sensor.sensorType?.model || "No disponible"}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{sensor.inputPort}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{sensor.readingPort}</td>
+
+                      <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+                      <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+                      <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+
+                      <td className="px-6 py-4 text-sm font-medium">
+                        <button
+                          className="text-[#168C0DFF] px-2 py-2 rounded"
+                          onClick={() => handleOpenModal(sensor.id, 'calibrar')}
+                          title="Calibrar Sensor"
+                        >
+                          <ImEqualizer size={18} />
+                        </button>
+                        <button
+                          className="text-[#168C0DFF] px-2 py-2 rounded"
+                          onClick={() => handleOpenModal(sensor.id, 'mantenimiento')}
+                          title="Realizar Mantenimiento"
+                        >
+                          <TbSettingsCog size={18} />
+                        </button>
+                        <button
+                          className="text-[#168C0DFF] px-2 py-2 rounded"
+                          onClick={() => handleOpenModal(sensor, 'view')}
+                          title="Ver Detalles del Sensor"
+                        >
+                          <Eye size={18} />
+                        </button>
+                        <button
+                          className="text-[#168C0DFF] px-2 py-2 rounded"
+                          onClick={() => handleOpenModal(sensor, 'edit')}
+                          title="Editar Sensor"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button
+                        data-tooltip-target="tooltip-default" 
+                          className="text-[#168C0DFF] px-2 py-2 rounded"
+                          onClick={() => handleDelete(sensor)}
+                          title="Eliminar Sensor"
+                        >
+                          <Trash size={18} />
+                        </button>
+                      </td>
+
+
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+          <div className="flex items-center py-2 justify-between border border-gray-200 p-2 rounded-md bg-white">
+            <div className="border border-gray-200 rounded py-2 text-sm m-2">
+              <span>Cantidad de filas</span>
+              <select className="text-xs" value={itemsPerPage} onChange={handleItemsPerPageChange}>
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={15}>15</option>
+              </select>
+            </div>
+            <div className="pagination-controls text-xs flex items-center space-x-2">
+              <span>{indexOfFirstVariable + 1}-{indexOfLastVariable} de {variableList.length}</span>
+              <button className="mr-2 border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                onClick={handlePrevPage} disabled={currentPage === 1}>
+                <IoIosArrowBack size={20} />
+              </button>
+              <button className="border border-gray-200 flex items-center justify-center p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                onClick={handleNextPage} disabled={currentPage === Math.ceil(variableList.length / itemsPerPage)}>
+                <IoIosArrowForward size={20} />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
       {/* Modaeliminación */}
       {isDeleteModalOpen && (
         <Delete
@@ -453,9 +469,7 @@ const Sensor = () => {
         <GenericModal
           title={modalMode === 'edit' ? 'Editar Sensor' : modalMode === 'view' ? 'Ver Sensor' : 'Añadir Sensor'}
           onClose={closeModal}
-
           companyId={selectedCompany} >
-
           <FormSensor
             showErrorAlert={showErrorAlertSuccess}
             onUpdate={updateService}
@@ -547,6 +561,12 @@ const Sensor = () => {
           </div>
         </div>
       )}
+
+
+
+ 
+
+
     </div>
   );
 };

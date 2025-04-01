@@ -170,7 +170,7 @@ const Variable = () => {
     setIsModalOpen(false);
     setSelectedVariable(null);
     setModalMode('create');
-    updateService();
+    // updateService();
     setAlertSelecte(true);
   };
 

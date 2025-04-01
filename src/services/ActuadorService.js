@@ -68,6 +68,17 @@ const ActuadorService = {
         }
     },
 
+
+    async getActuadorByIdCode(id) {
+        try {
+            const response = await api.get(`/actuators/code/${id}`);
+            return response;
+        } catch (error) {
+            console.error('Error al obtener los actuadores:', error);
+            throw error;
+        }
+    },
+
 };
 
 export default ActuadorService;

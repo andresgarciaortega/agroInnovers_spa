@@ -257,7 +257,7 @@ const FormRechazar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
               />
               {
                 alertMotivo &&
-                <p class="text-red-600 dark:text-sky-400">Es requrido que escribas el motivo del rechazo</p>
+                <p className="text-red-600 dark:text-sky-400">Es requrido que escribas el motivo del rechazo</p>
               }
             </div>
 

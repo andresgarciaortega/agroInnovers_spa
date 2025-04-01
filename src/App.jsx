@@ -16,7 +16,7 @@ const App = () => {
 
 // Componente interno que usa el hook
 const AppContent = () => {
-  useDataSync();
+  // useDataSync();
   return <AppRoutes />;
 };
 

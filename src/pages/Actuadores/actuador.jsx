@@ -27,6 +27,7 @@ import CompanySelector from "../../components/shared/companySelect";
 import { useCompanyContext } from "../../context/CompanyContext";
 import { getDecodedToken } from "../../utils/auseAuth";
 import ErrorAlert from "../../components/alerts/error";
+import LoadingView from "../../components/Loading/loadingView";
 
 const Actuador = () => {
   const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
@@ -112,6 +113,7 @@ const Actuador = () => {
   // }, []);
 
   useEffect(() => {
+    setIsLoading(true)
     const fetchActuador = async () => {
 
       const decodedToken = await getDecodedToken();
@@ -122,28 +124,31 @@ const Actuador = () => {
       if (!companyId) {
         setVariableList([]);
         return;
-      } 
+      }
       try {
         const data = await ActuadorService.getAllActuador(companyId, {});
-        if (data.statusCode === 404) {
+        console.log("data    ---- ", data)
+        if (data.statusCode === 404 || data.length == 0) {
           setVariableList([]);
           setMessageAlert('Esta empresa no tiene Actuadores registrados.');
           setShowErrorAlertTable(true);
+          setIsLoading(false)
         } else {
           setShowErrorAlertTable(false)
           setVariableList(Array.isArray(data) ? data : []);
+          setIsLoading(false)
         }
       } catch (error) {
         console.error('Error fetching actuadores:', error);
         setVariableList([]);
-
         setMessageAlert('Esta empresa no tiene actuadores registradas, Intentalo con otra empresa');
         setShowErrorAlertTable(true);
+        setIsLoading(false)
       }
     };
 
     fetchActuador();
-  }, [selectedCompanyUniversal] ,{});
+  }, [selectedCompanyUniversal], {});
 
 
 
@@ -261,8 +266,8 @@ const Actuador = () => {
   }
 
 
-    const [alertSelecte, setAlertSelecte] = useState(false);
-  
+  const [alertSelecte, setAlertSelecte] = useState(false);
+
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
     setSelectedVariable(null);
@@ -337,107 +342,114 @@ const Actuador = () => {
         />
         {/* <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" /> */}
       </div>
-      <div className="bg-white  rounded-lg shadow ">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Actuadores</h2>
-          <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
-
-            Crear Actuador
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-300">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Código ID Actuador</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre Comercial</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo actuador</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Marca</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Modelo</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto entrada</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto activación</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Espacio</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Subespacio</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Sist. monitoreo y control</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentCompanies.map((actuador, index) => (
-                <tr key={actuador.id} className="bg-white border-b">
-                  <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorCode}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorType.commercialName || "No disponible"}</td>
-
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {actuador.actuatorType && actuador.actuatorType.icon ? (
-                        <img
-                          src={actuador.actuatorType.icon}
-                          alt={actuador.actuatorType.actuadorCode || "actuador Icon"}
-                          className="h-8 w-8 object-contain"
-                        />
-                      ) : (
-                        <span>{actuador.actuatorType?.actuadorCode || "No data"}</span>
-                      )}
-                    </td>
-
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorType.brand || "No disponible"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorType?.model || "No disponible"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{actuador.inputPort}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{actuador.activationPort}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
-                  <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
-                  <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
-
-                  <td className="px-6 py-4 text-sm font-medium">
-                    <button className="text-[#168C0DFF] px-2 py-2 rounded"
-                      onClick={() => handleOpenModal(actuador.id, 'calibrar')}
-                      title="Calibrar Actuador"
-
-                    >
-                      <ImEqualizer size={18} />
-                    </button>
-                    <button className="text-[#168C0DFF] px-2 py-2 rounded"
-                      onClick={() => handleOpenModal(actuador.id, 'mantenimiento')}
-                      title="Realizar Mantenimiento"
-                    >
-                      <TbSettingsCog size={18} />
-                    </button>
-                    <button className="text-[#168C0DFF] px-2 py-2 rounded" 
-                    onClick={() => handleOpenModal(actuador, 'view')}
-                    title="Ver Detalles del Actuador">
-                      <Eye size={18}
-                        
-                      />
-                    </button>
-                    <button className="text-[#168C0DFF] px-2 py-2 rounded"
-                      onClick={() => handleOpenModal(actuador, 'edit')}
-                      title="Editar Actuador"
-
-                    >
-                      <Edit size={18} />
-                    </button>
-                    <button className="text-[#168C0DFF] px-2 py-2 rounded"
-                      onClick={() => handleDelete(actuador)}
-                      title="Eliminar Actuador"
-                    >
-                      <Trash size={18} />
-                    </button>
-
-                  </td>
-
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
 
 
-      </div>
+      {isLoading ? (
+        <LoadingView />
+      ) : (
+        <>
+          <div className="bg-white  rounded-lg shadow ">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-xl font-semibold">Actuadores</h2>
+              <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
 
+                Crear Actuador
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-300">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Código ID Actuador</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre Comercial</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Tipo actuador</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Marca</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Modelo</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto entrada</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Puerto activación</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Espacio</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Subespacio</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Sist. monitoreo y control</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentCompanies.map((actuador, index) => (
+                    <tr key={actuador.id} className="bg-white border-b">
+                      <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorCode}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorType.commercialName || "No disponible"}</td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {actuador.actuatorType && actuador.actuatorType.icon ? (
+                            <img
+                              src={actuador.actuatorType.icon}
+                              alt={actuador.actuatorType.actuadorCode || "actuador Icon"}
+                              className="h-8 w-8 object-contain"
+                            />
+                          ) : (
+                            <span>{actuador.actuatorType?.actuadorCode || "No data"}</span>
+                          )}
+                        </td>
+
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorType.brand || "No disponible"}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{actuador.actuatorType?.model || "No disponible"}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{actuador.inputPort}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{actuador.activationPort}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+                      <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+                      <td className="px-6 py-4 text-sm text-gray-700"> -- </td>
+
+                      <td className="px-6 py-4 text-sm font-medium">
+                        <button className="text-[#168C0DFF] px-2 py-2 rounded"
+                          onClick={() => handleOpenModal(actuador.id, 'calibrar')}
+                          title="Calibrar Actuador"
+
+                        >
+                          <ImEqualizer size={18} />
+                        </button>
+                        <button className="text-[#168C0DFF] px-2 py-2 rounded"
+                          onClick={() => handleOpenModal(actuador.id, 'mantenimiento')}
+                          title="Realizar Mantenimiento"
+                        >
+                          <TbSettingsCog size={18} />
+                        </button>
+                        <button className="text-[#168C0DFF] px-2 py-2 rounded"
+                          onClick={() => handleOpenModal(actuador, 'view')}
+                          title="Ver Detalles del Actuador">
+                          <Eye size={18}
+
+                          />
+                        </button>
+                        <button className="text-[#168C0DFF] px-2 py-2 rounded"
+                          onClick={() => handleOpenModal(actuador, 'edit')}
+                          title="Editar Actuador"
+
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button className="text-[#168C0DFF] px-2 py-2 rounded"
+                          onClick={() => handleDelete(actuador)}
+                          title="Eliminar Actuador"
+                        >
+                          <Trash size={18} />
+                        </button>
+
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+
+          </div>
+        </>
+      )}
 
       {/* Modaeliminación */}
       {isDeleteModalOpen && (
@@ -511,13 +523,13 @@ const Actuador = () => {
         //   onCancel={handleCloseAlert}
         // />
         <div className="alert-container">
-        {alertSelecte ? (
-          <SuccessAlert message={messageAlert} />
-        ) : (
-          <ErrorAlert message={messageAlert}
-            onCancel={handleCloseAlert} />
-        )}
-      </div>
+          {alertSelecte ? (
+            <SuccessAlert message={messageAlert} />
+          ) : (
+            <ErrorAlert message={messageAlert}
+              onCancel={handleCloseAlert} />
+          )}
+        </div>
       )}
       {showErrorAlertTable && (
         <div className="alert alert-error flex flex-col items-start space-y-2 p-4 bg-red-500 text-white rounded-md">

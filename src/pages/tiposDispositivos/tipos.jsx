@@ -383,6 +383,7 @@ const Tipos = () => {
             <IoIosSearch size={18} className="text-[#168C0DFF]" />
           </button>
           {searchVisible && (
+
             <input
               onChange={handleSearchChange}
               type="text"
