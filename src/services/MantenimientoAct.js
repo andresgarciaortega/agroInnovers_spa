@@ -25,6 +25,15 @@ const ActuadorMantenimientoService = {
         }
     },
 
+    async getMantenimientoByActuadorAll(actuadorId) {
+        try {
+            const response = await api.get(`/actuator-maintenance/actuator/${actuadorId}`);
+            return response;
+        } catch (error) {
+            console.error('Error al obtener los mantenimientos del actuator:', error);
+            throw error;
+        }
+    },
     // CREAR UNA mantenimiento
     async createMantenimiento(data) {
         try {

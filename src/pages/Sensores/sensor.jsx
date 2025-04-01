@@ -334,7 +334,6 @@ const Sensor = () => {
             <div className="flex justify-between items-center p-6 border-b">
               <h2 className="text-xl font-semibold">Sensores</h2>
               <button className="bg-[#168C0DFF] text-white px-6 py-2 rounded-lg flex items-center" onClick={handleOpenModal}>
-
                 Crear Sensor
               </button>
             </div>
@@ -444,11 +443,11 @@ const Sensor = () => {
               </table>
 
               {/* Añade esto al final del componente (fuera de la tabla) */}
-<Tooltip id="tooltip-calibrar" place="top" effect="solid" />
-<Tooltip id="tooltip-mantenimiento" place="top" effect="solid" />
-<Tooltip id="tooltip-detalles" place="top" effect="solid" />
-<Tooltip id="tooltip-editar" place="top" effect="solid" />
-<Tooltip id="tooltip-eliminar" place="top" effect="solid" />
+              <Tooltip id="tooltip-calibrar" place="top" effect="solid" />
+              <Tooltip id="tooltip-mantenimiento" place="top" effect="solid" />
+              <Tooltip id="tooltip-detalles" place="top" effect="solid" />
+              <Tooltip id="tooltip-editar" place="top" effect="solid" />
+              <Tooltip id="tooltip-eliminar" place="top" effect="solid" />
 
             </div>
 

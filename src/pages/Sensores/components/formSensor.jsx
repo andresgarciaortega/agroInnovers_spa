@@ -154,8 +154,8 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
         setIsLoading(false)
       } else if (mode === 'edit') {
         await SensorService.updateSensor(sensor.id, formDataToSubmit);
-        showErrorAlert("editada");
         setIsLoading(false)
+        showErrorAlert("editada");
       }
       // Actualizar y cerrar modal
       onUpdate();

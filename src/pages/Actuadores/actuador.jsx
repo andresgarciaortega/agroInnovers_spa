@@ -246,8 +246,6 @@ const Actuador = () => {
     setIsModalOpenView(false);
     setIdModalOpenMante(false);
     setIsModalOpenCali(false)
-    updateService();
-
   };
 
   //eliminar

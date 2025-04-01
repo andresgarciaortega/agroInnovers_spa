@@ -7,6 +7,7 @@ import CompanyService from '../../../services/CompanyService';
 import { useCompanyContext } from '../../../context/CompanyContext';
 import SensorService from "../../../services/SensorService";
 import moment from 'moment';
+import LoadingView from '../../../components/Loading/loadingView';
 
 const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, sensor, mode, closeModal, companyId }) => {
     const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
@@ -36,6 +37,7 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
 
     });
 
+    const [isLoading, setIsLoading] = useState(true);
 
     const [sensorsStatus] = useState([
         { id: 'Apagado', name: 'Apagado' },
@@ -46,6 +48,7 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
     const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
+        setIsLoading(false)
         const SensorCalibrador = async () => {
             try {
 
@@ -195,8 +198,8 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true)
         try {
-
             if (
                 moment(formData.startTime, 'HH:mm').isAfter(moment(currentTime, 'HH:mm')) ||
                 moment(formData.endTime, 'HH:mm').isAfter(moment(currentTime, 'HH:mm'))
@@ -239,9 +242,11 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
 
             if (mode === 'calibrar') {
                 const createdMantenimiento = await SensorCalibradorService.createMantenimiento(formDataToSubmit);
+                setIsLoading(false)
                 showErrorAlert("calibración creado");
             } else if (mode === 'edit') {
                 await SensorCalibradorService.updateMantenimiento(sensorId, formDataToSubmit);
+                setIsLoading(false)
                 showErrorAlert("calibración actualizado correctamente.");
             }
 
@@ -299,208 +304,216 @@ const FromCalibracion = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, 
             reader.readAsDataURL(file);
         }
     };
-    
+
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-    <label htmlFor="sensor-calibrationDate" className="block text-sm font-medium text-gray-700">
-        Fecha de calibración
-    </label>
-    <input
-        type="date"
-        id="sensor-calibrationDate"
-        name="calibrationDate"
-        placeholder="Fecha de calibración"
-        value={formData.calibrationDate}
-        onChange={handleChange}
-        max={currentDate} // Usa la fecha actual como límite máximo
-        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-        required
-        disabled={mode === 'view'}
-    />
-</div>
+        <>
+            {isLoading ? (
+                <LoadingView />
+            ) : (
+                <>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label htmlFor="sensor-calibrationDate" className="block text-sm font-medium text-gray-700">
+                                Fecha de calibración
+                            </label>
+                            <input
+                                type="date"
+                                id="sensor-calibrationDate"
+                                name="calibrationDate"
+                                placeholder="Fecha de calibración"
+                                value={formData.calibrationDate}
+                                onChange={handleChange}
+                                max={currentDate} // Usa la fecha actual como límite máximo
+                                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                required
+                                disabled={mode === 'view'}
+                            />
+                        </div>
 
 
 
-            <div className="grid grid-cols-2 gap-4 mt-5">
-                <div>
-                    <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">Hora Inicio</label>
-                    <input
-                        type="time"
-                        id="startTime"
-                        name="startTime"
-                        placeholder="Hora Inicio"
-                        value={formData.startTime}
-                        onChange={handleTimeChange}
-                        className={`mt-1 block w-full border ${errors.startTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
-                        required
-                        disabled={mode === 'view'}
-                    />
-                    {errors.startTime && (
-                        <p className="mt-1 text-sm text-red-500">{errors.startTime}</p>
-                    )}
-                </div>
-                <div>
-                    <label htmlFor="endTimee" className="block text-sm font-medium text-gray-700">Hora Finalización</label>
-                    <input
-                        type="time"
-                        id="endTimee"
-                        name="endTime"
-                        placeholder="Hora Finalización"
-                        value={formData.endTime}
-                        onChange={handleTimeChange}
-                        className={`mt-1 block w-full border ${errors.endTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
-                        required
-                        disabled={mode === 'view'}
-                    />
-                    {errors.endTime && (
-                        <p className="mt-1 text-sm text-red-500">{errors.endTime}</p>
-                    )}
-                </div>
+                        <div className="grid grid-cols-2 gap-4 mt-5">
+                            <div>
+                                <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">Hora Inicio</label>
+                                <input
+                                    type="time"
+                                    id="startTime"
+                                    name="startTime"
+                                    placeholder="Hora Inicio"
+                                    value={formData.startTime}
+                                    onChange={handleTimeChange}
+                                    className={`mt-1 block w-full border ${errors.startTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
+                                    required
+                                    disabled={mode === 'view'}
+                                />
+                                {errors.startTime && (
+                                    <p className="mt-1 text-sm text-red-500">{errors.startTime}</p>
+                                )}
+                            </div>
+                            <div>
+                                <label htmlFor="endTimee" className="block text-sm font-medium text-gray-700">Hora Finalización</label>
+                                <input
+                                    type="time"
+                                    id="endTimee"
+                                    name="endTime"
+                                    placeholder="Hora Finalización"
+                                    value={formData.endTime}
+                                    onChange={handleTimeChange}
+                                    className={`mt-1 block w-full border ${errors.endTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
+                                    required
+                                    disabled={mode === 'view'}
+                                />
+                                {errors.endTime && (
+                                    <p className="mt-1 text-sm text-red-500">{errors.endTime}</p>
+                                )}
+                            </div>
 
 
-                <div>
-                    <label htmlFor="calibrationReport" className="block text-sm font-medium text-gray-700">Informe de calibración</label>
-                    <input
-                        type="text"
-                        id="calibrationReport"
-                        name="calibrationReport"
-                        placeholder="URL de informe"
-                        value={formData.calibrationReport}
-                        onChange={handleChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                        required
-                        disabled={mode === 'view'}
-                    />
-                </div>
+                            <div>
+                                <label htmlFor="calibrationReport" className="block text-sm font-medium text-gray-700">Informe de calibración</label>
+                                <input
+                                    type="text"
+                                    id="calibrationReport"
+                                    name="calibrationReport"
+                                    placeholder="URL de informe"
+                                    value={formData.calibrationReport}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                    required
+                                    disabled={mode === 'view'}
+                                />
+                            </div>
 
-                <div>
-                    <label htmlFor="media" className="block text-sm font-medium text-gray-700">Imagen o video</label>
-                    <input
-                        type="text"
-                        id="media"
-                        name="media"
-                        placeholder="URL de Imagen o video"
-                        value={formData.media}
-                        onChange={handleChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                        required
-                        disabled={mode === 'view'}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="sensorStatus" className="block text-sm font-medium text-gray-700">Estado del sensor</label>
-                    <select
-                        id="sensorStatus"
-                        name="sensorStatus"
-                        value={formData.sensorStatus}
-                        onChange={handleChange}
-                        disabled={mode === 'view'}
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                        required
-                    >
+                            <div>
+                                <label htmlFor="media" className="block text-sm font-medium text-gray-700">Imagen o video</label>
+                                <input
+                                    type="text"
+                                    id="media"
+                                    name="media"
+                                    placeholder="URL de Imagen o video"
+                                    value={formData.media}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                    required
+                                    disabled={mode === 'view'}
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="sensorStatus" className="block text-sm font-medium text-gray-700">Estado del sensor</label>
+                                <select
+                                    id="sensorStatus"
+                                    name="sensorStatus"
+                                    value={formData.sensorStatus}
+                                    onChange={handleChange}
+                                    disabled={mode === 'view'}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                    required
+                                >
 
-                        <option value="">Seleccione una opción</option>
-                        {sensorsStatus.map((type) => (
-                            <option key={type.id} value={type.id}>
-                                {type.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <label htmlFor="estimatedReplacementDate" className="block text-sm font-medium text-gray-700">Fecha estimada de cambio(editable)</label>
-                    <input
-                        type="date"
-                        id="estimatedReplacementDate"
-                        name="estimatedReplacementDate"
-                        placeholder="Hora Finalización"
-                        value={formData.estimatedReplacementDate.substr(0, 10)}
-                        onChange={handleChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                        required
-                        disabled={mode === 'view'}
-                    />
-                </div>
+                                    <option value="">Seleccione una opción</option>
+                                    {sensorsStatus.map((type) => (
+                                        <option key={type.id} value={type.id}>
+                                            {type.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label htmlFor="estimatedReplacementDate" className="block text-sm font-medium text-gray-700">Fecha estimada de cambio(editable)</label>
+                                <input
+                                    type="date"
+                                    id="estimatedReplacementDate"
+                                    name="estimatedReplacementDate"
+                                    placeholder="Hora Finalización"
+                                    value={formData.estimatedReplacementDate.substr(0, 10)}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                    required
+                                    disabled={mode === 'view'}
+                                />
+                            </div>
 
-            </div>
+                        </div>
 
 
-            <div>
-                <label htmlFor="observations" className="block text-sm font-medium text-gray-700">Observaciones</label>
-                <input
-                    type="text"
-                    id="observations"
-                    name="observations"
-                    placeholder="Observaciones"
-                    value={formData.observations}
-                    onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                    required
-                    disabled={mode === 'view'}
-                />
-            </div>
-            {/* Tabla de Puntos de Calibración */}
-            <div className="mt-5">
-                <h3 className="text-lg font-semibold">Puntos de Calibración</h3>
-                <table className="min-w-full mt-3 border-collapse">
-                    <thead>
-                        <tr>
-                        <th className="border px-4 py-2">Punto de calibración</th>
-                            <th className="border px-4 py-2">Valor</th>
-                            <th className="border px-4 py-2">Valor medido</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {calibrationPoints.length > 0 ? (
-                            calibrationPoints.map((point, index) => (
-                                <tr key={index}>
-                                    <td className="border px-4 py-2">Punto {index + 1}</td>
-                                    <td className="border px-4 py-2">{point.value}</td>
-                                    <td className="border px-4 py-2">{point.normalResponse}</td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="3" className="border px-4 py-2 text-center">No hay puntos de calibración disponibles</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        <div>
+                            <label htmlFor="observations" className="block text-sm font-medium text-gray-700">Observaciones</label>
+                            <textarea
+                                type="text"
+                                id="observations"
+                                name="observations"
+                                placeholder="Observaciones"
+                                value={formData.observations}
+                                onChange={handleChange}
+                                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                required
+                                disabled={mode === 'view'}
+                            ></textarea>
+                        </div>
+                        {/* Tabla de Puntos de Calibración */}
+                        <div className="mt-5">
+                            <h3 className="text-lg font-semibold">Puntos de Calibración</h3>
+                            <table className="min-w-full mt-3 border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th className="border px-4 py-2">Punto de calibración</th>
+                                        <th className="border px-4 py-2">Valor</th>
+                                        <th className="border px-4 py-2">Valor medido</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {calibrationPoints.length > 0 ? (
+                                        calibrationPoints.map((point, index) => (
+                                            <tr key={index}>
+                                                <td className="border px-4 py-2">Punto {index + 1}</td>
+                                                <td className="border px-4 py-2">{point.value}</td>
+                                                <td className="border px-4 py-2">{point.normalResponse}</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="3" className="border px-4 py-2 text-center">No hay puntos de calibración disponibles</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
 
-            {/* BOTONES */}
+                        {/* BOTONES */}
 
-            <div className="flex justify-end space-x-2">
-                {mode === 'view' ? (
-                    <button
-                        type="button"
-                        onClick={closeModal}
-                        className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
-                    >
-                        Volver
-                    </button>
-                ) : (
-                    <>
-                        <button
-                            type="button"
-                            onClick={closeModal}
-                            className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="submit"
-                            className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-                        >
-                            {mode === 'create' ? 'Crear Calibración' : 'Crear Calibración'}
+                        <div className="flex justify-end space-x-2">
+                            {mode === 'view' ? (
+                                <button
+                                    type="button"
+                                    onClick={closeModal}
+                                    className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                                >
+                                    Volver
+                                </button>
+                            ) : (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={closeModal}
+                                        className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                                    >
+                                        Cerrar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                                    >
+                                        {mode === 'create' ? 'Crear Calibración' : 'Crear Calibración'}
 
-                        </button>
-                    </>
-                )}
-            </div>
-        </form>
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </form>
+                </>
+            )}
+        </>
     );
 };
 

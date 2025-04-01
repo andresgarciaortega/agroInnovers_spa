@@ -7,10 +7,11 @@ import CompanyService from '../../../services/CompanyService';
 import { useCompanyContext } from '../../../context/CompanyContext';
 import SensorService from "../../../services/SensorService";
 import moment from 'moment';
+import LoadingView from '../../../components/Loading/loadingView';
 
 const FromMantenimiento = ({ selectedCompany, sensorId, showErrorAlert, onUpdate, sensor, mode, closeModal, companyId }) => {
   const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
-
+  const [isLoading, setIsLoading] = useState(true);
   const [variableTypes, setVariableTypes] = useState([]);
   const [registerTypes, setRegisterTypes] = useState([]);
   const [companies, setCompanies] = useState([]);
@@ -53,6 +54,7 @@ const FromMantenimiento = ({ selectedCompany, sensorId, showErrorAlert, onUpdate
   const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
+    setIsLoading(false)
     const fetchMantenimiento = async () => {
       try {
 
@@ -127,6 +129,7 @@ const FromMantenimiento = ({ selectedCompany, sensorId, showErrorAlert, onUpdate
         // company_id: sensor.company_id
       });
       setImagePreview(sensor.media);
+
     } else {
       setFormData({
         maintenanceDate: '',
@@ -205,17 +208,24 @@ const FromMantenimiento = ({ selectedCompany, sensorId, showErrorAlert, onUpdate
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      if (moment(formData.maintenanceDate).isAfter(currentDate)) {
-        showErrorAlert('La fecha del mantenimiento no puede ser en el futuro.');
-        return;
-      }
+    setIsLoading(true)
 
-      if (
-        moment(formData.startTime, 'HH:mm').isAfter(moment(currentTime, 'HH:mm')) ||
-        moment(formData.endTime, 'HH:mm').isAfter(moment(currentTime, 'HH:mm'))
-      ) {
-        showErrorAlert('La hora del mantenimiento no puede ser en el futuro.');
+    try {
+      // if (moment(formData.maintenanceDate).isAfter(currentDate)) {
+      //   showErrorAlert('La fecha del mantenimiento no puede ser en el futuro.');
+      //   return;
+      // }
+
+      // if (
+      //   moment(formData.startTime, 'HH:mm').isAfter(moment(currentTime, 'HH:mm')) ||
+      //   moment(formData.endTime, 'HH:mm').isAfter(moment(currentTime, 'HH:mm'))
+      // ) {
+      //   showErrorAlert('La hora del mantenimiento no puede ser en el futuro.');
+      //   return;
+      // }
+
+      if (moment(formData.startTime, 'HH:mm').isAfter(moment(formData.endTime, 'HH:mm'))) {
+        showErrorAlert('La hora de inicio no puede ser posterior a la hora de finalización.');
         return;
       }
 
@@ -253,9 +263,11 @@ const FromMantenimiento = ({ selectedCompany, sensorId, showErrorAlert, onUpdate
 
       if (mode === 'mantenimiento') {
         const createdMantenimiento = await SensorMantenimientoService.createMantenimiento(formDataToSubmit);
+    setIsLoading(false)
         showErrorAlert("Mantenimiento creado correctamente.");
       } else if (mode === 'edit') {
         await SensorMantenimientoService.updateMantenimiento(sensorId, formDataToSubmit);
+    setIsLoading(false)
         showErrorAlert("Mantenimiento actualizado correctamente.");
       }
 
@@ -266,6 +278,8 @@ const FromMantenimiento = ({ selectedCompany, sensorId, showErrorAlert, onUpdate
     } catch (error) {
       console.error('Error al guardar el mantenimiento:', error);
       showErrorAlert("Hubo un error al guardar el mantenimiento.");
+    setIsLoading(false)
+
     }
   };
 
@@ -308,159 +322,164 @@ const FromMantenimiento = ({ selectedCompany, sensorId, showErrorAlert, onUpdate
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="sensor-maintenanceDate" className="block text-sm font-medium text-gray-700">Fecha del mantenimiento</label>
-        <input
-          type="date"
-          id="sensor-maintenanceDate"
-          name="maintenanceDate"
-          placeholder="Fecha del mantenimiento"
-          value={formData.maintenanceDate}
-          onChange={handleChange}
-          max={currentDate}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
+    <>
+      {isLoading ? (
+        <LoadingView />
+      ) : (
+        <>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="sensor-maintenanceDate" className="block text-sm font-medium text-gray-700">Fecha del mantenimiento</label>
+              <input
+                type="date"
+                id="sensor-maintenanceDate"
+                name="maintenanceDate"
+                placeholder="Fecha del mantenimiento"
+                value={formData.maintenanceDate}
+                onChange={handleChange}
+                max={currentDate}
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                required
+                disabled={mode === 'view'}
+              />
+            </div>
 
 
-      <div className="grid grid-cols-2 gap-4 mt-5">
-        <div>
-          <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">
-            Hora Inicio
-          </label>
-          <input
-            type="time"
-            id="startTime"
-            name="startTime"
-            value={formData.startTime}
-            onChange={handleTimeChange}
-            className={`mt-1 block w-full border ${errors.startTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
-            required
-            disabled={mode === 'view'}
-          />
-          {errors.startTime && (
-            <p className="mt-1 text-sm text-red-500">{errors.startTime}</p>
-          )}
-        </div>
-        <div>
-          <label htmlFor="endTime" className="block text-sm font-medium text-gray-700">
-            Hora Finalización
-          </label>
-          <input
-            type="time"
-            id="endTime"
-            name="endTime"
-            value={formData.endTime}
-            onChange={handleTimeChange}
-            className={`mt-1 block w-full border ${errors.endTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
-            required
-            disabled={mode === 'view'}
-          />
-          {errors.endTime && (
-            <p className="mt-1 text-sm text-red-500">{errors.endTime}</p>
-          )}
-        </div>
-        <div>
-          <label htmlFor="maintenanceType" className="block text-sm font-medium text-gray-700">Tipo de mantenimiento</label>
-          <select
-            name="maintenanceType"
-            value={formData.maintenanceType}
-            onChange={handleChange}
-            disabled={mode === 'view'}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            required
-          >
-            <option value="">Seleccione una opción</option>
-            {maintenanceTypes.map((unit) => (
-              <option key={unit.id} value={unit.id}>
-                {unit.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="replacedParts" className="block text-sm font-medium text-gray-700">Piezas reemplazadas</label>
-          <input
-            type="text"
-            id="replacedParts"
-            name="replacedParts"
-            placeholder="Piezas reemplazadas"
-            value={formData.replacedParts}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            required
-            disabled={mode === 'view'}
-          />
-        </div>
-        <div>
-          <label htmlFor="testReport" className="block text-sm font-medium text-gray-700">Informe de pruebas</label>
-          <input
-            type="text"
-            id="testReport"
-            name="testReport"
-            placeholder="URL de informe"
-            value={formData.testReport}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            required
-            disabled={mode === 'view'}
-          />
-        </div>
+            <div className="grid grid-cols-2 gap-4 mt-5">
+              <div>
+                <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">
+                  Hora Inicio
+                </label>
+                <input
+                  type="time"
+                  id="startTime"
+                  name="startTime"
+                  value={formData.startTime}
+                  onChange={handleTimeChange}
+                  className={`mt-1 block w-full border ${errors.startTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
+                  required
+                  disabled={mode === 'view'}
+                />
+                {errors.startTime && (
+                  <p className="mt-1 text-sm text-red-500">{errors.startTime}</p>
+                )}
+              </div>
+              <div>
+                <label htmlFor="endTime" className="block text-sm font-medium text-gray-700">
+                  Hora Finalización
+                </label>
+                <input
+                  type="time"
+                  id="endTime"
+                  name="endTime"
+                  value={formData.endTime}
+                  onChange={handleTimeChange}
+                  className={`mt-1 block w-full border ${errors.endTime ? 'border-red-500' : 'border-gray-300'} rounded-md p-2`}
+                  required
+                  disabled={mode === 'view'}
+                />
+                {errors.endTime && (
+                  <p className="mt-1 text-sm text-red-500">{errors.endTime}</p>
+                )}
+              </div>
+              <div>
+                <label htmlFor="maintenanceType" className="block text-sm font-medium text-gray-700">Tipo de mantenimiento</label>
+                <select
+                  name="maintenanceType"
+                  value={formData.maintenanceType}
+                  onChange={handleChange}
+                  disabled={mode === 'view'}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                >
+                  <option value="">Seleccione una opción</option>
+                  {maintenanceTypes.map((unit) => (
+                    <option key={unit.id} value={unit.id}>
+                      {unit.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="replacedParts" className="block text-sm font-medium text-gray-700">Piezas reemplazadas</label>
+                <input
+                  type="text"
+                  id="replacedParts"
+                  name="replacedParts"
+                  placeholder="Piezas reemplazadas"
+                  value={formData.replacedParts}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                  disabled={mode === 'view'}
+                />
+              </div>
+              <div>
+                <label htmlFor="testReport" className="block text-sm font-medium text-gray-700">Informe de pruebas</label>
+                <input
+                  type="text"
+                  id="testReport"
+                  name="testReport"
+                  placeholder="URL de informe"
+                  value={formData.testReport}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                  disabled={mode === 'view'}
+                />
+              </div>
 
-        <div>
-          <label htmlFor="media" className="block text-sm font-medium text-gray-700">Imagen o video</label>
-          <input
-            type="text"
-            id="media"
-            name="media"
-            placeholder="URL de Imagen o video"
-            value={formData.media}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            required
-            disabled={mode === 'view'}
-          />
-        </div>
-        <div>
-          <label htmlFor="sensorStatus" className="block text-sm font-medium text-gray-700">Estado del sensor</label>
-          <select
-            id="sensorStatus"
-            name="sensorStatus"
-            value={formData.sensorStatus}
-            onChange={handleChange}
-            disabled={mode === 'view'}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            required
-          >
+              <div>
+                <label htmlFor="media" className="block text-sm font-medium text-gray-700">Imagen o video</label>
+                <input
+                  type="text"
+                  id="media"
+                  name="media"
+                  placeholder="URL de Imagen o video"
+                  value={formData.media}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                  disabled={mode === 'view'}
+                />
+              </div>
+              <div>
+                <label htmlFor="sensorStatus" className="block text-sm font-medium text-gray-700">Estado del sensor</label>
+                <select
+                  id="sensorStatus"
+                  name="sensorStatus"
+                  value={formData.sensorStatus}
+                  onChange={handleChange}
+                  disabled={mode === 'view'}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                >
 
-            <option value="">Seleccione una opción</option>
-            {sensorsStatus.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="estimatedReplacementDate" className="block text-sm font-medium text-gray-700">Fecha estimada de cambio(editable)</label>
-          <input
-            type="date"
-            id="estimatedReplacementDate"
-            name="estimatedReplacementDate"
-            placeholder="Hora Finalización"
-            value={formData.estimatedReplacementDate}
-            onChange={handleChange}
-            min={currentDate}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            required
-            disabled={mode === 'view'}
-          />
-        </div>
+                  <option value="">Seleccione una opción</option>
+                  {sensorsStatus.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="estimatedReplacementDate" className="block text-sm font-medium text-gray-700">Fecha estimada de cambio(editable)</label>
+                <input
+                  type="date"
+                  id="estimatedReplacementDate"
+                  name="estimatedReplacementDate"
+                  placeholder="Hora Finalización"
+                  value={formData.estimatedReplacementDate}
+                  onChange={handleChange}
+                  min={currentDate}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                  disabled={mode === 'view'}
+                />
+              </div>
 
-        {/* <div >
+              {/* <div >
           <label htmlFor="type_variable_id" className="block text-sm font-medium text-gray-700">Tipo de sensor</label>
           <select
             id="type_variable_id"
@@ -498,55 +517,59 @@ const FromMantenimiento = ({ selectedCompany, sensorId, showErrorAlert, onUpdate
             ))}
           </select>
         </div> */}
-      </div>
+            </div>
 
 
-      <div>
-        <label htmlFor="remarks" className="block text-sm font-medium text-gray-700">Observaciones</label>
-        <textarea
-          type="text"
-          id="remarks"
-          name="remarks"
-          placeholder="Observaciones"
-          value={formData.remarks}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        ></textarea>
-      </div>
+            <div>
+              <label htmlFor="remarks" className="block text-sm font-medium text-gray-700">Observaciones</label>
+              <textarea
+                type="text"
+                id="remarks"
+                name="remarks"
+                placeholder="Observaciones"
+                value={formData.remarks}
+                onChange={handleChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                required
+                disabled={mode === 'view'}
+              ></textarea>
+            </div>
 
-      {/* BOTONES */}
+            {/* BOTONES */}
 
-      <div className="flex justify-end space-x-2">
-        {mode === 'view' ? (
-          <button
-            type="button"
-            onClick={closeModal}
-            className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
-          >
-            Volver
-          </button>
-        ) : (
-          <>
-            <button
-              type="button"
-              onClick={closeModal}
-              className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
-            >
-              Cerrar
-            </button>
-            <button
-              type="submit"
-              className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-            >
-              {mode === 'create' ? 'Crear Mantenimiento' : 'Crear Mantenimiento'}
+            <div className="flex justify-end space-x-2">
+              {mode === 'view' ? (
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                >
+                  Volver
+                </button>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                  >
+                    Cerrar
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                  >
+                    {mode === 'create' ? 'Crear Mantenimiento' : 'Crear Mantenimiento'}
 
-            </button>
-          </>
-        )}
-      </div>
-    </form>
+                  </button>
+                </>
+              )}
+            </div>
+          </form>
+        </>
+      )
+      }
+    </>
   );
 };
 

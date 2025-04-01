@@ -7,14 +7,15 @@ import CompanyService from '../../../services/CompanyService';
 import { useCompanyContext } from '../../../context/CompanyContext';
 import ActuadorService from "../../../services/ActuadorService";
 import moment from 'moment';
+import LoadingView from '../../../components/Loading/loadingView';
 
-const FromMantenimiento = ({selectedCompany,actuadorId, showErrorAlert, onUpdate, actuador, mode, closeModal, companyId }) => {
+const FromMantenimiento = ({ selectedCompany, actuadorId, showErrorAlert, onUpdate, actuador, mode, closeModal, companyId }) => {
   const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
 
   const [variableTypes, setVariableTypes] = useState([]);
   const [registerTypes, setRegisterTypes] = useState([]);
   const [companies, setCompanies] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(true);
   const currentDate = moment().format('YYYY-MM-DD');
   const currentTime = moment().format('HH:mm');
   const [isDashboard, setIsDashboard] = useState(false);
@@ -33,12 +34,12 @@ const FromMantenimiento = ({selectedCompany,actuadorId, showErrorAlert, onUpdate
     estimatedReplacementDate: '',
     remarks: '',
   });
-  
+
 
 
   const [maintenanceTypes] = useState([
     { id: 'Preventivo', name: 'Preventivo' },
-    { id: 'Correctivo', name: 'Correctivo'},
+    { id: 'Correctivo', name: 'Correctivo' },
     { id: 'Limpieza y revisión física', name: 'Limpieza y revisión física' },
   ]);
   const [actuadorsStatus] = useState([
@@ -60,21 +61,22 @@ const FromMantenimiento = ({selectedCompany,actuadorId, showErrorAlert, onUpdate
       }
     };
     const fetchActuador = async () => {
-        try {
-  
-          const Actuador = await ActuadorService.getAllActuador();
-          setVariableTypes(Actuador);
-        } catch (error) {
-          console.error('Error al obtener los mantenimientos del actuador:', error);
-        }
-      };
+      try {
 
-   
+        const Actuador = await ActuadorService.getAllActuador();
+        setVariableTypes(Actuador);
+      } catch (error) {
+        console.error('Error al obtener los mantenimientos del actuador:', error);
+      }
+    };
+
+
 
     const fetchCompanies = async () => {
       try {
         const fetchedCompanies = await CompanyService.getAllCompany();
         setCompanies(fetchedCompanies);
+        setIsLoading(false)
       } catch (error) {
         console.error('Error al obtener las empresas:', error);
       }
@@ -84,39 +86,39 @@ const FromMantenimiento = ({selectedCompany,actuadorId, showErrorAlert, onUpdate
 
     fetchMantenimiento();
     fetchCompanies();
-  }, []); 
+  }, []);
 
   useEffect(() => {
     if (selectedCompany) {
       setFormData((prevData) => ({
         ...prevData,
-        company_id: companySeleector.value || '' 
+        company_id: companySeleector.value || ''
       }));
     }
   }, [selectedCompany]);
 
   useEffect(() => {
-    if (actuadorId) {  
+    if (actuadorId) {
       setFormData((prevData) => ({
         ...prevData,
-        actuator_id: actuadorId  
+        actuator_id: actuadorId
       }));
     } else {
       console.error('actuadorId no está definido o es null.');
     }
   }, [actuadorId]);
-  
 
-  
+
+
   useEffect(() => {
     if (mode === 'edit' || mode === 'view') {
       setFormData({
         maintenanceDate: actuador.name || '',
         startTime: actuador.startTime || '',
         endTime: actuador.endTime || '',
-        actuator_id: actuador.actuator_id|| '',
-        energyConsumption: actuador.energyConsumption || '', 
-        maintenanceType: actuador.maintenanceType || '', 
+        actuator_id: actuador.actuator_id || '',
+        energyConsumption: actuador.energyConsumption || '',
+        maintenanceType: actuador.maintenanceType || '',
         testReport: actuador.testReport || '',
         media: actuador.media || '',
         actuatorStatus: actuador.actuatorStatus || '',
@@ -127,16 +129,16 @@ const FromMantenimiento = ({selectedCompany,actuadorId, showErrorAlert, onUpdate
       setImagePreview(actuador.media);
     } else {
       setFormData({
-        maintenanceDate: '' ,
-        startTime: '' ,
-        endTime: '' ,
-        maintenanceType: '' ,
-        replacedParts: '' ,
-        testReport: '' ,
-        media: '' ,
-        actuatorStatus: '' ,
-        estimatedReplacementDate: '' ,
-        remarks: '' ,
+        maintenanceDate: '',
+        startTime: '',
+        endTime: '',
+        maintenanceType: '',
+        replacedParts: '',
+        testReport: '',
+        media: '',
+        actuatorStatus: '',
+        estimatedReplacementDate: '',
+        remarks: '',
         actuator_id: '',
         // informational_calculation: '',
         energyConsumption: '',
@@ -155,98 +157,102 @@ const FromMantenimiento = ({selectedCompany,actuadorId, showErrorAlert, onUpdate
     });
   };
 
-  
 
-// Esta función convierte la hora seleccionada a una fecha completa con la hora elegida.
-const handleTimeChange = (e) => {
-  const { name, value } = e.target;
 
-  const [hours, minutes] = value.split(":");
+  // Esta función convierte la hora seleccionada a una fecha completa con la hora elegida.
+  const handleTimeChange = (e) => {
+    const { name, value } = e.target;
 
-  const updatedDate = moment().set({ hour: hours, minute: minutes, second: 0, millisecond: 0 });
+    const [hours, minutes] = value.split(":");
 
-  const isoString = updatedDate.toISOString();
+    const updatedDate = moment().set({ hour: hours, minute: minutes, second: 0, millisecond: 0 });
 
-  setFormData({
-    ...formData,
-    [name]: isoString, 
-  });
-};
+    const isoString = updatedDate.toISOString();
 
-const formatTime = (time) => {
-  return moment(time).format('HH:mm');
-};
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    // Validar y transformar campos específicos
-    const energyConsumption = parseFloat(formData.energyConsumption);
-    if (isNaN(energyConsumption)) {
-      throw new Error("El valor de energyConsumption debe ser un número.");
-    }
-
-    // const actuatorStatus = String(formData.actuatorStatus || '').trim();
-    // if (!actuatorStatus) {
-    //   throw new Error("El estado del actuador es obligatorio.");
-    // }
-
-    // Datos formateados correctamente
-    const formDataToSubmit = {
+    setFormData({
       ...formData,
-      media: formData.media || '',
-      maintenanceDate: formData.maintenanceDate,
-      startTime: new Date(formData.startTime),
-      endTime: new Date(formData.endTime),
-      maintenanceType: formData.maintenanceType,
-      replacedParts: formData.replacedParts,
-      testReport: formData.testReport,
-      actuatorStatus: formData.actuatorStatus,
-      estimatedReplacementDate: formData.estimatedReplacementDate,
-      remarks: formData.remarks,
-      energyConsumption: energyConsumption,
-      actuator_id: actuadorId || formData.actuator_id,
-    };
+      [name]: isoString,
+    });
+  };
 
+  const formatTime = (time) => {
+    return moment(time).format('HH:mm');
+  };
 
-    if (mode === 'mantenimiento') {
-      const createdMantenimiento = await ActuadorMantenimientoService.createMantenimiento(formDataToSubmit);
-      showErrorAlert("Mantenimiento creado correctamente.");
-    } else if (mode === 'edit') {
-      await ActuadorMantenimientoService.updateMantenimiento(actuadorId, formDataToSubmit);
-      showErrorAlert("Mantenimiento actualizado correctamente.");
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true)
 
-    onUpdate();
-    closeModal();
-  } catch (error) {
-    console.error('Error al guardar el mantenimiento:', error);
-    console.error('Detalles del error:', error.response?.data);
-    showErrorAlert("Hubo un error al guardar el mantenimiento.");
-  }
-};
-
-
- useEffect(() => {
-  if (actuadorId) {
-    const fetchActuadorDetails = async () => {
-      try {
-        const actuadorDetails = await ActuadorService.getActuadorById(actuadorId);
-
-        setFormData((prevData) => {
-          return {
-            ...prevData,
-            estimatedReplacementDate: actuadorDetails.estimatedChangeDate || '',
-          };
-        });
-      } catch (error) {
-        console.error('Error al obtener los detalles del actuador:', error);
+    try {
+      // Validar y transformar campos específicos
+      const energyConsumption = parseFloat(formData.energyConsumption);
+      if (isNaN(energyConsumption)) {
+        throw new Error("El valor de energyConsumption debe ser un número.");
       }
-    };
 
-    fetchActuadorDetails();
-  }
-}, [actuadorId]);
+      // const actuatorStatus = String(formData.actuatorStatus || '').trim();
+      // if (!actuatorStatus) {
+      //   throw new Error("El estado del actuador es obligatorio.");
+      // }
+
+      // Datos formateados correctamente
+      const formDataToSubmit = {
+        ...formData,
+        media: formData.media || '',
+        maintenanceDate: formData.maintenanceDate,
+        startTime: new Date(formData.startTime),
+        endTime: new Date(formData.endTime),
+        maintenanceType: formData.maintenanceType,
+        replacedParts: formData.replacedParts,
+        testReport: formData.testReport,
+        actuatorStatus: formData.actuatorStatus,
+        estimatedReplacementDate: formData.estimatedReplacementDate,
+        remarks: formData.remarks,
+        energyConsumption: energyConsumption,
+        actuator_id: actuadorId || formData.actuator_id,
+      };
+
+
+      if (mode === 'mantenimiento') {
+        const createdMantenimiento = await ActuadorMantenimientoService.createMantenimiento(formDataToSubmit);
+        setIsLoading(false)
+        showErrorAlert("Mantenimiento creado correctamente.");
+      } else if (mode === 'edit') {
+        await ActuadorMantenimientoService.updateMantenimiento(actuadorId, formDataToSubmit);
+        setIsLoading(false)
+        showErrorAlert("Mantenimiento actualizado correctamente.");
+      }
+
+      onUpdate();
+      closeModal();
+    } catch (error) {
+      console.error('Error al guardar el mantenimiento:', error);
+      console.error('Detalles del error:', error.response?.data);
+      showErrorAlert("Hubo un error al guardar el mantenimiento.");
+    }
+  };
+
+
+  useEffect(() => {
+    if (actuadorId) {
+      const fetchActuadorDetails = async () => {
+        try {
+          const actuadorDetails = await ActuadorService.getActuadorById(actuadorId);
+
+          setFormData((prevData) => {
+            return {
+              ...prevData,
+              estimatedReplacementDate: actuadorDetails.estimatedChangeDate || '',
+            };
+          });
+        } catch (error) {
+          console.error('Error al obtener los detalles del actuador:', error);
+        }
+      };
+
+      fetchActuadorDetails();
+    }
+  }, [actuadorId]);
 
 
 
@@ -266,213 +272,222 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="actuador-maintenanceDate" className="block text-sm font-medium text-gray-700">Fecha del mantenimiento</label>
-        <input
-          type="date"
-          id="actuador-maintenanceDate"
-          name="maintenanceDate"
-          max={currentDate}
-          placeholder="Fecha del mantenimiento"
-          value={formData.maintenanceDate}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
-      
-      
-      <div className="grid grid-cols-2 gap-4 mt-5">
-      <div>
-        <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">Hora Inicio</label>
-        <input
-          type="time"
-          id="startTime"
-          name="startTime"
-          max={currentTime}
-          placeholder="Hora Inicio"
-          value={formatTime(formData.startTime)}
-          onChange={handleTimeChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
-      <div>
-        <label htmlFor="endTimee" className="block text-sm font-medium text-gray-700">Hora Finalización</label>
-        <input
-          type="time"
-          id="endTimee"
-          name="endTime"
-          placeholder="Hora Finalización"
-          value={formatTime(formData.endTime)}
-          onChange={handleTimeChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
-        <div>
-          <label htmlFor="maintenanceType" className="block text-sm font-medium text-gray-700">Tipo de mantenimiento</label>
-          <select
-            name="maintenanceType"
-            value={formData.maintenanceType}
-            onChange={handleChange}
-            disabled={mode === 'view'}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            required
-          >
-            <option value="">Seleccione una opción</option>
-            {maintenanceTypes.map((unit) => (
-              <option key={unit.id} value={unit.id}>
-                {unit.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-        <label htmlFor="energyConsumption" className="block text-sm font-medium text-gray-700">Partes reemplazadas</label>
-        <input
-          type="text"
-          id="replacedParts"
-          name="replacedParts"
-          placeholder="Consumo de energía"
-          value={formData.replacedParts}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
-      <div>
-        <label htmlFor="energyConsumption" className="block text-sm font-medium text-gray-700">Consumo de energía</label>
-        <input
-          type="number"
-          id="energyConsumption"
-          name="energyConsumption"
-          placeholder="Consumo de energía"
-          value={formData.energyConsumption}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
-      <div>
-        <label htmlFor="testReport" className="block text-sm font-medium text-gray-700">Informe de pruebas</label>
-        <input
-          type="text"
-          id="testReport"
-          name="testReport"
-          placeholder="URL de informe"
-          value={formData.testReport}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
-      
-      <div>
-        <label htmlFor="media" className="block text-sm font-medium text-gray-700">Imagen o video</label>
-        <input
-          type="text"
+    <>
+      {isLoading ? (
+        <LoadingView />
+      ) : (
+        <>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="actuador-maintenanceDate" className="block text-sm font-medium text-gray-700">Fecha del mantenimiento</label>
+              <input
+                type="date"
+                id="actuador-maintenanceDate"
+                name="maintenanceDate"
+                max={currentDate}
+                placeholder="Fecha del mantenimiento"
+                value={formData.maintenanceDate}
+                onChange={handleChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                required
+                disabled={mode === 'view'}
+              />
+            </div>
 
-          id="media"
-          name="media"
-          placeholder="URL de Imagen o video"
-          value={formData.media}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
-      
-      <div>
-  <label htmlFor="actuatorStatus" className="block text-sm font-medium text-gray-700">Estado del Actuador</label>
-  <select
-    id="actuatorStatus"
-    name="actuatorStatus"
-    value={formData.actuatorStatus}
-    onChange={handleChange}
-    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-    required
-    disabled={mode === 'view'}
-  >
-    {actuadorsStatus.map((status) => (
-      <option key={status.id} value={status.id}>
-        {status.name}
-      </option>
-    ))}
-  </select>
-</div>
-      </div>
-      <div>
-        <label htmlFor="estimatedReplacementDate" className="block text-sm font-medium text-gray-700">Fecha estimada de cambio(editable)</label>
-        <input
-          type="date"
-          id="estimatedReplacementDate"
-          name="estimatedReplacementDate"
-          placeholder="Fecha estimada de cmabio"
-          min={currentDate}
-          value={formData.estimatedReplacementDate}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
 
-    
-      <div>
-        <label htmlFor="remarks" className="block text-sm font-medium text-gray-700">Observaciones</label>
-        <input
-          type="text"
-          id="remarks"
-          name="remarks"
-          placeholder="Observaciones"
-          value={formData.remarks}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          required
-          disabled={mode === 'view'}
-        />
-      </div>
+            <div className="grid grid-cols-2 gap-4 mt-5">
+              <div>
+                <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">Hora Inicio</label>
+                <input
+                  type="time"
+                  id="startTime"
+                  name="startTime"
+                  max={currentTime}
+                  placeholder="Hora Inicio"
+                  value={formatTime(formData.startTime)}
+                  onChange={handleTimeChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                  disabled={mode === 'view'}
+                />
+              </div>
+              <div>
+                <label htmlFor="endTimee" className="block text-sm font-medium text-gray-700">Hora Finalización</label>
+                <input
+                  type="time"
+                  id="endTimee"
+                  name="endTime"
+                  placeholder="Hora Finalización"
+                  value={formatTime(formData.endTime)}
+                  onChange={handleTimeChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                  disabled={mode === 'view'}
+                />
+              </div>
+              <div>
+                <label htmlFor="maintenanceType" className="block text-sm font-medium text-gray-700">Tipo de mantenimiento</label>
+                <select
+                  name="maintenanceType"
+                  value={formData.maintenanceType}
+                  onChange={handleChange}
+                  disabled={mode === 'view'}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                >
+                  <option value="">Seleccione una opción</option>
+                  {maintenanceTypes.map((unit) => (
+                    <option key={unit.id} value={unit.id}>
+                      {unit.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="energyConsumption" className="block text-sm font-medium text-gray-700">Partes reemplazadas</label>
+                <input
+                  type="text"
+                  id="replacedParts"
+                  name="replacedParts"
+                  placeholder="Consumo de energía"
+                  value={formData.replacedParts}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                  disabled={mode === 'view'}
+                />
+              </div>
+              <div>
+                <label htmlFor="energyConsumption" className="block text-sm font-medium text-gray-700">Consumo de energía</label>
+                <input
+                  type="number"
+                  id="energyConsumption"
+                  name="energyConsumption"
+                  placeholder="Consumo de energía"
+                  value={formData.energyConsumption}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                  disabled={mode === 'view'}
+                />
+              </div>
+              <div>
+                <label htmlFor="testReport" className="block text-sm font-medium text-gray-700">Informe de pruebas</label>
+                <input
+                  type="text"
+                  id="testReport"
+                  name="testReport"
+                  placeholder="URL de informe"
+                  value={formData.testReport}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                  disabled={mode === 'view'}
+                />
+              </div>
 
-      {/* BOTONES */}
+              <div>
+                <label htmlFor="media" className="block text-sm font-medium text-gray-700">Imagen o video</label>
+                <input
+                  type="text"
 
-      <div className="flex justify-end space-x-2">
-        {mode === 'view' ? (
-          <button
-            type="button"
-            onClick={closeModal}
-            className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
-          >
-            Volver
-          </button>
-        ) : (
-          <>
-            <button
-              type="button"
-              onClick={closeModal}
-              className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
-            >
-              Cerrar
-            </button>
-            <button
-              type="submit"
-              className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-            >
-              {mode === 'create' ? 'Crear Mantenimiento' : 'Crear Mantenimiento'}
+                  id="media"
+                  name="media"
+                  placeholder="URL de Imagen o video"
+                  value={formData.media}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                  disabled={mode === 'view'}
+                />
+              </div>
 
-            </button>
-          </>
-        )}
-      </div>
-    </form>
+              <div>
+                <label htmlFor="actuatorStatus" className="block text-sm font-medium text-gray-700">Estado del Actuador</label>
+                <select
+                  id="actuatorStatus"
+                  name="actuatorStatus"
+                  value={formData.actuatorStatus}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                  disabled={mode === 'view'}
+                >
+                  {actuadorsStatus.map((status) => (
+                    <option key={status.id} value={status.id}>
+                      {status.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label htmlFor="estimatedReplacementDate" className="block text-sm font-medium text-gray-700">Fecha estimada de cambio(editable)</label>
+              <input
+                type="date"
+                id="estimatedReplacementDate"
+                name="estimatedReplacementDate"
+                placeholder="Fecha estimada de cmabio"
+                min={currentDate}
+                value={formData.estimatedReplacementDate}
+                onChange={handleChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                required
+                disabled={mode === 'view'}
+              />
+            </div>
+
+
+            <div>
+              <label htmlFor="remarks" className="block text-sm font-medium text-gray-700">Observaciones</label>
+              <textarea
+                type="text"
+                id="remarks"
+                name="remarks"
+                placeholder="Observaciones"
+                value={formData.remarks}
+                onChange={handleChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                required
+                disabled={mode === 'view'}
+              ></textarea>
+            </div>
+
+            {/* BOTONES */}
+
+            <div className="flex justify-end space-x-2">
+              {mode === 'view' ? (
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                >
+                  Volver
+                </button>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="bg-white text-gray-500 px-4 py-2 rounded border border-gray-400"
+                  >
+                    Cerrar
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                  >
+                    {mode === 'create' ? 'Crear Mantenimiento' : 'Crear Mantenimiento'}
+
+                  </button>
+                </>
+              )}
+            </div>
+          </form>
+        </>
+      )
+      }
+    </>
   );
 };
 
