@@ -101,7 +101,7 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             }
             const espaciosData = await EspacioService.getAllEspacio(companyId);
             // Filtrar los espacios con status === true (o 1)
-            const espaciosFiltrados = espaciosData.filter(espacio => espacio.status === true || espacio.status === 1);
+            const espaciosFiltrados = espaciosData.filter(espacio => espacio.status === false || espacio.status === 0);
             setEspacios(espaciosFiltrados);
         } catch (error) {
             console.error("Error al obtener los espacios:", error);
