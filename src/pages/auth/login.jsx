@@ -59,13 +59,13 @@ const Login = () => {
         localStorage.removeItem('authToken');
         localStorage.removeItem('selectedCompany');
         localStorage.clear();
-        setErrorMessage("Lo sentimos, no tienes acceso a este sistema");
+        setErrorMessage("Lo sentimos, tu perfil no tienes acceso a este sistema");
         setShowErrorAlert(true);
         localStorage.clear();
         navigate('/');
         setTimeout(() => {
           setShowErrorAlert(false)
-        }, 1300);
+        }, 1600);
       }else{
         // Crear objeto empresa
         const companyData = {
