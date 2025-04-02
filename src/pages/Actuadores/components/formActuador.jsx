@@ -29,6 +29,7 @@ const FormActuador = ({ selectedCompany, showErrorAlert, onUpdate, actuador, mod
     installationDate: '',
     estimatedChangeDate: '',
     actuatorTypeId: '',
+    uuid: '',
     company_id: companySeleector.value || ''
   });
 
@@ -36,7 +37,6 @@ const FormActuador = ({ selectedCompany, showErrorAlert, onUpdate, actuador, mod
   useEffect(() => {
     const fetchSensorTypes = async () => {
       try {
-
         const typeSensor = await TypeService.getAllActuador();
         setSensorType(typeSensor);
       } catch (error) {

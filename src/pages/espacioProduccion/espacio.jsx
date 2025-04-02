@@ -69,30 +69,56 @@ const Espacio = () => {
   }, []);
 
   useEffect(() => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     const fetchEspecies = async () => {
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
       const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+      
       if (!companyId) {
         setVariableList([]);
         return;
       }
+
       try {
         const data = await EspacioService.getAllEspacio(companyId);
+        
         if (data.statusCode === 404) {
           setVariableList([]);
-        } else {
-          setShowErrorAlertTable(false)
-          setVariableList(Array.isArray(data) ? data : []);
-          setIsLoading(false)
+          setIsLoading(false);
+          return;
         }
+
+        // Obtener la ipFija del localStorage si existe
+        const storedIpFija = localStorage.getItem('uuid');
+        
+        // Filtrar los datos si hay una ipFija almacenada
+        let filteredData = Array.isArray(data) ? data : [];
+        
+        if (storedIpFija) {
+          filteredData = filteredData.filter(espacio => 
+            espacio.monitoringSystemId && espacio.monitoringSystemId.ipFija === storedIpFija
+          );
+          
+          if (filteredData.length === 0) {
+            setMessageAlert(`No se encontraron espacios con la IP Fija ${storedIpFija}`);
+            setShowErrorAlertTable(true);
+          } else {
+            setShowErrorAlertTable(false);
+          }
+        } else {
+          setShowErrorAlertTable(false);
+        }
+
+        setVariableList(filteredData);
+        setIsLoading(false);
+
       } catch (error) {
-        setVariableList([])
-        setIsLoading(false)
+        setVariableList([]);
+        setIsLoading(false);
         console.error('Error fetching space:', error);
-        setMessageAlert('Esta empresa no tiene Espacios registrados, Intentalo con otra empresa');
+        setMessageAlert('Error al obtener los espacios. Inténtalo nuevamente.');
         setShowErrorAlertTable(true);
       }
     };

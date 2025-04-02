@@ -69,32 +69,54 @@ const Lotes = () => {
     hiddenSelect(false); // Change to false to show the selector
   }, []);
 
-
   useEffect(() => {
     const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
     if (!companyId) {
       setLotesList([]);
       return;
     }
-    hiddenSelect(true)
+    
+    hiddenSelect(true);
+    
     const fetchLotes = async () => {
       try {
-
         const response = await LoteService.getAllLots(companyId);
+        const storedIpFija = localStorage.getItem('uuid'); // Obtener IP del localStorage
 
         if (response.statusCode === 404 || !Array.isArray(response)) {
           setLotesList([]);
           setShowErrorAlertTable(true);
-          setMessageAlert("Esta empresa no tiene lote registrados. Intenta con otra empresa.");
+          setMessageAlert(storedIpFija 
+            ? `No se encontraron lotes con el sistema de monitoreo ${storedIpFija}`
+            : "Esta empresa no tiene lotes registrados. Intenta con otra empresa."
+          );
+          return;
+        }
+
+        // Filtrar por ipFija si existe en localStorage
+        let filteredLotes = response;
+        if (storedIpFija) {
+          filteredLotes = response.filter(lote => 
+            lote.productionSpace?.monitoringSystemId?.ipFija === storedIpFija
+          );
+          
+          if (filteredLotes.length === 0) {
+            setShowErrorAlertTable(true);
+            setMessageAlert(`No se encontraron lotes con el sistema de monitoreo ${storedIpFija}`);
+          } else {
+            setShowErrorAlertTable(false);
+          }
         } else {
-          setLotesList(response);
           setShowErrorAlertTable(false);
         }
+
+        setLotesList(filteredLotes);
+
       } catch (error) {
         console.error("Error fetching lots:", error);
         setLotesList([]);
         setShowErrorAlertTable(true);
-        setMessageAlert("Error al cargar los lote. Intenta de nuevo más tarde.");
+        setMessageAlert("Error al cargar los lotes. Intenta de nuevo más tarde.");
       }
     };
 
