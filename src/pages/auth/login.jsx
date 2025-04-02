@@ -63,6 +63,7 @@ const Login = () => {
         setShowErrorAlert(true);
         localStorage.clear();
         navigate('/');
+        setEmail(''); setPassword('');
         setTimeout(() => {
           setShowErrorAlert(false)
         }, 1600);
