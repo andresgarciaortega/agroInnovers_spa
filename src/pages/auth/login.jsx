@@ -64,41 +64,48 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     localStorage.clear();
-  
-    const accesUser = await AccesUser.accesUsersLoguin({ email, password });
-    const uuid = await AccesUser.getUUID();
-    if(uuid.serial_pi){
-      localStorage.setItem("uuid", uuid.serial_pi)
-    }
-    
-    console.log(uuid)
 
-  
+    // 1. Intentar obtener UUID del dispositivo (maneja silenciosamente el error)
+    try {
+      const uuidResponse = await fetch('http://localhost:1880/serial_id');
+      if (uuidResponse.ok) {
+        const uuid = await uuidResponse.json();
+        if (uuid?.serial_pi) {
+          localStorage.setItem("uuid", uuid.serial_pi);
+        }
+      }
+    } catch (uuidError) {
+      console.log("No se pudo obtener UUID (esto es normal en desarrollo)");
+    }
+
+
+    const accesUser = await AccesUser.accesUsersLoguin({ email, password });
+
     if (accesUser.error) {
       localStorage.setItem('authToken', accesUser.response);
       const decodedToken = await getDecodedToken();
-      
+
       // Crear objeto empresa
       const companyData = {
         value: decodedToken?.company.id,
         label: decodedToken?.company.name,
       };
-  
+
       // Actualizar localStorage
       localStorage.setItem("selectedCompany", JSON.stringify(companyData));
-      
+
       // Actualizar contexto de empresa (nuevo código)
       if (setSelectedCompanyUniversal) {
         setSelectedCompanyUniversal(companyData);
       }
-  
+
       localStorage.setItem("rol", JSON.stringify(
         {
           "value": decodedToken?.roles[0].id,
           "label": decodedToken?.roles[0].name,
         }
       ));
-      
+
       setTimeout(() => {
         navigate('/home/dashboard', { replace: true });
       }, 600);
