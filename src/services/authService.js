@@ -23,6 +23,25 @@ const AccesUser = {
         }
     },
 
+     // LOGIN - ACCESS USER
+     async getUUID() {
+        try {
+            const response = await api.get('http://localhost:1880/serial_id');
+            return response; // Asegúrate de acceder a response.data
+        } catch (error) {
+            // Captura el error 401 Unauthorized
+            if (error.response && error.response.status === 404) {
+                return { error: false, message: 'No estas en la raspberry' };
+            }
+            // Captura otros errores
+            else if (error.response && error.response.data && error.response.data.message) {
+                return { error: false, message: error.response.data.message };
+            } else {
+                return { error: false, message: 'No estas en la raspberry' };
+            }
+        }
+    },
+
     // FORGOT PASSWORD - 
     async recoveryPassword(data) {
         try {

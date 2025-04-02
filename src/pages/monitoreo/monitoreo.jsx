@@ -350,7 +350,7 @@ const Monitoreo = () => {
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">ID</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Nombre</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Disp asignados</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">IP fija</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">UUID</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Lote de producción</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Espacios de producción</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">Acciones</th>

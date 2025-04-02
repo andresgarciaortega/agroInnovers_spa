@@ -95,7 +95,7 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
         try {
             const formDataToSubmit = {
                 nombreId: formData.nombreId,
-                displayFisico: isDisplayActive,
+                displayFisico: isDisplayActive == 1 ? true : false,
                 company_id: Number(companyId) || Number(formData.company_id),
             };
 
@@ -167,14 +167,14 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
                 {isDisplayActive && (
                     <>
                         <div className="grid gap-2">
-                            <label htmlFor="ip" className="block text-sm font-medium text-gray-700">IP Fija</label>
+                            <label htmlFor="ip" className="block text-sm font-medium text-gray-700">Código UUID</label>
                             <input
                                 id="ip"
                                 name="ipFija"
                                 value={mode === 'create' && !isDisplayActive ? '' : formData.ipFija}
                                 onChange={handleChange}
                                 className="border-gray-300 rounded-md shadow-sm p-2 w-full"
-                                placeholder="Ingrese la IP fija"
+                                placeholder="Ingrese el código UUID"
                                 disabled={mode === 'view'}
                             />
                         </div>

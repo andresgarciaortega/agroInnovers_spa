@@ -66,6 +66,13 @@ const Login = () => {
     localStorage.clear();
   
     const accesUser = await AccesUser.accesUsersLoguin({ email, password });
+    const uuid = await AccesUser.getUUID();
+    if(uuid.serial_pi){
+      localStorage.setItem("uuid", uuid.serial_pi)
+    }
+    
+    console.log(uuid)
+
   
     if (accesUser.error) {
       localStorage.setItem('authToken', accesUser.response);
