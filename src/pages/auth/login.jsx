@@ -59,6 +59,9 @@ const Login = () => {
         localStorage.removeItem('authToken');
         localStorage.removeItem('selectedCompany');
         localStorage.clear();
+        setErrorMessage("Lo sentimos, no tienes acceso a este sistema");
+        setShowErrorAlert(true);
+        localStorage.clear();
         navigate('/');
       }else{
         // Crear objeto empresa
