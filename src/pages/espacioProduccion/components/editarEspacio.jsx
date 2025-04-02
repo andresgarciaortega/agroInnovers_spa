@@ -311,7 +311,7 @@ const EditarEspacio = ({ }) => {
         setIsModalOpen(false);
         setSelectedLote(null);
         setModalMode('create');
-        updateService();
+        // updateService();
     };
     // Esta es la función que se llama cuando se elimina un subespacio
     const handleDeleteSubSpace = (index) => {

@@ -145,12 +145,13 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
         try {
             const especieData = await EspeciesService.getSpecieById(especieId);
             console.log("especieData ------------ ", especieData)
+            let etapasList;
             if (especieData && especieData.stages) {
-                const etapasList = especieData.stages.map(stageItem => ({
+                etapasList = especieData.stages.map(stageItem => ({
                     id: stageItem.stage.id,
                     name: stageItem.stage.name
                 }));
-                // setEtapas(etapasList);
+                setEtapas(etapasList);
             } else {
                 setEtapas([]);
             }
@@ -189,7 +190,7 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const fetchEtapas = async () => {
         try {
             const response = await EspacioService.getAllStage();
-            setEtapas(response);
+            // setEtapas(response);
         } catch (error) {
             console.error("Error al obtener las etapas:", error);
         }

@@ -48,7 +48,6 @@ const Login = () => {
       console.log("No se pudo obtener UUID (esto es normal en desarrollo)");
     }
 
-
     const accesUser = await AccesUser.accesUsersLoguin({ email, password });
 
     if (accesUser.error) {

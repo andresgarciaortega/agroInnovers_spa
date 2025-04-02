@@ -81,10 +81,6 @@ const Navbar = () => {
       </div>
 
       <div className="flex w-80 items-center space-x-4 infosessionperfil ">
-        <div className="relative">
-          <IoMdNotificationsOutline className="text-2xl text-gray-600" />
-          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
-        </div>
         <img src={logoUser} alt="User" className="h-9 w-9 rounded-lg border" />
         <div onClick={toggleDropdown} className='seccionNombreUser'>
           <p className="text-gray-700">{username}</p>
