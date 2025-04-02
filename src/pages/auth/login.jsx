@@ -63,6 +63,9 @@ const Login = () => {
         setShowErrorAlert(true);
         localStorage.clear();
         navigate('/');
+        setTimeout(() => {
+          setShowErrorAlert(false)
+        }, 1300);
       }else{
         // Crear objeto empresa
         const companyData = {
