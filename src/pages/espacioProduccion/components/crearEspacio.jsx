@@ -213,6 +213,8 @@ const CrearEspacio = () => {
       try {
         const data = await CompanyService.getAllCompany();
         setCompanies(data);
+        setIsLoading(false)
+
       } catch (error) {
         console.error('Error fetching companies:', error);
       }
@@ -270,6 +272,7 @@ const CrearEspacio = () => {
         const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
         const data = await SpeciesService.getAllSpecie(companyId, {});
+        console.log("especies de la empresa : ", data)
         setTipoEspecies(data);
       } catch (error) {
         console.error('Error fetching species:', error);

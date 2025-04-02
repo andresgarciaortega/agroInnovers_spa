@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import logo from "../../assets/imagenes/logoBlanco.jpg";
@@ -24,53 +24,23 @@ const Login = () => {
   const [data, setData] = useState({})
   const navigate = useNavigate();
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   localStorage.clear();
-
-  //   const accesUser = await AccesUser.accesUsersLoguin({ email, password });
-
-  //   if (accesUser.error) {
-  //     localStorage.setItem('authToken', accesUser.response);
-  //     const decodedToken = await getDecodedToken();
-  //     localStorage.setItem("selectedCompany", JSON.stringify(
-  //       {
-  //         "value": decodedToken?.company.id,
-  //         "label": decodedToken?.company.name,
-  //       }
-  //     ));
-  //     localStorage.setItem("rol", JSON.stringify(
-  //       {
-  //         "value": decodedToken?.roles[0].id,
-  //         "label": decodedToken?.roles[0].name,
-  //       }
-  //     ));
-  //     setTimeout(() => {
-  //       navigate('/home/dashboard', { replace: true });
-  //     }, 600);
-  //   } else {
-  //     // Error: muestra la alerta
-  //     setEmailError(true);
-  //     setPasswordError(true);
-  //     setErrorMessage(accesUser.message); // Usa el mensaje devuelto por accesUsersLoguin
-  //     setShowErrorAlert(true);
-  //     setTimeout(() => {
-  //       setShowErrorAlert(false);
-  //     }, 1200);
-  //   }
-  // };
-
+  useEffect(() => {
+    setShowErrorAlert(false);
+  }, [])
+  
   const { setSelectedCompanyUniversal } = useCompanyContext(); // Añade esto
   const handleSubmit = async (e) => {
     e.preventDefault();
     localStorage.clear();
 
     // 1. Intentar obtener UUID del dispositivo (maneja silenciosamente el error)
+    let uuidObtenido=''
     try {
       const uuidResponse = await fetch('http://localhost:1880/serial_id');
       if (uuidResponse.ok) {
         const uuid = await uuidResponse.json();
         if (uuid?.serial_pi) {
+          uuidObtenido = uuid.serial_pi;
           localStorage.setItem("uuid", uuid.serial_pi);
         }
       }
@@ -85,30 +55,37 @@ const Login = () => {
       localStorage.setItem('authToken', accesUser.response);
       const decodedToken = await getDecodedToken();
 
-      // Crear objeto empresa
-      const companyData = {
-        value: decodedToken?.company.id,
-        label: decodedToken?.company.name,
-      };
-
-      // Actualizar localStorage
-      localStorage.setItem("selectedCompany", JSON.stringify(companyData));
-
-      // Actualizar contexto de empresa (nuevo código)
-      if (setSelectedCompanyUniversal) {
-        setSelectedCompanyUniversal(companyData);
-      }
-
-      localStorage.setItem("rol", JSON.stringify(
-        {
-          "value": decodedToken?.roles[0].id,
-          "label": decodedToken?.roles[0].name,
+      if(decodedToken?.roles[0].name == 'SUPER-ADMINISTRADOR' && uuidObtenido !== ''){
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('selectedCompany');
+        localStorage.clear();
+        navigate('/');
+      }else{
+        // Crear objeto empresa
+        const companyData = {
+          value: decodedToken?.company.id,
+          label: decodedToken?.company.name,
+        };
+  
+        // Actualizar localStorage
+        localStorage.setItem("selectedCompany", JSON.stringify(companyData));
+  
+        // Actualizar contexto de empresa (nuevo código)
+        if (setSelectedCompanyUniversal) {
+          setSelectedCompanyUniversal(companyData);
         }
-      ));
-
-      setTimeout(() => {
-        navigate('/home/dashboard', { replace: true });
-      }, 600);
+  
+        localStorage.setItem("rol", JSON.stringify(
+          {
+            "value": decodedToken?.roles[0].id,
+            "label": decodedToken?.roles[0].name,
+          }
+        ));
+  
+        setTimeout(() => {
+          navigate('/home/dashboard', { replace: true });
+        }, 600);
+      }
     } else {
       // Error: muestra la alerta (condición original mantenida)
       setEmailError(true);
@@ -122,9 +99,8 @@ const Login = () => {
   };
 
   const handleCloseAlert = () => {
-    setShowErrorAlert(false);
+    localStorage.clear();
   };
-
 
 
   const togglePasswordVisibility = () => {

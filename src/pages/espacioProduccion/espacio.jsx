@@ -95,7 +95,7 @@ const Espacio = () => {
         
         // Filtrar los datos si hay una ipFija almacenada
         let filteredData = Array.isArray(data) ? data : [];
-        
+        setIsLoading(false);
         if (storedIpFija) {
           filteredData = filteredData.filter(espacio => 
             espacio.monitoringSystemId && espacio.monitoringSystemId.ipFija === storedIpFija
