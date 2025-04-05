@@ -18,7 +18,7 @@ const ReporteService = {
     
     async getAllReporteSelecte(lote = 0, type_variable=0, specie_id=0) {
         try {
-            const response = await api.get(`/tracking-reports/reports?lote_id=${lote}&type_variable=${type_variable}&specie_id=${specie_id}`);
+            const response = await api.get(`/tracking-reports/reports?lote_id=${lote}&type_variable=${type_variable}&specie_id=${specie_id}&limit=1000`);
             return response.data;
         } catch (error) {
             console.error('Error al obtener los tipos de reportes:', error);
