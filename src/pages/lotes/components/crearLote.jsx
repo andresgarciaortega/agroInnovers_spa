@@ -144,7 +144,6 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const fetchEtapasPorEspecie = async (especieId) => {
         try {
             const especieData = await EspeciesService.getSpecieById(especieId);
-            console.log("especieData ------------ ", especieData)
             let etapasList;
             if (especieData && especieData.stages) {
                 etapasList = especieData.stages.map(stageItem => ({

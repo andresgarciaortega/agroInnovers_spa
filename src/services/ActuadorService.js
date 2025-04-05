@@ -69,9 +69,9 @@ const ActuadorService = {
     },
 
 
-    async getActuadorByIdCode(id) {
+    async getActuadorByIdCode(id, company) {
         try {
-            const response = await api.get(`/actuators/code/${id}`);
+            const response = await api.get(`/actuators/code/${id}?company=${company}`);
             return response;
         } catch (error) {
             console.error('Error al obtener los actuadores:', error);

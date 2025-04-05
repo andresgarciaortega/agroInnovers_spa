@@ -68,6 +68,7 @@ const CrearListas = () => {
     // { id: 1, description: '', time_to_production: 0, parameters: [] },
   ]);
 
+
   const [isLoading, setIsLoading] = useState(true);
   // const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
   const [Role, setRole] = useState(JSON.parse(localStorage.getItem('rol')));
@@ -175,32 +176,32 @@ const CrearListas = () => {
   };
 
   const handleNextStep = () => {
-  const { category, subcategory, scientificName, commonName, variable, image, description, company_id } = formData;
+    const { category, subcategory, scientificName, commonName, variable, image, description, company_id } = formData;
 
-  let newErrors = {};
+    let newErrors = {};
 
-  if (!category) newErrors.category = 'Este campo es obligatorio';
-  if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
-  if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
-  if (!commonName) newErrors.commonName = 'Este campo es obligatorio';
-  if (!variable || variable.length === 0) newErrors.variable = 'Este campo es obligatorio';
-  if (!image) newErrors.image = 'Este campo es obligatorio';
-  if (!description) newErrors.description = 'Este campo es obligatorio';
-  
-  // Check if company is required based on role
-  if (Role.label === "SUPER-ADMINISTRADOR") {
-    if (!company_id && !selectedCompanyUniversal?.value) {
-      newErrors.company_id = 'Este campo es obligatorio';
+    if (!category) newErrors.category = 'Este campo es obligatorio';
+    if (!subcategory) newErrors.subcategory = 'Este campo es obligatorio';
+    if (!scientificName) newErrors.scientificName = 'Este campo es obligatorio';
+    if (!commonName) newErrors.commonName = 'Este campo es obligatorio';
+    if (!variable || variable.length === 0) newErrors.variable = 'Este campo es obligatorio';
+    if (!image) newErrors.image = 'Este campo es obligatorio';
+    if (!description) newErrors.description = 'Este campo es obligatorio';
+
+    // Check if company is required based on role
+    if (Role.label === "SUPER-ADMINISTRADOR") {
+      if (!company_id && !selectedCompanyUniversal?.value) {
+        newErrors.company_id = 'Este campo es obligatorio';
+      }
     }
-  }
 
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
-    return;
-  }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
-  setStep((prev) => prev + 1);
-};
+    setStep((prev) => prev + 1);
+  };
 
 
 
@@ -520,74 +521,74 @@ const CrearListas = () => {
   // const showErrorAlert = (message) => {
   //   console.error(message);
   // };
-const handleSubmit = async (event) => {
-  event.preventDefault();
-  setIsLoading(true)
-  try {
-    let imageUrl = 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg';
-    if (formData.image) {
-      imageUrl = await uploadFile(formData.image);
-    }
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setIsLoading(true)
+    try {
+      let imageUrl = 'https://www.shutterstock.com/image-vector/default-image-icon-vector-missing-260nw-2086941550.jpg';
+      if (formData.image) {
+        imageUrl = await uploadFile(formData.image);
+      }
 
-    // Get company ID from either universal context or form data
-    const companyId = selectedCompanyUniversal?.value || formData.company_id;
-    
-    // Validate company selection for super admin
-    if (Role.label === "SUPER-ADMINISTRADOR" && !companyId) {
+      // Get company ID from either universal context or form data
+      const companyId = selectedCompanyUniversal?.value || formData.company_id;
+
+      // Validate company selection for super admin
+      if (Role.label === "SUPER-ADMINISTRADOR" && !companyId) {
+        setShowErrorAlert(true);
+        setMessageAlert("Debe seleccionar una empresa");
+        return;
+      }
+
+      const selectedVariables = formData.variable || [];
+      const categoryId = isNaN(formData.category) ? 0 : parseInt(formData.category, 10);
+      const subcategoryId = isNaN(formData.subcategory) ? 0 : parseInt(formData.subcategory, 10);
+
+      const updatedStages = stages.map(stage => ({
+        stage_id: stage.id,
+        description: stage.description,
+        time_to_production: isNaN(stage.time_to_production) ? 0 : parseInt(stage.time_to_production, 10),
+        parameters: (stage.parameters || []).map(param => ({
+          variable_id: param?.variable?.id && !isNaN(parseInt(param.variable.id, 10))
+            ? parseInt(param.variable.id, 10)
+            : 0,
+          min_normal_value: isNaN(param.min_normal_value) ? 0 : parseInt(param.min_normal_value, 10),
+          max_normal_value: isNaN(param.max_normal_value) ? 0 : parseInt(param.max_normal_value, 10),
+          min_limit: isNaN(param.min_limit) ? 0 : parseInt(param.min_limit, 10),
+          max_limit: isNaN(param.max_limit) ? 0 : parseInt(param.max_limit, 10)
+        }))
+      }));
+
+      const formDataToSubmit = {
+        scientific_name: formData.scientificName,
+        common_name: formData.commonName,
+        description: formData.description,
+        photo: imageUrl,
+        category_id: categoryId,
+        subcategory_id: subcategoryId,
+        company_id: parseInt(companyId, 10), // Use the selected company ID
+        stages: updatedStages,
+        variables: selectedVariables
+      };
+
+      const createdSpecie = await SpeciesService.createSpecie(formDataToSubmit);
+      setIsLoading(false)
+      showErrorAlertSuccess("Creada");
+      setShowSuccessAlert(true);
+      setTimeout(() => {
+        setShowSuccessAlert(false);
+      }, 2500);
+      setTimeout(() => {
+        navigate('../ListaEspecie');
+      }, 3000);
+
+    } catch (error) {
+      setIsLoading(false)
+      console.error("Error:", error);
       setShowErrorAlert(true);
-      setMessageAlert("Debe seleccionar una empresa");
-      return;
+      setMessageAlert("Error al crear la especie");
     }
-
-    const selectedVariables = formData.variable || [];
-    const categoryId = isNaN(formData.category) ? 0 : parseInt(formData.category, 10);
-    const subcategoryId = isNaN(formData.subcategory) ? 0 : parseInt(formData.subcategory, 10);
-
-    const updatedStages = stages.map(stage => ({
-      stage_id: stage.id,
-      description: stage.description,
-      time_to_production: isNaN(stage.time_to_production) ? 0 : parseInt(stage.time_to_production, 10),
-      parameters: (stage.parameters || []).map(param => ({
-        variable_id: param?.variable?.id && !isNaN(parseInt(param.variable.id, 10))
-          ? parseInt(param.variable.id, 10)
-          : 0,
-        min_normal_value: isNaN(param.min_normal_value) ? 0 : parseInt(param.min_normal_value, 10),
-        max_normal_value: isNaN(param.max_normal_value) ? 0 : parseInt(param.max_normal_value, 10),
-        min_limit: isNaN(param.min_limit) ? 0 : parseInt(param.min_limit, 10),
-        max_limit: isNaN(param.max_limit) ? 0 : parseInt(param.max_limit, 10)
-      }))
-    }));
-
-    const formDataToSubmit = {
-      scientific_name: formData.scientificName,
-      common_name: formData.commonName,
-      description: formData.description,
-      photo: imageUrl,
-      category_id: categoryId,
-      subcategory_id: subcategoryId,
-      company_id: parseInt(companyId, 10), // Use the selected company ID
-      stages: updatedStages,
-      variables: selectedVariables
-    };
-
-    const createdSpecie = await SpeciesService.createSpecie(formDataToSubmit);
-    setIsLoading(false)
-    showErrorAlertSuccess("Creada");
-    setShowSuccessAlert(true);
-    setTimeout(() => {
-      setShowSuccessAlert(false);
-    }, 2500);
-    setTimeout(() => {
-      navigate('../ListaEspecie');
-    }, 3000);
-
-  } catch (error) {
-    setIsLoading(false)
-    console.error("Error:", error);
-    setShowErrorAlert(true);
-    setMessageAlert("Error al crear la especie");
-  }
-};
+  };
 
   useEffect(() => {
     if (isModalOpen) {
@@ -864,37 +865,37 @@ const handleSubmit = async (event) => {
 
 
 
-{Role.label == "SUPER-ADMINISTRADOR" ? (
-  <>
-    <div className="col-span-2">
-      <label htmlFor="company_id" className="block text-sm font-medium text-gray-700 mb-1">
-        Empresa
-      </label>
-      <select
-        id="company_id"
-        name="company_id"
-        value={selectedCompanyUniversal?.value || formData.company_id}
-        onChange={handleChange}
-        className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.company_id ? 'border-red-500' : 'text-gray-500'}`}
-      >
-        <option value="" className="text-gray-500">Selecciona una opción</option>
-        {companies?.map((company_id) => (
-          <option 
-            key={company_id.id} 
-            value={company_id.id}
-            selected={company_id.id === Number(selectedCompanyUniversal?.value)}
-          >
-            {company_id.name}
-          </option>
-        ))}
-      </select>
-      {errors.empresa && <p className="text-red-500 text-xs mt-1">{errors.empresa}</p>}
-    </div>
-  </>) : ''
-}
+                      {Role.label == "SUPER-ADMINISTRADOR" ? (
+                        <>
+                          <div className="col-span-2">
+                            <label htmlFor="company_id" className="block text-sm font-medium text-gray-700 mb-1">
+                              Empresa
+                            </label>
+                            <select
+                              id="company_id"
+                              name="company_id"
+                              value={selectedCompanyUniversal?.value || formData.company_id}
+                              onChange={handleChange}
+                              className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-[#168C0DFF] focus:border-[#168C0DFF] cursor-pointer ${errors.company_id ? 'border-red-500' : 'text-gray-500'}`}
+                            >
+                              <option value="" className="text-gray-500">Selecciona una opción</option>
+                              {companies?.map((company_id) => (
+                                <option
+                                  key={company_id.id}
+                                  value={company_id.id || idcompanyLST?.value || ""}
+                                  selected={company_id.id === Number(selectedCompanyUniversal?.value)}
+                                >
+                                  {company_id.name}
+                                </option>
+                              ))}
+                            </select>
+                            {errors.empresa && <p className="text-red-500 text-xs mt-1">{errors.empresa}</p>}
+                          </div>
+                        </>) : ''
+                      }
 
 
-                    
+
 
 
 
@@ -960,7 +961,7 @@ const handleSubmit = async (event) => {
                                         placeholder="Descripción de la etapa"
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                         onChange={(e) => handleStageChange(stageIndex, 'description', e.target.value)}
-                                        value={stage?.name}
+                                        
                                       />
                                     </div>
                                     <div className="w-1/2 p-1">

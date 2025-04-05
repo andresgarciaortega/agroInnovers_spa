@@ -35,7 +35,7 @@ const Especie = () => {
   const [companyList, setCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [searchcompanyTerm, setSearchCompanyTerm] = useState("");
-  const [nameCompany, setNameCompany] = useState(idcompanyLST.label);
+  const [nameCompany, setNameCompany] = useState("");
   const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
 
   const [categoryList, setCategoryList] = useState([]);
@@ -85,14 +85,19 @@ const Especie = () => {
 
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-      if (!companyId) {
+      // const company.value = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+    const company = selectedCompanyUniversal ?? idcompanyLST;
+
+      if (!company.value) {
         setCategoryList([]);
         return;
+      }else{
+        console.log('company name', company.label)
+        setNameCompany(company.label);
       }
 
       try {
-        const data = await CategoryServices.getAllCategory(companyId);
+        const data = await CategoryServices.getAllCategory(company.value);
         if (data.statusCode == 404) {
           setCategoryList([]);
           setMessageAlert('Esta empresa no tiene categorías registradas, Intentalo con otra empresa');
@@ -244,13 +249,15 @@ const Especie = () => {
 
   const updateService = async () => {
     try {
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-      if (!companyId) {
+      // const company.value = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+    const company = selectedCompanyUniversal ?? idcompanyLST;
+
+      if (!company.value) {
         setCategoryList([]);
         return;
       }
 
-      const data = await CategoryServices.getAllCategory(companyId);
+      const data = await CategoryServices.getAllCategory(company.value);
       setCategoryList(data.data);
     } catch (error) {
       console.error('Error al actualizar las categorías:', error);
@@ -274,7 +281,7 @@ const Especie = () => {
           <span>/</span>
           <span>Categoría</span>
           <span>/</span>
-          <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
+          <span className="text-black font-bold">   {nameCompany}</span>
           <span className="text-black font-bold">  </span>
           {selectedCompany && (
             <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>

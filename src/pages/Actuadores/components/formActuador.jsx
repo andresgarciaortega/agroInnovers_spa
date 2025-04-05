@@ -199,7 +199,8 @@ const FormActuador = ({ selectedCompany, showErrorAlert, onUpdate, actuador, mod
   const handleValidateCode = async () =>{
     try {
       const code = formData.actuatorCode;
-      const sensorExisting = await ActuadorService.getActuadorByIdCode(code);
+      const company = JSON.parse(localStorage.getItem("selectedCompany"));
+      const sensorExisting = await ActuadorService.getActuadorByIdCode(code, Number(company.value));
       if(sensorExisting){
          seterrorAlerta(true)
         setmessageAlert("El código registrado ya existe");

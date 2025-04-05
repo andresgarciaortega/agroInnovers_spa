@@ -192,7 +192,9 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
   const handleValidateCode = async () => {
     try {
       const code = formData.sensorCode;
-      const sensorExisting = await TypeService.getSensorByIdCode(code);
+      const company = JSON.parse(localStorage.getItem("selectedCompany"));
+      console.log(company)
+      const sensorExisting = await TypeService.getSensorByIdCode(code, Number(company.value));
       if (sensorExisting) {
         seterrorAlerta(true)
         setmessageAlert("El código registrado ya existe");

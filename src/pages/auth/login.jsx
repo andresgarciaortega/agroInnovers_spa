@@ -45,7 +45,6 @@ const Login = () => {
         }
       }
     } catch (uuidError) {
-      console.log("No se pudo obtener UUID (esto es normal en desarrollo)");
     }
 
     const accesUser = await AccesUser.accesUsersLoguin({ email, password });

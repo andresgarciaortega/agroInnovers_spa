@@ -105,6 +105,7 @@ const FormTypeVariable = ({ showErrorAlert, onUpdate, typevariable, mode, closeM
     });
   };
 
+  
   const handleCompanyChange = (e) => {
     const selectedCompanyId = parseInt(e.target.value, 10);
     setFormData({

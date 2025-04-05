@@ -72,15 +72,18 @@ const Variable = () => {
 
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
+      const company = selectedCompanyUniversal ?? idcompanyLST;
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-      if (!companyId) {
+      // const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+      if (!company.value) {
         setVariableList([]);
         return;
+      }else{
+        setNameCompany(company.label);  
       }
 
       try {
-        const data = await VariableService.getAllVariable(companyId);
+        const data = await VariableService.getAllVariable(company.value);
         if (data.statusCode === 404) {
           setVariableList([]);
         } else {
@@ -199,7 +202,7 @@ const Variable = () => {
       const data = await VariableService.deleteVariable(selectedVariable.id);
       if (data) {
         setMessageAlert(data.message);
-        showErrorAlertSuccess("eliminado");
+        showErrorAlertSuccess("eliminada");
         updateService();
         setAlertSelecte(true);
       } else {
@@ -258,7 +261,7 @@ const Variable = () => {
           <span>/</span>
           <span>Variables</span>
           <span>/</span>
-          <span className="text-black font-bold">   {nameCompany ? nameCompany : ''}</span>
+          <span className="text-black font-bold">{nameCompany}</span>
           <span className="text-black font-bold">  </span>
           {selectedCompanyUniversal && (
             <span>{companyList.find(company => company.id === selectedCompanyUniversal)?.name}</span>
