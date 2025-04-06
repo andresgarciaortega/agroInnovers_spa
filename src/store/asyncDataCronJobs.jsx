@@ -12,11 +12,13 @@ const useDataSync = () => {
     // 🔄 Función para obtener lotes con o sin internet
     const fetchLotes = async () => {
         
+        let uuid = ''
         try {
             const uuidResponse = await fetch('http://localhost:1880/serial_id');
             if (uuidResponse.ok) {
                 const uuid = await uuidResponse.json();
                 if (uuid?.serial_pi) {
+                    uuid = uuid.serial_pi;
                     setuuidObtenido(uuid.serial_pi);
                     localStorage.setItem("uuid", uuid.serial_pi);
                 }
@@ -27,7 +29,7 @@ const useDataSync = () => {
 
 
         try {
-            const companyId = await SystemMonitory.getMotitoriesByUUID(uuidObtenido);
+            const companyId = await SystemMonitory.getMotitoriesByUUID(uuid);
             console.log(companyId)
             if (!companyId) {
                 return;
@@ -57,7 +59,7 @@ const useDataSync = () => {
     // 🔄 Función de sincronización de datos
     const syncData = async () => {
         if (!isLotesFetched) return;
-    
+        console.log("UUID 2 : ", uuidObtenido)
         if (!uuidObtenido) {
             console.warn("UUID no disponible. Cancelando sincronización.");
             return;
