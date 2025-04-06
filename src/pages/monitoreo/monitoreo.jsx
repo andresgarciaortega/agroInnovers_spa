@@ -299,7 +299,6 @@ const Monitoreo = () => {
 
   return (
     <div className="table-container containerEmporesa">
-
       <div className="">
         <div className="flex items-center space-x-2 text-gray-700">
           <ImEqualizer2 size={20} /> {/* Ícono de Gestión de Monitoreo */}
