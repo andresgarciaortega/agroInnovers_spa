@@ -71,14 +71,15 @@ const Monitoreo = () => {
         const decodedToken = await getDecodedToken();
         setUserRoles(decodedToken.roles?.map(role => role.name) || []);
 
-        const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+        const company = selectedCompanyUniversal ?? idcompanyLST;
 
-
-        if (!companyId) {
+        if (!company.value) {
           setData([]);
           return;
+        } else {
+          setNameCompany(company.label);
         }
-        const data = await SystemMonitory.getAllMonitories(companyId);
+        const data = await SystemMonitory.getAllMonitories(company.value);
 
         if (data.statusCode === 404) {
           setData([]);
@@ -114,14 +115,9 @@ const Monitoreo = () => {
     );
   });
 
-
-
   const indexOfLastDevice = currentPage * itemsPerPage;
   const indexOfFirstDevice = indexOfLastDevice - itemsPerPage;
   const currentDevices = filteredMonitoreo.slice(indexOfFirstDevice, indexOfLastDevice);
-
-
-
 
   const handleNextPage = () => {
     if (currentPage < Math.ceil(filteredMonitoreo.length / itemsPerPage)) {
@@ -146,26 +142,32 @@ const Monitoreo = () => {
   };
   const [alertSelecte, setAlertSelecte] = useState(false);
 
+
   const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false); // Cierra el modal de confirmación
-
+    setIsLoading(true)
     try {
       setSelectedDevice(null);
       const data = await SystemMonitory.deleteMonitories(selectedDevice.id);
-
+      console.log("eliminacion : ", data)
       if (data.success) {
         // Si la eliminación fue exitosa
+        setIsLoading(false)
+        setShowErrorAlert(true); // Muestra la alerta
         setMessageAlert(data.message);
         showErrorAlertSuccess("eliminado"); // Establece el mensaje de éxito
-        setAlertSelecte(false); // Indica que la alerta es de éxito
-
+        setAlertSelecte(true); // Indica que la alerta es de éxito
         updateListMonitories(); // Actualiza la lista de monitoreos
+        setTimeout(() => {
+          setShowErrorAlert(false)
+        }, 1100);
       } else {
         // Si la eliminación no fue exitosa
+        setIsLoading(false)
         setMessageAlert(data.message); // Establece el mensaje de error
         setAlertSelecte(false); // Indica que la alerta es de error
         setShowErrorAlert(true); // Muestra la alerta
-        updateListMonitories(); // Actualiza la lista de monitoreos
+        // updateListMonitories(); // Actualiza la lista de monitoreos
       }
     } catch (error) {
       // Manejo de errores
@@ -191,7 +193,6 @@ const Monitoreo = () => {
     setShowSuccessAlert(true)
     setMessageAlert(`Sistema de Monitoreo ${message} Exitosamente`);
     setMessageAlertDelete(`Sistema de Monitoreo  ${message} Exitosamente`);
-
     setTimeout(() => {
       setShowSuccessAlert(false)
     }, 2500);
@@ -200,15 +201,13 @@ const Monitoreo = () => {
   const updateListMonitories = async () => {
     try {
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+      const company = selectedCompanyUniversal ?? idcompanyLST;
 
-
-      if (!companyId) {
+      if (!company.value) {
         setData([]);
         return;
       }
-      const data = await SystemMonitory.getAllMonitories(companyId);
-
+      const data = await SystemMonitory.getAllMonitories(company.value);
 
       if (data.statusCode === 404) {
         setData([]);
@@ -251,7 +250,6 @@ const Monitoreo = () => {
     // updateService();
   };
 
-
   const handleCancelDelete = () => {
     setSelectedDevice(null);
     setIsDeleteModalOpen(false);
@@ -280,14 +278,14 @@ const Monitoreo = () => {
 
     try {
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+      const company = selectedCompanyUniversal ?? idcompanyLST;
 
-      if (!companyId) {
+      if (!company.value) {
         setData([]);
         return;
       }
 
-      const data = await SystemMonitory.getAllMonitories(companyId);
+      const data = await SystemMonitory.getAllMonitories(company.value);
 
       setData(data);
     } catch (error) {
@@ -314,7 +312,6 @@ const Monitoreo = () => {
           {selectedCompany && (
             <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
           )}
-
         </div>
       </div>
       <div className="relative w-full mt-6 py-5 z-0">

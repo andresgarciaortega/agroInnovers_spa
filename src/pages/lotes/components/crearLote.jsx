@@ -106,8 +106,9 @@ const FormCrearLote = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
         } catch (error) {
             console.error("Error al obtener los espacios:", error);
         }
-    };
+    }
 
+    
     const fetchCompanies = async () => {
         try {
             const fetchedCompanies = await CompanyService.getAllCompany();

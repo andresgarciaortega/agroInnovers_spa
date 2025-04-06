@@ -74,15 +74,18 @@ const Espacio = () => {
     const fetchEspecies = async () => {
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+      // const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+      const company = selectedCompanyUniversal ?? idcompanyLST;
       
-      if (!companyId) {
+      if (!company.value) {
         setVariableList([]);
         return;
+      }else{
+        setNameCompany(company.label)
       }
 
       try {
-        const data = await EspacioService.getAllEspacio(companyId);
+        const data = await EspacioService.getAllEspacio(company.value);
         
         if (data.statusCode === 404) {
           setVariableList([]);
@@ -236,16 +239,12 @@ const Espacio = () => {
     setVariableList([]);
 
     try {
-
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-
-      if (!companyId) {
+      const company = selectedCompanyUniversal ?? idcompanyLST;
+      if (!company.value) {
         setVariableList([]);
         return;
       }
-
-      const data = await EspacioService.getAllEspacio(companyId);
-
+      const data = await EspacioService.getAllEspacio(company.value);
       setVariableList(data);
     } catch (error) {
       console.error('Error al actualizar los tipos de espacio:', error);

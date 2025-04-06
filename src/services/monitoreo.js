@@ -59,7 +59,7 @@ const SystemMonitory = {
     async deleteMonitories(id) {
         try {
             const response = await api.delete(`/sistemas/${id}`);
-            return response; // Devuelve los datos de la respuesta en caso de éxito
+            return {success:true, response}; // Devuelve los datos de la respuesta en caso de éxito
         } catch (error) {
             // Extrae el mensaje del error enviado por el backend
             const errorMessage = error.response?.data?.message || 'Error desconocido al eliminar el tipo de variable.';

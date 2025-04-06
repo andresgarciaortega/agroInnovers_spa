@@ -116,18 +116,17 @@ const Actuador = () => {
   useEffect(() => {
     setIsLoading(true)
     const fetchActuador = async () => {
-
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
-
-
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-      if (!companyId) {
+      const company = selectedCompanyUniversal ?? idcompanyLST;
+      if (!company.value) {
         setVariableList([]);
         return;
+      }else{
+        setNameCompany(company.label)
       }
       try {
-        const data = await ActuadorService.getAllActuador(companyId, {});
+        const data = await ActuadorService.getAllActuador(company.value, {});
         ("data    ---- ", data)
         if (data.statusCode === 404 || data.length == 0) {
           setVariableList([]);
@@ -297,15 +296,14 @@ const Actuador = () => {
     setVariableList([]);
 
     try {
+      const company = selectedCompanyUniversal ?? idcompanyLST;
 
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-
-      if (!companyId) {
+      if (!company.value) {
         setVariableList([]);
         return;
       }
 
-      const data = await ActuadorService.getAllActuador(companyId, {});
+      const data = await ActuadorService.getAllActuador(company.value, {});
 
       setVariableList(data);
     } catch (error) {

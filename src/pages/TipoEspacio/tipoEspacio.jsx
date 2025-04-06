@@ -42,14 +42,14 @@ const TipoEspacio = () => {
     spaceTypeName: '',
     icon: '',
     description: '',
-
   });
+  const [idcompanyLST, setIdcompanyLST] = useState(JSON.parse(localStorage.getItem('selectedCompany')));
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    hiddenSelect(false)
+    hiddenSelect(true)
     const fetchCompanies = async () => {
       try {
         const data = await CompanyService.getAllCompany();
@@ -65,16 +65,16 @@ const TipoEspacio = () => {
   useEffect(() => {
     setIsLoading(true);
     const fetchVariables = async () => {
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
-      if (!companyId) {
+      const company = selectedCompanyUniversal ?? idcompanyLST;
+      if (!company.value) {
         setVariableList([]);
         return;
       } else {
-        setNameCompany(selectedCompanyUniversal.label)
+        setNameCompany(company.label)
       }
 
       try {
-        const data = await TipoEspacioService.getAlltipoEspacio(companyId);
+        const data = await TipoEspacioService.getAlltipoEspacio(company.value);
         if (data.statusCode === 404) {
           setVariableList([]);
         } else {
@@ -256,7 +256,12 @@ const TipoEspacio = () => {
           <ImEqualizer2 size={20} />
           <span>Gestión de espacios</span>
           <span>/</span>
-          <span>Tipos de espacios</span>
+          <span>Tipos de espacios  /</span>
+          <span className="text-black font-bold"> {nameCompany ? nameCompany : ''} </span>
+          <span className="text-black font-bold"> </span>
+          {selectedCompany && (
+            <span>{companyList.find(company => company.id === selectedCompany)?.name}</span>
+          )}
         </div>
       </div>
       <div className="relative w-full mt-6 py-5 z-0">

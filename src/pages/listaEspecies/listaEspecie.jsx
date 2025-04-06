@@ -91,14 +91,16 @@ const ListaEspecies = () => {
     const fetchEspecies = async () => {
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
-
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-      if (!companyId) {
+      const company = selectedCompanyUniversal ?? idcompanyLST;
+      // const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
+      if (!company.value) {
         setSpeciesList([]);
         return;
+      }else{
+        setNameCompany(company.label)
       }
       try {
-        const data = await SpeciesService.getAllSpecie(companyId, {});
+        const data = await SpeciesService.getAllSpecie(company.value, {});
 
         if (data.statusCode === 404) {
           setShowErrorAlertTable(true)
@@ -261,15 +263,15 @@ const ListaEspecies = () => {
   const updateService = async () => {
     setShowErrorAlertTable(false);
     // setSpeciesList([]);
-    if (!companyId) {
+    const company = selectedCompanyUniversal ?? idcompanyLST;
+
+    if (!company.value) {
       setSpeciesList([]);
       return;
-    } else {
-      setNameCompany(selectedCompanyUniversal.label)
-    }
+    } 
 
     try {
-      const data = await SpeciesService.getAllSpecie(companyId, {});
+      const data = await SpeciesService.getAllSpecie(company.value, {});
       if (data.statusCode === 404) {
         setSpeciesList([]);
       } else {

@@ -91,16 +91,16 @@ const Sensor = () => {
 
       const decodedToken = await getDecodedToken();
       setUserRoles(decodedToken.roles?.map(role => role.name) || []);
-
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-      if (!companyId) {
+      const company = selectedCompanyUniversal ?? idcompanyLST;
+      if (!company.value) {
         setVariableList([]);
         return;
+      }else{
+        setNameCompany(company.label);
       }
 
-
       try {
-        const data = await SensorService.getAllSensor(companyId, {}); // Servicio que filtra por empresa
+        const data = await SensorService.getAllSensor(company.value, {}); // Servicio que filtra por empresa
         if (data?.length === 0) {
           setVariableList([]);
           setIsLoading(false)
@@ -282,16 +282,12 @@ const Sensor = () => {
     setVariableList([]);
 
     try {
-
-      const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : idcompanyLST.value;
-
-      if (!companyId) {
+      const company = selectedCompanyUniversal ?? idcompanyLST;
+      if (!company.value) {
         setVariableList([]);
         return;
       }
-
-      const data = await SensorService.getAllSensor(companyId, {});
-
+      const data = await SensorService.getAllSensor(company.value, {});
       setVariableList(data);
     } catch (error) {
       console.error('Error al actualizar los sensores:', error);
