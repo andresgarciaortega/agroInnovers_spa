@@ -89,7 +89,7 @@ const useDataSync = () => {
                         console.log("📌 Respuesta API de newRed:", newData);
     
                         if (newData && !newData.error) {
-                            const now = new Date();
+                            const now = new Date(); 
                             const updateDate = now.toISOString().split('T')[0];
                             const updateTime = now.toTimeString().split(' ')[0].substring(0, 5);
     
