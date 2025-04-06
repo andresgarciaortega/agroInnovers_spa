@@ -2,18 +2,34 @@ import { useEffect, useState } from "react";
 import ReporteService from "../services/LoteSeguimiento";
 import LoteService from "../services/lotesService";
 import { useCompanyContext } from "../context/CompanyContext";
+import SystemMonitory from "../services/monitoreo";
 
 const useDataSync = () => {
     const { selectedCompanyUniversal } = useCompanyContext();
     const [data, setData] = useState([]);
     const [isLotesFetched, setIsLotesFetched] = useState(false); // 🔥 Para saber si `fetchLotes` ya corrió
-
+    const [uuidObtenido, setuuidObtenido] = useState()
     // 🔄 Función para obtener lotes con o sin internet
     const fetchLotes = async () => {
+        
         try {
-            const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : "";
+            const uuidResponse = await fetch('http://localhost:1880/serial_id');
+            if (uuidResponse.ok) {
+                const uuid = await uuidResponse.json();
+                if (uuid?.serial_pi) {
+                    setuuidObtenido(uuid.serial_pi);
+                    localStorage.setItem("uuid", uuid.serial_pi);
+                }
+            }
+        } catch (uuidError) {
+            console.warn("No se pudo obtener el UUID del dispositivo:", uuidError);
+        }
+
+
+        try {
+            const companyId = await SystemMonitory.getMotitoriesByUUID(uuidObtenido);
+            console.log(companyId)
             if (!companyId) {
-                setData([]);
                 return;
             }
 
@@ -21,8 +37,8 @@ const useDataSync = () => {
             let response = [];
 
             if (navigator.onLine) {
-                console.log("🔗 Conectado a Internet. Obteniendo datos de la API...");
-                response = await LoteService.getAllLots(48);
+                console.log("🔗 Conectado a hInternet. Obteniendo datos de la API...");
+                response = await LoteService.getAllLots(companyId.company_id);
                 setData(response);
             } else {
                 console.warn("🚫 Sin conexión a Internet. Cargando datos desde localStorage...");
@@ -41,20 +57,6 @@ const useDataSync = () => {
     // 🔄 Función de sincronización de datos
     const syncData = async () => {
         if (!isLotesFetched) return;
-    
-        let uuidObtenido = '';
-        try {
-            const uuidResponse = await fetch('http://localhost:1880/serial_id');
-            if (uuidResponse.ok) {
-                const uuid = await uuidResponse.json();
-                if (uuid?.serial_pi) {
-                    uuidObtenido = uuid.serial_pi;
-                    localStorage.setItem("uuid", uuid.serial_pi);
-                }
-            }
-        } catch (uuidError) {
-            console.warn("No se pudo obtener el UUID del dispositivo:", uuidError);
-        }
     
         if (!uuidObtenido) {
             console.warn("UUID no disponible. Cancelando sincronización.");

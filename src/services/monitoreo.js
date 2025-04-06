@@ -25,6 +25,17 @@ const SystemMonitory = {
         }
     },
 
+    async getMotitoriesByUUID(id) {
+        try {
+            const response = await api.get(`/sistemas/uuid/${id}`);
+            return response;
+        } catch (error) {
+            console.error('Error al obtener los sistemas:', error);
+            throw error;
+        }
+    },
+
+
     // CREAR UNA tipo de variable
     async createMonitories(data) {
         try {
