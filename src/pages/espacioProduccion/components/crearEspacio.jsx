@@ -224,18 +224,32 @@ const CrearEspacio = () => {
 
 
   useEffect(() => {
-    hiddenSelect(true)
+    hiddenSelect(true);
+  
     const fetchMonitoreo = async () => {
       try {
         const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
         const data = await MonitoreoService.getAllMonitories(companyId);
-        setMonitoreo(data);
+  
+        const uuid = localStorage.getItem('uuid');
+  
+        if (uuid) {
+          // Filtrar los monitoreos por ipFija que coincida con uuid
+          const filtrados = data.filter(item => item.ipFija === uuid);
+          setMonitoreo(filtrados);
+        } else {
+          // Si no hay uuid en localStorage, mostrar todo
+          setMonitoreo(data);
+        }
+  
       } catch (error) {
         console.error('Error fetching monitoreo:', error);
       }
     };
+  
     fetchMonitoreo();
   }, [selectedCompanyUniversal]);
+  
 
   useEffect(() => {
     const fetchTipoSensor = async () => {
