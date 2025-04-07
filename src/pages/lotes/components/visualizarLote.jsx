@@ -39,6 +39,7 @@ const VisualizarLote = () => {
     const [isModalOpenSeguimiento, setIdModalOpenSeguimiento] = useState(false);
     const [isModalOpenEditSeguimiento, setIdModalOpenEditSeguimiento] = useState(false);
     const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
+    const [showErrorAlerta, setshowErrorAlerta] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingTable, setIsLoadingTable] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -338,6 +339,13 @@ const VisualizarLote = () => {
         }
     };
 
+    const handleOpenAlert = (alert) =>{
+        // setMessageAlert(alert);
+        // setshowErrorAlerta(true)
+        // // setTimeout(() => {
+        // //     setShowErrorAlertNoTiene(false)
+        // // }, 900);
+    }
 
     return (
         <>
@@ -537,7 +545,7 @@ const VisualizarLote = () => {
                                                                 {reporte.alertas?.length > 0 && (
                                                                     <button
                                                                         className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
-                                                                        onClick={() => handleOpenModalEdit(reporte, 'view')}
+                                                                        onClick={() => handleOpenAlert(reporte.alertas[0], 'view')}
                                                                     >
                                                                         <AiOutlineFileUnknown />
                                                                     </button>
@@ -674,6 +682,19 @@ const VisualizarLote = () => {
                     </div>
                 </>
             )}
+
+
+
+{showErrorAlerta && (
+                <div className="alert alert-error flex flex-col items-start space-y-1 p-2 mt-4 bg-red-500 text-white rounded-md">
+                  <div className="flex space-x-2">
+                    <IoIosWarning size={20} />
+                    <p>{messageAlert}</p>
+                  </div>
+                </div>
+              )}
+
+
         </>
 
     );
