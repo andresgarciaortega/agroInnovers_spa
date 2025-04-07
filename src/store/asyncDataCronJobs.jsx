@@ -44,11 +44,12 @@ const useDataSync = () => {
                 console.log("🔗 Conectado a hInternet. Obteniendo datos de la API...");
                 response = await LoteService.getAllLots(companyId.company_id);
                 setData(response);
-            } else {
-                console.warn("🚫 Sin conexión a Internet. Cargando datos desde localStorage...");
-                response = JSON.parse(localStorage.getItem("cache_/production-lots"))?.data || [];
-                setData(response);
-            }
+            } 
+            // else {
+            //     console.warn("🚫 Sin conexión a Internet. Cargando datos desde localStorage...");
+            //     response = JSON.parse(localStorage.getItem("cache_/production-lots"))?.data || [];
+            //     setData(response);
+            // }
 
             console.log("📌 Datos de lotes obtenidos:", response);
             setIsLotesFetched(true); // 🔥 Marcamos que `fetchLotes` ya se ejecutó
@@ -101,7 +102,7 @@ const useDataSync = () => {
     
                             const productionLotSpecies = item.productionLotSpecies?.[0];
                             const variable = productionLotSpecies?.specie?.variables?.[0];
-                            const typeVariableId = variable?.typeVariable?.id || null;
+                            const typeVariableId = control.variable_producton.id || null;
                             const variableId = variable?.id || null;
     
                             console.log("💾 Guardando datos...");
