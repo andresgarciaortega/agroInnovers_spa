@@ -12,13 +12,14 @@ const useDataSync = () => {
     // 🔄 Función para obtener lotes con o sin internet
     const fetchLotes = async () => {
         
-        let uuid = ''
+        let uuidRespuesta = ''
         try {
             const uuidResponse = await fetch('http://localhost:1880/serial_id');
             if (uuidResponse.ok) {
                 const uuid = await uuidResponse.json();
+                console.log("response : ", uuid)
                 if (uuid?.serial_pi) {
-                    uuid = uuid.serial_pi;
+                    uuidRespuesta = uuid.serial_pi;
                     setuuidObtenido(uuid.serial_pi);
                     localStorage.setItem("uuid", uuid.serial_pi);
                 }
@@ -29,8 +30,8 @@ const useDataSync = () => {
 
 
         try {
-            console.log("uuid 1 ", uuid)
-            const companyId = await SystemMonitory.getMotitoriesByUUID(uuid);
+            console.log("uuid 1 ", uuidRespuesta)
+            const companyId = await SystemMonitory.getMotitoriesByUUID(uuidRespuesta);
             console.log(companyId)
             if (!companyId) {
                 return;
