@@ -4,6 +4,7 @@ import CompanyService from '../../../services/CompanyService';
 import { useCompanyContext } from '../../../context/CompanyContext';
 import { IoEye, IoEyeOff } from 'react-icons/io5';
 import LoadingView from '../../../components/Loading/loadingView';
+import ErrorAlert from '../../../components/alerts/error';
 
 const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, closeModal, companyId }) => {
     const companySeleector = JSON.parse(localStorage.getItem("selectedCompany"));
@@ -137,6 +138,26 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
         setShowPassword((prev) => !prev);
     };
 
+    const [errorAlerta, seterrorAlerta] = useState(false)
+    const [messageAlert, setmessageAlert] = useState("")
+
+    const validateCodeUUID = async () => {
+        const uuid = formData.ipFija
+        const datavalidate = await MonitoreoService.getMotitoriesByUUIDExisting(uuid, Number(idcompanyLST.value));
+        if (datavalidate) {
+            seterrorAlerta(true)
+            setmessageAlert("El código UUID, ya se encuentra registrado con otra compañia");
+            formData.ipFija = '';
+            setTimeout(() => {
+                seterrorAlerta(false)
+            }, 950);
+        }
+    }
+
+    const handleCloseAlert = () => {
+        seterrorAlerta(false);
+    };
+
     return (
         <>
             {isLoading ? (
@@ -204,6 +225,7 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
                                             name="ipFija"
                                             value={mode === 'create' && !isDisplayActive ? '' : formData.ipFija}
                                             onChange={handleChange}
+                                            onBlur={validateCodeUUID}
                                             className="border-gray-300 rounded-md shadow-sm p-2 w-full"
                                             placeholder="Ingrese el código UUID"
                                             disabled={mode === 'view'}
@@ -326,6 +348,12 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
                     </form>
                 </>
             )}
+
+            {errorAlerta &&
+                <ErrorAlert message={messageAlert}
+                    onCancel={handleCloseAlert} />
+            }
+
         </>
 
     );
