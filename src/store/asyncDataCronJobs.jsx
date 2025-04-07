@@ -102,7 +102,7 @@ const useDataSync = () => {
     
                             const productionLotSpecies = item.productionLotSpecies?.[0];
                             const variable = productionLotSpecies?.specie?.variables?.[0];
-                            const typeVariableId = control.variable_producton.id || null;
+                            const typeVariableId = control.variable_production.id || null;
                             const variableId = variable?.id || null;
     
                             console.log("💾 Guardando datos...");
