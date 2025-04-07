@@ -11,7 +11,7 @@ const useDataSync = () => {
     const [uuidObtenido, setuuidObtenido] = useState()
     // 🔄 Función para obtener lotes con o sin internet
     const fetchLotes = async () => {
-        
+
         let uuidRespuesta = ''
         try {
             const uuidResponse = await fetch('http://localhost:1880/serial_id');
@@ -44,7 +44,7 @@ const useDataSync = () => {
                 console.log("🔗 Conectado a hInternet. Obteniendo datos de la API...");
                 response = await LoteService.getAllLots(companyId.company_id);
                 setData(response);
-            } 
+            }
             // else {
             //     console.warn("🚫 Sin conexión a Internet. Cargando datos desde localStorage...");
             //     response = JSON.parse(localStorage.getItem("cache_/production-lots"))?.data || [];
@@ -62,96 +62,119 @@ const useDataSync = () => {
     // 🔄 Función de sincronización de datos
     const syncData = async () => {
         if (!isLotesFetched) return;
-        console.log("UUID 2 : ", uuidObtenido)
+        console.log("UUID 2 : ", uuidObtenido);
         if (!uuidObtenido) {
             console.warn("UUID no disponible. Cancelando sincronización.");
             return;
         }
-    
+
         console.log("⚡ Ejecutando syncData con UUID:", uuidObtenido);
-    
+
+        // Procesar cada lote secuencialmente
         for (const item of data) {
             const { id, lotCode, productionSpace, status } = item;
             const ipFija = item?.productionSpace?.monitoringSystemId?.ipFija || '';
-    
+
             // Filtrar por estado y coincidencia de UUID con ipFija
             if (status !== "Producción" || ipFija !== uuidObtenido) {
+                console.log(`⏩ Saltando lote ${lotCode} - No cumple condiciones`);
                 continue;
             }
-    
-            if (productionSpace?.configureMeasurementControls) {
-                for (const control of productionSpace.configureMeasurementControls) {
-                    const sensor = control.sensor;
-                    if (!sensor) continue;
-    
-                    const Puerto_de_entrada = sensor.inputPort;
-                    const Puerto_de_lectura = sensor.readingPort;
-    
-                    console.log(`🟢 Ejecutando API para Lote: ${lotCode} (ID: ${id})`);
-    
-                    try {
-                        const response = await fetch(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`);
-                        const newData = await response.json();
-    
-                        console.log("📌 Respuesta API de newRed:", newData);
-    
-                        if (newData && !newData.error) {
-                            const now = new Date(); 
-                            const updateDate = now.toISOString().split('T')[0];
-                            const updateTime = now.toTimeString().split(' ')[0].substring(0, 5);
-    
-                            const productionLotSpecies = item.productionLotSpecies?.[0];
-                            const variable = productionLotSpecies?.specie?.variables?.[0];
-                            const typeVariableId = control.variable_production.id || null;
-                            const variableId = variable?.id || null;
-    
-                            console.log("💾 Guardando datos...");
-    
-                            await handleSubmit({
-                                company_id: item.company_id,
-                                productionLotId: id,
-                                specieId: productionLotSpecies?.specie?.id || null,
-                                typeVariableId,
-                                variableTrackingReports: [
-                                    {
-                                        variableId,
-                                        updateDate,
-                                        updateTime,
-                                        weightAmount: newData.value
-                                    }
-                                ]
-                            });
-    
-                            // Activar actuador si existe
-                            if (control.actuator) {
-                                const actuatorInputPort = control.actuator.inputPort;
-                                const actuatorActivationPort = control.actuator.activationPort;
-                                const actuatorUrl = `http://127.0.0.1:1880/request?id_c=${actuatorInputPort}&id_a=${actuatorActivationPort}&state=true`;
-    
-                                console.log(`🟠 Activando actuador para Lote: ${lotCode}`);
-                                console.log("URL:", actuatorUrl);
-    
-                                try {
-                                    const actuatorResponse = await fetch(actuatorUrl);
-                                    const actuatorData = await actuatorResponse.json();
-                                    console.log("📌 Respuesta API de actuador:", actuatorData);
-                                } catch (error) {
-                                    console.error(`❌ Error al activar actuador para Lote ${lotCode} (ID: ${id})`, error);
-                                }
-                            }
-                        }
-    
-                    } catch (error) {
-                        console.error(`❌ Error en API para Lote ${lotCode} (ID: ${id})`, error);
+
+            if (!productionSpace?.configureMeasurementControls) {
+                console.log(`⏩ Saltando lote ${lotCode} - Sin controles de medición`);
+                continue;
+            }
+
+            console.log(`🟢 Procesando Lote: ${lotCode} (ID: ${id})`);
+
+            // Procesar cada control de medición secuencialmente
+            for (const control of productionSpace.configureMeasurementControls) {
+                const sensor = control.sensor;
+                if (!sensor) {
+                    console.log(`⏩ Saltando control - Sin sensor definido`);
+                    continue;
+                }
+
+                const Puerto_de_entrada = sensor.inputPort;
+                const Puerto_de_lectura = sensor.readingPort;
+
+                try {
+                    console.log(`📡 Leyendo sensor (Entrada: ${Puerto_de_entrada}, Lectura: ${Puerto_de_lectura})`);
+
+                    // 1. Lectura del sensor con tiempo mínimo de espera
+                    const startTime = Date.now();
+                    const response = await fetch(`http://127.0.0.1:1880/request?id_d=${Puerto_de_entrada}&id_s=${Puerto_de_lectura}`);
+                    const newData = await response.json();
+                    console.log("📌 Respuesta API de newRed:", newData);
+
+                    if (newData.error) {
+                        console.error(`❌ Error en lectura del sensor: ${newData.error}`);
+                        continue; // Saltar a siguiente control si hay error
                     }
-    
-                    // Esperar 30 segundos entre cada iteración
-                    await new Promise(resolve => setTimeout(resolve, 30000));
+
+                    // 2. Procesamiento de datos
+                    const now = new Date();
+                    const updateDate = now.toISOString().split('T')[0];
+                    const updateTime = now.toTimeString().split(' ')[0].substring(0, 5);
+
+                    const productionLotSpecies = item.productionLotSpecies?.[0];
+                    const variable = productionLotSpecies?.specie?.variables?.[0];
+                    const typeVariableId = control.variable_production.id || null;
+                    const variableId = variable?.id || null;
+
+                    // 3. Guardado de datos
+                    console.log("💾 Guardando datos...");
+                    await handleSubmit({
+                        company_id: item.company_id,
+                        productionLotId: id,
+                        specieId: productionLotSpecies?.specie?.id || null,
+                        typeVariableId,
+                        variableTrackingReports: [
+                            {
+                                variableId,
+                                updateDate,
+                                updateTime,
+                                weightAmount: newData.value
+                            }
+                        ]
+                    });
+
+                    // 4. Activación de actuador si existe
+                    if (control.actuator) {
+                        const actuatorInputPort = control.actuator.inputPort;
+                        const actuatorActivationPort = control.actuator.activationPort;
+                        const actuatorUrl = `http://127.0.0.1:1880/request?id_c=${actuatorInputPort}&id_a=${actuatorActivationPort}&state=true`;
+
+                        console.log(`🟠 Activando actuador para Lote: ${lotCode}`);
+                        console.log("URL:", actuatorUrl);
+
+                        try {
+                            const actuatorResponse = await fetch(actuatorUrl);
+                            const actuatorData = await actuatorResponse.json();
+                            console.log("📌 Respuesta API de actuador:", actuatorData);
+                        } catch (error) {
+                            console.error(`❌ Error al activar actuador para Lote ${lotCode} (ID: ${id})`, error);
+                        }
+                    }
+
+                    // 5. Calcular tiempo restante para cumplir con el mínimo de 20 segundos
+                    const elapsed = Date.now() - startTime;
+                    const remainingTime = Math.max(20000 - elapsed, 0);
+                    console.log(`⏳ Esperando ${remainingTime}ms para siguiente petición...`);
+                    await new Promise(resolve => setTimeout(resolve, remainingTime));
+
+                } catch (error) {
+                    console.error(`❌ Error en procesamiento para Lote ${lotCode} (ID: ${id})`, error);
+
+                    // Esperar 20 segundos incluso si hay error
+                    console.log(`⏳ Esperando 20s después de error...`);
+                    await new Promise(resolve => setTimeout(resolve, 20000));
                 }
             }
         }
     };
-    
+
 
     // 🔄 Función de guardado de reportes
     const handleSubmit = async (formData) => {
