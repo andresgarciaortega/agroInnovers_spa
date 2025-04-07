@@ -81,6 +81,19 @@ const ReporteService = {
     },
     
 
+
+    async createAlertReporte(data) {
+        try {
+            const response = await api.post('/alert/', data);
+            return response;
+        } catch (error) {
+            const errorMessage = error.response?.data?.message?.message || 'Error desconocido al crear los reportes.';
+            throw {
+                statusCode: error.response?.status || 500, 
+                message: errorMessage,
+            };
+        }
+    },
       
 };
 

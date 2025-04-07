@@ -225,14 +225,11 @@ const CrearEspacio = () => {
 
   useEffect(() => {
     hiddenSelect(true);
-  
     const fetchMonitoreo = async () => {
       try {
         const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
         const data = await MonitoreoService.getAllMonitories(companyId);
-  
         const uuid = localStorage.getItem('uuid');
-  
         if (uuid) {
           // Filtrar los monitoreos por ipFija que coincida con uuid
           const filtrados = data.filter(item => item.ipFija === uuid);
@@ -241,12 +238,10 @@ const CrearEspacio = () => {
           // Si no hay uuid en localStorage, mostrar todo
           setMonitoreo(data);
         }
-  
       } catch (error) {
         console.error('Error fetching monitoreo:', error);
       }
     };
-  
     fetchMonitoreo();
   }, [selectedCompanyUniversal]);
   

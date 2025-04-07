@@ -253,11 +253,10 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     //     }
     // };
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-        
+    
         try {
             // 1. Preparar datos del reporte
             const preparedData = {
@@ -269,88 +268,67 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                 variableTrackingReports: [variableTrackingReports]
             };
     
-            // 2. Crear el reporte primero
-            await ReporteService.createReporte(preparedData);
+            // 2. Crear el reporte primero y obtener su ID
+            const reporteCreado = await ReporteService.createReporte(preparedData);
+            const idReporte = reporteCreado.id; // Asumiendo que el servicio devuelve el ID
+    
+            console.log(`Reporte creado con ID: ${idReporte}`);
     
             // 3. Obtener información completa del lote
             const loteInfo = await LoteService.getAllLotsById(lote.id);
-            console.log("1. Información del lote obtenida:", loteInfo);
-    
+            
             // 4. Obtener variables configuradas en el espacio de producción
             const variablesEspacio = loteInfo.productionSpace?.configureMeasurementControls || [];
-            console.log("2. Variables del espacio:", variablesEspacio);
     
-            // 5. Procesar cada especie del lote
+            // 5. Procesar cada especie del lote SOLO SI ESTÁ EN PRODUCCIÓN
             for (const especieLote of loteInfo.productionLotSpecies) {
-                console.log(`3. Procesando especie ID: ${especieLote.id}`);
-                
-                // 6. Obtener última etapa registrada (último trackingConfig)
-                const trackingConfigs = especieLote.trackingConfigs || [];
-                const ultimaEtapa = trackingConfigs[trackingConfigs.length - 1]?.productionCycleStage;
-                
-                if (!ultimaEtapa) {
-                    console.log("No se encontró etapa registrada para esta especie");
+                if (especieLote.status !== "Producción") {
                     continue;
                 }
-                console.log(`4. Última etapa registrada: ${ultimaEtapa.name}`);
+    
+                // 6. Obtener última etapa registrada
+                const trackingConfigs = especieLote.trackingConfigs || [];
+                const ultimaEtapa = trackingConfigs[trackingConfigs.length - 1]?.productionCycleStage;
+                if (!ultimaEtapa) continue;
     
                 // 7. Obtener información completa de la especie
                 const especieCompleta = await SpeciesService.getSpecieById(especieLote.specie.id);
-                console.log("5. Información completa de la especie:", especieCompleta);
     
                 // 8. Buscar la etapa correspondiente en los stages de la especie
                 const etapaEspecie = especieCompleta.stages?.find(
                     stage => stage.stage.id === ultimaEtapa.id
                 );
-                
-                if (!etapaEspecie) {
-                    console.log("No se encontró la etapa en la configuración de la especie");
-                    continue;
-                }
-                console.log("6. Parámetros de la etapa:", etapaEspecie.parameters);
+                if (!etapaEspecie) continue;
     
                 // 9. Validar cada variable del espacio contra los parámetros de la etapa
                 for (const variableEspacio of variablesEspacio) {
                     const variableId = variableEspacio.variable_production?.id;
                     if (!variableId) continue;
     
-                    // Buscar el parámetro correspondiente en la etapa
                     const parametro = etapaEspecie.parameters?.find(
                         param => param.variable.id === variableId
                     );
-                    
-                    if (!parametro) {
-                        console.log(`No se encontró parámetro para la variable ${variableEspacio.variable_production.name}`);
-                        continue;
-                    }
+                    if (!parametro) continue;
     
-                    // Buscar el valor reportado para esta variable
-                    const valorReportado = preparedData.variableTrackingReports.find(
-                        report => report.variableId === variableId
-                    )?.weightAmount;
-                    
-                    if (valorReportado === undefined) {
-                        console.log(`No se reportó valor para la variable ${variableEspacio.variable_production.name}`);
-                        continue;
-                    }
+                    const valorReportado = parseFloat(preparedData.variableTrackingReports[0]?.weightAmount);
+                    if (isNaN(valorReportado)) continue;
     
-                    // Validar los límites
                     const nombreVariable = variableEspacio.variable_production.name;
+                    let mensajeAlerta = '';
+    
                     if (valorReportado < parametro.min_limit) {
-                        console.log(
-                            `ALERTA: El valor reportado para la variable ${nombreVariable} es ${valorReportado} ` +
-                            `y está por debajo del límite mínimo que es de ${parametro.min_limit}`
-                        );
+                        mensajeAlerta = `ALERTA: El valor reportado para la variable ${nombreVariable} es ${valorReportado} y está por debajo del límite mínimo que es de ${parametro.min_limit}`;
                     } else if (valorReportado > parametro.max_limit) {
-                        console.log(
-                            `ALERTA: El valor reportado para la variable ${nombreVariable} es ${valorReportado} ` +
-                            `y está por encima del límite máximo que es de ${parametro.max_limit}`
-                        );
-                    } else {
-                        console.log(
-                            `El valor ${valorReportado} para ${nombreVariable} está dentro del rango normal ` +
-                            `(${parametro.min_limit}-${parametro.max_limit})`
-                        );
+                        mensajeAlerta = `ALERTA: El valor reportado para la variable ${nombreVariable} es ${valorReportado} y está por encima del límite máximo que es de ${parametro.max_limit}`;
+                    }
+    
+                    // Crear alerta si se exceden los límites
+                    if (mensajeAlerta) {
+                        console.log(mensajeAlerta);
+                        await ReporteService.createAlertReporte({
+                            description: mensajeAlerta,
+                            idReeporte: Number(idReporte)
+                        });
                     }
                 }
             }
@@ -364,7 +342,6 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             console.error('❌ Error en el proceso:', error);
         }
     };
-
 
 
 

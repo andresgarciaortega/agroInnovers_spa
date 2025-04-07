@@ -6,6 +6,7 @@ import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import VariableType from '../../../services/VariableType';
 import { Edit, Trash, Eye, Plus } from 'lucide-react';
 import { IoIosWarning } from "react-icons/io";
+import { AiOutlineFileUnknown } from "react-icons/ai";
 import FormSeguimiento from './FormSeguimiento';
 import FormEditSeguimiento from './editarSeguimient';
 import GenericModal from '../../../components/genericModal';
@@ -507,7 +508,7 @@ const VisualizarLote = () => {
                                                 </thead>
                                                 <tbody className="bg-white divide-y divide-gray-200">
                                                     {currentItems.map((reporte, index) => (
-                                                        <tr key={index}>
+                                                        <tr key={index} className={reporte.alertas?.length > 0 ? "bg-red-300" : ""}>
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                                                                 {indexOfFirstItem + index + 1}
                                                             </td>
@@ -533,6 +534,15 @@ const VisualizarLote = () => {
                                                                 {reporte.variableTrackingReports[0]?.variable?.unit_of_measurement}
                                                             </td>
                                                             <td className="bg-customGreen text-[#168C0DFF] px- py-2 rounded">
+                                                                {reporte.alertas?.length > 0 && (
+                                                                    <button
+                                                                        className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
+                                                                        onClick={() => handleOpenModalEdit(reporte, 'view')}
+                                                                    >
+                                                                        <AiOutlineFileUnknown />
+                                                                    </button>
+                                                                )}
+
                                                                 <button
                                                                     className="bg-customGreen text-[#168C0DFF] px-2 py-2 rounded"
                                                                     onClick={() => handleOpenModalEdit(reporte, 'view')}
