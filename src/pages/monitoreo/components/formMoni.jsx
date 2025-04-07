@@ -143,6 +143,12 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
 
     const validateCodeUUID = async () => {
         setIsLoadingUUID(true);
+
+        if (formData.ipFija == '') {
+            setIsLoadingUUID(false);
+            return;
+        }
+
         const uuid = formData.ipFija
         const datavalidate = await MonitoreoService.getMotitoriesByUUIDExisting(uuid, Number(idcompanyLST.value));
         if (datavalidate.success) {
@@ -153,7 +159,7 @@ const FormMoni = ({ selectedCompany, showErrorAlert, onUpdate, monitoreo, mode, 
             setTimeout(() => {
                 seterrorAlerta(false)
             }, 1100);
-        }else{
+        } else {
             setIsLoadingUUID(false)
         }
     }
