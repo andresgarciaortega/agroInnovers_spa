@@ -29,6 +29,7 @@ const useDataSync = () => {
 
 
         try {
+            console.log("uuid 1 ", uuid)
             const companyId = await SystemMonitory.getMotitoriesByUUID(uuid);
             console.log(companyId)
             if (!companyId) {
