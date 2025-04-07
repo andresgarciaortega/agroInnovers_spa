@@ -39,6 +39,7 @@ const VisualizarLote = () => {
     const [isModalOpenEditSeguimiento, setIdModalOpenEditSeguimiento] = useState(false);
     const [showErrorAlertTable, setShowErrorAlertTable] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingTable, setIsLoadingTable] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState("create");
     // const [typeVariable, setTipoVariable] = useState("");
@@ -114,7 +115,7 @@ const VisualizarLote = () => {
                 params.specie_id
             );
 
-            setIsLoading(false)
+            setIsLoadingTable(false);
             setSeguimiento(response || []);
         } catch (error) {
             console.error("Error al cargar el seguimiento:", error);
@@ -131,8 +132,7 @@ const VisualizarLote = () => {
                 setShowErrorAlertNoTiene(false)
             }, 900);
         } else {
-            setIsLoading(true)
-            setShowErrorAlertTable(false);
+            setIsLoadingTable(true);
             setHasSearched(true);
 
             // Construir objeto de filtros
@@ -144,7 +144,7 @@ const VisualizarLote = () => {
 
             // Validación básica
             if (!filters.type_variable_id) {
-                setShowErrorAlertTable(true);
+                setIsLoadingTable(false);
                 return;
             }
 
@@ -398,7 +398,7 @@ const VisualizarLote = () => {
                                         >
                                             <div className="flex justify-between items-center">
                                                 <div>
-                                                    <p><strong>{especie.specie.common_name}</strong></p>
+                                                    <p><strong>{especie.specie.common_name.toUpperCase()}</strong></p>
                                                     <p>Etapa: {etapa}</p>
                                                     <p>Peso Total inicial: {especie.initialWeight} kg</p>
                                                     <p>Peso Total Final: {especie.finalWeight} kg</p>
@@ -490,7 +490,7 @@ const VisualizarLote = () => {
                                     </div>
                                 )}
                                 <div className="overflow-x-auto">
-                                    {isLoading ? <LoadingView /> : (
+                                    {isLoadingTable ? <LoadingView /> : (
                                         <>
                                             <table className="w-full">
                                                 <thead className="bg-gray-300">
@@ -515,15 +515,16 @@ const VisualizarLote = () => {
                                                                 {reporte.productionLot?.productionSpace?.name}
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                {reporte.variableTrackingReports[0]?.variable?.name}
+                                                                {reporte.variableTrackingReports[0]?.variable?.name.toUpperCase()}
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                {new Date(reporte.updatedAt).toLocaleString()}
+                                                                {reporte.updatedAt.replace('T', ' ').replace(/\.\d+Z$/, '')}
+                                                                {/* Resultado: "2025-04-06 19:46:18" */}
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                                 {tipoReporte === "general"
-                                                                    ? lote?.productionLotSpecies?.map(especie => especie.specie.common_name).join(", ")
-                                                                    : reporte.specie?.common_name}
+                                                                    ? lote?.productionLotSpecies?.map(especie => especie.specie.common_name.toUpperCase()).join(", ")
+                                                                    : reporte.specie?.common_name.toUpperCase()}
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                                 {reporte.variableTrackingReports[0]?.weightOrQuantity}

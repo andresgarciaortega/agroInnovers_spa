@@ -42,7 +42,7 @@ const FormCosechar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             if (lote.productionSpace?.id) {
                 fetchEspacioDetalles(lote.productionSpace.id);
             }
-
+            console.log("especies cosechadas : ", lote)
             setLoteConEspecies(lote);
         }
         fetchEspacios();
@@ -195,26 +195,35 @@ const FormCosechar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                                         <div key={especie.id} className="border p-4 rounded-md bg-gray-100 shadow-lg">
                                             <div className="flex justify-between items-center">
                                                 <div>
-                                                    <p><strong>{especie.specie.common_name}</strong></p>
+                                                    <p>
+                                                        <strong className="font-bold">
+                                                            {especie.specie.common_name.toUpperCase()}
+                                                            {especie.status === 'Rechazado' &&
+                                                                <span className="text-red-500"> (RECHAZADA)</span>
+                                                            }
+                                                        </strong>
+                                                    </p>
                                                     <p>Peso inicial: {especie.initialWeight} kg</p>
                                                     <p>Individuos: {especie.initialIndividuals}</p>
                                                 </div>
-                                                {especie.finalWeight && especie.finalIndividuals ? (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => openModal(especie)}
-                                                        className="text-[#168C0DFF]"
-                                                    >
-                                                        <FaEdit />
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => openModal(especie)}
-                                                        className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
-                                                    >
-                                                        Cosechar
-                                                    </button>
+                                                {especie.status !== 'Rechazado' && (
+                                                    especie.finalWeight && especie.finalIndividuals ? (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => openModal(especie)}
+                                                            className="text-[#168C0DFF]"
+                                                        >
+                                                            <FaEdit />
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => openModal(especie)}
+                                                            className="bg-[#168C0DFF] text-white px-4 py-2 rounded"
+                                                        >
+                                                            Cosechar
+                                                        </button>
+                                                    )
                                                 )}
                                             </div>
                                         </div>

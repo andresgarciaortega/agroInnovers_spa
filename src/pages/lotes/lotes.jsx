@@ -506,7 +506,7 @@ const Lotes = () => {
                             >
                               <div className="flex justify-between items-center">
                                 <div>
-                                  <p><strong>{especie.specie.common_name}</strong></p>
+                                  <p><strong>{especie.specie.common_name.toUpperCase()}</strong></p>
                                   <p>{especie.status === "Cosechado" ? "Cosechado" : especie.rejected ? "Rechazado" : "En Producción"}</p>
                                 </div>
 
