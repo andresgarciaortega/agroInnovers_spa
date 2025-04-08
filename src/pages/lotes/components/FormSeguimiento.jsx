@@ -199,10 +199,24 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
         setFormData({ ...formData, specieId: value });
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
     // const handleSubmit = async (e) => {
-    //     setIsLoading(true);
     //     e.preventDefault();
+    //     setIsLoading(true);
+
     //     try {
+    //         // 1. Preparar datos del reporte
     //         const preparedData = {
     //             productionLotId: parseInt(formData.productionLotId, 10),
     //             speciesData: formData.speciesData,
@@ -212,143 +226,205 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     //             variableTrackingReports: [variableTrackingReports]
     //         };
 
-    //         const response = await ReporteService.createReporte(preparedData);
+    //         // 2. Crear el reporte primero y obtener su ID
+    //         const reporteCreado = await ReporteService.createReporte(preparedData);
+    //         const idReporte = reporteCreado.id; // Asumiendo que el servicio devuelve el ID
+
+    //         console.log(`Reporte creado con ID: ${idReporte}`);
+
+    //         // 3. Obtener información completa del lote
+    //         const loteInfo = await LoteService.getAllLotsById(lote.id);
+
+    //         // 4. Obtener variables configuradas en el espacio de producción
+    //         const variablesEspacio = loteInfo.productionSpace?.configureMeasurementControls || [];
+
+    //         // 5. Procesar cada especie del lote SOLO SI ESTÁ EN PRODUCCIÓN
+    //         for (const especieLote of loteInfo.productionLotSpecies) {
+    //             if (especieLote.status !== "Producción") {
+    //                 continue;
+    //             }
+
+    //             // 6. Obtener última etapa registrada
+    //             const trackingConfigs = especieLote.trackingConfigs || [];
+    //             const ultimaEtapa = trackingConfigs[trackingConfigs.length - 1]?.productionCycleStage;
+    //             if (!ultimaEtapa) continue;
+
+    //             // 7. Obtener información completa de la especie
+    //             const especieCompleta = await SpeciesService.getSpecieById(especieLote.specie.id);
+
+    //             // 8. Buscar la etapa correspondiente en los stages de la especie
+    //             const etapaEspecie = especieCompleta.stages?.find(
+    //                 stage => stage.stage.id === ultimaEtapa.id
+    //             );
+    //             if (!etapaEspecie) continue;
+
+    //             // 9. Validar cada variable del espacio contra los parámetros de la etapa
+    //             for (const variableEspacio of variablesEspacio) {
+    //                 const variableId = variableEspacio.variable_production?.id;
+    //                 if (!variableId) continue;
+
+    //                 const parametro = etapaEspecie.parameters?.find(
+    //                     param => param.variable.id === variableId
+    //                 );
+    //                 if (!parametro) continue;
+
+    //                 const valorReportado = parseFloat(preparedData.variableTrackingReports[0]?.weightAmount);
+    //                 if (isNaN(valorReportado)) continue;
+
+    //                 const nombreVariable = variableEspacio.variable_production.name;
+    //                 let mensajeAlerta = '';
+
+    //                 if (valorReportado < parametro.min_limit) {
+    //                     mensajeAlerta = `El valor reportado para la variable ${nombreVariable} es ${valorReportado} y está por debajo del límite mínimo que es de ${parametro.min_limit}`;
+    //                 } else if (valorReportado > parametro.max_limit) {
+    //                     mensajeAlerta = `El valor reportado para la variable ${nombreVariable} es ${valorReportado} y está por encima del límite máximo que es de ${parametro.max_limit}`;
+    //                 }
+
+    //                 // Crear alerta si se exceden los límites
+    //                 if (mensajeAlerta) {
+    //                     console.log(mensajeAlerta);
+    //                     await ReporteService.createAlertReporte({
+    //                         description: mensajeAlerta,
+    //                         idReeporte: Number(idReporte)
+    //                     });
+    //                 }
+    //             }
+    //         }
+
     //         setIsLoading(false);
-    //         showErrorAlert("Reporte de seguimiento creado");
-
-
-
+    //         console.log("✅ Proceso completado: Reporte creado y validaciones ejecutadas");
     //         onUpdate();
     //         closeModal();
     //     } catch (error) {
-    //         console.error('Error al crear el reporte:', error);
+    //         setIsLoading(false);
+    //         console.error('❌ Error en el proceso:', error);
     //     }
     // };
+    // Estado para controlar el modal de confirmación
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [alertasPotenciales, setAlertasPotenciales] = useState([]);
+    const [preparedDataToSave, setPreparedDataToSave] = useState(null);
+    // Función principal para enviar el formulario
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-    //     setIsLoading(true);
-    //     try {
-    //         const preparedData = {
-    //             productionLotId: parseInt(formData.productionLotId, 10),
-    //             speciesData: formData.speciesData,
-    //             specieId: formData.speciesData ? parseInt(formData.specieId, 10) : null,
-    //             typeVariableId: parseInt(formData.typeVariableId, 10),
-    //             company_id: parseInt(formData.company_id, 10),
-    //             variableTrackingReports: [variableTrackingReports]
-    //         };
+    try {
+      // 1. Preparar datos del reporte
+      const preparedData = {
+        productionLotId: parseInt(formData.productionLotId, 10),
+        speciesData: formData.speciesData,
+        specieId: formData.speciesData ? parseInt(formData.specieId, 10) : null,
+        typeVariableId: parseInt(formData.typeVariableId, 10),
+        company_id: parseInt(formData.company_id, 10),
+        variableTrackingReports: [variableTrackingReports]
+      };
 
-    //         const response = await ReporteService.createReporte(preparedData);
+      // 2. Validar datos y detectar alertas potenciales
+      const alertas = await validarDatosReporte(preparedData);
 
-    //         // Fetch lot information by ID
-    //         const loteInfo = await LoteService.getAllLotsById(lote.id)
+      if (alertas.length > 0) {
+        // Si hay alertas, preparar para confirmación
+        setAlertasPotenciales(alertas);
+        setPreparedDataToSave(preparedData);
+        setShowConfirmModal(true);
+      } else {
+        // Si no hay alertas, guardar directamente
+        await guardarReporteYAlertas(preparedData, []);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      // Mostrar error al usuario
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    //         setIsLoading(false);
-    //         showErrorAlert("Reporte de seguimiento creado");
-    //         onUpdate();
-    //         closeModal();
-    //     } catch (error) {
-    //         setIsLoading(false);
-    //         console.error('Error al crear el reporte:', error);
-    //     }
-    // };
+  // Función para validar datos y detectar alertas
+  const validarDatosReporte = async (preparedData) => {
+    const alertas = [];
+    const loteInfo = await LoteService.getAllLotsById(lote.id);
+    const variablesEspacio = loteInfo.productionSpace?.configureMeasurementControls || [];
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
-    
-        try {
-            // 1. Preparar datos del reporte
-            const preparedData = {
-                productionLotId: parseInt(formData.productionLotId, 10),
-                speciesData: formData.speciesData,
-                specieId: formData.speciesData ? parseInt(formData.specieId, 10) : null,
-                typeVariableId: parseInt(formData.typeVariableId, 10),
-                company_id: parseInt(formData.company_id, 10),
-                variableTrackingReports: [variableTrackingReports]
-            };
-    
-            // 2. Crear el reporte primero y obtener su ID
-            const reporteCreado = await ReporteService.createReporte(preparedData);
-            const idReporte = reporteCreado.id; // Asumiendo que el servicio devuelve el ID
-    
-            console.log(`Reporte creado con ID: ${idReporte}`);
-    
-            // 3. Obtener información completa del lote
-            const loteInfo = await LoteService.getAllLotsById(lote.id);
-            
-            // 4. Obtener variables configuradas en el espacio de producción
-            const variablesEspacio = loteInfo.productionSpace?.configureMeasurementControls || [];
-    
-            // 5. Procesar cada especie del lote SOLO SI ESTÁ EN PRODUCCIÓN
-            for (const especieLote of loteInfo.productionLotSpecies) {
-                if (especieLote.status !== "Producción") {
-                    continue;
-                }
-    
-                // 6. Obtener última etapa registrada
-                const trackingConfigs = especieLote.trackingConfigs || [];
-                const ultimaEtapa = trackingConfigs[trackingConfigs.length - 1]?.productionCycleStage;
-                if (!ultimaEtapa) continue;
-    
-                // 7. Obtener información completa de la especie
-                const especieCompleta = await SpeciesService.getSpecieById(especieLote.specie.id);
-    
-                // 8. Buscar la etapa correspondiente en los stages de la especie
-                const etapaEspecie = especieCompleta.stages?.find(
-                    stage => stage.stage.id === ultimaEtapa.id
-                );
-                if (!etapaEspecie) continue;
-    
-                // 9. Validar cada variable del espacio contra los parámetros de la etapa
-                for (const variableEspacio of variablesEspacio) {
-                    const variableId = variableEspacio.variable_production?.id;
-                    if (!variableId) continue;
-    
-                    const parametro = etapaEspecie.parameters?.find(
-                        param => param.variable.id === variableId
-                    );
-                    if (!parametro) continue;
-    
-                    const valorReportado = parseFloat(preparedData.variableTrackingReports[0]?.weightAmount);
-                    if (isNaN(valorReportado)) continue;
-    
-                    const nombreVariable = variableEspacio.variable_production.name;
-                    let mensajeAlerta = '';
-    
-                    if (valorReportado < parametro.min_limit) {
-                        mensajeAlerta = `ALERTA: El valor reportado para la variable ${nombreVariable} es ${valorReportado} y está por debajo del límite mínimo que es de ${parametro.min_limit}`;
-                    } else if (valorReportado > parametro.max_limit) {
-                        mensajeAlerta = `ALERTA: El valor reportado para la variable ${nombreVariable} es ${valorReportado} y está por encima del límite máximo que es de ${parametro.max_limit}`;
-                    }
-    
-                    // Crear alerta si se exceden los límites
-                    if (mensajeAlerta) {
-                        console.log(mensajeAlerta);
-                        await ReporteService.createAlertReporte({
-                            description: mensajeAlerta,
-                            idReeporte: Number(idReporte)
-                        });
-                    }
-                }
-            }
-    
-            setIsLoading(false);
-            console.log("✅ Proceso completado: Reporte creado y validaciones ejecutadas");
-            onUpdate();
-            closeModal();
-        } catch (error) {
-            setIsLoading(false);
-            console.error('❌ Error en el proceso:', error);
+    // Procesar solo especies en producción
+    const especiesProduccion = loteInfo.productionLotSpecies.filter(sp => sp.status === "Producción");
+
+    for (const especieLote of especiesProduccion) {
+      const ultimaEtapa = especieLote.trackingConfigs?.slice(-1)[0]?.productionCycleStage;
+      if (!ultimaEtapa) continue;
+
+      const especieCompleta = await SpeciesService.getSpecieById(especieLote.specie.id);
+      const etapaEspecie = especieCompleta.stages?.find(s => s.stage.id === ultimaEtapa.id);
+      if (!etapaEspecie) continue;
+
+      // Validar cada variable
+      for (const variableEspacio of variablesEspacio) {
+        const variableId = variableEspacio.variable_production?.id;
+        if (!variableId) continue;
+
+        const parametro = etapaEspecie.parameters?.find(p => p.variable.id === variableId);
+        if (!parametro) continue;
+
+        const valorReportado = parseFloat(preparedData.variableTrackingReports[0]?.weightAmount);
+        if (isNaN(valorReportado)) continue;
+
+        // Verificar límites
+        if (valorReportado < parametro.min_limit) {
+          alertas.push({
+            mensaje: `El valor reportado para la variable ${variableEspacio.variable_production.name} es ${valorReportado} y está por debajo del límite mínimo que es de ${parametro.min_limit}`,
+            variable: variableEspacio.variable_production.name,
+            valor: valorReportado,
+            limite: parametro.min_limit,
+            tipo: 'mínimo'
+          });
+        } else if (valorReportado > parametro.max_limit) {
+          alertas.push({
+            mensaje: `El valor reportado para la variable ${variableEspacio.variable_production.name} es ${valorReportado} y está por encima del límite máximo que es de ${parametro.max_limit}`,
+            variable: variableEspacio.variable_production.name,
+            valor: valorReportado,
+            limite: parametro.max_limit,
+            tipo: 'máximo'
+          });
         }
-    };
+      }
+    }
 
+    return alertas;
+  };
 
+  // Función para guardar reporte y alertas
+  const guardarReporteYAlertas = async (dataToSave, alertas) => {
+    try {
+      // 1. Guardar reporte principal
+      const reporteCreado = await ReporteService.createReporte(dataToSave);
+      const idReporte = reporteCreado.id;
 
+      // 2. Guardar alertas si existen
+      if (alertas.length > 0) {
+        for (const alerta of alertas) {
+          await ReporteService.createAlertReporte({
+            description: alerta.mensaje,
+            idReeporte: Number(idReporte)
+          });
+        }
+      }
 
+      // 3. Actualizar y cerrar modal
+      onUpdate();
+      closeModal();
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      throw error;
+    }
+  };
 
-
-
+  // Función para confirmar y guardar
+  const handleConfirmSave = async () => {
+    setIsLoading(true);
+    setShowConfirmModal(false);
+    await guardarReporteYAlertas(preparedDataToSave, alertasPotenciales);
+    setIsLoading(false);
+  };
 
 
 
@@ -655,6 +731,38 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                         </div>
                     </form>
                 </>
+            )}
+
+
+
+            {showConfirmModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded-lg max-w-md">
+                        <h3 className="text-lg font-bold mb-4">Notificación de alerta</h3>
+                        <ul className="mb-4 max-h-60 overflow-y-auto">
+                            {alertasPotenciales.map((alerta, i) => (
+                                <li key={i} className="mb-2">
+                                    <span className="font-semibold"> El valor reportado para la variable {alerta.variable} es {alerta.valor} y está por {alerta.valor > alerta.limite ? 'encima' : 'debajo'} del límite {alerta.tipo} que es de {alerta.limite}:</span> 
+                                    {/* (límite {alerta.tipo}: {alerta.limite}) */}
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => setShowConfirmModal(false)}
+                                className="px-4 py-2 bg-gray-300 rounded"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleConfirmSave}
+                                className="px-4 py-2 bg-red-500 text-white rounded"
+                            >
+                                Confirmar guardado
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </>
 

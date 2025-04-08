@@ -226,6 +226,8 @@ const VisualizarLote = () => {
             specieId: "",
             speciesData: false
         });
+
+        setCurrentTablePage([]);
     };
 
     const handleOpenModalEdit = (reporte, mode) => {
@@ -257,7 +259,6 @@ const VisualizarLote = () => {
     const handleCloseAlert = () => {
         setShowErrorAlert(false);
         updateService(); // Llama de nuevo a la API para actualizar la lista sin recargar la página
-
     };
 
     const handleCancelDelete = () => {
@@ -340,16 +341,15 @@ const VisualizarLote = () => {
         }
     };
 
-    const handleOpenAlert = (alert) =>{
+    const handleOpenAlert = (alert) => {
         console.log(alert.description)
-        setMessageAlert(alert);
+        setMessageAlert(alert.description);
         setshowErrorAlerta(true)
-        // // setTimeout(() => {
-        // //     setShowErrorAlertNoTiene(false)
-        // // }, 900);
-
-      
     }
+
+    const handleCloseAlerta = () => {
+        setshowErrorAlerta(false);
+    };
 
     return (
         <>
@@ -687,14 +687,12 @@ const VisualizarLote = () => {
                 </>
             )}
 
-
-
-{showErrorAlerta && (
-            <SuccessAlertReporte
-              message={messageAlert}
-              onCancel={handleCloseAlert}
-            />
-          )}
+            {showErrorAlerta && (
+                <SuccessAlertReporte
+                    message={messageAlert}
+                    onCancel={handleCloseAlerta}
+                />
+            )}
 
 
         </>
