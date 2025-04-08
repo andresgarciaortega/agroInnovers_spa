@@ -31,6 +31,7 @@ const Login = () => {
   const { setSelectedCompanyUniversal } = useCompanyContext(); // Añade esto
   const handleSubmit = async (e) => {
     e.preventDefault();
+    alert()
     localStorage.clear();
 
     // 1. Intentar obtener UUID del dispositivo (maneja silenciosamente el error)
