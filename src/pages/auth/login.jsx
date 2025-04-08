@@ -31,9 +31,7 @@ const Login = () => {
   const { setSelectedCompanyUniversal } = useCompanyContext(); // Añade esto
   const handleSubmit = async (e) => {
     e.preventDefault();
-    alert()
     localStorage.clear();
-
     // 1. Intentar obtener UUID del dispositivo (maneja silenciosamente el error)
     let uuidObtenido=''
     try {
@@ -47,9 +45,7 @@ const Login = () => {
       }
     } catch (uuidError) {
     }
-
     const accesUser = await AccesUser.accesUsersLoguin({ email, password });
-
     if (accesUser.error) {
       localStorage.setItem('authToken', accesUser.response);
       const decodedToken = await getDecodedToken();
