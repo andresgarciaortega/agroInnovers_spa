@@ -67,9 +67,7 @@ const useDataSync = () => {
             console.warn("UUID no disponible. Cancelando sincronización.");
             return;
         }
-
         console.log("⚡ Ejecutando syncData con UUID:", uuidObtenido);
-
         // Procesar cada lote secuencialmente
         for (const item of data) {
             const { id, lotCode, productionSpace, status } = item;
@@ -85,9 +83,7 @@ const useDataSync = () => {
                 console.log(`⏩ Saltando lote ${lotCode} - Sin controles de medición`);
                 continue;
             }
-
             console.log(`🟢 Procesando Lote: ${lotCode} (ID: ${id})`);
-
             // Procesar cada control de medición secuencialmente
             for (const control of productionSpace.configureMeasurementControls) {
                 const sensor = control.sensor;
@@ -95,10 +91,8 @@ const useDataSync = () => {
                     console.log(`⏩ Saltando control - Sin sensor definido`);
                     continue;
                 }
-
                 const Puerto_de_entrada = sensor.inputPort;
                 const Puerto_de_lectura = sensor.readingPort;
-
                 try {
                     console.log(`📡 Leyendo sensor (Entrada: ${Puerto_de_entrada}, Lectura: ${Puerto_de_lectura})`);
 

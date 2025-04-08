@@ -304,127 +304,234 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [alertasPotenciales, setAlertasPotenciales] = useState([]);
     const [preparedDataToSave, setPreparedDataToSave] = useState(null);
+    
+    
     // Función principal para enviar el formulario
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
 
-    try {
-      // 1. Preparar datos del reporte
-      const preparedData = {
-        productionLotId: parseInt(formData.productionLotId, 10),
-        speciesData: formData.speciesData,
-        specieId: formData.speciesData ? parseInt(formData.specieId, 10) : null,
-        typeVariableId: parseInt(formData.typeVariableId, 10),
-        company_id: parseInt(formData.company_id, 10),
-        variableTrackingReports: [variableTrackingReports]
-      };
+        try {
+            // 1. Preparar datos del reporte
+            const preparedData = {
+                productionLotId: parseInt(formData.productionLotId, 10),
+                speciesData: formData.speciesData,
+                specieId: formData.speciesData ? parseInt(formData.specieId, 10) : null,
+                typeVariableId: parseInt(formData.typeVariableId, 10),
+                company_id: parseInt(formData.company_id, 10),
+                variableTrackingReports: [variableTrackingReports]
+            };
 
-      // 2. Validar datos y detectar alertas potenciales
-      const alertas = await validarDatosReporte(preparedData);
+            // 2. Validar datos y detectar alertas potenciales
+            const alertas = await validarDatosReporte(preparedData);
 
-      if (alertas.length > 0) {
-        // Si hay alertas, preparar para confirmación
-        setAlertasPotenciales(alertas);
-        setPreparedDataToSave(preparedData);
-        setShowConfirmModal(true);
-      } else {
-        // Si no hay alertas, guardar directamente
-        await guardarReporteYAlertas(preparedData, []);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      // Mostrar error al usuario
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Función para validar datos y detectar alertas
-  const validarDatosReporte = async (preparedData) => {
-    const alertas = [];
-    const loteInfo = await LoteService.getAllLotsById(lote.id);
-    const variablesEspacio = loteInfo.productionSpace?.configureMeasurementControls || [];
-
-    // Procesar solo especies en producción
-    const especiesProduccion = loteInfo.productionLotSpecies.filter(sp => sp.status === "Producción");
-
-    for (const especieLote of especiesProduccion) {
-      const ultimaEtapa = especieLote.trackingConfigs?.slice(-1)[0]?.productionCycleStage;
-      if (!ultimaEtapa) continue;
-
-      const especieCompleta = await SpeciesService.getSpecieById(especieLote.specie.id);
-      const etapaEspecie = especieCompleta.stages?.find(s => s.stage.id === ultimaEtapa.id);
-      if (!etapaEspecie) continue;
-
-      // Validar cada variable
-      for (const variableEspacio of variablesEspacio) {
-        const variableId = variableEspacio.variable_production?.id;
-        if (!variableId) continue;
-
-        const parametro = etapaEspecie.parameters?.find(p => p.variable.id === variableId);
-        if (!parametro) continue;
-
-        const valorReportado = parseFloat(preparedData.variableTrackingReports[0]?.weightAmount);
-        if (isNaN(valorReportado)) continue;
-
-        // Verificar límites
-        if (valorReportado < parametro.min_limit) {
-          alertas.push({
-            mensaje: `El valor reportado para la variable ${variableEspacio.variable_production.name} es ${valorReportado} y está por debajo del límite mínimo que es de ${parametro.min_limit}`,
-            variable: variableEspacio.variable_production.name,
-            valor: valorReportado,
-            limite: parametro.min_limit,
-            tipo: 'mínimo'
-          });
-        } else if (valorReportado > parametro.max_limit) {
-          alertas.push({
-            mensaje: `El valor reportado para la variable ${variableEspacio.variable_production.name} es ${valorReportado} y está por encima del límite máximo que es de ${parametro.max_limit}`,
-            variable: variableEspacio.variable_production.name,
-            valor: valorReportado,
-            limite: parametro.max_limit,
-            tipo: 'máximo'
-          });
+            if (alertas.length > 0) {
+                // Si hay alertas, preparar para confirmación
+                setAlertasPotenciales(alertas);
+                setPreparedDataToSave(preparedData);
+                setShowConfirmModal(true);
+            } else {
+                // Si no hay alertas, guardar directamente
+                await guardarReporteYAlertas(preparedData, []);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            // Mostrar error al usuario
+        } finally {
+            setIsLoading(false);
         }
-      }
-    }
+    };
 
-    return alertas;
-  };
+    // Función para validar datos y detectar alertas
+    // const validarDatosReporte = async (preparedData) => {
+    //     const alertas = [];
+    //     const loteInfo = await LoteService.getAllLotsById(lote.id);
+    //     const variablesEspacio = loteInfo.productionSpace?.configureMeasurementControls || [];
 
-  // Función para guardar reporte y alertas
-  const guardarReporteYAlertas = async (dataToSave, alertas) => {
-    try {
-      // 1. Guardar reporte principal
-      const reporteCreado = await ReporteService.createReporte(dataToSave);
-      const idReporte = reporteCreado.id;
+    //     // Procesar solo especies en producción
+    //     const especiesProduccion = loteInfo.productionLotSpecies.filter(sp => sp.status === "Producción");
 
-      // 2. Guardar alertas si existen
-      if (alertas.length > 0) {
-        for (const alerta of alertas) {
-          await ReporteService.createAlertReporte({
-            description: alerta.mensaje,
-            idReeporte: Number(idReporte)
-          });
+    //     for (const especieLote of especiesProduccion) {
+    //         const ultimaEtapa = especieLote.trackingConfigs?.slice(-1)[0]?.productionCycleStage;
+    //         if (!ultimaEtapa) continue;
+
+    //         const especieCompleta = await SpeciesService.getSpecieById(especieLote.specie.id);
+    //         const etapaEspecie = especieCompleta.stages?.find(s => s.stage.id === ultimaEtapa.id);
+    //         if (!etapaEspecie) continue;
+
+    //         // Validar cada variable
+    //         for (const variableEspacio of variablesEspacio) {
+    //             const variableId = variableEspacio.variable_production?.id;
+    //             if (!variableId) continue;
+
+    //             const parametro = etapaEspecie.parameters?.find(p => p.variable.id === variableId);
+    //             if (!parametro) continue;
+
+    //             const valorReportado = parseFloat(preparedData.variableTrackingReports[0]?.weightAmount);
+    //             if (isNaN(valorReportado)) continue;
+
+    //             // Verificar límites
+    //             if (valorReportado < parametro.min_limit) {
+    //                 alertas.push({
+    //                     mensaje: `El valor reportado para la variable ${variableEspacio.variable_production.name} es ${valorReportado} y está por debajo del límite mínimo que es de ${parametro.min_limit}`,
+    //                     variable: variableEspacio.variable_production.name,
+    //                     valor: valorReportado,
+    //                     limite: parametro.min_limit,
+    //                     tipo: 'mínimo'
+    //                 });
+    //             } else if (valorReportado > parametro.max_limit) {
+    //                 alertas.push({
+    //                     mensaje: `El valor reportado para la variable ${variableEspacio.variable_production.name} es ${valorReportado} y está por encima del límite máximo que es de ${parametro.max_limit}`,
+    //                     variable: variableEspacio.variable_production.name,
+    //                     valor: valorReportado,
+    //                     limite: parametro.max_limit,
+    //                     tipo: 'máximo'
+    //                 });
+    //             }
+
+    //             //  // 4. Activación de actuador si existe
+    //             //  if (control.actuator) {
+    //             //     const actuatorInputPort = control.actuator.inputPort;
+    //             //     const actuatorActivationPort = control.actuator.activationPort;
+    //             //     const actuatorUrl = `http://127.0.0.1:1880/request?id_c=${actuatorInputPort}&id_a=${actuatorActivationPort}&state=true`;
+
+    //             //     console.log(`🟠 Activando actuador para Lote: ${lotCode}`);
+    //             //     console.log("URL:", actuatorUrl);
+
+    //             //     try {
+    //             //         const actuatorResponse = await fetch(actuatorUrl);
+    //             //         const actuatorData = await actuatorResponse.json();
+    //             //         console.log("📌 Respuesta API de actuador:", actuatorData);
+    //             //     } catch (error) {
+    //             //         console.error(`❌ Error al activar actuador para Lote ${lotCode} (ID: ${id})`, error);
+    //             //     }
+    //             // }
+
+    //         }
+    //     }
+
+    //     return alertas;
+    // };
+
+    const validarDatosReporte = async (preparedData) => {
+        const alertas = [];
+        const loteInfo = await LoteService.getAllLotsById(lote.id);
+        const variablesEspacio = loteInfo.productionSpace?.configureMeasurementControls || [];
+    
+        // Procesar solo especies en producción
+        const especiesProduccion = loteInfo.productionLotSpecies.filter(sp => sp.status === "Producción");
+    
+        for (const especieLote of especiesProduccion) {
+            const ultimaEtapa = especieLote.trackingConfigs?.slice(-1)[0]?.productionCycleStage;
+            if (!ultimaEtapa) continue;
+    
+            const especieCompleta = await SpeciesService.getSpecieById(especieLote.specie.id);
+            const etapaEspecie = especieCompleta.stages?.find(s => s.stage.id === ultimaEtapa.id);
+            if (!etapaEspecie) continue;
+    
+            // Validar cada variable
+            for (const control of variablesEspacio) {
+                const variableId = control.variable_production?.id;
+                if (!variableId) continue;
+    
+                const parametro = etapaEspecie.parameters?.find(p => p.variable.id === variableId);
+                if (!parametro) continue;
+    
+                const valorReportado = parseFloat(preparedData.variableTrackingReports[0]?.weightAmount);
+                if (isNaN(valorReportado)) continue;
+    
+                // Verificar límites y generar alertas
+                if (valorReportado < parametro.min_limit) {
+                    const mensaje = `El valor reportado para la variable ${control.variable_production.name} es ${valorReportado} y está por debajo del límite mínimo que es de ${parametro.min_limit}`;
+                    alertas.push({
+                        mensaje,
+                        variable: control.variable_production.name,
+                        valor: valorReportado,
+                        limite: parametro.min_limit,
+                        tipo: 'mínimo'
+                    });
+    
+                    // Activar actuador con false si existe
+                    await activarActuador(control, loteInfo.lotCode, false);
+    
+                } else if (valorReportado > parametro.max_limit) {
+                    const mensaje = `El valor reportado para la variable ${control.variable_production.name} es ${valorReportado} y está por encima del límite máximo que es de ${parametro.max_limit}`;
+                    alertas.push({
+                        mensaje,
+                        variable: control.variable_production.name,
+                        valor: valorReportado,
+                        limite: parametro.max_limit,
+                        tipo: 'máximo'
+                    });
+    
+                    // Activar actuador con true si existe
+                    await activarActuador(control, loteInfo.lotCode, true);
+                } else {
+                    // Si está dentro del rango, desactivar actuador (false)
+                    await activarActuador(control, loteInfo.lotCode, false);
+                }
+            }
         }
-      }
-
-      // 3. Actualizar y cerrar modal
-      onUpdate();
-      closeModal();
-    } catch (error) {
-      console.error('Error al guardar:', error);
-      throw error;
+    
+        return alertas;
+    };
+    
+    // Función auxiliar para activar/desactivar actuadores
+    async function activarActuador(control, lotCode, state) {
+        if (control.actuator) {
+            const actuatorInputPort = control.actuator.inputPort;
+            const actuatorActivationPort = control.actuator.activationPort;
+            const actuatorUrl = `http://127.0.0.1:1880/request?id_c=${actuatorInputPort}&id_a=${actuatorActivationPort}&state=${state}`;
+    
+            console.log(`🟠 ${state ? 'Activando' : 'Desactivando'} actuador para Lote: ${lotCode}`);
+            console.log("URL:", actuatorUrl);
+    
+            try {
+                const actuatorResponse = await fetch(actuatorUrl);
+                const actuatorData = await actuatorResponse.json();
+                console.log("📌 Respuesta API de actuador:", actuatorData);
+            } catch (error) {
+                console.error(`❌ Error al ${state ? 'activar' : 'desactivar'} actuador para Lote ${lotCode}`, error);
+            }
+        }
     }
-  };
 
-  // Función para confirmar y guardar
-  const handleConfirmSave = async () => {
-    setIsLoading(true);
-    setShowConfirmModal(false);
-    await guardarReporteYAlertas(preparedDataToSave, alertasPotenciales);
-    setIsLoading(false);
-  };
+
+    
+
+    // Función para guardar reporte y alertas
+    const guardarReporteYAlertas = async (dataToSave, alertas) => {
+        try {
+            // 1. Guardar reporte principal
+            const reporteCreado = await ReporteService.createReporte(dataToSave);
+            const idReporte = reporteCreado.id;
+
+            // 2. Guardar alertas si existen
+            if (alertas.length > 0) {
+                for (const alerta of alertas) {
+                    await ReporteService.createAlertReporte({
+                        description: alerta.mensaje,
+                        idReeporte: Number(idReporte)
+                    });
+                }
+            }
+
+            // 3. Actualizar y cerrar modal
+            onUpdate();
+            closeModal();
+        } catch (error) {
+            console.error('Error al guardar:', error);
+            throw error;
+        }
+    };
+
+    // Función para confirmar y guardar
+    const handleConfirmSave = async () => {
+        setIsLoading(true);
+        setShowConfirmModal(false);
+        await guardarReporteYAlertas(preparedDataToSave, alertasPotenciales);
+        setIsLoading(false);
+    };
 
 
 
@@ -742,7 +849,7 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
                         <ul className="mb-4 max-h-60 overflow-y-auto">
                             {alertasPotenciales.map((alerta, i) => (
                                 <li key={i} className="mb-2">
-                                    <span className="font-semibold"> El valor reportado para la variable {alerta.variable} es {alerta.valor} y está por {alerta.valor > alerta.limite ? 'encima' : 'debajo'} del límite {alerta.tipo} que es de {alerta.limite}:</span> 
+                                    <span className="font-semibold"> El valor reportado para la variable {alerta.variable} es {alerta.valor} y está por {alerta.valor > alerta.limite ? 'encima' : 'debajo'} del límite {alerta.tipo} que es de {alerta.limite}:</span>
                                     {/* (límite {alerta.tipo}: {alerta.limite}) */}
                                 </li>
                             ))}
