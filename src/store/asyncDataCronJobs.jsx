@@ -129,7 +129,7 @@ const useDataSync = () => {
                                 variableId,
                                 updateDate,
                                 updateTime,
-                                weightAmount: newData.value
+                                weightAmount: newData.value.toString()  // Convertir el valor a string
                             }
                         ]
                     });
