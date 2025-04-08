@@ -17,6 +17,7 @@ import { IoArrowBack } from 'react-icons/io5';
 import Delete from '../../../components/delete';
 import LoadingView from "../../../components/Loading/loadingView";
 import ErrorAlert from "../../../components/alerts/error";
+import SuccessAlertReporte from "../../../components/alerts/alertReeporte";
 
 const VisualizarLote = () => {
     const { id } = useParams();
@@ -340,11 +341,14 @@ const VisualizarLote = () => {
     };
 
     const handleOpenAlert = (alert) =>{
-        // setMessageAlert(alert);
-        // setshowErrorAlerta(true)
+        console.log(alert.description)
+        setMessageAlert(alert);
+        setshowErrorAlerta(true)
         // // setTimeout(() => {
         // //     setShowErrorAlertNoTiene(false)
         // // }, 900);
+
+      
     }
 
     return (
@@ -686,13 +690,11 @@ const VisualizarLote = () => {
 
 
 {showErrorAlerta && (
-                <div className="alert alert-error flex flex-col items-start space-y-1 p-2 mt-4 bg-red-500 text-white rounded-md">
-                  <div className="flex space-x-2">
-                    <IoIosWarning size={20} />
-                    <p>{messageAlert}</p>
-                  </div>
-                </div>
-              )}
+            <SuccessAlertReporte
+              message={messageAlert}
+              onCancel={handleCloseAlert}
+            />
+          )}
 
 
         </>
