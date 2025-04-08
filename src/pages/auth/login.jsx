@@ -100,6 +100,8 @@ const Login = () => {
     }
   };
 
+
+
   const handleCloseAlert = () => {
     localStorage.clear();
   };
@@ -109,6 +111,8 @@ const Login = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
+
+  
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
