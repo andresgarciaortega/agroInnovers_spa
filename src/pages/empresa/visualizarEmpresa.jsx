@@ -261,7 +261,7 @@ const VisualizarEmpresa = ({ }) => {
                     <input type="text" className="w-full p-2 border rounded" value={formData.phone} readOnly />
                   </div>
                   <div>
-                    <label className="text-sm text-muted-foreground">Página URL</label>
+                    <label className="text-sm text-muted-foreground">Página web (url)</label>
                     <input type="text" className="w-full p-2 border rounded" value={formData.gps} readOnly />
                   </div>
                 </div>

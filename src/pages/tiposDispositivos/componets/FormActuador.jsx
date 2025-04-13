@@ -686,11 +686,11 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Temperatura mínima de operación</label>
+                            <label className="block text-sm font-medium text-gray-700">Temperatura mínima de operación  - °C</label>
                             <input
                                 type="number"
                                 name="minOperatingTemperature"
-                                placeholder="Temperatura mínima de operación"
+                                placeholder="Temperatura mínima de operación - °C"
                                 value={formData.minOperatingTemperature}
                                 onChange={handleChange}
                                 disabled={mode === 'view'}
@@ -699,11 +699,11 @@ const FormActuador = ({ showErrorAlert, onUpdate, selectedCompany, actuador, mod
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Temperatira máxima operación</label>
+                            <label className="block text-sm font-medium text-gray-700">Temperatira máxima operación  - °C</label>
                             <input
                                 type="number"
                                 name="maxOperatingTemperature"
-                                placeholder="Temperatira máxima operación"
+                                placeholder="Temperatira máxima operación - °C"
                                 value={formData.maxOperatingTemperature}
                                 onChange={handleChange}
                                 disabled={mode === 'view'}

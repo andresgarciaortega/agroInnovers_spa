@@ -479,12 +479,12 @@ const Lotes = () => {
                         </div>
                         <div className="flex items-center">
                           <span className="text-sm text-muted-foreground">
-                            Fecha de siembra: {lote.startDate}
+                            Fecha de siembra: {lote.startDate.substring(0, 10)}
                           </span>
                         </div>
                         <div className="flex items-center mt-5">
                           <span className="text-sm text-muted-foreground">
-                            Fecha cosecha estimada: {lote.estimatedEndDate}
+                            Fecha cosecha estimada: {lote.estimatedEndDate.substring(0, 10)}
                           </span>
                         </div>
                         {lote.status !== 'Rechazado' && lote.status !== 'Cosechado' && (

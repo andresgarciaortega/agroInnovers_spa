@@ -248,13 +248,13 @@ const FormViewActuador = ({ actuador, closeModal }) => {
                     </div>
                     <div className="flex flex-col col-span-2">
                         <div className="flex items-center">
-                            <label htmlFor="actuadorCode" className="block text-sm font-medium text-gray-900">Temperatura mínima de operación:</label>
+                            <label htmlFor="actuadorCode" className="block text-sm font-medium text-gray-900">Temperatura mínima de operación - °C:</label>
                             <p className="ml-2 text-sm text-gray-600">{actuador.minOperatingTemperature}</p>
                         </div>
                     </div>
                     <div className="flex flex-col col-span-2">
                         <div className="flex items-center">
-                            <label htmlFor="actuadorCode" className="block text-sm font-medium text-gray-900">Temperatura máxima de operación:</label>
+                            <label htmlFor="actuadorCode" className="block text-sm font-medium text-gray-900">Temperatura máxima de operación - °C:</label>
                             <p className="ml-2 text-sm text-gray-600">{actuador.maxOperatingTemperature}</p>
                         </div>
                     </div>

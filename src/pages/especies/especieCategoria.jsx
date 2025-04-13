@@ -434,7 +434,7 @@ const Especie = () => {
 
       {isDeleteModalOpen && (
         <Delete
-          message={`¿Estás seguro de que quieres eliminar la categoría ${selectedCategory.name}?`}
+          message={`¿Estás seguro que quieres eliminar la categoría ${selectedCategory.name}?`}
           isOpen={isDeleteModalOpen}
           onConfirm={handleConfirmDelete}
           onClose={() => setIsDeleteModalOpen(false)}

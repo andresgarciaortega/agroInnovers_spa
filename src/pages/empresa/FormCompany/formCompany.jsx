@@ -447,11 +447,11 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
             </div>
   
             <div>
-              <label className="block text-sm font-medium text-gray-700">Posición GPS</label>
+              <label className="block text-sm font-medium text-gray-700">Página web (url)</label>
               <input
                 type="text"
                 name="gps"
-                placeholder="Link de la posición GPS"
+                placeholder="Url de la página web"
                 value={formData.gps}
                 onChange={handleChange}
                 disabled={mode === 'view'}

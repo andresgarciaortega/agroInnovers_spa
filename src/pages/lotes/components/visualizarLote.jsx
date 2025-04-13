@@ -120,6 +120,8 @@ const VisualizarLote = () => {
 
             setIsLoadingTable(false);
             setSeguimiento(response || []);
+    console.log("reprtees valores ", response)
+
         } catch (error) {
             console.error("Error al cargar el seguimiento:", error);
             setShowErrorAlertTable(true);
@@ -390,8 +392,8 @@ const VisualizarLote = () => {
                                     {/* <p><strong>Alertas resividas:</strong> {lote.status}</p> */}
                                 </div>
                                 <div>
-                                    <p><strong>Fecha de Inicio:</strong> {lote.startDate}</p>
-                                    <p><strong>Fecha estimada de finalización:</strong> {lote.estimatedEndDate}</p>
+                                    <p><strong>Fecha de Inicio:</strong> {lote.startDate.substring(0, 10)}</p>
+                                    <p><strong>Fecha estimada de finalización:</strong> {lote.estimatedEndDate.substring(0, 10)}</p>
                                     <p><strong>Nombre del espacio:</strong> {lote.productionSpace?.name}</p>
                                     {/* <p><strong>Tipo de espacio:</strong> {lote.spaceTypeId?.name}</p> */}
                                 </div>
@@ -531,8 +533,8 @@ const VisualizarLote = () => {
                                                                 {reporte.variableTrackingReports[0]?.variable?.name.toUpperCase()}
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                {reporte.updatedAt.replace('T', ' ').replace(/\.\d+Z$/, '')}
-                                                                {/* Resultado: "2025-04-06 19:46:18" */}
+                                                                {reporte.variableTrackingReports[0].updateDate.replace('T', ' ').replace(/\.\d+Z$/, '')} -- 
+                                                                {reporte.variableTrackingReports[0].updateTime}
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                                 {tipoReporte === "general"
