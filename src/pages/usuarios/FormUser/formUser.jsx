@@ -21,7 +21,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     document: '',
     roles: null,
     password: '',
-    confirmPass: ''
+    confirmPass: '',
+    photo:'https://img.freepik.com/vector-premium/negocios-economia-global_24877-41082.jpg'
   });
   const [errorMessages, setErrorMessages] = useState({
     name: '',
@@ -102,7 +103,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         document: '',
         roles: '',
         password: '',
-        confirmPass: ''
+        confirmPass: '',
+        photo:'https://img.freepik.com/vector-premium/negocios-economia-global_24877-41082.jpg'
       });
 
     }
@@ -247,7 +249,7 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       email: formData.email,
       password: mode === "create" ? formData.password : changePassword ? formData.password : user.password,
       document: formData.document,
-      photo: formData.photo || "https://example.com/photo.jpg",
+      photo:'https://img.freepik.com/vector-premium/negocios-economia-global_24877-41082.jpg',
       roles: [Number(formData.roles)],
       updated_at: now // 🔥 Agregar la fecha actual
     };
