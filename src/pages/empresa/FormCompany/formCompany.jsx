@@ -190,52 +190,6 @@ const FormCompany = ({ showSuccessAlert, onUpdate, company, mode, closeModal }) 
   };
 
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   // Validación del celular
-  //   const phoneRegex = /^[0-9]{10}$/; 
-  //   if (!phoneRegex.test(formData.phone)) {
-  //     setShowAlertError(true);
-  //     setMessageAlert("El celular debe tener exactamente 10 dígitos.");
-  //     setTimeout(() => {
-  //       setShowAlertError(false);
-  //     }, 1500);
-  //     return;
-  //   }
-  //   try {
-  //     let logoUrl = '';
-
-  //     if (formData.logo && formData.logo.name) {
-
-  //       logoUrl = await UploadToS3(formData.logo);
-  //     } else {
-
-  //       logoUrl = company.icon;
-  //     }
-
-
-  //     const formDataToSubmit = {
-  //       ...formData,
-  //       logo: logoUrl, 
-  //       email: formData.email_user_admin,
-  //       type_document_id: Number(formData.type_document_id)
-  //     };
-
-  //     if (mode === 'create') {
-  //       const createdCompany = await CompanyService.createCompany(formDataToSubmit);
-  //       showSuccessAlert("creada")
-  //     } else if (mode === 'edit') {
-  //       showSuccessAlert("Editada")
-  //       const updatedCompany = await CompanyService.updateCompany(company.id, formDataToSubmit);
-  //     }
-
-  //     onUpdate();
-  //     closeModal();
-  //   } catch (error) {
-  //     console.error('Error al guardar la empresa:', error);
-  //   }
-  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);

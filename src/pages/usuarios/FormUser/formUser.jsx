@@ -106,15 +106,8 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
         confirmPass: '',
         photo:'https://img.freepik.com/vector-premium/negocios-economia-global_24877-41082.jpg'
       });
-
     }
-
-
   }, [user, mode]);
-
-
-
-
 
   const handlePasswordToggle = () => {
     setPasswordVisible(!passwordVisible);
@@ -182,7 +175,6 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     });
   };
 
-
   const handleEmailBlur = async () => {
     if (mode !== 'edit') {
       const emailExisting = await UsersService.getUserEmail(formData.email);
@@ -218,7 +210,6 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
     }
   }
 
-
   const getCurrentDateTime = () => {
     const now = new Date();
     const year = now.getFullYear();
@@ -230,7 +221,6 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -288,7 +278,6 @@ const FormUser = ({ showErrorAlert, onUpdate, user, mode, closeModal }) => {
       setMessageAlert(error.message);
     }
   };
-
 
   const handleCloseAlert = () => {
     setShowAlertError(false);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
-import logo from "../../assets/imagenes/logoBlanco.jpg";
+import logo from "../../assets/icons/agronovers_logo.png";
 import logoSena from "../../assets/imagenes/sena.jpg";
 import logoMin from "../../assets/imagenes/ciencia.png";
 import AccesUser from '../../services/authService';

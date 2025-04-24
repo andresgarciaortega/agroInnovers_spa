@@ -25,9 +25,10 @@ const Navbar = () => {
     const fetchUserData = async () => {
       const decodedToken = await getDecodedToken();
       if (decodedToken) {
+        console.log(decodedToken)
         setUsername(decodedToken.name);
         setEmailUser(decodedToken.email);
-        setLogoUser(decodedToken?.company.logo);
+        setLogoUser(decodedToken?.campaign.logo);
         setUserRoles(decodedToken.roles?.map(role => role.name) || []);
       }
     };

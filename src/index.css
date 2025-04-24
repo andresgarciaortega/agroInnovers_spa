@@ -145,3 +145,8 @@ textarea {
 .borderGeneral{
   height: 40px;
 }
+
+.logoDashboard{
+  width: 80%;
+  margin: 3em;
+}

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import logo from "../assets/imagenes/logo.jpeg";
+import logo from "../assets/icons/agronovers_logo.png";
 import { FaRegBuilding, FaTv, FaBars } from 'react-icons/fa';
 import { IoMdClose } from "react-icons/io";
 import { RxDashboard } from "react-icons/rx";
@@ -119,7 +119,7 @@ const Sidebar = ({ selectedItem, setSelectedItem, userRoles }) => {
   return (
     <nav className="w-full md:max-w-80 bg-[#345246] text-white flex flex-col h-full menucompleto">
       <div className="p-2 flex justify-center">
-        <img src={logo} alt="Logo" className="h-20" />
+        <img src={logo} alt="Logo" className="logoDashboard" />
       </div>
       <div className="flex-1 overflow-y-auto px-4">
         {menuItems.map((item, index) => (
