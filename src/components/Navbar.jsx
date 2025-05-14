@@ -11,7 +11,7 @@ const Navbar = () => {
   const [username, setUsername] = useState(null);
   const [emailUser, setEmailUser] = useState(null);
   const [logoUser, setLogoUser] = useState(null);
-  const [userRoles, setUserRoles] = useState([]);
+  const [userRoles, setUserRoles] = useState(JSON.parse(localStorage.getItem('rol')));
   const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar el modal
   const [modalMode, setModalMode] = useState('view'); // Estado para controlar el modo del modal
 
@@ -29,7 +29,7 @@ const Navbar = () => {
         setUsername(decodedToken.name);
         setEmailUser(decodedToken.email);
         setLogoUser(decodedToken?.campaign.logo);
-        setUserRoles(decodedToken.roles?.map(role => role.name) || []);
+        // setUserRoles(decodedToken.roles?.map(role => role.name) || []);
       }
     };
     fetchUserData();
@@ -78,7 +78,7 @@ const Navbar = () => {
   return (
     <div className="flex justify-between items-center p-6 px-8 contenedorNabvar ">
       <div className=" w-100 selectoraUniversal h-10">
-        {userRoles?.[0] === 'SUPER-ADMINISTRADOR' && <CompanySelector />}
+        {userRoles?.label === 'SUPER-ADMINISTRADOR' && <CompanySelector />}
       </div>
 
       <div className="flex w-80 items-center space-x-4 infosessionperfil ">
