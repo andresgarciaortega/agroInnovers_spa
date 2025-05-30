@@ -82,7 +82,7 @@
 
 
 
-const BASE_URL = 'https://agroinnovers-fdbf30f0b339.herokuapp.com';
+const BASE_URL = 'https://thawing-savannah-97348-4a29fb651eb8.herokuapp.com';
 const TIMEOUT = 5000;
 
 // 📌 Función para verificar conexión a Internet
