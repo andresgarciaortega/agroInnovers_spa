@@ -57,7 +57,6 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     const [viewMode, setViewMode] = useState('general');
 
     useEffect(() => {
-        console.log("lote", lote)
         if (lote) {
 
             setFormData({
@@ -230,7 +229,6 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     //         const reporteCreado = await ReporteService.createReporte(preparedData);
     //         const idReporte = reporteCreado.id; // Asumiendo que el servicio devuelve el ID
 
-    //         console.log(`Reporte creado con ID: ${idReporte}`);
 
     //         // 3. Obtener información completa del lote
     //         const loteInfo = await LoteService.getAllLotsById(lote.id);
@@ -282,7 +280,6 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
 
     //                 // Crear alerta si se exceden los límites
     //                 if (mensajeAlerta) {
-    //                     console.log(mensajeAlerta);
     //                     await ReporteService.createAlertReporte({
     //                         description: mensajeAlerta,
     //                         idReeporte: Number(idReporte)
@@ -292,7 +289,6 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     //         }
 
     //         setIsLoading(false);
-    //         console.log("✅ Proceso completado: Reporte creado y validaciones ejecutadas");
     //         onUpdate();
     //         closeModal();
     //     } catch (error) {
@@ -395,13 +391,10 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
     //             //     const actuatorActivationPort = control.actuator.activationPort;
     //             //     const actuatorUrl = `http://127.0.0.1:1880/request?id_c=${actuatorInputPort}&id_a=${actuatorActivationPort}&state=true`;
 
-    //             //     console.log(`🟠 Activando actuador para Lote: ${lotCode}`);
-    //             //     console.log("URL:", actuatorUrl);
 
     //             //     try {
     //             //         const actuatorResponse = await fetch(actuatorUrl);
     //             //         const actuatorData = await actuatorResponse.json();
-    //             //         console.log("📌 Respuesta API de actuador:", actuatorData);
     //             //     } catch (error) {
     //             //         console.error(`❌ Error al activar actuador para Lote ${lotCode} (ID: ${id})`, error);
     //             //     }
@@ -483,13 +476,9 @@ const FormSeguimiento = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             const actuatorActivationPort = control.actuator.activationPort;
             const actuatorUrl = `http://127.0.0.1:1880/request?id_c=${actuatorInputPort}&id_a=${actuatorActivationPort}&state=${state}`;
     
-            console.log(`🟠 ${state ? 'Activando' : 'Desactivando'} actuador para Lote: ${lotCode}`);
-            console.log("URL:", actuatorUrl);
-    
             try {
                 const actuatorResponse = await fetch(actuatorUrl);
                 const actuatorData = await actuatorResponse.json();
-                console.log("📌 Respuesta API de actuador:", actuatorData);
             } catch (error) {
                 console.error(`❌ Error al ${state ? 'activar' : 'desactivar'} actuador para Lote ${lotCode}`, error);
             }

@@ -201,7 +201,6 @@ const FormSensor = ({ selectedCompany, showErrorAlert, onUpdate, sensor, mode, c
 
       const code = formData.sensorCode;
       const company = JSON.parse(localStorage.getItem("selectedCompany"));
-      console.log(company)
       const sensorExisting = await TypeService.getSensorByIdCode(code, Number(company.value));
       if (sensorExisting.success) {
         setIsValidatingSensor(false);

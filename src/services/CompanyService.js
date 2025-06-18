@@ -109,7 +109,21 @@ const CompanyService = {
                 };
             }
         }
-    }
+    },
+
+
+        // 📌 LISTAR TODAS LAS COMPAÑÍAS
+        async getAllDataDashboard(company) {
+            try {
+                const response = await api.get('/dashboard/user?company_id='+company);
+                return response;
+            } catch (error) {
+                console.error('Error al obtener las compañías:', error);
+                throw error;
+            }
+        },
+
+
 };
 
 export default CompanyService;

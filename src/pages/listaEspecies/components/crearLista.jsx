@@ -428,9 +428,6 @@ const CrearListas = () => {
     };
 
 
-    console.log("🚀 Nuevo parámetro:", newParam)
-    console.log("🚀 selectedStageId:", selectedStageId)
-    
     // Actualizar el estado de `stages`
     setStages((prevStages) => {
       return prevStages.map((stage) => {
@@ -570,7 +567,6 @@ const CrearListas = () => {
         }))
       }));
 
-      console.log("datos de etapa ", updatedStages)
 
       const formDataToSubmit = {
         scientific_name: formData.scientificName,

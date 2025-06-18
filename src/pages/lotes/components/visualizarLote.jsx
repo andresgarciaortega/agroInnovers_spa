@@ -120,7 +120,6 @@ const VisualizarLote = () => {
 
             setIsLoadingTable(false);
             setSeguimiento(response || []);
-    console.log("reprtees valores ", response)
 
         } catch (error) {
             console.error("Error al cargar el seguimiento:", error);
@@ -344,7 +343,6 @@ const VisualizarLote = () => {
     };
 
     const handleOpenAlert = (alert) => {
-        console.log(alert.description)
         setMessageAlert(alert.description);
         setshowErrorAlerta(true)
     }

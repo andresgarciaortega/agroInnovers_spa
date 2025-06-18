@@ -28,7 +28,7 @@ const Navbar = () => {
         console.log(decodedToken)
         setUsername(decodedToken.name);
         setEmailUser(decodedToken.email);
-        setLogoUser(decodedToken?.campaign.logo);
+        setLogoUser(decodedToken?.company.logo);
         // setUserRoles(decodedToken.roles?.map(role => role.name) || []);
       }
     };

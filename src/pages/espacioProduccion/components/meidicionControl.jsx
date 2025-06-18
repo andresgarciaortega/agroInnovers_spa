@@ -24,10 +24,8 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control, variableId }
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
 
-    console.log("variableId : ", variableId)
     
     useEffect(() => {
-        console.log("modo : ", mode)
         const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : "";
         if (!companyId) {
             setLotesList([]);
@@ -135,8 +133,6 @@ const FormMedicion = ({ selectedVariableId, mode, onClose, control, variableId }
             if (mode === 'create') {
             } else if (mode === 'edit') {
                 setShowSuccessAlert("Editada");
-                console.log("datos de medicion : ", formDataToSubmit)
-                console.log("datos de medicion : ", control)
                 await EspacioService.updateControl(control.id, formDataToSubmit);
             }
             onClose();

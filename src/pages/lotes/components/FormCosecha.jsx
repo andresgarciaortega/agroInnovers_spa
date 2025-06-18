@@ -42,7 +42,6 @@ const FormCosechar = ({ lote, onUpdate, closeModal, showErrorAlert }) => {
             if (lote.productionSpace?.id) {
                 fetchEspacioDetalles(lote.productionSpace.id);
             }
-            console.log("especies cosechadas : ", lote)
             setLoteConEspecies(lote);
         }
         fetchEspacios();

@@ -92,7 +92,6 @@ const Especie = () => {
         setCategoryList([]);
         return;
       }else{
-        console.log('company name', company.label)
         setNameCompany(company.label);
       }
 

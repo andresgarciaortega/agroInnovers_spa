@@ -22,6 +22,7 @@ import { useCompanyContext } from "../../context/CompanyContext";
 import { useNavigate } from "react-router-dom";
 import TypeDocumentsService from "../../services/fetchTypes";
 import RegistrerTypeServices from "../../services/RegistrerType";
+import { getDecodedToken } from "../../utils/auseAuth";
 
 const Dashboard = () => {
   const [companyCount, setCompanyCount] = useState(0);
@@ -45,85 +46,131 @@ const Dashboard = () => {
   const { selectedCompanyUniversal, hiddenSelect } = useCompanyContext();
   const navigate = useNavigate();
 
+
   useEffect(() => {
-    hiddenSelect(false);
-  
-    const fetchData = async () => {
-      try {
-        const companies = await CompanyService.getAllCompany();
-        setCompanyCount(companies.length);
-        // localStorage.setItem('companies', JSON.stringify(companies)); // Guardar en localStorage
-  
-        const users = await UserService.getAllUser();
-        setOperarios(users.filter(user => user.roles.some(roles => roles.id === 3)).length);
-        setAdministrativos(users.filter(user => user.roles.some(rol => rol.id === 2)).length);
-        setSuperAdministrativos(users.filter(user => user.roles.some(rol => rol.id === 1)).length);
-        setUserCount(users.length);
-        // localStorage.setItem('users', JSON.stringify(users)); // Guardar en localStorage
-  
-        const variables = await variableService.getAllVariable();
-        setVariableCount(variables.length);
-        // localStorage.setItem('variables', JSON.stringify(variables)); // Guardar en localStorage
-  
-        const variableTypes = await VariableType.getAllTypeVariable();
-        setVariableTypeCount(variableTypes.length);
-        // localStorage.setItem('variableTypes', JSON.stringify(variableTypes)); // Guardar en localStorage
-  
-        const actuators = await ActuadorService.getAllActuador(0, {});
-        setActuatorCount(actuators.length);
-        // localStorage.setItem('actuators', JSON.stringify(actuators)); // Guardar en localStorage
-  
-        const actuatorsType = await TypeDispositivoService.getAllActuador(0, {});
-        setActuatorTypeCount(actuatorsType.length);
-        // localStorage.setItem('actuatorsType', JSON.stringify(actuatorsType)); // Guardar en localStorage
-  
-        const sensors = await SensorService.getAllSensor(0, {});
-        setSensorCount(sensors.length);
-        // localStorage.setItem('sensors', JSON.stringify(sensors)); // Guardar en localStorage
-  
-        const sensorsType = await TypeDispositivoService.getAllSensor(0, {});
-        setSensorTypeCount(sensorsType.length);
-        // localStorage.setItem('sensorsType', JSON.stringify(sensorsType)); // Guardar en localStorage
-  
-        const spaces = await espacios.getAllEspacio();
-        setSpaceCount(spaces.length);
-        // localStorage.setItem('spaces', JSON.stringify(spaces)); // Guardar en localStorage
-  
-        const spacesType = await tipoEspacio.getAlltipoEspacio();
-        setSpaceTypeCount(spacesType.length);
-        // localStorage.setItem('spacesType', JSON.stringify(spacesType)); // Guardar en localStorage
-  
-        const species = await SpeciesService.getAllSpecie(0, {});
-        setSpeciesCount(species.length);
-        // localStorage.setItem('species', JSON.stringify(species)); // Guardar en localStorage
-  
-        const categories = await CategoryService.getAllCategory(0, {});
-        setCategoryCount(categories.length);
-        // localStorage.setItem('categories', JSON.stringify(categories)); // Guardar en localStorage
-  
-        const lots = await lotesService.getAllLots();
-        setLotInProcessCount(lots.filter(lote => lote.status === 'Producción').length);
-        setHarvestedLotCount(lots.filter(lote => lote.status === 'Cosechado').length);
-        setRejectedLotCount(lots.filter(lote => lote.status === 'Rechazado').length);
-        // localStorage.setItem('lots', JSON.stringify(lots)); // Guardar en localStorage
-  
-        const typeDocuments = await TypeDocumentsService.getAllTypeDocuments();
-        const typeRegisters = await RegistrerTypeServices.getAllRegistrerType();
-        const roles = await TypeDocumentsService.getAllTypeUsers();
-      } catch (error) {
-        console.error('Error fetching data:', error);
+    const fetchUserData = async () => {
+      const decodedToken = await getDecodedToken();
+      if (decodedToken) {
+        if (decodedToken?.roles[0].name == 'SUPER-ADMINISTRADOR') {
+          hiddenSelect(false);
+          fetchData();
+        } else {
+          const dataDashboard = await CompanyService.getAllDataDashboard(decodedToken?.company.id);
+          console.log("dataDashboard", decodedToken)
+          loadCompanyDashboardData(dataDashboard);
+        }
       }
     };
-  
-    fetchData();
+    fetchUserData();
   }, []);
+
+
+  const fetchData = async () => {
+    try {
+
+      const companies = await CompanyService.getAllCompany();
+      setCompanyCount(companies.length);
+      // localStorage.setItem('companies', JSON.stringify(companies)); // Guardar en localStorage
+
+      const users = await UserService.getAllUser();
+      setOperarios(users.filter(user => user.roles.some(roles => roles.id === 3)).length);
+      setAdministrativos(users.filter(user => user.roles.some(rol => rol.id === 2)).length);
+      setSuperAdministrativos(users.filter(user => user.roles.some(rol => rol.id === 1)).length);
+      setUserCount(users.length);
+      // localStorage.setItem('users', JSON.stringify(users)); // Guardar en localStorage
+
+      const variables = await variableService.getAllVariable();
+      setVariableCount(variables.length);
+      // localStorage.setItem('variables', JSON.stringify(variables)); // Guardar en localStorage
+
+      const variableTypes = await VariableType.getAllTypeVariable();
+      setVariableTypeCount(variableTypes.length);
+      // localStorage.setItem('variableTypes', JSON.stringify(variableTypes)); // Guardar en localStorage
+
+      const actuators = await ActuadorService.getAllActuador(0, {});
+      setActuatorCount(actuators.length);
+      // localStorage.setItem('actuators', JSON.stringify(actuators)); // Guardar en localStorage
+
+      const actuatorsType = await TypeDispositivoService.getAllActuador(0, {});
+      setActuatorTypeCount(actuatorsType.length);
+      // localStorage.setItem('actuatorsType', JSON.stringify(actuatorsType)); // Guardar en localStorage
+
+      const sensors = await SensorService.getAllSensor(0, {});
+      setSensorCount(sensors.length);
+      // localStorage.setItem('sensors', JSON.stringify(sensors)); // Guardar en localStorage
+
+      const sensorsType = await TypeDispositivoService.getAllSensor(0, {});
+      setSensorTypeCount(sensorsType.length);
+      // localStorage.setItem('sensorsType', JSON.stringify(sensorsType)); // Guardar en localStorage
+
+      const spaces = await espacios.getAllEspacio();
+      setSpaceCount(spaces.length);
+      // localStorage.setItem('spaces', JSON.stringify(spaces)); // Guardar en localStorage
+
+      const spacesType = await tipoEspacio.getAlltipoEspacio();
+      setSpaceTypeCount(spacesType.length);
+      // localStorage.setItem('spacesType', JSON.stringify(spacesType)); // Guardar en localStorage
+
+      const species = await SpeciesService.getAllSpecie(0, {});
+      setSpeciesCount(species.length);
+      // localStorage.setItem('species', JSON.stringify(species)); // Guardar en localStorage
+
+      const categories = await CategoryService.getAllCategory(0, {});
+      setCategoryCount(categories.length);
+      // localStorage.setItem('categories', JSON.stringify(categories)); // Guardar en localStorage
+
+      const lots = await lotesService.getAllLots();
+      setLotInProcessCount(lots.filter(lote => lote.status === 'Producción').length);
+      setHarvestedLotCount(lots.filter(lote => lote.status === 'Cosechado').length);
+      setRejectedLotCount(lots.filter(lote => lote.status === 'Rechazado').length);
+      // localStorage.setItem('lots', JSON.stringify(lots)); // Guardar en localStorage
+
+      const typeDocuments = await TypeDocumentsService.getAllTypeDocuments();
+      const typeRegisters = await RegistrerTypeServices.getAllRegistrerType();
+      const roles = await TypeDocumentsService.getAllTypeUsers();
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const loadCompanyDashboardData = (dataDashboard) => {
+    console.log("Datos recibidos del dashboard:", dataDashboard);
+    
+    // Actualizar contadores de roles (ajustar a los nombres de la API)
+    setSuperAdministrativos(dataDashboard.superAdminCount || 0);
+    setAdministrativos(dataDashboard.adminCount || 0);
+    setOperarios(dataDashboard.operatorCount || 0);
+  
+    // Resto de los datos
+    setCompanyCount(dataDashboard.totalCompanies || 0);
+    setUserCount(
+      (dataDashboard.superAdminCount || 0) + 
+      (dataDashboard.adminCount || 0) + 
+      (dataDashboard.operatorCount || 0)
+    );
+    setVariableTypeCount(dataDashboard.totalTypeVariables || 0);
+    setVariableCount(dataDashboard.totalVariables || 0);
+    setSensorTypeCount(dataDashboard.totalSensorTypes || 0);
+    setSensorCount(dataDashboard.totalSensors || 0);
+    setActuatorTypeCount(dataDashboard.totalActuatorTypes || 0);
+    setActuatorCount(dataDashboard.totalActuators || 0);
+    setSpeciesCount(dataDashboard.totalSpecies || 0);
+    setCategoryCount(dataDashboard.totalCategorySpecies || 0);
+    setSpaceTypeCount(dataDashboard.totalProductionSpaceTypes || 0);
+    setSpaceCount(dataDashboard.totalProductionSpaces || 0);
+    
+    // Si necesitas los lotes, descomenta estas líneas cuando la API los incluya
+    // setLotInProcessCount(dataDashboard.totalLotsInProcess || 0);
+    // setHarvestedLotCount(dataDashboard.totalLotsHarvested || 0);
+    // setRejectedLotCount(dataDashboard.totalLotsRejected || 0);
+  };
 
 
   const dashboardItems = [
     {
       title: "Empresas",
       icon: FaRegBuilding,
-       route: "/home/empresa",
+      route: "/home/empresa",
       items: [{ label: "Empresas registradas", count: companyCount }],
     },
     {
@@ -150,30 +197,30 @@ const Dashboard = () => {
     {
       title: "Dispositivos",
       icon: Cpu,
-       route: "/home/tipos",
+      route: "/home/tipos",
       items: [
-        { label: "Tipo de Actuadores", count: actuatorTypeCount,  route: "/home/tipos" },
-        { label: "Actuadores", count: actuatorCount , route: "/home/actuador" },
-        { label: "Tipo de Sensores", count: sensorTypeCount , route: "/home/tipos" },
-        { label: "Sensores", count: sensorCount , route: "/home/sensor" },
+        { label: "Tipo de Actuadores", count: actuatorTypeCount, route: "/home/tipos" },
+        { label: "Actuadores", count: actuatorCount, route: "/home/actuador" },
+        { label: "Tipo de Sensores", count: sensorTypeCount, route: "/home/tipos" },
+        { label: "Sensores", count: sensorCount, route: "/home/sensor" },
       ],
     },
     {
       title: "Espacios de producción",
       icon: BsBox,
-       route: "/home/espacio",
+      route: "/home/espacio",
       items: [
-        { label: "Tipo de Espacios de producción ", count: spaceTypeCount , route: "/home/tipoEspacio"},
-        { label: "Espacios de producción registrados", count: spaceCount,  route: "/home/espacio" },
+        { label: "Tipo de Espacios de producción ", count: spaceTypeCount, route: "/home/tipoEspacio" },
+        { label: "Espacios de producción registrados", count: spaceCount, route: "/home/espacio" },
       ],
     },
     {
       title: "Especies",
       icon: GlobeAsiaAustraliaIcon,
-      route: "/home/especies", 
+      route: "/home/especies",
       items: [
-        { label: "Categorías de especie", count: categoryCount  ,  route: "/home/listaEspecie"},
-        { label: "Especies", count: speciesCount  , route: "/home/especies" },
+        { label: "Categorías de especie", count: categoryCount, route: "/home/listaEspecie" },
+        { label: "Especies", count: speciesCount, route: "/home/especies" },
       ],
     },
     {
@@ -239,6 +286,7 @@ const Dashboard = () => {
 
     </div>
   );
+
 };
 
 export default Dashboard;

@@ -149,7 +149,6 @@ const Monitoreo = () => {
     try {
       setSelectedDevice(null);
       const data = await SystemMonitory.deleteMonitories(selectedDevice.id);
-      console.log("eliminacion : ", data)
       if (data.success) {
         // Si la eliminación fue exitosa
         setIsLoading(false)

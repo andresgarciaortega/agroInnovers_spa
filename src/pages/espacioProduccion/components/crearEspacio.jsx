@@ -281,7 +281,6 @@ const CrearEspacio = () => {
         const companyId = selectedCompanyUniversal ? selectedCompanyUniversal.value : '';
 
         const data = await SpeciesService.getAllSpecie(companyId, {});
-        console.log("especies de la empresa : ",)
         setTipoEspecies(data);
       } catch (error) {
         console.error('Error fetching species:', error);
