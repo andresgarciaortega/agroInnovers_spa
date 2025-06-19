@@ -47,6 +47,9 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
 
+  const [roles, setRole] = useState("");
+
+
   useEffect(() => {
     const fetchUserData = async () => {
       const decodedToken = await getDecodedToken();
@@ -58,6 +61,7 @@ const Dashboard = () => {
           const dataDashboard = await CompanyService.getAllDataDashboard(decodedToken?.company.id);
           console.log("dataDashboard", decodedToken)
           loadCompanyDashboardData(dataDashboard);
+          setRole(decodedToken?.roles[0].name); // Solo guarda el nombre
         }
       }
     };
@@ -133,6 +137,10 @@ const Dashboard = () => {
     }
   };
 
+  const [sistemasfisicos, setSistemasFisicos] = useState(0)
+  const [sistemasVirtuales, setSistemasVirtuales] = useState(0)
+
+
   const loadCompanyDashboardData = (dataDashboard) => {
     console.log("Datos recibidos del dashboard:", dataDashboard);
     
@@ -159,10 +167,14 @@ const Dashboard = () => {
     setSpaceTypeCount(dataDashboard.totalProductionSpaceTypes || 0);
     setSpaceCount(dataDashboard.totalProductionSpaces || 0);
     
+    setSistemasVirtuales(dataDashboard.totlaVirtualSistemContMont || 0);
+    setSistemasFisicos(dataDashboard.totlaPhysicalSistemContMont   || 0);
+
     // Si necesitas los lotes, descomenta estas líneas cuando la API los incluya
     // setLotInProcessCount(dataDashboard.totalLotsInProcess || 0);
     // setHarvestedLotCount(dataDashboard.totalLotsHarvested || 0);
     // setRejectedLotCount(dataDashboard.totalLotsRejected || 0);
+
   };
 
 
@@ -172,6 +184,7 @@ const Dashboard = () => {
       icon: FaRegBuilding,
       route: "/home/empresa",
       items: [{ label: "Empresas registradas", count: companyCount }],
+      hidden: roles !== 'SUPER-ADMINISTRADOR',
     },
     {
       title: "Usuarios",
@@ -180,10 +193,7 @@ const Dashboard = () => {
       items: [{ label: "Super administradores", count: superAdministrativos },
       { label: "Administrativos de cuenta empresarial", count: administrativos },
       { label: "Usuarios de operación", count: operarios }
-
-
       ],
-
     },
     {
       title: "Variables",
@@ -192,6 +202,15 @@ const Dashboard = () => {
       items: [
         { label: "Tipos de variables", count: variableTypeCount, route: "/home/tipoVariables" },
         { label: "Variables", count: variableCount, route: "/home/variables", },
+      ],
+    },
+    {
+      title: "Sistemas de Monitoreos",
+      icon: ImEqualizer2,
+      route: "/home/variables",
+      items: [
+        { label: "Sistemas físicos", count: sistemasfisicos, route: "/home/tipoVariables" },
+        { label: "Sistemas virtuales", count: sistemasVirtuales, route: "/home/variables", },
       ],
     },
     {
@@ -239,7 +258,7 @@ const Dashboard = () => {
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">Portal de Super administrador</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {dashboardItems.map((item, index) => {
+        {dashboardItems.filter(item => !item.hidden).map((item, index) => {
           const Icon = item.icon;
           return (
             <div
